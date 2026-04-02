@@ -1,11 +1,10 @@
 generator client {
-  provider      = "prisma-client-js"
-  binaryTargets = ["native", "rhel-openssl-3.0.x"]
+  provider = "prisma-client"
+  output   = "../generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 model User {
@@ -39,8 +38,9 @@ model Guild {
   guildId String @id
 
   // Configuration
-  counting GuildCounting? @relation("GuildCounting")
-  birthday GuildBirthday? @relation("GuildBirthday")
+  counting          GuildCounting?     @relation("GuildCounting")
+  birthday          GuildBirthday?     @relation("GuildBirthday")
+  reactionRoleMenus ReactionRoleMenu[]
 
   // Timestamps
   createdAt DateTime @default(now())
@@ -88,4 +88,43 @@ model GuildCounting {
 
   // Indexes
   @@index([channelId])
+}
+
+model ReactionRoleMenu {
+  id String @id @default(cuid())
+
+  // Configuration
+  channelId String
+  messageId String
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relation
+  guildId String
+  guild   Guild?         @relation(fields: [guildId], references: [guildId])
+  roles   ReactionRole[]
+
+  // Indexes
+  @@index([guildId])
+}
+
+model ReactionRole {
+  id String @id @default(cuid())
+
+  // Configuration
+  emoji  String
+  roleId String
+
+  // Relation
+  menuId   String
+  roleMenu ReactionRoleMenu @relation(fields: [menuId], references: [id], onDelete: Cascade)
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Indexes
+  @@index([menuId])
 }
