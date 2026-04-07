@@ -20,7 +20,7 @@ model User {
 
 model UserBirthday {
   userId String @id
-  User   User   @relation("UserBirthday", fields: [userId], references: [userId])
+  User   User   @relation("UserBirthday", fields: [userId], references: [userId], onDelete: Cascade)
 
   // Configuration
   date                      DateTime
@@ -49,7 +49,7 @@ model Guild {
 
 model GuildBirthday {
   guildId String @id
-  guild   Guild  @relation("GuildBirthday", fields: [guildId], references: [guildId])
+  guild   Guild  @relation("GuildBirthday", fields: [guildId], references: [guildId], onDelete: Cascade)
 
   // Configuration
   channelId String
@@ -64,7 +64,7 @@ model GuildBirthday {
 
 model GuildCounting {
   guildId String @id
-  Guild   Guild  @relation("GuildCounting", fields: [guildId], references: [guildId])
+  Guild   Guild  @relation("GuildCounting", fields: [guildId], references: [guildId], onDelete: Cascade)
 
   // Configuration
   resetOnFail Boolean @default(false)
@@ -103,7 +103,7 @@ model ReactionRoleMenu {
 
   // Relation
   guildId String
-  guild   Guild?         @relation(fields: [guildId], references: [guildId])
+  guild   Guild?         @relation(fields: [guildId], references: [guildId], onDelete: Cascade)
   roles   ReactionRole[]
 
   // Indexes
