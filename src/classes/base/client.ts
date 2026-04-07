@@ -1,5 +1,6 @@
 import { ApplicationCommandType, Client, Collection } from 'discord.js';
 
+import type { Button } from './button';
 import type { Command } from './command';
 
 /**
@@ -12,6 +13,12 @@ export class ExtendedClient extends Client {
    * Collection<commandName, Command<ApplicationCommandType>>
    */
   commands = new Collection<string, Command<ApplicationCommandType>>();
+
+  /**
+   * A collection of buttons that the client can handle.
+   * Collection<customId, Button>
+   */
+  buttons = new Collection<string, Button>();
 
   /**
    * This collection is used to keep track of cooldowns.
