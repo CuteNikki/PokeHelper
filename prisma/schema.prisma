@@ -94,8 +94,11 @@ model ReactionRoleMenu {
   id String @id @default(cuid())
 
   // Configuration
-  channelId String
-  messageId String
+  channelId       String
+  messageId       String
+  enabled         Boolean  @default(true)
+  singleChoice    Boolean  @default(false)
+  requiredRoleIds String[] @default([])
 
   // Timestamps
   createdAt DateTime @default(now())
