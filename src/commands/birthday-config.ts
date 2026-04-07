@@ -6,6 +6,7 @@ import {
   ContainerBuilder,
   InteractionContextType,
   MessageFlags,
+  PermissionFlagsBits,
   SlashCommandBuilder,
   TextDisplayBuilder,
 } from 'discord.js';
@@ -18,6 +19,7 @@ export default new Command({
   data: new SlashCommandBuilder()
     .setContexts(InteractionContextType.Guild)
     .setIntegrationTypes(ApplicationIntegrationType.GuildInstall)
+    .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
     .setName('birthday-configuration')
     .setDescription('Manage the birthday configuration for this server.')
     .addSubcommand((cmd) =>
