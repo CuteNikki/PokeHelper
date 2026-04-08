@@ -1,6 +1,6 @@
-import type { GuildBirthday, UserBirthday } from '@prisma/client';
+import { prisma } from 'database/index';
 
-import { prisma } from '.';
+import type { GuildBirthday, UserBirthday } from 'generated/prisma/client';
 
 export const getGuildBirthdayConfiguration = async (guildId: string) =>
   prisma.guildBirthday.findUnique({
@@ -12,7 +12,7 @@ export const createGuildBirthdayConfiguration = async (guildId: string, channelI
     data: { guildId, channelId },
   });
 
-export const updateGuildBirthdayConfiguration = async (guildId: string, query: Partial<Omit<GuildBirthday, 'guildId'>> ) =>
+export const updateGuildBirthdayConfiguration = async (guildId: string, query: Partial<Omit<GuildBirthday, 'guildId'>>) =>
   prisma.guildBirthday.update({
     where: { guildId },
     data: query,
@@ -28,13 +28,7 @@ export const getUserBirthday = async (userId: string) =>
     where: { userId },
   });
 
-export const createUserBirthday = async (
-  userId: string,
-  date: Date,
-  timezone: string,
-  showAge: boolean = false,
-  announceInGuildsByDefault: boolean = true,
-) =>
+export const createUserBirthday = async (userId: string, date: Date, timezone: string, showAge: boolean = false, announceInGuildsByDefault: boolean = true) =>
   prisma.userBirthday.create({
     data: { userId, date, timezone, showAge, announceInGuildsByDefault },
   });
