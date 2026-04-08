@@ -20,7 +20,7 @@ export default new Command({
     .setContexts(InteractionContextType.Guild)
     .setIntegrationTypes(ApplicationIntegrationType.GuildInstall)
     .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
-    .setName('birthday-configuration')
+    .setName('birthday-announcement')
     .setDescription('Manage the birthday configuration for this server.')
     .addSubcommand((cmd) =>
       cmd
