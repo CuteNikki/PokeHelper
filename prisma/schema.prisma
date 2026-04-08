@@ -10,8 +10,9 @@ datasource db {
 model User {
   userId String @id
 
-  // Configuration
-  birthday UserBirthday? @relation("UserBirthday")
+  // Configuration and state
+  birthday UserBirthday?  @relation("UserBirthday")
+  leveling UserLeveling[]
 
   // Timestamps
   createdAt DateTime @default(now())
@@ -40,7 +41,9 @@ model Guild {
   // Configuration
   counting          GuildCounting?     @relation("GuildCounting")
   birthday          GuildBirthday?     @relation("GuildBirthday")
+  leveling          GuildLeveling?     @relation("GuildLeveling")
   reactionRoleMenus ReactionRoleMenu[]
+  userLeveling      UserLeveling[]
 
   // Timestamps
   createdAt DateTime @default(now())
@@ -130,4 +133,57 @@ model ReactionRole {
 
   // Indexes
   @@index([menuId])
+}
+
+model GuildLeveling {
+  guildId String @id
+  guild   Guild  @relation("GuildLeveling", fields: [guildId], references: [guildId], onDelete: Cascade)
+
+  // Configuration
+  enabled   Boolean               @default(false)
+  channelId String?
+  rewards   GuildLevelingReward[]
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Indexes
+  @@index([channelId])
+}
+
+model GuildLevelingReward {
+  id String @id @default(cuid())
+
+  // Configuration
+  level  Int
+  roleId String
+
+  // Relation
+  guildId       String
+  guildLeveling GuildLeveling @relation(fields: [guildId], references: [guildId], onDelete: Cascade)
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Indexes
+  @@index([guildId])
+}
+
+model UserLeveling {
+  // State
+  xp Int @default(0)
+
+  // Relation
+  userId  String
+  user    User   @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  guildId String
+  guild   Guild  @relation(fields: [guildId], references: [guildId], onDelete: Cascade)
+
+  // Timestamps
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+
+  @@id([guildId, userId])
 }
