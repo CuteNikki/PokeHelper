@@ -55,13 +55,15 @@ export default new Command({
       cmd
         .setName('info')
         .setDescription('Get information about the reaction role configuration.')
-        .addStringOption((option) => option.setName('menu-id').setDescription('The ID of the reaction role menu.').setRequired(false)),
+        .addStringOption((option) => option.setName('menu-id').setDescription('The ID of the reaction role menu.').setAutocomplete(true).setRequired(false)),
     )
     .addSubcommand((cmd) =>
       cmd
         .setName('re-send')
         .setDescription('Re-send a reaction role menu message to a channel. Use if the message was deleted or lost.')
-        .addStringOption((option) => option.setName('menu-id').setDescription('The ID of the reaction role menu to re-send.').setRequired(true))
+        .addStringOption((option) =>
+          option.setName('menu-id').setDescription('The ID of the reaction role menu to re-send.').setAutocomplete(true).setRequired(true),
+        )
         .addChannelOption((option) =>
           option
             .setName('target-channel')
@@ -75,7 +77,11 @@ export default new Command({
         .setName('toggle')
         .setDescription('Toggle the reaction role menu on or off. When off, message will remain but not function.')
         .addStringOption((option) =>
-          option.setName('menu-id').setDescription('The ID of the reaction role menu to toggle (or all if left empty).').setRequired(false),
+          option
+            .setName('menu-id')
+            .setDescription('The ID of the reaction role menu to toggle (or all if left empty).')
+            .setAutocomplete(true)
+            .setRequired(false),
         )
         .addBooleanOption((option) =>
           option
@@ -88,8 +94,32 @@ export default new Command({
       cmd
         .setName('delete')
         .setDescription('Delete the reaction role configuration for this server.')
-        .addStringOption((option) => option.setName('menu-id').setDescription('The ID of the reaction role menu to delete.').setRequired(true)),
+        .addStringOption((option) =>
+          option.setName('menu-id').setDescription('The ID of the reaction role menu to delete.').setAutocomplete(true).setRequired(true),
+        ),
     ),
+  async autocomplete(interaction) {
+    if (!interaction.inCachedGuild()) return;
+
+    const focusedOption = interaction.options.getFocused(true);
+
+    if (focusedOption.name === 'menu-id') {
+      const menus = await getAllReactionRoleMenusForGuild(interaction.guildId);
+      const choices = menus.map((menu) => {
+        const channelName = interaction.guild?.channels.cache.get(menu.channelId)?.name || 'unknown-channel';
+        const displayChannelName = channelName.length > 20 ? `${channelName.slice(0, 20)}...` : channelName;
+
+        return {
+          name: `Menu in #${displayChannelName} - ${menu.roles.length}/20 roles - ID: ${menu.id}`,
+          value: menu.id,
+        };
+      });
+
+      const filtered = choices.filter((choice) => choice.name.toLowerCase().includes(focusedOption.value.toLowerCase()));
+      await interaction.respond(filtered.slice(0, 25));
+    }
+  },
+
   async execute(interaction) {
     if (!interaction.inCachedGuild()) {
       return interaction.reply({ content: 'This command can only be used in a server.', flags: [MessageFlags.Ephemeral] });
