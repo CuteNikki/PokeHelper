@@ -48,7 +48,7 @@ export default new Command({
   data: new SlashCommandBuilder()
     .setContexts(InteractionContextType.Guild)
     .setIntegrationTypes(ApplicationIntegrationType.GuildInstall)
-    .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
+    .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild)
     .setName('reaction-role')
     .setDescription('Manage the reaction role menus for this server.')
     .addSubcommand((cmd) => cmd.setName('setup').setDescription('Set up a reaction role menu.'))

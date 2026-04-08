@@ -7,7 +7,7 @@ import { deleteReactionRoleMenuConfiguration, getReactionRoleMenuConfiguration }
 export default new Button({
   customId: 'rr_del',
   includesCustomId: true,
-  permissions: ['Administrator'],
+  permissions: ['ManageGuild'],
   async execute(interaction) {
     await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
 

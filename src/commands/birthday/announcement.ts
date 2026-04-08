@@ -19,7 +19,7 @@ export default new Command({
   data: new SlashCommandBuilder()
     .setContexts(InteractionContextType.Guild)
     .setIntegrationTypes(ApplicationIntegrationType.GuildInstall)
-    .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
+    .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild)
     .setName('birthday-announcement')
     .setDescription('Manage the birthday configuration for this server.')
     .addSubcommand((cmd) =>

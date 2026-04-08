@@ -27,7 +27,7 @@ export default new Command({
   data: new SlashCommandBuilder()
     .setContexts(InteractionContextType.Guild)
     .setIntegrationTypes(ApplicationIntegrationType.GuildInstall)
-    .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
+    .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild)
     .setName('leveling')
     .setDescription('Manage the leveling system for this server.')
     .addSubcommand((cmd) => cmd.setName('info').setDescription('Get information about the current leveling configuration.'))
