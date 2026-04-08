@@ -13,7 +13,12 @@ import {
 
 import { Command } from 'classes/base/command';
 
-import { createGuildBirthdayConfiguration, deleteGuildBirthdayConfiguration, getGuildBirthdayConfiguration } from 'database/birthday';
+import {
+  createGuildBirthdayConfiguration,
+  deleteGuildBirthdayConfiguration,
+  getGuildBirthdayConfiguration,
+  updateGuildBirthdayConfiguration,
+} from 'database/birthday';
 
 export default new Command({
   data: new SlashCommandBuilder()
@@ -181,7 +186,7 @@ async function handleEdit(interaction: ChatInputCommandInteraction<'cached'>) {
     });
   }
 
-  await createGuildBirthdayConfiguration(interaction.guildId, channel.id);
+  await updateGuildBirthdayConfiguration(interaction.guildId, { channelId: channel.id });
 
   return interaction.editReply({
     components: [
