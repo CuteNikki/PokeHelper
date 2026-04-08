@@ -7,9 +7,9 @@ export const getGuildBirthdayConfiguration = async (guildId: string) =>
     where: { guildId },
   });
 
-export const createGuildBirthdayConfiguration = async (guildId: string, channelId: string) =>
+export const createGuildBirthdayConfiguration = async (guildId: string, channelId: string, roleId?: string) =>
   prisma.guildBirthday.create({
-    data: { guildId, channelId },
+    data: { guildId, channelId, roleId },
   });
 
 export const updateGuildBirthdayConfiguration = async (guildId: string, query: Partial<Omit<GuildBirthday, 'guildId'>>) =>

@@ -55,7 +55,9 @@ model GuildBirthday {
   guild   Guild  @relation("GuildBirthday", fields: [guildId], references: [guildId], onDelete: Cascade)
 
   // Configuration
-  channelId String
+  enabled   Boolean @default(false)
+  channelId String?
+  roleId    String?
 
   // Timestamps
   createdAt DateTime @default(now())
