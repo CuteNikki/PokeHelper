@@ -4,6 +4,7 @@ import { ExtendedClient } from 'classes/base/client';
 
 import { prisma } from 'database/index';
 
+import { startBirthdayCron } from 'utility/birthday';
 import { loadButtons } from 'utility/buttons';
 import { loadCommands } from 'utility/commands';
 import { loadEvents } from 'utility/events';
@@ -19,6 +20,7 @@ await Promise.all([
   measure('Events loaded', () => loadEvents(client)),
   measure('Commands loaded', () => loadCommands(client)),
   measure('Buttons loaded', () => loadButtons(client)),
+  startBirthdayCron(client),
 ]);
 
 await client.login(process.env.DISCORD_TOKEN);
