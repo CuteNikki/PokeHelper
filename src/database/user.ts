@@ -1,8 +1,6 @@
-import type { User } from '@prisma/client';
-
 import { prisma } from 'database/index';
 
-export const getOrCreateUser = async (userId: string): Promise<User> =>
+export const getUserData = async (userId: string) =>
   await prisma.user.upsert({
     where: { userId },
     update: {},

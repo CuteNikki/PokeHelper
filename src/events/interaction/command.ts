@@ -3,7 +3,7 @@ import { Collection, Colors, ContainerBuilder, Events, MessageFlags, TextDisplay
 import { Event } from 'classes/base/event';
 
 import { getGuildOrCreate } from 'database/guild';
-import { getOrCreateUser } from 'database/user';
+import { getUserData } from 'database/user';
 
 export default new Event({
   name: Events.InteractionCreate,
@@ -20,7 +20,7 @@ export default new Event({
     }
 
     // Ensure the user is in the database
-    await getOrCreateUser(interaction.user.id);
+    await getUserData(interaction.user.id);
 
     // Ensure the guild is in the database
     if (interaction.inGuild()) {

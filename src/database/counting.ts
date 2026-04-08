@@ -5,9 +5,8 @@ import { prisma } from 'database/index';
 /**
  * Get the counting configuration for a guild.
  * @param guildId {string} The ID of the guild to retrieve the counting configuration for.
- * @returns {Promise<Counting | null>} The counting configuration if found, otherwise null.
  */
-export const getCounting = async (guildId: string): Promise<GuildCounting | null> =>
+export const getCounting = async (guildId: string) =>
   prisma.guildCounting.findUnique({
     where: { guildId },
   });
@@ -17,10 +16,8 @@ export const getCounting = async (guildId: string): Promise<GuildCounting | null
  * @param guildId {string} The ID of the guild to create the counting configuration for.
  * @param channelId {string} The ID of the channel where counting will take place.
  * @param resetOnFail {boolean} Whether to reset the count if the counting fails. Defaults to false.
- * @returns {Promise<Counting>} The created counting configuration.
- * @throws {Error} If the counting configuration could not be created.
  */
-export const createCounting = async (guildId: string, channelId: string, resetOnFail: boolean = false): Promise<GuildCounting> =>
+export const createCounting = async (guildId: string, channelId: string, resetOnFail: boolean = false) =>
   prisma.guildCounting.create({
     data: { guildId, channelId, resetOnFail },
   });
@@ -29,10 +26,8 @@ export const createCounting = async (guildId: string, channelId: string, resetOn
  * Update the counting configuration for a guild.
  * @param guildId {string} The ID of the guild to update the counting configuration for.
  * @param query {Partial<Omit<Counting, 'guildId'>>} The fields to update in the counting configuration.
- * @returns {Promise<Counting>} The updated counting configuration.
- * @throws {Error} If the counting configuration could not be updated.
  */
-export const updateCounting = async (guildId: string, query: Partial<Omit<GuildCounting, 'guildId'>>): Promise<GuildCounting> =>
+export const updateCounting = async (guildId: string, query: Partial<Omit<GuildCounting, 'guildId'>>) =>
   prisma.guildCounting.update({
     where: { guildId },
     data: query,
@@ -41,10 +36,8 @@ export const updateCounting = async (guildId: string, query: Partial<Omit<GuildC
 /**
  * Reset the counting configuration for a guild.
  * @param guildId {string} The ID of the guild to reset the counting configuration for.
- * @returns {Promise<Counting>} The updated counting configuration with current count reset.
- * @throws {Error} If the counting configuration could not be reset.
  */
-export const resetCounting = async (guildId: string): Promise<GuildCounting> =>
+export const resetCounting = async (guildId: string) =>
   prisma.guildCounting.delete({
     where: { guildId },
   });
@@ -52,10 +45,8 @@ export const resetCounting = async (guildId: string): Promise<GuildCounting> =>
 /**
  * Reset the current counting number for a guild without deleting the configuration.
  * @param guildId {string} The ID of the guild to reset the current counting number for.
- * @returns {Promise<Counting>} The updated counting configuration with current number reset.
- * @throws {Error} If the counting configuration could not be updated.
  */
-export const resetCountingCount = async (guildId: string): Promise<GuildCounting> =>
+export const resetCountingCount = async (guildId: string) =>
   prisma.guildCounting.update({
     where: { guildId },
     data: { lastNumber: 0, lastNumberAt: null, lastNumberByUserId: null, lastNumberMessageId: null },
@@ -66,10 +57,8 @@ export const resetCountingCount = async (guildId: string): Promise<GuildCounting
  * @param guildId {string} The ID of the guild to increment the counting number for.
  * @param userId {string} The ID of the user who is incrementing the count.
  * @param messageId {string} The ID of the message that triggered the increment.
- * @returns {Promise<Counting>} The updated counting configuration with the incremented count.
- * @throws {Error} If the counting configuration could not be updated or if it does not exist.
  */
-export const incrementCountingCount = async (guildId: string, userId: string, messageId: string): Promise<GuildCounting> => {
+export const incrementCountingCount = async (guildId: string, userId: string, messageId: string) => {
   const currentCounting = await getCounting(guildId);
 
   if (!currentCounting) {
