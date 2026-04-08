@@ -3,6 +3,7 @@ import {
   ApplicationIntegrationType,
   ButtonBuilder,
   ButtonStyle,
+  channelMention,
   ChannelSelectMenuBuilder,
   ChannelType,
   ChatInputCommandInteraction,
@@ -33,6 +34,7 @@ import {
   getReactionRoleMenuConfiguration,
   updateReactionRoleMenuConfiguration,
 } from 'database/reaction-role';
+import { t } from 'i18next';
 
 interface SetupState {
   step: 'MODE' | 'REQUIRED_ROLES' | 'CHANNEL' | 'MENU_ROLES' | 'EMOJI_PAIRING' | 'CONFIRM';
@@ -107,11 +109,17 @@ export default new Command({
     if (focusedOption.name === 'menu-id') {
       const menus = await getAllReactionRoleMenusForGuild(interaction.guildId);
       const choices = menus.map((menu) => {
-        const channelName = interaction.guild?.channels.cache.get(menu.channelId)?.name || 'unknown-channel';
+        const channelName = interaction.guild?.channels.cache.get(menu.channelId)?.name || '???';
         const displayChannelName = channelName.length > 20 ? `${channelName.slice(0, 20)}...` : channelName;
 
         return {
-          name: `Menu in #${displayChannelName} - ${menu.roles.length}/20 roles - ID: ${menu.id}`,
+          name: t('reactionRole.info.selectItem', {
+            channel: displayChannelName,
+            roles: menu.roles.length,
+            total: 20,
+            id: menu.id,
+          }),
+
           value: menu.id,
         };
       });
@@ -428,7 +436,7 @@ async function handleInfo(interaction: ChatInputCommandInteraction<'cached'>) {
   if (providedMenuId) {
     const targetMenu = menus.find((m) => m.id === providedMenuId);
     if (!targetMenu) {
-      return interaction.editReply('Could not find a reaction role menu with the provided ID.');
+      return interaction.editReply(t('reactionRole.info.notFound'));
     }
     return interaction.editReply({
       components: [generateMenuDetails(targetMenu).toJSON()],
@@ -436,26 +444,36 @@ async function handleInfo(interaction: ChatInputCommandInteraction<'cached'>) {
     });
   }
 
-  const overviewContainer = new ContainerBuilder()
-    .setAccentColor(Colors.Blurple)
-    .addTextDisplayComponents(
-      new TextDisplayBuilder().setContent(
-        `### Reaction Role Menus\nThere are currently **${menus.length}/20** menus configured for this server.\n\n*Select a menu from the dropdown below to inspect its details.*`,
-      ),
-    );
+  const overviewContainer = new ContainerBuilder().setAccentColor(Colors.Blurple).addTextDisplayComponents(
+    new TextDisplayBuilder().setContent(
+      t('reactionRole.info.overview', {
+        count: menus.length,
+        total: 20,
+      }),
+    ),
+  );
 
   let currentDisplay = overviewContainer.toJSON();
 
   const selectMenu = new StringSelectMenuBuilder()
     .setCustomId('info_menu_select')
-    .setPlaceholder('Select a menu to inspect...')
+    .setPlaceholder(t('reactionRole.info.selectPlaceholder'))
     .addOptions(
-      menus.map((m) =>
-        new StringSelectMenuOptionBuilder()
-          .setLabel(`Menu in #${interaction.guild.channels.cache.get(m.channelId)?.name || 'unknown-channel'}`)
-          .setDescription(`ID: ${m.id} | Roles: ${m.roles.length}`)
-          .setValue(m.id),
-      ),
+      menus.map((m) => {
+        const channelName = interaction.guild?.channels.cache.get(m.channelId)?.name || '???';
+        const displayChannelName = channelName.length > 20 ? `${channelName.slice(0, 20)}...` : channelName;
+
+        return new StringSelectMenuOptionBuilder()
+          .setLabel(
+            t('reactionRole.info.selectItem', {
+              channel: displayChannelName,
+              roles: m.roles.length,
+              total: 20,
+              id: m.id,
+            }),
+          )
+          .setValue(m.id);
+      }),
     );
 
   const actionRow = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(selectMenu);
@@ -488,18 +506,14 @@ async function handleInfo(interaction: ChatInputCommandInteraction<'cached'>) {
   collector.on('end', (_, reason) => {
     if (reason === 'time') {
       selectMenu.setDisabled(true);
-
       const disabledRow = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(selectMenu);
-
       interaction
         .editReply({
           components: [currentDisplay, disabledRow.toJSON()],
           flags: [MessageFlags.IsComponentsV2],
         })
         .catch(() => null);
-      interaction
-        .followUp({ content: '⏱️ *This interaction has timed out. Please run the command again to inspect other menus.*', flags: [MessageFlags.Ephemeral] })
-        .catch(() => null);
+      interaction.followUp({ content: t('reactionRole.info.timeout'), flags: [MessageFlags.Ephemeral] }).catch(() => null);
     }
   });
 }
@@ -511,29 +525,27 @@ async function handleResend(interaction: ChatInputCommandInteraction<'cached'>) 
   const targetChannelOption = interaction.options.getChannel('target-channel');
 
   const menu = await getReactionRoleMenuConfiguration(menuId);
-
   if (!menu) {
-    return interaction.editReply({ content: 'Could not find a reaction role menu with the provided ID.' });
+    return interaction.editReply({ content: t('reactionRole.notFound') });
   }
 
   const targetChannelId = targetChannelOption ? targetChannelOption.id : menu.channelId;
   const targetChannel = await interaction.guild?.channels.fetch(targetChannelId).catch(() => null);
-
   if (!targetChannel || !targetChannel.isTextBased()) {
-    return interaction.editReply({ content: 'Could not find or access the target channel.' });
+    return interaction.editReply({ content: t('reactionRole.resend.channel') });
   }
 
   const embed = new EmbedBuilder()
-    .setTitle('Role Menu')
-    .setDescription(`Click the buttons below to claim your roles!\n\n${menu.roles.map((r) => `${r.emoji} - <@&${r.roleId}>`).join('\n')}`)
+    .setTitle(t('reactionRole.message.title'))
+    .setDescription(
+      `${t('reactionRole.message.description')}\n\n${menu.roles.map((r) => t('reactionRole.message.item', { emoji: r.emoji, role: roleMention(r.roleId) })).join('\n')}`,
+    )
     .setColor(Colors.Blurple);
 
   const buttonRows: ActionRowBuilder<ButtonBuilder>[] = [];
-
   for (let i = 0; i < menu.roles.length; i += 5) {
     const row = new ActionRowBuilder<ButtonBuilder>();
     const chunk = menu.roles.slice(i, i + 5);
-
     for (const role of chunk) {
       row.addComponents(new ButtonBuilder().setCustomId(`rr_sel_${role.roleId}`).setEmoji(role.emoji).setStyle(ButtonStyle.Secondary));
     }
@@ -541,16 +553,14 @@ async function handleResend(interaction: ChatInputCommandInteraction<'cached'>) 
   }
 
   const sentMessage = await targetChannel.send({ embeds: [embed], components: buttonRows }).catch(() => {
-    interaction.editReply({ content: 'Failed to send the reaction role menu to the target channel. Please check my permissions and try again.' });
+    interaction.editReply({ content: t('reactionRole.resend.failed', { channel: channelMention(targetChannel.id) }) });
     return null;
   });
-
   if (!sentMessage) return;
 
   await updateReactionRoleMenuConfiguration(menuId, { channelId: targetChannel.id, messageId: sentMessage.id });
-
   await interaction.editReply({
-    content: `The reaction role menu has been re-sent to <#${targetChannel.id}> with the new message ID ${sentMessage.id}.`,
+    content: t('reactionRole.resend.success', { channel: channelMention(targetChannel.id) }),
   });
 }
 
@@ -562,13 +572,13 @@ async function handleDelete(interaction: ChatInputCommandInteraction<'cached'>) 
   const menu = await getReactionRoleMenuConfiguration(menuId);
 
   if (!menu) {
-    return interaction.editReply({ content: 'Could not find a reaction role menu with the provided ID.' });
+    return interaction.editReply({ content: t('reactionRole.notFound') });
   }
 
   await deleteReactionRoleMenuConfiguration(menuId);
 
   await interaction.editReply({
-    content: 'The reaction role menu configuration has been deleted. The message will no longer function as a reaction role menu, but it will not be deleted.',
+    content: t('reactionRole.delete.success'),
   });
 }
 
@@ -582,7 +592,7 @@ async function handleToggle(interaction: ChatInputCommandInteraction<'cached'>) 
     const menus = await getAllReactionRoleMenusForGuild(interaction.guildId);
 
     if (menus.length === 0) {
-      return interaction.editReply('There are no reaction role menus configured for this server.');
+      return interaction.editReply({ content: t('reactionRole.none') });
     }
 
     await Promise.all(
@@ -592,19 +602,25 @@ async function handleToggle(interaction: ChatInputCommandInteraction<'cached'>) 
       }),
     );
 
-    return interaction.editReply(`All reaction role menus have been ${enabledOption !== null ? (enabledOption ? 'enabled' : 'disabled') : 'toggled'}.`);
+    return interaction.editReply({
+      content: t('reactionRole.toggle.all', {
+        state: enabledOption !== null ? (enabledOption ? t('state.enabled') : t('state.disabled')) : t('state.toggled'),
+      }),
+    });
   }
 
   const menu = await getReactionRoleMenuConfiguration(menuId);
-
   if (!menu) {
-    return interaction.editReply({ content: 'Could not find a reaction role menu with the provided ID.' });
+    return interaction.editReply({ content: t('reactionRole.notFound') });
   }
 
   const newState = enabledOption !== null ? enabledOption : !menu.enabled;
   await updateReactionRoleMenuConfiguration(menuId, { enabled: newState });
 
   await interaction.editReply({
-    content: `The reaction role menu has been ${newState ? 'enabled' : 'disabled'}. The message will ${newState ? '' : 'no longer'} function as a reaction role menu${newState ? '' : ', but it will not be deleted'}.`,
+    content:
+      t('reactionRole.toggle.single', { state: newState ? t('state.enabled') : t('state.disabled') }) +
+      '\n' +
+      t(`reactionRole.toggle.${newState ? 'function' : 'noFunction'}`),
   });
 }

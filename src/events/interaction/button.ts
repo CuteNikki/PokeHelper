@@ -1,4 +1,5 @@
 import { Collection, Colors, ContainerBuilder, Events, MessageFlags, PermissionsBitField, TextDisplayBuilder, time, TimestampStyles } from 'discord.js';
+import { t } from 'i18next';
 
 import { Event } from 'classes/base/event';
 
@@ -35,7 +36,7 @@ export default new Event({
         (interaction.message.interactionMetadata && interaction.message.interactionMetadata.user.id !== interaction.user.id) ||
         (interaction.message.reference && interaction.user.id !== (await interaction.message.fetchReference())?.author.id)
       ) {
-        return interaction.reply({ content: 'You can not use this button.', flags: [MessageFlags.Ephemeral] });
+        return interaction.reply({ content: t('system.button.authorOnly'), flags: [MessageFlags.Ephemeral] });
       }
     }
 
@@ -47,7 +48,7 @@ export default new Event({
 
       if (!memberPermissions.has(button.options.permissions)) {
         return interaction.reply({
-          content: `You do not have the required permissions to use this button:\n${button.options.permissions.join(', ')}`,
+          content: t('system.button.permissions', { permissions: button.options.permissions.map((perm) => t(`permission.${perm}`)).join(', ') }),
           flags: [MessageFlags.Ephemeral],
         });
       }
@@ -77,13 +78,13 @@ export default new Event({
           return interaction.reply({
             // Using a relative time format for the cooldown message, will show like "in 5 seconds"
             components: [
-              new ContainerBuilder()
-                .setAccentColor(Colors.Red)
-                .addTextDisplayComponents(
-                  new TextDisplayBuilder().setContent(
-                    `Please wait, you are on cooldown for this button. Try again ${time(expirationTimestamp, TimestampStyles.RelativeTime)}.`,
-                  ),
+              new ContainerBuilder().setAccentColor(Colors.Red).addTextDisplayComponents(
+                new TextDisplayBuilder().setContent(
+                  t('system.cooldown.message', {
+                    remaining: time(expirationTimestamp, TimestampStyles.RelativeTime),
+                  }),
                 ),
+              ),
             ],
             flags: [MessageFlags.Ephemeral, MessageFlags.IsComponentsV2],
           });
@@ -102,15 +103,13 @@ export default new Event({
     try {
       await button.options.execute(interaction);
     } catch (error) {
-      console.error(`Error executing button with customId ${interaction.customId}:`, error);
+      console.error(t('system.button.error'), error);
 
       if (interaction.replied || interaction.deferred) {
         // If the interaction has already been replied to or deferred, follow up with an error message
         await interaction.followUp({
           components: [
-            new ContainerBuilder()
-              .setAccentColor(Colors.Red)
-              .addTextDisplayComponents(new TextDisplayBuilder().setContent('There was an error while executing this button.')),
+            new ContainerBuilder().setAccentColor(Colors.Red).addTextDisplayComponents(new TextDisplayBuilder().setContent(t('system.button.error'))),
           ],
           flags: [MessageFlags.Ephemeral, MessageFlags.IsComponentsV2],
         });
@@ -118,9 +117,7 @@ export default new Event({
         // If the interaction has not been replied to, reply with an error message
         await interaction.reply({
           components: [
-            new ContainerBuilder()
-              .setAccentColor(Colors.Red)
-              .addTextDisplayComponents(new TextDisplayBuilder().setContent('There was an error while executing this button.')),
+            new ContainerBuilder().setAccentColor(Colors.Red).addTextDisplayComponents(new TextDisplayBuilder().setContent(t('system.button.error'))),
           ],
           flags: [MessageFlags.Ephemeral, MessageFlags.IsComponentsV2],
         });

@@ -1,0 +1,111 @@
+{
+  "permission": {
+    "Administrator": "Administrator",
+    "ManageChannels": "Manage Channels",
+    "ManageGuild": "Manage Server",
+    "ManageMessages": "Manage Messages",
+    "ManageRoles": "Manage Roles",
+    "ManageThreads": "Manage Threads",
+    "ManageWebhooks": "Manage Webhooks",
+    "MentionEveryone": "Mention Everyone",
+    "ModerateMembers": "Moderate Members",
+    "ReadMessageHistory": "Read Message History",
+    "SendMessages": "Send Messages",
+    "SendMessagesInThreads": "Send Messages in Threads",
+    "UseExternalEmojis": "Use External Emojis",
+    "UseExternalStickers": "Use External Stickers",
+    "UseApplicationCommands": "Use Application Commands",
+    "ViewAuditLog": "View Audit Log",
+    "ViewChannel": "View Channel",
+    "ViewGuildInsights": "View Server Insights",
+    "ViewGuild": "View Server",
+    "ViewMessage": "View Message",
+    "ViewThread": "View Thread"
+  },
+  "state": {
+    "enabled": "enabled",
+    "disabled": "disabled",
+    "toggled": "toggled"
+  },
+  "system": {
+    "cooldown": {
+      "message": "Please wait, you're on cooldown for this! Try again {{remaining}}."
+    },
+    "button": {
+      "invalid": "Invalid button found in file {{file}}. Skipping registration.",
+      "loaded": "Buttons loaded",
+      "authorOnly": "You can't use this button.",
+      "permissions": "You don't have the required permissions to use this button! Required permissions: {{permissions}}",
+      "error": "An error occurred while executing this button."
+    },
+    "command": {
+      "invalid": "Invalid command found in file {{file}}. Skipping registration.",
+      "loaded": "Commands loaded",
+      "notFound": "Command not found: {{command}}",
+      "error": "An error occurred while executing {{command}}"
+    },
+    "autocomplete": {
+      "error": "An error occurred while executing autocomplete for {{command}}"
+    },
+    "event": {
+      "invalid": "Invalid event found in file {{file}}. Skipping registration.",
+      "loaded": "Events loaded"
+    },
+    "cron": {
+      "loaded": "Cron jobs started"
+    },
+    "database": {
+      "loaded": "Database connected"
+    },
+    "ready": {
+      "message": "Logged in as {{user}} (ID: {{id}})"
+    },
+    "leveling": {
+      "failedAssignment": "Failed to assign level {{level}} rewards to {{user}} (ID: {{id}}) in {{guild}}",
+      "failedMessage": "Failed to send level {{level}} level up message for {{user}} (ID: {{id}}) in {{guild}}"
+    }
+  },
+  "birthday": {
+    "announcement": {
+      "message": "🎉 Happy Birthday to {{user}}! 🎂🎈",
+      "withAge": "🎉 Happy Birthday to {{user}}! They turned {{age}} years old today! 🎂🎈"
+    }
+  },
+  "leveling": {
+    "levelUp": "🎉 Congratulations {{user}}! You've advanced to **Level {{level}}**! 🎈"
+  },
+  "counting": {
+    "noConsecutive": "You can't count twice in a row! Wait for someone else to count before you can count again.",
+    "wrongNumber": "That's not the correct number! The current count is {{number}}. Try again with the correct next number.",
+    "reset": "That's not the correct number! The current count was {{number}}. The count has been reset to 0."
+  },
+  "reactionRole": {
+    "none": "No reaction role menus are configured for this server.",
+    "notFound": "Could not find that reaction role menu.",
+    "toggle": {
+      "all": "All reaction role menus have been {{state}}",
+      "single": "The reaction role menu {{id}} has been {{state}}.",
+      "function": "The message will function as a reaction role menu.",
+      "noFunction": "The message will no longer function as a reaction role menu, but it will not be deleted."
+    },
+    "delete": {
+      "success": "The reaction role menu has been deleted. The message will no longer function, but it will not be deleted."
+    },
+    "resend": {
+      "channel": "Could not find or access the target channel. Please check the channel and my permissions.",
+      "failed": "Failed to resend the reaction role menu message. Please make sure I have permission to send messages in {{channel}}.",
+      "success": "The reaction role menu message has been resent to {{channel}} successfully."
+    },
+    "message": {
+      "title": "Role Menu",
+      "description": "Click the buttons below to claim your roles!",
+      "item": "{{emoji}} - {{role}}"
+    },
+    "info": {
+      "timeout": "⏱️ *This interaction has timed out. Please run the command again to inspect other menus.*",
+      "selectItem": "Menu in {{channel}} | {{roles}}/{{total}} roles | ID: {{id}}",
+      "selectPlaceholder": "Select a menu to view details",
+      "overview": "### Reaction Role Menus\nThere are currently **{{count}}/{{total}}** menus configured for this server.\n\n*Select a menu from the dropdown below to view details.*"
+    }
+  }
+}

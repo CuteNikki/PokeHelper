@@ -1,3 +1,5 @@
+import { t } from 'i18next';
+
 import { ExtendedClient } from 'classes/base/client';
 import type { Command } from 'classes/base/command';
 
@@ -26,7 +28,7 @@ export async function loadCommands(client: ExtendedClient) {
       } else {
         // Remove the path from filePaths if the command is invalid to show the correct count of successfully loaded commands
         filePaths.splice(filePaths.indexOf(filePath), 1);
-        console.warn(`Invalid command found in file: ${filePath}. Skipping registration.`);
+        console.warn(t('system.command.invalid', { file: filePath }));
       }
     }),
   );

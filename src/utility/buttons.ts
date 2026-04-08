@@ -1,3 +1,5 @@
+import { t } from 'i18next';
+
 import type { Button } from 'classes/base/button';
 import type { ExtendedClient } from 'classes/base/client';
 
@@ -26,7 +28,7 @@ export async function loadButtons(client: ExtendedClient) {
       } else {
         // Remove the path from filePaths if the button is invalid to show the correct count of successfully loaded buttons
         filePaths.splice(filePaths.indexOf(filePath), 1);
-        console.warn(`Invalid button found in file: ${filePath}. Skipping registration.`);
+        console.warn(t('system.button.invalid', { file: filePath }));
       }
     }),
   );

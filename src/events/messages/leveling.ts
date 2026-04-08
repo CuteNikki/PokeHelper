@@ -1,4 +1,5 @@
-import { Collection, Events, userMention } from 'discord.js';
+import { Collection, Events } from 'discord.js';
+import { t } from 'i18next';
 
 import { Event } from 'classes/base/event';
 
@@ -61,7 +62,10 @@ export default new Event({
       if (rewardsToGive.length > 0) {
         const roleIdsToGive = rewardsToGive.map((reward) => reward.roleId);
         await message.member?.roles.add(roleIdsToGive).catch((err) => {
-          console.error(`Failed to assign leveling reward roles to user ${message.author.tag} (${message.author.id}) in guild ${message.guildId}:`, err);
+          console.error(
+            t('system.leveling.failedAssignment', { level: newLevel, user: message.author.tag, id: message.author.id, guild: message.guildId }),
+            err,
+          );
         });
       }
 
@@ -71,10 +75,13 @@ export default new Event({
       if (targetChannel?.isTextBased()) {
         targetChannel
           .send({
-            content: `🎉 Congratulations ${userMention(userId)}! You've advanced to **Level ${newLevel}**!`,
+            content: t('leveling.levelUp', { user: message.author.tag, level: newLevel }),
           })
           .catch((err) => {
-            console.error(`Failed to send level up message for user ${message.author.tag} (${message.author.id}) in guild ${message.guildId}:`, err);
+            console.error(
+              t('system.leveling.failedMessage', { level: newLevel, user: message.author.tag, id: message.author.id, guild: message.guildId }),
+              err,
+            );
           });
       }
     }

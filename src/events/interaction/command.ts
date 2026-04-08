@@ -1,4 +1,5 @@
 import { Collection, Colors, ContainerBuilder, Events, MessageFlags, TextDisplayBuilder, time, TimestampStyles } from 'discord.js';
+import { t } from 'i18next';
 
 import { Event } from 'classes/base/event';
 
@@ -15,7 +16,7 @@ export default new Event({
 
     // If the command is not found, log a warning and return
     if (!command) {
-      console.warn(`Command not found: ${interaction.commandName}`);
+      console.warn(t('system.command.notFound', { command: interaction.commandName }));
       return;
     }
 
@@ -51,7 +52,9 @@ export default new Event({
               new ContainerBuilder().setAccentColor(Colors.Red).addTextDisplayComponents(
                 new TextDisplayBuilder().setContent(
                   // Using a relative time format for the cooldown message, will show like "in 5 seconds"
-                  `Please wait, you are on cooldown for this command. Try again ${time(expirationTimestamp, TimestampStyles.RelativeTime)}.`,
+                  t('system.cooldown.message', {
+                    remaining: time(expirationTimestamp, TimestampStyles.RelativeTime),
+                  }),
                 ),
               ),
             ],
@@ -70,7 +73,7 @@ export default new Event({
     try {
       await command.options.execute(interaction);
     } catch (error) {
-      console.error(`Error executing command ${interaction.commandName}:`, error);
+      console.error(t('system.command.error', { command: interaction.commandName }), error);
 
       // If the interaction has already been replied to or deferred, follow up with an error message
       if (interaction.replied || interaction.deferred) {
@@ -78,7 +81,7 @@ export default new Event({
           components: [
             new ContainerBuilder()
               .setAccentColor(Colors.Red)
-              .addTextDisplayComponents(new TextDisplayBuilder().setContent('There was an error while executing this command.')),
+              .addTextDisplayComponents(new TextDisplayBuilder().setContent(t('system.command.error', { command: interaction.commandName }))),
           ],
           flags: [MessageFlags.Ephemeral, MessageFlags.IsComponentsV2],
         });
@@ -88,7 +91,7 @@ export default new Event({
           components: [
             new ContainerBuilder()
               .setAccentColor(Colors.Red)
-              .addTextDisplayComponents(new TextDisplayBuilder().setContent('There was an error while executing this command.')),
+              .addTextDisplayComponents(new TextDisplayBuilder().setContent(t('system.command.error', { command: interaction.commandName }))),
           ],
           flags: [MessageFlags.Ephemeral, MessageFlags.IsComponentsV2],
         });

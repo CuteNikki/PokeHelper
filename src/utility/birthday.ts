@@ -1,11 +1,12 @@
 import { Client, userMention } from 'discord.js';
+import { t } from 'i18next';
 import cron from 'node-cron';
 
 import { prisma } from 'database/index';
 
 import type { UserBirthday } from 'generated/prisma/client';
 
-export function startBirthdayCron(client: Client) {
+export async function startBirthdayCron(client: Client) {
   cron.schedule('0 * * * *', async () => {
     const allBirthdays = await prisma.userBirthday.findMany();
 
@@ -52,16 +53,14 @@ async function announceBirthday(client: Client, bdayConfig: UserBirthday) {
 
     const channel = guild.channels.cache.get(guildConfig.channelId!);
     if (channel && channel.isTextBased()) {
-      let ageText = '';
-      if (bdayConfig.showAge) {
-        const userNow = new Date(new Date().toLocaleString('en-US', { timeZone: bdayConfig.timezone ?? undefined }));
-        const age = userNow.getFullYear() - bdayConfig.date.getFullYear();
-        ageText = ` They are turning **${age}** today!`;
-      }
+      const userNow = new Date(new Date().toLocaleString('en-US', { timeZone: bdayConfig.timezone ?? undefined }));
+      const age = userNow.getFullYear() - bdayConfig.date.getFullYear();
 
       await channel
         .send({
-          content: `🎉 Happy Birthday to ${userMention(bdayConfig.userId)}!${ageText} 🎂🎈`,
+          content: bdayConfig.showAge
+            ? t('birthday.announcement.withAge', { user: userMention(bdayConfig.userId), age })
+            : t('birthday.announcement.message', { user: userMention(bdayConfig.userId) }),
         })
         .catch(console.error);
     }

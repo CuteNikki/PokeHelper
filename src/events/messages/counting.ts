@@ -1,4 +1,5 @@
 import { Colors, ContainerBuilder, Events, MessageFlags, TextDisplayBuilder } from 'discord.js';
+import { t } from 'i18next';
 
 import { Event } from 'classes/base/event';
 
@@ -22,7 +23,7 @@ export default new Event({
           components: [
             new ContainerBuilder()
               .setAccentColor(Colors.Red)
-              .addTextDisplayComponents(new TextDisplayBuilder().setContent('You cannot count twice in a row! Please wait for someone else to count.')),
+              .addTextDisplayComponents(new TextDisplayBuilder().setContent(t('counting.noConsecutive', { user: message.author.tag }))),
           ],
           flags: [MessageFlags.IsComponentsV2],
         })
@@ -46,14 +47,26 @@ export default new Event({
           components: [
             new ContainerBuilder()
               .setAccentColor(Colors.Red)
-              .addTextDisplayComponents(
-                new TextDisplayBuilder().setContent('### Wrong number!\nThe counting has been reset. Please start over by sending the number `1`.'),
-              ),
+              .addTextDisplayComponents(new TextDisplayBuilder().setContent(t('counting.reset', { number: counting.lastNumber }))),
           ],
           flags: [MessageFlags.IsComponentsV2],
         });
       } else {
-        await message.delete().catch(console.error);
+        const warnMessage = await message
+          .reply({
+            components: [
+              new ContainerBuilder()
+                .setAccentColor(Colors.Red)
+                .addTextDisplayComponents(new TextDisplayBuilder().setContent(t('counting.wrongNumber', { number: counting.lastNumber }))),
+            ],
+            flags: [MessageFlags.IsComponentsV2],
+          })
+          .catch(console.error);
+        // Delete the warning after 3 seconds
+        setTimeout(() => {
+          message.delete().catch(console.error);
+          warnMessage?.delete().catch(console.error);
+        }, 3000);
       }
       return;
     }

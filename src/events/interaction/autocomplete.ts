@@ -1,4 +1,5 @@
 import { Events } from 'discord.js';
+import { t } from 'i18next';
 
 import { Event } from 'classes/base/event';
 
@@ -14,7 +15,7 @@ export default new Event({
     try {
       await command.options.autocomplete(interaction);
     } catch (error) {
-      console.error(`Error handling autocomplete for command ${interaction.commandName}:`, error);
+      console.error(t('system.autocomplete.error', { command: interaction.commandName }), error);
     }
   },
 });
