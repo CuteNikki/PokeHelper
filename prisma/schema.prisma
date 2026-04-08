@@ -140,9 +140,14 @@ model GuildLeveling {
   guild   Guild  @relation("GuildLeveling", fields: [guildId], references: [guildId], onDelete: Cascade)
 
   // Configuration
-  enabled   Boolean               @default(false)
-  channelId String?
-  rewards   GuildLevelingReward[]
+  enabled         Boolean               @default(false)
+  channelId       String?
+  rewards         GuildLevelingReward[]
+  // Filters
+  ignoredChannels String[]              @default([]) // if empty, no channels are ignored otherwise only the specified channels are ignored
+  enabledChannels String[]              @default([]) // if empty, all channels are enabled otherwise only the specified channels are enabled
+  ignoredRoles    String[]              @default([]) // if empty, no roles are ignored otherwise only the specified roles are ignored
+  enabledRoles    String[]              @default([]) // if empty, all roles are enabled otherwise only the specified roles are enabled
 
   // Timestamps
   createdAt DateTime @default(now())
