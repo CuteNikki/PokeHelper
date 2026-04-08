@@ -23,8 +23,8 @@ export default new Command({
   data: new SlashCommandBuilder()
     .setContexts(InteractionContextType.Guild)
     .setIntegrationTypes(ApplicationIntegrationType.GuildInstall)
-    .setName('rank')
-    .setDescription('')
+    .setName('leaderboard')
+    .setDescription('Check the server leaderboard for levels and XP.')
     .addIntegerOption((option) => option.setName('page').setDescription('The page number of the leaderboard to view.').setRequired(false).setMinValue(1)),
   async execute(interaction) {
     if (!interaction.inCachedGuild()) {
