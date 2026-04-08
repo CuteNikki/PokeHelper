@@ -24,7 +24,6 @@ export default new Event({
     }
 
     if (!button) {
-      console.warn(`Button not found: ${interaction.customId}`);
       return;
     }
 
