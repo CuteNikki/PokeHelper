@@ -1,6 +1,6 @@
-import { prisma } from '.';
+import { prisma } from 'database/index';
 
-import type { ReactionRoleMenu } from '../../generated/prisma/client';
+import type { ReactionRoleMenu } from 'generated/prisma/client';
 
 export const getReactionRoleMenuConfiguration = async (id: string) =>
   prisma.reactionRoleMenu.findUnique({

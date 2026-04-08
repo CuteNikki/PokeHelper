@@ -1,8 +1,9 @@
 import type { ClientEvents } from 'discord.js';
 
-import type { ExtendedClient } from '../classes/base/client';
-import type { Event } from '../classes/base/event';
-import { getFilesFrom } from './files';
+import type { ExtendedClient } from 'classes/base/client';
+import type { Event } from 'classes/base/event';
+
+import { getFilesFrom } from 'utility/files';
 
 /**
  * Loads and registers events for the client.

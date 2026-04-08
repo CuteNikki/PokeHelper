@@ -15,8 +15,9 @@ import {
   userMention,
 } from 'discord.js';
 
-import { Command } from '../classes/base/command';
-import { createCounting, getCounting, resetCounting, updateCounting } from '../database/counting';
+import { Command } from 'classes/base/command';
+
+import { createCounting, getCounting, resetCounting, updateCounting } from 'database/counting';
 
 export default new Command({
   data: new SlashCommandBuilder()

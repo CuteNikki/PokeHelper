@@ -1,8 +1,8 @@
 import { MessageFlags, roleMention } from 'discord.js';
 
-import { Button } from '../classes/base/button';
+import { Button } from 'classes/base/button';
 
-import { getReactionRoleMenuConfigurationByMessageId } from '../database/reaction-role';
+import { getReactionRoleMenuConfigurationByMessageId } from 'database/reaction-role';
 
 export default new Button({
   customId: 'rr_sel',

@@ -11,9 +11,9 @@ import {
   TextDisplayBuilder,
 } from 'discord.js';
 
-import { Command } from '../classes/base/command';
+import { Command } from 'classes/base/command';
 
-import { createUserBirthday, deleteUserBirthday, getUserBirthday, updateUserBirthday } from '../database/birthday';
+import { createUserBirthday, deleteUserBirthday, getUserBirthday, updateUserBirthday } from 'database/birthday';
 
 export default new Command({
   data: new SlashCommandBuilder()

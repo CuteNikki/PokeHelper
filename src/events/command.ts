@@ -1,9 +1,9 @@
 import { Collection, Colors, ContainerBuilder, Events, MessageFlags, TextDisplayBuilder, time, TimestampStyles } from 'discord.js';
 
-import { Event } from '../classes/base/event';
+import { Event } from 'classes/base/event';
 
-import { getGuildOrCreate } from '../database/guild';
-import { getOrCreateUser } from '../database/user';
+import { getGuildOrCreate } from 'database/guild';
+import { getOrCreateUser } from 'database/user';
 
 export default new Event({
   name: Events.InteractionCreate,

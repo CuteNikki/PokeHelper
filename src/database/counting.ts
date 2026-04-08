@@ -1,5 +1,6 @@
 import type { GuildCounting } from '@prisma/client';
-import { prisma } from '.';
+
+import { prisma } from 'database/index';
 
 /**
  * Get the counting configuration for a guild.

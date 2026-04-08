@@ -24,14 +24,15 @@ import {
   type InteractionReplyOptions,
 } from 'discord.js';
 
-import { Command } from '../classes/base/command';
+import { Command } from 'classes/base/command';
+
 import {
   createReactionRoleMenuConfiguration,
   deleteReactionRoleMenuConfiguration,
   getAllReactionRoleMenusForGuild,
   getReactionRoleMenuConfiguration,
   updateReactionRoleMenuConfiguration,
-} from '../database/reaction-role';
+} from 'database/reaction-role';
 
 interface SetupState {
   step: 'MODE' | 'REQUIRED_ROLES' | 'CHANNEL' | 'MENU_ROLES' | 'EMOJI_PAIRING' | 'CONFIRM';

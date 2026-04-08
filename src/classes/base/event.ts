@@ -1,6 +1,6 @@
 import type { ClientEvents } from 'discord.js';
 
-import type { ExtendedClient } from './client';
+import type { ExtendedClient } from 'classes/base/client';
 
 /**
  * Represents an event in the Discord client.

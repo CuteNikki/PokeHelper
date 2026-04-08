@@ -1,7 +1,7 @@
 import { REST, Routes, type ApplicationCommandDataResolvable } from 'discord.js';
 
-import { isValidCommand } from './commands';
-import { getFilesFrom } from './files';
+import { isValidCommand } from 'utility/commands';
+import { getFilesFrom } from 'utility/files';
 
 const DISCORD_TOKEN = process.env.DISCORD_TOKEN;
 const DISCORD_ID = process.env.DISCORD_ID;

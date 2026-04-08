@@ -1,6 +1,6 @@
 import type { Guild } from '@prisma/client';
 
-import { prisma } from '.';
+import { prisma } from 'database/index';
 
 /**
  * Get a guild by its ID.

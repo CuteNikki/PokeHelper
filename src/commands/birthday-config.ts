@@ -11,9 +11,9 @@ import {
   TextDisplayBuilder,
 } from 'discord.js';
 
-import { Command } from '../classes/base/command';
+import { Command } from 'classes/base/command';
 
-import { createGuildBirthdayConfiguration, deleteGuildBirthdayConfiguration, getGuildBirthdayConfiguration } from '../database/birthday';
+import { createGuildBirthdayConfiguration, deleteGuildBirthdayConfiguration, getGuildBirthdayConfiguration } from 'database/birthday';
 
 export default new Command({
   data: new SlashCommandBuilder()

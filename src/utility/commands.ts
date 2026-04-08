@@ -1,6 +1,7 @@
-import { ExtendedClient } from '../classes/base/client';
-import type { Command } from '../classes/base/command';
-import { getFilesFrom } from './files';
+import { ExtendedClient } from 'classes/base/client';
+import type { Command } from 'classes/base/command';
+
+import { getFilesFrom } from 'utility/files';
 
 /**
  * Loads commands into the client.

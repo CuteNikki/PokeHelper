@@ -1,8 +1,8 @@
 import { MessageFlags } from 'discord.js';
 
-import { Button } from '../classes/base/button';
+import { Button } from 'classes/base/button';
 
-import { deleteReactionRoleMenuConfiguration, getReactionRoleMenuConfiguration } from '../database/reaction-role';
+import { deleteReactionRoleMenuConfiguration, getReactionRoleMenuConfiguration } from 'database/reaction-role';
 
 export default new Button({
   customId: 'rr_del',

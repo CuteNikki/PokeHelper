@@ -1,7 +1,7 @@
 import { ApplicationCommandType, Client, Collection } from 'discord.js';
 
-import type { Button } from './button';
-import type { Command } from './command';
+import type { Button } from 'classes/base/button';
+import type { Command } from 'classes/base/command';
 
 /**
  * ExtendedClient is a custom Discord.js client that includes additional functionality.

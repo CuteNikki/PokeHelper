@@ -1,6 +1,6 @@
 import { Collection, Colors, ContainerBuilder, Events, MessageFlags, PermissionsBitField, TextDisplayBuilder, time, TimestampStyles } from 'discord.js';
 
-import { Event } from '../classes/base/event';
+import { Event } from 'classes/base/event';
 
 export default new Event({
   name: Events.InteractionCreate,

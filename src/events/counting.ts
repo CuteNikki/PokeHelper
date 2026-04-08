@@ -1,7 +1,8 @@
 import { Colors, ContainerBuilder, Events, MessageFlags, TextDisplayBuilder } from 'discord.js';
 
-import { Event } from '../classes/base/event';
-import { getCounting, incrementCountingCount, resetCountingCount } from '../database/counting';
+import { Event } from 'classes/base/event';
+
+import { getCounting, incrementCountingCount, resetCountingCount } from 'database/counting';
 
 export default new Event({
   name: Events.MessageCreate,

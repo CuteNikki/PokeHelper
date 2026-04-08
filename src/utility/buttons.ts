@@ -1,6 +1,7 @@
-import type { Button } from '../classes/base/button';
-import type { ExtendedClient } from '../classes/base/client';
-import { getFilesFrom } from './files';
+import type { Button } from 'classes/base/button';
+import type { ExtendedClient } from 'classes/base/client';
+
+import { getFilesFrom } from 'utility/files';
 
 /**
  * Loads buttons into the client.
