@@ -405,7 +405,7 @@ export async function handleSetup(interaction: ChatInputCommandInteraction<'cach
     state.roles.push({ emoji, roleId });
     state.pairingIndex++;
 
-    await reaction.users.remove(interaction.user.id).catch(() => null);
+    await reaction.message.reactions.removeAll().catch(() => null);
 
     if (state.pairingIndex >= state.menuRoleIds.length) {
       state.step = 'CONFIRM';
