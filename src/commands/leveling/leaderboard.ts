@@ -14,6 +14,7 @@ import {
   TextInputBuilder,
   TextInputStyle,
 } from 'discord.js';
+import { t } from 'i18next';
 
 import { Command } from 'classes/base/command';
 
@@ -28,21 +29,21 @@ export default new Command({
     .addIntegerOption((option) => option.setName('page').setDescription('The page number of the leaderboard to view.').setRequired(false).setMinValue(1)),
   async execute(interaction) {
     if (!interaction.inCachedGuild()) {
-      return interaction.reply({ content: 'This command can only be used in a server.', flags: [MessageFlags.Ephemeral] });
+      return;
     }
 
     await interaction.deferReply();
 
     const levelingConfig = await getGuildLevelingConfiguration(interaction.guildId);
     if (!levelingConfig || !levelingConfig.enabled) {
-      return interaction.editReply({ content: 'The leveling system is not configured or enabled for this server!' });
+      return interaction.editReply({ content: t('leveling.disabled') });
     }
 
     const itemsPerPage = 10;
     const totalUsers = await getTotalUsersWithXP(interaction.guildId);
 
     if (totalUsers === 0) {
-      return interaction.editReply({ content: 'No users have gained XP in this server yet! Start chatting!' });
+      return interaction.editReply({ content: t('leveling.leaderboard.noUsers') });
     }
 
     const maxPages = Math.ceil(totalUsers / itemsPerPage);
@@ -57,40 +58,49 @@ export default new Command({
       const leaderboardText = topUsers
         .map((user, index) => {
           const level = getLevelFromXP(user.xp);
-          return `**${index + 1 + offset}.** <@${user.userId}> — Level **${level}** (${user.xp} XP)`;
+          return t('leveling.leaderboard.entry', {
+            position: index + 1 + offset,
+            user: `<@${user.userId}>`,
+            level,
+            xp: user.xp,
+          });
         })
         .join('\n\n');
 
       const embed = new EmbedBuilder()
-        .setTitle(`🏆 Leveling Leaderboard | ${interaction.guild.name}`)
+        .setTitle(t('leveling.leaderboard.title', { guild: interaction.guild.name }))
         .setDescription(leaderboardText)
-        .setColor(Colors.Gold)
-        .setFooter({ text: `Page ${page} of ${maxPages} • ${totalUsers} total users` });
+        .setColor(Colors.Gold);
 
       const actionRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
         new ButtonBuilder()
           .setCustomId('lb_first')
-          .setLabel('First')
-          .setEmoji('⏮️')
+          .setLabel(t('pagination.first.label'))
+          .setEmoji(t('pagination.first.icon'))
           .setStyle(ButtonStyle.Secondary)
           .setDisabled(page === 1),
         new ButtonBuilder()
           .setCustomId('lb_prev')
-          .setLabel('Previous')
-          .setEmoji('◀️')
+          .setLabel(t('pagination.previous.label'))
+          .setEmoji(t('pagination.previous.icon'))
           .setStyle(ButtonStyle.Secondary)
           .setDisabled(maxPages === 1),
-        new ButtonBuilder().setCustomId('lb_custom').setLabel(`Page ${page}/${maxPages}`).setEmoji('⏸️').setStyle(ButtonStyle.Secondary).setDisabled(false),
+        new ButtonBuilder()
+          .setCustomId('lb_custom')
+          .setLabel(t('pagination.page.label', { current: page, total: maxPages }))
+          .setEmoji(t('pagination.page.icon'))
+          .setStyle(ButtonStyle.Secondary)
+          .setDisabled(false),
         new ButtonBuilder()
           .setCustomId('lb_next')
-          .setLabel('Next')
-          .setEmoji('▶️')
+          .setLabel(t('pagination.next.label'))
+          .setEmoji(t('pagination.next.icon'))
           .setStyle(ButtonStyle.Secondary)
           .setDisabled(maxPages === 1),
         new ButtonBuilder()
           .setCustomId('lb_last')
-          .setLabel('Last')
-          .setEmoji('⏭️')
+          .setLabel(t('pagination.last.label'))
+          .setEmoji(t('pagination.last.icon'))
           .setStyle(ButtonStyle.Secondary)
           .setDisabled(page === maxPages),
       );
@@ -112,15 +122,15 @@ export default new Command({
         await i.showModal(
           new ModalBuilder()
             .setCustomId('lb_page_select')
-            .setTitle('Select Page')
+            .setTitle(t('pagination.modal.title'))
             .addLabelComponents(
               new LabelBuilder()
-                .setLabel('Page Number')
+                .setLabel(t('pagination.modal.label'))
                 .setTextInputComponent(
                   new TextInputBuilder()
                     .setCustomId('page_input')
                     .setStyle(TextInputStyle.Short)
-                    .setPlaceholder(`Enter a page number (1-${maxPages})`)
+                    .setPlaceholder(t('pagination.modal.placeholder', { maxPages }))
                     .setValue(currentPage.toString())
                     .setMinLength(1)
                     .setMaxLength(maxPages.toString().length)
@@ -133,12 +143,12 @@ export default new Command({
           .awaitModalSubmit({ time: 60_000, filter: (submit) => submit.customId === 'lb_page_select' && submit.user.id === interaction.user.id })
           .catch(() => null);
         if (!modalSubmit) {
-          return i.followUp({ content: 'You did not submit a page number in time!', flags: [MessageFlags.Ephemeral] });
+          return i.followUp({ content: t('pagination.modal.timeout'), flags: [MessageFlags.Ephemeral] });
         }
         const requestedPage = parseInt(modalSubmit.fields.getTextInputValue('page_input'), 10);
 
         if (isNaN(requestedPage) || requestedPage < 1 || requestedPage > maxPages) {
-          return modalSubmit.reply({ content: `Please enter a valid page number between 1 and ${maxPages}.`, flags: [MessageFlags.Ephemeral] });
+          return modalSubmit.reply({ content: t('pagination.modal.invalid', { maxPages }), flags: [MessageFlags.Ephemeral] });
         }
 
         await modalSubmit.deferUpdate();
@@ -158,11 +168,36 @@ export default new Command({
 
     collector.on('end', () => {
       const disabledRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
-        new ButtonBuilder().setCustomId('lb_first').setLabel('First').setStyle(ButtonStyle.Primary).setDisabled(true),
-        new ButtonBuilder().setCustomId('lb_prev').setLabel('Previous').setStyle(ButtonStyle.Primary).setDisabled(true),
-        new ButtonBuilder().setCustomId('lb_custom').setLabel(`Page ${currentPage}/${maxPages}`).setStyle(ButtonStyle.Primary).setDisabled(true),
-        new ButtonBuilder().setCustomId('lb_next').setLabel('Next').setStyle(ButtonStyle.Primary).setDisabled(true),
-        new ButtonBuilder().setCustomId('lb_last').setLabel('Last').setStyle(ButtonStyle.Primary).setDisabled(true),
+        new ButtonBuilder()
+          .setCustomId('lb_first')
+          .setLabel(t('pagination.first.label'))
+          .setEmoji(t('pagination.first.icon'))
+          .setStyle(ButtonStyle.Primary)
+          .setDisabled(true),
+        new ButtonBuilder()
+          .setCustomId('lb_prev')
+          .setLabel(t('pagination.previous.label'))
+          .setEmoji(t('pagination.previous.icon'))
+          .setStyle(ButtonStyle.Primary)
+          .setDisabled(true),
+        new ButtonBuilder()
+          .setCustomId('lb_custom')
+          .setLabel(t('pagination.page.label', { current: currentPage, total: maxPages }))
+          .setEmoji(t('pagination.page.icon'))
+          .setStyle(ButtonStyle.Primary)
+          .setDisabled(true),
+        new ButtonBuilder()
+          .setCustomId('lb_next')
+          .setLabel(t('pagination.next.label'))
+          .setEmoji(t('pagination.next.icon'))
+          .setStyle(ButtonStyle.Primary)
+          .setDisabled(true),
+        new ButtonBuilder()
+          .setCustomId('lb_last')
+          .setLabel(t('pagination.last.label'))
+          .setEmoji(t('pagination.last.icon'))
+          .setStyle(ButtonStyle.Primary)
+          .setDisabled(true),
       );
 
       interaction.editReply({ components: [disabledRow.toJSON()] }).catch(() => null);

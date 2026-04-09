@@ -31,6 +31,35 @@
     "single": "Single Choice",
     "multiple": "Multiple Choice"
   },
+  "pagination": {
+    "first": {
+      "label": "First",
+      "icon": "⏮️"
+    },
+    "previous": {
+      "label": "Previous",
+      "icon": "◀️"
+    },
+    "page": {
+      "label": "Page {{current}}/{{total}}",
+      "icon": "⏸️"
+    },
+    "next": {
+      "label": "Next",
+      "icon": "▶️"
+    },
+    "last": {
+      "label": "Last",
+      "icon": "⏭️"
+    },
+    "modal": {
+      "title": "Enter Custom Page",
+      "label": "Page Number",
+      "placeholder": "Enter the page number you want to go to (1-{{maxPages}})",
+      "timeout": "You did not submit a page number in time!",
+      "invalid": "Invalid page number entered. Please enter a number between 1 and {{maxPages}}."
+    }
+  },
   "system": {
     "cooldown": {
       "message": "Please wait, you're on cooldown for this! Try again {{remaining}}."
@@ -76,7 +105,70 @@
     }
   },
   "leveling": {
-    "levelUp": "🎉 Congratulations {{user}}! You've advanced to **Level {{level}}**! 🎈"
+    "levelUp": "🎉 Congratulations {{user}}! You've advanced to **Level {{level}}**! 🎈",
+    "disabled": "Leveling is currently disabled or not configured in this server.",
+    "rank": {
+      "state": "You are currently level {{level}} with {{xp}} XP.\nYou need {{remaining}}/{{total}} more XP to reach the next level."
+    },
+    "leaderboard": {
+      "noUsers": "No users have gained XP in this server yet!",
+      "title": "🏆 Leveling Leaderboard | {{guild}}",
+      "entry": "{{position}}. {{user}} - Level {{level}} ({{xp}} XP)"
+    },
+    "info": {
+      "noChannel": "None",
+      "noRewards": "No rewards",
+      "noIgnoredChannels": "None",
+      "noEnabledChannels": "All channels",
+      "noIgnoredRoles": "None",
+      "noEnabledRoles": "All roles",
+      "title": "### Leveling System Configuration",
+      "status": "Status: {{state}}",
+      "levelUpChannel": "Level Up Channel: {{channel}}",
+      "rewards": "Rewards ({{count}}/{{total}}):\n{{rewards}}",
+      "rewardEntry": "Level {{level}}: {{reward}}",
+      "ignoredChannels": "Ignored Channels ({{count}}/{{total}}): {{channels}}",
+      "enabledChannels": "Enabled Channels ({{count}}/{{total}}): {{channels}}",
+      "ignoredRoles": "Ignored Roles ({{count}}/{{total}}): {{roles}}",
+      "enabledRoles": "Enabled Roles ({{count}}/{{total}}): {{roles}}"
+    },
+    "reset": {
+      "success": "The leveling system has been reset to default settings!"
+    },
+    "toggle": {
+      "success": "The leveling system has been set to: {{state}}"
+    },
+    "channel": {
+      "none": "No channel was set up for level up messages!",
+      "removed": "The level up channel has been removed. Level up messages will be sent wherever the user levels up.",
+      "already": "The level up channel is already set to {{channel}}.",
+      "set": "The level up channel has been set to {{channel}}.",
+      "alreadyIgnored": "The channel {{channel}} is already in the ignored channels list.",
+      "addIgnored": "Added {{channel}} to the ignored channels list! Users will no longer receive XP in that channel.",
+      "notIHgnored": "The channel {{channel}} is not in the ignored channels list.",
+      "removedIgnored": "Removed {{channel}} from the ignored channels list! Users will now receive XP in that channel again.",
+      "addEnabled": "Added {{channel}} to the enabled channels list! Users will only receive XP in enabled channels.",
+      "alreadyEnabled": "The channel {{channel}} is already in the enabled channels list.",
+      "notEnabled": "The channel {{channel}} is not in the enabled channels list.",
+      "removedEnabled": "Removed {{channel}} from the enabled channels list."
+    },
+    "role": {
+      "alreadyIgnored": "The role {{role}} is already in the ignored roles list.",
+      "addIgnored": "Added {{role}} to the ignored roles list! Users with that role will no longer receive XP.",
+      "notIHgnored": "The role {{role}} is not in the ignored roles list.",
+      "removedIgnored": "Removed {{role}} from the ignored roles list! Users with that role will now receive XP again.",
+      "addEnabled": "Added {{role}} to the enabled roles list! Only users with that role will receive XP.",
+      "alreadyEnabled": "The role {{role}} is already in the enabled roles list.",
+      "notEnabled": "The role {{role}} is not in the enabled roles list.",
+      "removedEnabled": "Removed {{role}} from the enabled roles list."
+    },
+    "reward": {
+      "exists": "That role is already set as a reward for leveling up!",
+      "added": "Added a new leveling reward: {{entry}}!",
+      "none": "Please specify either a level or a role to remove from the leveling rewards!",
+      "notFound": "No reward found for level {{level}} and role {{role}}!",
+      "removed": "Removed the leveling reward for {{entry}}!"
+    }
   },
   "counting": {
     "noConsecutive": "You can't count twice in a row! Wait for someone else to count before you can count again.",

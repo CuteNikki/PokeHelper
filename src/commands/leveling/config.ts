@@ -8,6 +8,7 @@ import {
   roleMention,
   SlashCommandBuilder,
 } from 'discord.js';
+import { t } from 'i18next';
 
 import { Command } from 'classes/base/command';
 import {
@@ -154,7 +155,7 @@ export default new Command({
         handleRemoveEnabledRole(interaction);
         break;
       default:
-        return interaction.reply({ content: 'Unknown subcommand!', flags: [MessageFlags.Ephemeral] });
+        return;
     }
   },
 });
@@ -164,27 +165,31 @@ async function handleInfo(interaction: ChatInputCommandInteraction<'cached'>) {
 
   const levelingConfig = await getGuildLevelingConfiguration(interaction.guildId);
   if (!levelingConfig) {
-    return interaction.editReply({ content: 'The leveling system is not configured for this server yet!' });
+    return interaction.editReply({ content: t('leveling.disabled') });
   }
 
   const { enabled, channelId, rewards, ignoredChannels, enabledChannels, ignoredRoles, enabledRoles } = levelingConfig;
 
-  const levelUpChannelMention = channelId ? channelMention(channelId) : 'No channel set';
-  const rewardsList = rewards.length > 0 ? rewards.map((r) => `Level ${r.level}: ${roleMention(r.roleId)}`).join('\n') : 'No rewards configured';
-  const ignoredChannelsList = ignoredChannels.length > 0 ? ignoredChannels.map((id) => channelMention(id)).join(', ') : 'None';
-  const enabledChannelsList = enabledChannels.length > 0 ? enabledChannels.map((id) => channelMention(id)).join(', ') : 'All channels';
-  const ignoredRolesList = ignoredRoles.length > 0 ? ignoredRoles.map((id) => roleMention(id)).join(', ') : 'None';
-  const enabledRolesList = enabledRoles.length > 0 ? enabledRoles.map((id) => roleMention(id)).join(', ') : 'All roles';
+  const levelUpChannel = channelId ? channelMention(channelId) : t('leveling.info.noChannel');
+  const rewardsList =
+    rewards.length > 0
+      ? rewards.map((r) => t('leveling.info.rewardEntry', { level: r.level, reward: roleMention(r.roleId) })).join('\n')
+      : t('leveling.info.noRewards');
+  const ignoredChannelsList = ignoredChannels.length > 0 ? ignoredChannels.map((id) => channelMention(id)).join(', ') : t('leveling.info.noIgnoredChannels');
+  const enabledChannelsList = enabledChannels.length > 0 ? enabledChannels.map((id) => channelMention(id)).join(', ') : t('leveling.info.noEnabledChannels');
+  const ignoredRolesList = ignoredRoles.length > 0 ? ignoredRoles.map((id) => roleMention(id)).join(', ') : t('leveling.info.noIgnoredRoles');
+  const enabledRolesList = enabledRoles.length > 0 ? enabledRoles.map((id) => roleMention(id)).join(', ') : t('leveling.info.noEnabledRoles');
 
-  const infoMessage = `**Leveling System Configuration:**
-- **Status:** ${enabled ? 'Enabled' : 'Disabled'}
-- **Channel:** ${levelUpChannelMention}
-- **Rewards:**
-${rewardsList}
-- **Ignored Channels:** ${ignoredChannelsList}
-- **Enabled Channels:** ${enabledChannelsList}
-- **Ignored Roles:** ${ignoredRolesList}
-- **Enabled Roles:** ${enabledRolesList}`;
+  const infoMessage = [
+    t('leveling.info.title'),
+    t('leveling.info.status', { status: enabled ? t('state.enabled') : t('state.disabled') }),
+    t('leveling.info.channel', { channel: levelUpChannel }),
+    t('leveling.info.rewards', { rewards: rewardsList }),
+    t('leveling.info.ignoredChannels', { channels: ignoredChannelsList }),
+    t('leveling.info.enabledChannels', { channels: enabledChannelsList }),
+    t('leveling.info.ignoredRoles', { roles: ignoredRolesList }),
+    t('leveling.info.enabledRoles', { roles: enabledRolesList }),
+  ].join('\n');
 
   return interaction.editReply({ content: infoMessage });
 }
@@ -194,12 +199,12 @@ async function handleReset(interaction: ChatInputCommandInteraction<'cached'>) {
 
   const levelingConfig = await getGuildLevelingConfiguration(interaction.guildId);
   if (!levelingConfig) {
-    return interaction.editReply({ content: 'The leveling system is not configured for this server yet!' });
+    return interaction.editReply({ content: t('leveling.disabled') });
   }
 
   await deleteGuildLevelingConfiguration(interaction.guildId);
 
-  return interaction.editReply({ content: 'The leveling system has been reset to default settings!' });
+  return interaction.editReply({ content: t('leveling.reset.success') });
 }
 
 async function handleToggle(interaction: ChatInputCommandInteraction<'cached'>) {
@@ -210,7 +215,7 @@ async function handleToggle(interaction: ChatInputCommandInteraction<'cached'>) 
   const newStatus = levelingConfig ? !levelingConfig.enabled : true;
   await updateGuildLevelingConfiguration(interaction.guildId, { enabled: newStatus });
 
-  return interaction.editReply({ content: `The leveling system has been ${newStatus ? 'enabled' : 'disabled'}!` });
+  return interaction.editReply({ content: t('leveling.toggle', { status: newStatus ? t('state.enabled') : t('state.disabled') }) });
 }
 
 async function handleSetChannel(interaction: ChatInputCommandInteraction<'cached'>) {
@@ -221,20 +226,20 @@ async function handleSetChannel(interaction: ChatInputCommandInteraction<'cached
 
   if (!channel) {
     if (!levelingConfig?.channelId) {
-      return interaction.editReply({ content: 'No channel was set for level up messages!' });
+      return interaction.editReply({ content: t('leveling.channel.none') });
     }
 
     await updateGuildLevelingConfiguration(interaction.guildId, { channelId: undefined });
-    return interaction.editReply({ content: 'Level up messages will now be sent where the user levels up!' });
+    return interaction.editReply({ content: t('leveling.channel.removed') });
   }
 
   if (channel.id === levelingConfig?.channelId) {
-    return interaction.editReply({ content: 'This channel is already set for level up messages!' });
+    return interaction.editReply({ content: t('leveling.channel.already', { channel: channelMention(channel.id) }) });
   }
 
   await updateGuildLevelingConfiguration(interaction.guildId, { channelId: channel ? channel.id : undefined });
   return interaction.editReply({
-    content: `Level up messages will now be sent ${channel ? `in ${channelMention(channel.id)}` : 'where the user levels up'}!`,
+    content: t('leveling.channel.set', { channel: channelMention(channel.id) }),
   });
 }
 
@@ -251,11 +256,14 @@ async function handleAddReward(interaction: ChatInputCommandInteraction<'cached'
 
   const existingReward = levelingConfig?.rewards.find((reward) => reward.roleId === role.id);
   if (existingReward) {
-    return interaction.editReply({ content: 'This role is already a reward for leveling up!' });
+    return interaction.editReply({ content: t('leveling.reward.exists') });
   }
 
   await addGuildLevelingReward(interaction.guildId, level, role.id);
-  return interaction.editReply({ content: `Added a new reward: Level ${level} - ${roleMention(role.id)}!`, allowedMentions: { roles: [] } });
+  return interaction.editReply({
+    content: t('leveling.reward.added', { entry: t('leveling.info.rewardEntry', { level, reward: roleMention(role.id) }) }),
+    allowedMentions: { roles: [] },
+  });
 }
 
 async function handleRemoveReward(interaction: ChatInputCommandInteraction<'cached'>) {
@@ -263,7 +271,7 @@ async function handleRemoveReward(interaction: ChatInputCommandInteraction<'cach
 
   const levelingConfig = await getGuildLevelingConfiguration(interaction.guildId);
   if (!levelingConfig) {
-    return interaction.editReply({ content: 'The leveling system is not configured for this server yet!' });
+    return interaction.editReply({ content: t('leveling.disabled') });
   }
 
   const level = interaction.options.getInteger('level', false);
@@ -275,16 +283,18 @@ async function handleRemoveReward(interaction: ChatInputCommandInteraction<'cach
   } else if (roleId !== null) {
     rewardToRemove = levelingConfig.rewards.find((reward) => reward.roleId === roleId);
   } else {
-    return interaction.editReply({ content: 'Please specify either a level or a role ID to remove a reward!' });
+    return interaction.editReply({ content: t('leveling.reward.none') });
   }
 
   if (!rewardToRemove) {
-    return interaction.editReply({ content: 'No matching reward found to remove!' });
+    return interaction.editReply({ content: t('leveling.reward.notFound', { level, role: roleId }) });
   }
 
   await deleteGuildLevelingReward(rewardToRemove.id);
   return interaction.editReply({
-    content: `Removed the reward for Level ${rewardToRemove.level} - ${roleMention(rewardToRemove.roleId)}!`,
+    content: t('leveling.reward.removed', {
+      entry: t('leveling.info.rewardEntry', { level: rewardToRemove.level, reward: roleMention(rewardToRemove.roleId) }),
+    }),
     allowedMentions: { roles: [] },
   });
 }
@@ -294,16 +304,16 @@ async function handleAddIgnoredChannel(interaction: ChatInputCommandInteraction<
 
   const levelingConfig = await getGuildLevelingConfiguration(interaction.guildId);
   if (!levelingConfig) {
-    return interaction.editReply({ content: 'The leveling system is not configured for this server yet!' });
+    return interaction.editReply({ content: t('leveling.disabled') });
   }
 
   const channel = interaction.options.getChannel('channel', true);
   if (levelingConfig.ignoredChannels.includes(channel.id)) {
-    return interaction.editReply({ content: 'This channel is already in the ignored channels list!' });
+    return interaction.editReply({ content: t('leveling.channel.alreadyIgnored', { channel: channelMention(channel.id) }) });
   }
 
   await addIgnoredChannel(interaction.guildId, channel.id);
-  return interaction.editReply({ content: `Added ${channel} to the ignored channels list!` });
+  return interaction.editReply({ content: t('leveling.channel.addIgnored', { channel: channelMention(channel.id) }) });
 }
 
 async function handleRemoveIgnoredChannel(interaction: ChatInputCommandInteraction<'cached'>) {
@@ -311,17 +321,17 @@ async function handleRemoveIgnoredChannel(interaction: ChatInputCommandInteracti
 
   const levelingConfig = await getGuildLevelingConfiguration(interaction.guildId);
   if (!levelingConfig) {
-    return interaction.editReply({ content: 'The leveling system is not configured for this server yet!' });
+    return interaction.editReply({ content: t('leveling.disabled') });
   }
 
   const channelId = interaction.options.getString('channel-id', true);
   if (!levelingConfig.ignoredChannels.includes(channelId)) {
-    return interaction.editReply({ content: 'This channel is not in the ignored channels list!' });
+    return interaction.editReply({ content: t('leveling.channel.notIgnored', { channel: channelMention(channelId) }) });
   }
 
   const updatedIgnoredChannels = levelingConfig.ignoredChannels.filter((id) => id !== channelId);
   await updateGuildLevelingConfiguration(interaction.guildId, { ignoredChannels: updatedIgnoredChannels });
-  return interaction.editReply({ content: `Removed ${channelMention(channelId)} from the ignored channels list!` });
+  return interaction.editReply({ content: t('leveling.channel.removedIgnored', { channel: channelMention(channelId) }) });
 }
 
 async function handleAddEnabledChannel(interaction: ChatInputCommandInteraction<'cached'>) {
@@ -329,16 +339,16 @@ async function handleAddEnabledChannel(interaction: ChatInputCommandInteraction<
 
   const levelingConfig = await getGuildLevelingConfiguration(interaction.guildId);
   if (!levelingConfig) {
-    return interaction.editReply({ content: 'The leveling system is not configured for this server yet!' });
+    return interaction.editReply({ content: t('leveling.disabled') });
   }
 
   const channel = interaction.options.getChannel('channel', true);
   if (levelingConfig.enabledChannels.includes(channel.id)) {
-    return interaction.editReply({ content: 'This channel is already in the enabled channels list!' });
+    return interaction.editReply({ content: t('leveling.channel.alreadyEnabled', { channel: channelMention(channel.id) }) });
   }
 
   await addEnabledChannel(interaction.guildId, channel.id);
-  return interaction.editReply({ content: `Added ${channel} to the enabled channels list!` });
+  return interaction.editReply({ content: t('leveling.channel.addEnabled', { channel: channelMention(channel.id) }) });
 }
 
 async function handleRemoveEnabledChannel(interaction: ChatInputCommandInteraction<'cached'>) {
@@ -346,17 +356,17 @@ async function handleRemoveEnabledChannel(interaction: ChatInputCommandInteracti
 
   const levelingConfig = await getGuildLevelingConfiguration(interaction.guildId);
   if (!levelingConfig) {
-    return interaction.editReply({ content: 'The leveling system is not configured for this server yet!' });
+    return interaction.editReply({ content: t('leveling.disabled') });
   }
 
   const channelId = interaction.options.getString('channel-id', true);
   if (!levelingConfig.enabledChannels.includes(channelId)) {
-    return interaction.editReply({ content: 'This channel is not in the enabled channels list!' });
+    return interaction.editReply({ content: t('leveling.channel.notEnabled', { channel: channelMention(channelId) }) });
   }
 
   const updatedEnabledChannels = levelingConfig.enabledChannels.filter((id) => id !== channelId);
   await updateGuildLevelingConfiguration(interaction.guildId, { enabledChannels: updatedEnabledChannels });
-  return interaction.editReply({ content: `Removed ${channelMention(channelId)} from the enabled channels list!` });
+  return interaction.editReply({ content: t('leveling.channel.removedEnabled', { channel: channelMention(channelId) }) });
 }
 
 async function handleAddIgnoredRole(interaction: ChatInputCommandInteraction<'cached'>) {
@@ -364,16 +374,16 @@ async function handleAddIgnoredRole(interaction: ChatInputCommandInteraction<'ca
 
   const levelingConfig = await getGuildLevelingConfiguration(interaction.guildId);
   if (!levelingConfig) {
-    return interaction.editReply({ content: 'The leveling system is not configured for this server yet!' });
+    return interaction.editReply({ content: t('leveling.disabled') });
   }
 
   const role = interaction.options.getRole('role', true);
   if (levelingConfig.ignoredRoles.includes(role.id)) {
-    return interaction.editReply({ content: 'This role is already in the ignored roles list!' });
+    return interaction.editReply({ content: t('leveling.role.alreadyIgnored', { role: roleMention(role.id) }) });
   }
 
   await addIgnoredRole(interaction.guildId, role.id);
-  return interaction.editReply({ content: `Added ${role} to the ignored roles list!` });
+  return interaction.editReply({ content: t('leveling.role.addIgnored', { role: roleMention(role.id) }) });
 }
 
 async function handleRemoveIgnoredRole(interaction: ChatInputCommandInteraction<'cached'>) {
@@ -381,17 +391,17 @@ async function handleRemoveIgnoredRole(interaction: ChatInputCommandInteraction<
 
   const levelingConfig = await getGuildLevelingConfiguration(interaction.guildId);
   if (!levelingConfig) {
-    return interaction.editReply({ content: 'The leveling system is not configured for this server yet!' });
+    return interaction.editReply({ content: t('leveling.disabled') });
   }
 
   const roleId = interaction.options.getString('role-id', true);
   if (!levelingConfig.ignoredRoles.includes(roleId)) {
-    return interaction.editReply({ content: 'This role is not in the ignored roles list!' });
+    return interaction.editReply({ content: t('leveling.role.notIgnored', { role: roleMention(roleId) }) });
   }
 
   const updatedIgnoredRoles = levelingConfig.ignoredRoles.filter((id) => id !== roleId);
   await updateGuildLevelingConfiguration(interaction.guildId, { ignoredRoles: updatedIgnoredRoles });
-  return interaction.editReply({ content: `Removed ${roleMention(roleId)} from the ignored roles list!` });
+  return interaction.editReply({ content: t('leveling.role.removedIgnored', { role: roleMention(roleId) }) });
 }
 
 async function handleAddEnabledRole(interaction: ChatInputCommandInteraction<'cached'>) {
@@ -399,16 +409,16 @@ async function handleAddEnabledRole(interaction: ChatInputCommandInteraction<'ca
 
   const levelingConfig = await getGuildLevelingConfiguration(interaction.guildId);
   if (!levelingConfig) {
-    return interaction.editReply({ content: 'The leveling system is not configured for this server yet!' });
+    return interaction.editReply({ content: t('leveling.disabled') });
   }
 
   const role = interaction.options.getRole('role', true);
   if (levelingConfig.enabledRoles.includes(role.id)) {
-    return interaction.editReply({ content: 'This role is already in the enabled roles list!' });
+    return interaction.editReply({ content: t('leveling.role.alreadyEnabled', { role: roleMention(role.id) }) });
   }
 
   await addEnabledRole(interaction.guildId, role.id);
-  return interaction.editReply({ content: `Added ${role} to the enabled roles list!` });
+  return interaction.editReply({ content: t('leveling.role.addEnabled', { role: roleMention(role.id) }) });
 }
 
 async function handleRemoveEnabledRole(interaction: ChatInputCommandInteraction<'cached'>) {
@@ -416,15 +426,15 @@ async function handleRemoveEnabledRole(interaction: ChatInputCommandInteraction<
 
   const levelingConfig = await getGuildLevelingConfiguration(interaction.guildId);
   if (!levelingConfig) {
-    return interaction.editReply({ content: 'The leveling system is not configured for this server yet!' });
+    return interaction.editReply({ content: t('leveling.disabled') });
   }
 
   const roleId = interaction.options.getString('role-id', true);
   if (!levelingConfig.enabledRoles.includes(roleId)) {
-    return interaction.editReply({ content: 'This role is not in the enabled roles list!' });
+    return interaction.editReply({ content: t('leveling.role.notEnabled', { role: roleMention(roleId) }) });
   }
 
   const updatedEnabledRoles = levelingConfig.enabledRoles.filter((id) => id !== roleId);
   await updateGuildLevelingConfiguration(interaction.guildId, { enabledRoles: updatedEnabledRoles });
-  return interaction.editReply({ content: `Removed ${roleMention(roleId)} from the enabled roles list!` });
+  return interaction.editReply({ content: t('leveling.role.removedEnabled', { role: roleMention(roleId) }) });
 }
