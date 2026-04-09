@@ -46,6 +46,10 @@ interface SetupState {
   roles: { emoji: string; roleId: string }[];
 }
 
+const MAX_MENUS_PER_GUILD = 20;
+const MAX_ROLES_PER_MENU = 20;
+const CHANNEL_NAME_LIMIT = 20;
+
 export default new Command({
   data: new SlashCommandBuilder()
     .setContexts(InteractionContextType.Guild)
@@ -110,13 +114,13 @@ export default new Command({
       const menus = await getAllReactionRoleMenusForGuild(interaction.guildId);
       const choices = menus.map((menu) => {
         const channelName = interaction.guild?.channels.cache.get(menu.channelId)?.name || '???';
-        const displayChannelName = channelName.length > 20 ? `${channelName.slice(0, 20)}...` : channelName;
+        const displayChannelName = channelName.length > CHANNEL_NAME_LIMIT ? `${channelName.slice(0, CHANNEL_NAME_LIMIT)}...` : channelName;
 
         return {
           name: t('reactionRole.info.selectItem', {
             channel: displayChannelName,
             roles: menu.roles.length,
-            total: 20,
+            total: MAX_MENUS_PER_GUILD,
             id: menu.id,
           }),
 
@@ -131,7 +135,7 @@ export default new Command({
 
   async execute(interaction) {
     if (!interaction.inCachedGuild()) {
-      return interaction.reply({ content: 'This command can only be used in a server.', flags: [MessageFlags.Ephemeral] });
+      return;
     }
 
     const subcommand = interaction.options.getSubcommand();
@@ -155,11 +159,7 @@ export default new Command({
       default:
         interaction.reply({
           components: [
-            new ContainerBuilder()
-              .setAccentColor(Colors.Red)
-              .addTextDisplayComponents(
-                new TextDisplayBuilder().setContent('### Unknown subcommand\nPlease use one of the following: `setup`, `info`, `re-send`, `toggle`, `delete`.'),
-              ),
+            new ContainerBuilder().setAccentColor(Colors.Red).addTextDisplayComponents(new TextDisplayBuilder().setContent(t('reactionRole.subcommand'))),
           ],
           flags: [MessageFlags.IsComponentsV2, MessageFlags.Ephemeral],
         });
@@ -183,9 +183,9 @@ export async function handleSetup(interaction: ChatInputCommandInteraction<'cach
 
   const existingMenus = await getAllReactionRoleMenusForGuild(interaction.guildId);
 
-  if (existingMenus.length >= 20) {
+  if (existingMenus.length >= MAX_MENUS_PER_GUILD) {
     return interaction.editReply({
-      content: 'You have reached the maximum number of reaction role menus (20) for this server. Please delete an existing menu before creating a new one.',
+      content: t('reactionRole.setup.maximum', { total: MAX_MENUS_PER_GUILD }),
       components: [],
     });
   }
@@ -196,51 +196,52 @@ export async function handleSetup(interaction: ChatInputCommandInteraction<'cach
 
     switch (state.step) {
       case 'MODE':
-        container.addTextDisplayComponents(
-          new TextDisplayBuilder().setContent('### Step 1: Selection Mode\nShould this reaction menu allow users to select only one role, or multiple?'),
-        );
+        container.addTextDisplayComponents(new TextDisplayBuilder().setContent(t('reactionRole.setup.step1')));
         components.push(
           new ActionRowBuilder<ButtonBuilder>().addComponents(
-            new ButtonBuilder().setCustomId('setup_single').setLabel('Single Choice').setStyle(ButtonStyle.Secondary),
-            new ButtonBuilder().setCustomId('setup_multi').setLabel('Multiple Choice').setStyle(ButtonStyle.Secondary),
+            new ButtonBuilder().setCustomId('setup_single').setLabel(t('choice.single')).setStyle(ButtonStyle.Secondary),
+            new ButtonBuilder().setCustomId('setup_multi').setLabel(t('choice.multi')).setStyle(ButtonStyle.Secondary),
           ),
         );
         break;
 
       case 'REQUIRED_ROLES':
-        container.addTextDisplayComponents(
-          new TextDisplayBuilder().setContent(
-            '### Step 2: Required Roles\nSelect any roles a user MUST have to use this menu. If none are required, click Skip.',
-          ),
-        );
+        container.addTextDisplayComponents(new TextDisplayBuilder().setContent(t('reactionRole.setup.step2', { total: MAX_ROLES_PER_MENU })));
         components.push(
           new ActionRowBuilder<RoleSelectMenuBuilder>().addComponents(
-            new RoleSelectMenuBuilder().setCustomId('setup_req_roles').setMinValues(1).setMaxValues(10).setPlaceholder('Select required roles (Optional)...'),
+            new RoleSelectMenuBuilder()
+              .setCustomId('setup_req_roles')
+              .setMinValues(1)
+              .setMaxValues(MAX_ROLES_PER_MENU)
+              .setPlaceholder(t('reactionRole.setup.requiredPlaceholder')),
           ),
           new ActionRowBuilder<ButtonBuilder>().addComponents(
-            new ButtonBuilder().setCustomId('setup_skip_req_roles').setLabel('Skip / No Requirements').setStyle(ButtonStyle.Secondary),
+            new ButtonBuilder().setCustomId('setup_skip_req_roles').setLabel(t('reactionRole.setup.skipRequired')).setStyle(ButtonStyle.Secondary),
           ),
         );
         break;
 
       case 'CHANNEL':
-        container.addTextDisplayComponents(
-          new TextDisplayBuilder().setContent('### Step 3: Target Channel\nSelect the text channel where the bot should post the new reaction menu.'),
-        );
+        container.addTextDisplayComponents(new TextDisplayBuilder().setContent(t('reactionRole.setup.step3')));
         components.push(
           new ActionRowBuilder<ChannelSelectMenuBuilder>().addComponents(
-            new ChannelSelectMenuBuilder().setCustomId('setup_channel').setChannelTypes(ChannelType.GuildText).setPlaceholder('Select a target channel...'),
+            new ChannelSelectMenuBuilder()
+              .setCustomId('setup_channel')
+              .setChannelTypes(ChannelType.GuildText)
+              .setPlaceholder(t('reactionRole.setup.channelPlaceholder')),
           ),
         );
         break;
 
       case 'MENU_ROLES':
-        container.addTextDisplayComponents(
-          new TextDisplayBuilder().setContent('### Step 4: Menu Roles\nSelect the roles you want users to be able to claim (Max 20).'),
-        );
+        container.addTextDisplayComponents(new TextDisplayBuilder().setContent(t('reactionRole.setup.step4', { total: MAX_ROLES_PER_MENU })));
         components.push(
           new ActionRowBuilder<RoleSelectMenuBuilder>().addComponents(
-            new RoleSelectMenuBuilder().setCustomId('setup_menu_roles').setMinValues(1).setMaxValues(20).setPlaceholder('Select roles to offer...'),
+            new RoleSelectMenuBuilder()
+              .setCustomId('setup_menu_roles')
+              .setMinValues(1)
+              .setMaxValues(MAX_ROLES_PER_MENU)
+              .setPlaceholder(t('reactionRole.setup.rolePlaceholder')),
           ),
         );
         break;
@@ -249,23 +250,44 @@ export async function handleSetup(interaction: ChatInputCommandInteraction<'cach
         const currentRole = state.menuRoleIds[state.pairingIndex];
         container.addTextDisplayComponents(
           new TextDisplayBuilder().setContent(
-            `### Step 5: Emoji Pairing (${state.pairingIndex + 1}/${state.menuRoleIds.length})\n\nPlease react to **this message** with the emoji you want to pair with the role <@&${currentRole}>.`,
+            t('reactionRole.setup.step5', {
+              current: state.pairingIndex + 1,
+              total: state.menuRoleIds.length,
+              role: roleMention(currentRole!),
+            }),
           ),
         );
         break;
       }
 
       case 'CONFIRM':
-        container
-          .setAccentColor(Colors.Green)
-          .addTextDisplayComponents(
-            new TextDisplayBuilder().setContent(
-              `### Step 6: Confirm Setup\nEverything is ready. The bot will create the message and save the database entry.\n\n- **Target:** <#${state.channelId}>\n- **Mode:** ${state.singleChoice ? 'Single Choice' : 'Multiple Choice'}\n- **Required Roles:** ${state.requiredRoleIds.length}\n- **Menu Roles:** ${state.roles.length}`,
-            ),
-          );
+        container.setAccentColor(Colors.Green).addTextDisplayComponents(
+          new TextDisplayBuilder().setContent(
+            t('reactionRole.setup.step6', {
+              details: [
+                t('reactionRole.info.channel', { channel: channelMention(state.channelId!) }),
+                t('reactionRole.info.choice', { choice: state.singleChoice ? t('choice.single') : t('choice.multiple') }),
+                state.requiredRoleIds.length > 0
+                  ? t('reactionRole.info.required', {
+                      roles: state.requiredRoleIds.map((roleId) => roleMention(roleId)).join(', '),
+                      count: state.requiredRoleIds.length,
+                      total: MAX_ROLES_PER_MENU,
+                    })
+                  : t('reactionRole.info.noRequired', { total: MAX_ROLES_PER_MENU }),
+                state.roles.length > 0
+                  ? t('reactionRole.info.roles', {
+                      roles: state.roles.map((role) => t('reactionRole.info.roleItem', { emoji: role.emoji, role: roleMention(role.roleId) })).join(', '),
+                      count: state.roles.length,
+                      total: MAX_ROLES_PER_MENU,
+                    })
+                  : t('reactionRole.info.noRoles', { total: MAX_ROLES_PER_MENU }),
+              ].join('\n'),
+            }),
+          ),
+        );
         components.push(
           new ActionRowBuilder<ButtonBuilder>().addComponents(
-            new ButtonBuilder().setCustomId('setup_save').setLabel('Deploy Menu').setStyle(ButtonStyle.Success),
+            new ButtonBuilder().setCustomId('setup_save').setLabel(t('reactionRole.setup.save')).setStyle(ButtonStyle.Success),
           ),
         );
         break;
@@ -308,12 +330,14 @@ export async function handleSetup(interaction: ChatInputCommandInteraction<'cach
 
         const targetChannel = await interaction.guild?.channels.fetch(state.channelId!).catch(() => null);
         if (!targetChannel || !targetChannel.isTextBased()) {
-          return componentInteraction.followUp({ content: 'Error: Could not find or access the target channel.', flags: [MessageFlags.Ephemeral] });
+          return componentInteraction.followUp({ content: t('reactionRole.setup.invalidChannel'), flags: [MessageFlags.Ephemeral] });
         }
 
         const embed = new EmbedBuilder()
-          .setTitle('Role Menu')
-          .setDescription(`Click the buttons below to claim your roles!\n\n${state.roles.map((r) => `${r.emoji} - <@&${r.roleId}>`).join('\n')}`)
+          .setTitle(t('reactionRole.message.title'))
+          .setDescription(
+            `${t('reactionRole.message.description')}\n\n${state.roles.map((r) => t('reactionRole.message.item', { emoji: r.emoji, role: roleMention(r.roleId) })).join('\n')}`,
+          )
           .setColor(Colors.Blurple);
 
         const buttonRows: ActionRowBuilder<ButtonBuilder>[] = [];
@@ -341,9 +365,7 @@ export async function handleSetup(interaction: ChatInputCommandInteraction<'cach
 
         const successContainer = new ContainerBuilder()
           .setAccentColor(Colors.Green)
-          .addTextDisplayComponents(
-            new TextDisplayBuilder().setContent(`### Setup Complete\nThe button menu has been successfully posted in <#${state.channelId}> and saved.`),
-          );
+          .addTextDisplayComponents(new TextDisplayBuilder().setContent(t('reactionRole.setup.complete', { channel: channelMention(state.channelId!) })));
 
         await interaction.editReply({ components: [successContainer] });
         componentCollector.stop('COMPLETED');
@@ -394,7 +416,7 @@ export async function handleSetup(interaction: ChatInputCommandInteraction<'cach
 
   componentCollector.on('end', (_, reason) => {
     if (reason !== 'COMPLETED') {
-      interaction.editReply({ content: '⏱️ *This interaction has timed out. Please run the command again to start over.*', components: [] }).catch(() => null);
+      interaction.editReply({ content: t('reactionRole.setup.timeout'), components: [] }).catch(() => null);
     }
   });
 }
@@ -406,7 +428,7 @@ async function handleInfo(interaction: ChatInputCommandInteraction<'cached'>) {
   const menus = await getAllReactionRoleMenusForGuild(interaction.guildId);
 
   if (menus.length === 0) {
-    return interaction.editReply('There are no reaction role menus configured for this server.');
+    return interaction.editReply(t('reactionRole.info.none'));
   }
 
   const generateMenuDetails = (menu: (typeof menus)[0]) => {
@@ -414,22 +436,34 @@ async function handleInfo(interaction: ChatInputCommandInteraction<'cached'>) {
 
     return new ContainerBuilder()
       .setAccentColor(Colors.Blurple)
-      .addTextDisplayComponents(new TextDisplayBuilder().setContent(`### Reaction Role Menu Details\n**Menu ID:** \`${menu.id}\``))
+      .addTextDisplayComponents(new TextDisplayBuilder().setContent(t('reactionRole.info.title', { id: menu.id })))
       .addSectionComponents(
         new SectionBuilder()
           .addTextDisplayComponents(
             new TextDisplayBuilder().setContent(
               [
-                `**Status:** ${isEnabled ? '🟢 Enabled' : '🔴 Disabled'}`,
-                `**Channel:** <#${menu.channelId}>`,
-                `**Message ID:** ${menu.messageId}`,
-                `**Mode:** ${menu.singleChoice ? 'Single Choice' : 'Multiple Choice'}`,
-                `**Required Roles (${menu.requiredRoleIds.length}/20):**${menu.requiredRoleIds.map((roleId) => `\n- ${roleMention(roleId)}`).join('')}`,
-                `**Roles (${menu.roles.length}/20):**${menu.roles.map((role) => `\n- ${role.emoji} ${roleMention(role.roleId)}`).join('')}`,
+                t('reactionRole.info.status', { state: isEnabled ? t('state.enabled') : t('state.disabled') }),
+                t('reactionRole.info.channel', { channel: channelMention(menu.channelId) }),
+                t('reactionRole.info.messageId', { id: menu.messageId }),
+                t('reactionRole.info.choice', { choice: menu.singleChoice ? t('choice.single') : t('choice.multiple') }),
+                menu.requiredRoleIds.length > 0
+                  ? t('reactionRole.info.required', {
+                      roles: menu.requiredRoleIds.map((roleId) => roleMention(roleId)).join(', '),
+                      count: menu.requiredRoleIds.length,
+                      total: MAX_ROLES_PER_MENU,
+                    })
+                  : t('reactionRole.info.noRequired', { total: MAX_ROLES_PER_MENU }),
+                menu.roles.length > 0
+                  ? t('reactionRole.info.roles', {
+                      roles: menu.roles.map((role) => t('reactionRole.info.roleItem', { emoji: role.emoji, role: roleMention(role.roleId) })).join(', '),
+                      count: menu.roles.length,
+                      total: MAX_ROLES_PER_MENU,
+                    })
+                  : t('reactionRole.info.noRoles', { total: MAX_ROLES_PER_MENU }),
               ].join('\n'),
             ),
           )
-          .setButtonAccessory(new ButtonBuilder().setLabel('Delete Menu').setCustomId(`rr_del_${menu.id}`).setStyle(ButtonStyle.Danger)),
+          .setButtonAccessory(new ButtonBuilder().setLabel(t('reactionRole.info.deleteMenu')).setCustomId(`rr_del_${menu.id}`).setStyle(ButtonStyle.Danger)),
       );
   };
 
@@ -448,7 +482,7 @@ async function handleInfo(interaction: ChatInputCommandInteraction<'cached'>) {
     new TextDisplayBuilder().setContent(
       t('reactionRole.info.overview', {
         count: menus.length,
-        total: 20,
+        total: MAX_MENUS_PER_GUILD,
       }),
     ),
   );
@@ -461,14 +495,14 @@ async function handleInfo(interaction: ChatInputCommandInteraction<'cached'>) {
     .addOptions(
       menus.map((m) => {
         const channelName = interaction.guild?.channels.cache.get(m.channelId)?.name || '???';
-        const displayChannelName = channelName.length > 20 ? `${channelName.slice(0, 20)}...` : channelName;
+        const displayChannelName = channelName.length > CHANNEL_NAME_LIMIT ? `${channelName.slice(0, CHANNEL_NAME_LIMIT)}...` : channelName;
 
         return new StringSelectMenuOptionBuilder()
           .setLabel(
             t('reactionRole.info.selectItem', {
               channel: displayChannelName,
               roles: m.roles.length,
-              total: 20,
+              total: MAX_ROLES_PER_MENU,
               id: m.id,
             }),
           )

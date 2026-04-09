@@ -27,6 +27,10 @@
     "disabled": "disabled",
     "toggled": "toggled"
   },
+  "choice": {
+    "single": "Single Choice",
+    "multiple": "Multiple Choice"
+  },
   "system": {
     "cooldown": {
       "message": "Please wait, you're on cooldown for this! Try again {{remaining}}."
@@ -82,6 +86,7 @@
   "reactionRole": {
     "none": "No reaction role menus are configured for this server.",
     "notFound": "Could not find that reaction role menu.",
+    "subcommand": "### Unknown subcommand\nPlease select a valid subcommand for managing reaction role menus.",
     "toggle": {
       "all": "All reaction role menus have been {{state}}",
       "single": "The reaction role menu {{id}} has been {{state}}.",
@@ -101,11 +106,39 @@
       "description": "Click the buttons below to claim your roles!",
       "item": "{{emoji}} - {{role}}"
     },
+    "setup": {
+      "timeout": "⏱️ *This interaction has timed out. Please run the command again to start over.*",
+      "maximum": "You have reached the maximum number of reaction role menus ({{total}}).\nPlease delete an existing menu before creating a new one.",
+      "complete": "### Setup Complete\nThe reaction role menu has successfully been created in {{channel}} and saved!",
+      "invalidChannel": "Could not find or access the target channel. Please check the channel and my permissions.",
+      "save": "Deploy Menu",
+      "rolePlaceholder": "Select a role to add to the reaction role menu",
+      "channelPlaceholder": "Select a channel to post the reaction role menu in",
+      "requiredPlaceholder": "Select required roles (Optional)",
+      "skipRequired": "Skip / No Requirements",
+      "step6": "### Step 6: Confirm Setup\n\nReview the details of your reaction role menu below. If everything looks good, click the **Deploy Menu** button to post it in the target channel and save it.\n\n{{details}}",
+      "step5": "### Step 5: Emoji Pairing ({{current}}/{{total}})\n\nPlease react to **this message** with the emoji you want to pair with the role {{role}}.",
+      "step4": "### Step 4: Menu Roles\n\nSelect the roles you want users to be able to claim from the reaction role menu.\nYou can select a total of {{total}} different roles.",
+      "step3": "### Step 3: Target Channel\n\nSelect the channel where you want the reaction role menu to be posted by the bot.",
+      "step2": "### Step 2: Required Roles\n\nSelect any roles that users must have to be able to claim roles from the reaction role menu.\nYou can select a total of {{total}} different roles.\nThis step is optional, you can skip it if you don't want any requirements.",
+      "step1": "### Step 1: Selection Mode\n\nShould this reaction menu allow users to select only one role, or multiple roles at once?"
+    },
     "info": {
       "timeout": "⏱️ *This interaction has timed out. Please run the command again to inspect other menus.*",
       "selectItem": "Menu in {{channel}} | {{roles}}/{{total}} roles | ID: {{id}}",
       "selectPlaceholder": "Select a menu to view details",
-      "overview": "### Reaction Role Menus\nThere are currently **{{count}}/{{total}}** menus configured for this server.\n\n*Select a menu from the dropdown below to view details.*"
+      "overview": "### Reaction Role Menus\nThere are currently **{{count}}/{{total}}** menus configured for this server.\n\n*Select a menu from the dropdown below to view details.*",
+      "deleteMenu": "Delete Menu",
+      "title": "### Reaction Role Menu Details\nMenu ID: `{{id}}`",
+      "status": "Status: {{state}}",
+      "channel": "Channel: {{channel}}",
+      "messageId": "Message ID: {{id}}",
+      "choice": "Mode: {{choice}}",
+      "required": "Required Roles ({{count}}/{{total}}): {{roles}}",
+      "noRequired": "Required Roles (0/{{total}}): None",
+      "roles": "Roles ({{count}}/{{total}}): {{roles}}",
+      "noRoles": "Roles (0/{{total}}): None",
+      "roleItem": "{{emoji}} - {{role}}"
     }
   }
 }
