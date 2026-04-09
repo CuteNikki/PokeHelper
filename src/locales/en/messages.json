@@ -349,6 +349,13 @@
       "roles": "Roles ({{count}}/{{total}}): {{roles}}",
       "noRoles": "Roles (0/{{total}}): None",
       "roleItem": "{{emoji}} - {{role}}"
+    },
+    "select": {
+      "requirements": "You do not meet the requirements to select a role from this menu!",
+      "removed": "You have been removed from the {{role}} role.",
+      "assigned": "You have been assigned the {{role}} role.",
+      "swapped": "You have been switched from {{removed, list}} to {{assigned}}.",
+      "error": "An error occured while assigning the role!\nPlease make sure I have the appropriate permissions, the bot role is placed higher than the roles in this menu and try again."
     }
   }
 }

@@ -3,6 +3,7 @@ import { MessageFlags } from 'discord.js';
 import { Button } from 'classes/base/button';
 
 import { deleteReactionRoleMenuConfiguration, getReactionRoleMenuConfiguration } from 'database/reaction-role';
+import { t } from 'i18next';
 
 export default new Button({
   customId: 'rr_del',
@@ -11,17 +12,17 @@ export default new Button({
   async execute(interaction) {
     await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
 
-    const menuId = interaction.customId.split('_')[2]; // Extract the menu ID from the custom ID
+    const menuId = interaction.customId.split('_')[2];
     if (!menuId) {
-      return interaction.editReply({ content: 'Invalid or no menu ID provided!' });
+      return interaction.editReply({ content: t('reactionRole.notFound') });
     }
 
     const menu = await getReactionRoleMenuConfiguration(menuId);
     if (!menu) {
-      return interaction.editReply({ content: 'Reaction role menu not found!' });
+      return interaction.editReply({ content: t('reactionRole.notFound') });
     }
 
     await deleteReactionRoleMenuConfiguration(menuId);
-    return interaction.editReply({ content: 'Reaction role menu deleted successfully!' });
+    return interaction.editReply({ content: t('reactionRole.delete.success') });
   },
 });
