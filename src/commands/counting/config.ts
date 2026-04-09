@@ -14,6 +14,7 @@ import {
   TimestampStyles,
   userMention,
 } from 'discord.js';
+import { t } from 'i18next';
 
 import { Command } from 'classes/base/command';
 
@@ -65,17 +66,7 @@ export default new Command({
         await handleReset(interaction);
         break;
       default:
-        interaction.reply({
-          components: [
-            new ContainerBuilder()
-              .setAccentColor(Colors.Red)
-              .addTextDisplayComponents(
-                new TextDisplayBuilder().setContent('### Unknown subcommand\nPlease use one of the following: `setup`, `edit`, `info`, `reset`.'),
-              ),
-          ],
-          flags: [MessageFlags.IsComponentsV2, MessageFlags.Ephemeral],
-        });
-        break;
+        return;
     }
   },
 });
@@ -92,13 +83,7 @@ async function handleSetup(interaction: ChatInputCommandInteraction<'cached'>): 
   if (currentCounting) {
     return interaction.editReply({
       components: [
-        new ContainerBuilder()
-          .setAccentColor(Colors.Red)
-          .addTextDisplayComponents(
-            new TextDisplayBuilder().setContent(
-              'A counting game is already set up in this server. Please use the edit command to change the settings. Or reset the counting game if you want to start over.',
-            ),
-          ),
+        new ContainerBuilder().setAccentColor(Colors.Red).addTextDisplayComponents(new TextDisplayBuilder().setContent(t('counting.setup.already'))),
       ],
       flags: [MessageFlags.IsComponentsV2],
     });
@@ -112,11 +97,7 @@ async function handleSetup(interaction: ChatInputCommandInteraction<'cached'>): 
     components: [
       new ContainerBuilder()
         .setAccentColor(Colors.Green)
-        .addTextDisplayComponents(
-          new TextDisplayBuilder().setContent(
-            `Counting game has been set up in ${channelMention(channel.id)}!\nTo start counting, simply send the number \`1\` in the channel.`,
-          ),
-        ),
+        .addTextDisplayComponents(new TextDisplayBuilder().setContent(t('counting.setup.success', { channel: channelMention(channel.id) }))),
     ],
     flags: [MessageFlags.IsComponentsV2],
   });
@@ -133,13 +114,7 @@ async function handleEdit(interaction: ChatInputCommandInteraction<'cached'>): P
 
   if (!currentCounting) {
     return interaction.editReply({
-      components: [
-        new ContainerBuilder()
-          .setAccentColor(Colors.Red)
-          .addTextDisplayComponents(
-            new TextDisplayBuilder().setContent('No counting game is set up in this server. Please use the setup command to create one.'),
-          ),
-      ],
+      components: [new ContainerBuilder().setAccentColor(Colors.Red).addTextDisplayComponents(new TextDisplayBuilder().setContent(t('counting.none')))],
       flags: [MessageFlags.IsComponentsV2],
     });
   }
@@ -149,15 +124,7 @@ async function handleEdit(interaction: ChatInputCommandInteraction<'cached'>): P
 
   if (!channel && resetOnFail === undefined) {
     return interaction.editReply({
-      components: [
-        new ContainerBuilder()
-          .setAccentColor(Colors.Red)
-          .addTextDisplayComponents(
-            new TextDisplayBuilder().setContent(
-              'You must provide at least one option to edit the counting game. Either a new channel or reset on fail option.',
-            ),
-          ),
-      ],
+      components: [new ContainerBuilder().setAccentColor(Colors.Red).addTextDisplayComponents(new TextDisplayBuilder().setContent(t('counting.edit.none')))],
       flags: [MessageFlags.IsComponentsV2],
     });
   }
@@ -168,11 +135,7 @@ async function handleEdit(interaction: ChatInputCommandInteraction<'cached'>): P
   });
 
   return interaction.editReply({
-    components: [
-      new ContainerBuilder()
-        .setAccentColor(Colors.Gold)
-        .addTextDisplayComponents(new TextDisplayBuilder().setContent(`Counting game has been updated. Use the info command to see the current settings.`)),
-    ],
+    components: [new ContainerBuilder().setAccentColor(Colors.Gold).addTextDisplayComponents(new TextDisplayBuilder().setContent(t('counting.edit.success')))],
     flags: [MessageFlags.IsComponentsV2],
   });
 }
@@ -187,39 +150,57 @@ async function handleInfo(interaction: ChatInputCommandInteraction<'cached'>): P
 
   if (!currentCounting) {
     return interaction.reply({
-      components: [
-        new ContainerBuilder()
-          .setAccentColor(Colors.Red)
-          .addTextDisplayComponents(
-            new TextDisplayBuilder().setContent('No counting game is set up in this server. Please use the setup command to create one.'),
-          ),
-      ],
+      components: [new ContainerBuilder().setAccentColor(Colors.Red).addTextDisplayComponents(new TextDisplayBuilder().setContent(t('counting.none')))],
       flags: [MessageFlags.IsComponentsV2, MessageFlags.Ephemeral],
     });
   }
 
   return interaction.reply({
     components: [
-      new ContainerBuilder()
-        .setAccentColor(Colors.Blue)
-        .addTextDisplayComponents(
-          new TextDisplayBuilder().setContent(
-            `### Counting Game Information\n${[
-              `Counting game is set up in ${channelMention(currentCounting.channelId)}`,
-              `Reset on fail: ${currentCounting.resetOnFail ? 'enabled' : 'disabled'}`,
-              '',
-              `Last number: ${currentCounting.lastNumber ?? 0}`,
-              `Last number by: ${currentCounting.lastNumberByUserId ? userMention(currentCounting.lastNumberByUserId) : 'N/A'}`,
-              `Last number at: ${currentCounting.lastNumberAt ? time(Math.floor(currentCounting.lastNumberAt.getTime() / 1000), TimestampStyles.ShortDateTime) : 'N/A'}`,
-              `Last number message: ${currentCounting.lastNumberMessageId ? `[Link](<https://discord.com/channels/${interaction.guildId}/${currentCounting.channelId}/${currentCounting.lastNumberMessageId}>)` : 'N/A'}`,
-              '',
-              `Highest number: ${currentCounting.highestNumber ?? 0}`,
-              `Highest number by: ${currentCounting.highestNumberByUserId ? userMention(currentCounting.highestNumberByUserId) : 'N/A'}`,
-              `Highest number at: ${currentCounting.highestNumberAt ? time(Math.floor(currentCounting.highestNumberAt.getTime() / 1000), TimestampStyles.ShortDateTime) : 'N/A'}`,
-              `Highest number message: ${currentCounting.highestNumberMessageId ? `[Link](<https://discord.com/channels/${interaction.guildId}/${currentCounting.channelId}/${currentCounting.highestNumberMessageId}>)` : 'N/A'}`,
-            ].join('\n')}`,
-          ),
+      new ContainerBuilder().setAccentColor(Colors.Blue).addTextDisplayComponents(
+        new TextDisplayBuilder().setContent(
+          [
+            t('counting.info.title'),
+            '',
+            t('counting.info.channel'),
+            t('counting.info.resetOnFail', { status: currentCounting.resetOnFail ? t('enabled') : t('disabled') }),
+            '',
+            t('counting.info.lastNumber', { number: currentCounting.lastNumber ?? 0 }),
+            currentCounting.lastNumberByUserId
+              ? t('counting.info.lastCounter', {
+                  user: userMention(currentCounting.lastNumberByUserId),
+                })
+              : t('counting.info.noLastCounter'),
+            currentCounting.lastNumberAt
+              ? t('counting.info.lastCountedAt', {
+                  time: time(Math.floor(currentCounting.lastNumberAt.getTime() / 1000), TimestampStyles.ShortDateTime),
+                })
+              : t('counting.info.noLastCountedAt'),
+            currentCounting.lastNumberMessageId
+              ? t('counting.info.lastMessage', {
+                  link: `https://discord.com/channels/${interaction.guildId}/${currentCounting.channelId}/${currentCounting.lastNumberMessageId}`,
+                })
+              : t('counting.info.noLastMessage'),
+            '',
+            t('counting.info.highestNumber', { number: currentCounting.highestNumber ?? 0 }),
+            currentCounting.highestNumberByUserId
+              ? t('counting.info.highestCounter', {
+                  user: userMention(currentCounting.highestNumberByUserId),
+                })
+              : t('counting.info.noHighestCounter'),
+            currentCounting.highestNumberAt
+              ? t('counting.info.highestCountedAt', {
+                  time: time(Math.floor(currentCounting.highestNumberAt.getTime() / 1000), TimestampStyles.ShortDateTime),
+                })
+              : t('counting.info.noHighestCountedAt'),
+            currentCounting.highestNumberMessageId
+              ? t('counting.info.highestMessage', {
+                  link: `https://discord.com/channels/${interaction.guildId}/${currentCounting.channelId}/${currentCounting.highestNumberMessageId}`,
+                })
+              : t('counting.info.noHighestMessage'),
+          ].join('\n'),
         ),
+      ),
     ],
     allowedMentions: { parse: [] },
     flags: [MessageFlags.IsComponentsV2],
@@ -237,13 +218,7 @@ async function handleReset(interaction: ChatInputCommandInteraction<'cached'>): 
 
   if (!currentCounting) {
     return interaction.editReply({
-      components: [
-        new ContainerBuilder()
-          .setAccentColor(Colors.Red)
-          .addTextDisplayComponents(
-            new TextDisplayBuilder().setContent('No counting game is set up in this server. Please use the setup command to create one.'),
-          ),
-      ],
+      components: [new ContainerBuilder().setAccentColor(Colors.Red).addTextDisplayComponents(new TextDisplayBuilder().setContent(t('counting.none')))],
       flags: [MessageFlags.IsComponentsV2],
     });
   }
@@ -254,7 +229,7 @@ async function handleReset(interaction: ChatInputCommandInteraction<'cached'>): 
     components: [
       new ContainerBuilder()
         .setAccentColor(Colors.Gold)
-        .addTextDisplayComponents(new TextDisplayBuilder().setContent('The counting game has been reset. You can set it up again using the setup command.')),
+        .addTextDisplayComponents(new TextDisplayBuilder().setContent(t('counting.resetConfiguration.success'))),
     ],
     flags: [MessageFlags.IsComponentsV2],
   });

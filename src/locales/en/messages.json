@@ -173,7 +173,38 @@
   "counting": {
     "noConsecutive": "You can't count twice in a row! Wait for someone else to count before you can count again.",
     "wrongNumber": "That's not the correct number! The current count is {{number}}. Try again with the correct next number.",
-    "reset": "That's not the correct number! The current count was {{number}}. The count has been reset to 0."
+    "reset": "That's not the correct number! The current count was {{number}}. The count has been reset to 0.",
+    "none": "No counting game is currently set up for this server. Please use the setup command to create a one.",
+    "setup": {
+      "already": "A counting game is already set up in this server. Please use the edit command to modify the existing counting game, or reset the current game if you want to start over.",
+      "success": "The counting game has been set up in {{channel}}. To start counting, simply send a message with the number `1` in the counting channel. Happy counting!"
+    },
+    "edit": {
+      "none": "You must provide at least one option to edit the counting game configuration!",
+      "success": "The counting game configuration has been updated successfully! Use the info command to view the current settings."
+    },
+    "info": {
+      "title": "### Counting Game Configuration",
+      "channel": "Channel: {{channel}}",
+      "resetOnFail": "Reset on Fail: {{state}}",
+      "lastNumber": "Last Number: {{number}}",
+      "lastCounter": "Last Counter: {{user}}",
+      "noLastCounter": "Last Counter: None",
+      "lastCountedAt": "Last Counted At: {{time}}",
+      "noLastCountedAt": "Last Counted At: None",
+      "lastMessage": "Last Message: [jump to message]({{link}})",
+      "noLastMessage": "Last Message: None",
+      "highestNumber": "Highest Number: {{number}}",
+      "highestCounter": "Highest Counter: {{user}}",
+      "noHighestCounter": "Highest Counter: None",
+      "highestCountedAt": "Highest Counted At: {{time}}",
+      "noHighestCountedAt": "Highest Counted At: None",
+      "highestMessage": "Highest Message: [jump to message]({{link}})",
+      "noHighestMessage": "Highest Message: None"
+    },
+    "resetConfiguration": {
+      "success": "The counting game configuration has been reset to default settings!"
+    }
   },
   "reactionRole": {
     "none": "No reaction role menus are configured for this server.",
