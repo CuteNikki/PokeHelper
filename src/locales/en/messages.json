@@ -25,7 +25,58 @@
   "state": {
     "enabled": "enabled",
     "disabled": "disabled",
-    "toggled": "toggled"
+    "toggled": "toggled",
+    "yes": "Yes",
+    "no": "No",
+    "on": "On",
+    "off": "Off",
+    "show": "Show",
+    "hide": "Hide",
+    "public": "Public",
+    "private": "Private",
+    "open": "Open",
+    "closed": "Closed",
+    "active": "Active",
+    "inactive": "Inactive",
+    "available": "Available",
+    "unavailable": "Unavailable",
+    "visible": "Visible",
+    "hidden": "Hidden",
+    "allow": "Allow",
+    "deny": "Deny",
+    "required": "Required",
+    "optional": "Optional",
+    "success": "Success",
+    "failure": "Failure",
+    "positive": "Positive",
+    "negative": "Negative",
+    "accept": "Accept",
+    "decline": "Decline",
+    "connected": "Connected",
+    "disconnected": "Disconnected",
+    "joined": "Joined",
+    "left": "Left",
+    "started": "Started",
+    "stopped": "Stopped",
+    "completed": "Completed",
+    "pending": "Pending",
+    "approved": "Approved",
+    "rejected": "Rejected",
+    "locked": "Locked",
+    "unlocked": "Unlocked",
+    "sent": "Sent",
+    "received": "Received",
+    "updated": "Updated",
+    "deleted": "Deleted",
+    "created": "Created",
+    "added": "Added",
+    "removed": "Removed",
+    "increased": "Increased",
+    "decreased": "Decreased",
+    "gained": "Gained",
+    "lost": "Lost",
+    "won": "Won",
+    "tied": "Tied"
   },
   "choice": {
     "single": "Single Choice",
@@ -99,9 +150,45 @@
     }
   },
   "birthday": {
+    "none": "You do not have a birthday set yet! Use the setup command to set your birthday.",
     "announcement": {
       "message": "🎉 Happy Birthday to {{user}}! 🎂🎈",
       "withAge": "🎉 Happy Birthday to {{user}}! They turned {{age}} years old today! 🎂🎈"
+    },
+    "setup": {
+      "already": "A birthday is already set! Use edit to change it or reset to delete it.",
+      "invalidTimezone": "The timezone you provided is not valid. Please provide a valid IANA timezone string (e.g. 'America/New_York').",
+      "invalidDate": "The date you provided is not valid. Please provide a valid date in the format YYYY-MM-DD (e.g. '2000-01-01').",
+      "error": "An error occurred while setting your birthday. Please try again later.",
+      "success": "Your birthday has been set successfully!"
+    },
+    "edit": {
+      "none": "You did not provide any changes! Please provide at least one option to edit.",
+      "error": "An error occurred while editing your birthday configuration. Please try again later.",
+      "success": "Your birthday configuration has been updated successfully!"
+    },
+    "announceInGuild": {
+      "all": "Your birthday is set to be announced in all guilds where a channel is set. You cannot manage specific guilds.",
+      "noneLabel": "No guilds",
+      "noneDescription": "Select this to announce your birthday in no guilds.",
+      "selectPlaceholder": "Select guilds to announce your birthday in",
+      "selectDescription": "Select the guilds where you want your birthday to be announced. Your birthday will only be announced in guilds that have a birthday announcement channel set up.",
+      "error": "An error occurred while updating your birthday announcement guilds. Please try again later.",
+      "selectFilter": "This select menu is not for you!",
+      "success": "Your birthday announcement guilds have been updated successfully!"
+    },
+    "info": {
+      "title": "### Your Birthday Configuration",
+      "date": "Birthday: {{date}}",
+      "timezone": "Timezone: {{timezone}}",
+      "showAge": "Show Age: {{state}}",
+      "announceInGuilds": "Announce in Guilds: {{state}}",
+      "announceInSpecificGuilds": "Announce in Specific Guilds:\n{{guilds}}",
+      "announceInSpecificGuildsNone": "Announce in Specific Guilds: None",
+      "guildEntry": "- {{guild}}"
+    },
+    "reset": {
+      "success": "Your birthday configuration has been reset successfully!"
     }
   },
   "leveling": {

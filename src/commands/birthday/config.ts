@@ -10,6 +10,7 @@ import {
   StringSelectMenuBuilder,
   TextDisplayBuilder,
 } from 'discord.js';
+import { t } from 'i18next';
 
 import { Command } from 'classes/base/command';
 
@@ -89,17 +90,7 @@ export default new Command({
         await handleReset(interaction);
         break;
       default:
-        interaction.reply({
-          components: [
-            new ContainerBuilder()
-              .setAccentColor(Colors.Red)
-              .addTextDisplayComponents(
-                new TextDisplayBuilder().setContent('### Unknown subcommand\nPlease use one of the following: `setup`, `edit`, `info`, `reset`.'),
-              ),
-          ],
-          flags: [MessageFlags.IsComponentsV2, MessageFlags.Ephemeral],
-        });
-        break;
+        return;
     }
   },
 });
@@ -111,9 +102,7 @@ async function handleSetup(interaction: ChatInputCommandInteraction) {
   if (currentConfig) {
     return interaction.editReply({
       components: [
-        new ContainerBuilder()
-          .setAccentColor(Colors.Red)
-          .addTextDisplayComponents(new TextDisplayBuilder().setContent('A birthday is already set\nUse edit to change it or reset to delete it.')),
+        new ContainerBuilder().setAccentColor(Colors.Red).addTextDisplayComponents(new TextDisplayBuilder().setContent(t('birthday.setup.already'))),
       ],
       flags: [MessageFlags.IsComponentsV2],
     });
@@ -131,9 +120,7 @@ async function handleSetup(interaction: ChatInputCommandInteraction) {
   ) {
     return interaction.editReply({
       components: [
-        new ContainerBuilder()
-          .setAccentColor(Colors.Red)
-          .addTextDisplayComponents(new TextDisplayBuilder().setContent('Invalid timezone\nPlease use a valid timezone (e.g. Europe/Berlin).')),
+        new ContainerBuilder().setAccentColor(Colors.Red).addTextDisplayComponents(new TextDisplayBuilder().setContent(t('birthday.setup.invalidTimezone'))),
       ],
       flags: [MessageFlags.IsComponentsV2],
     });
@@ -153,9 +140,7 @@ async function handleSetup(interaction: ChatInputCommandInteraction) {
     if (isNaN(date.getTime())) {
       return interaction.editReply({
         components: [
-          new ContainerBuilder()
-            .setAccentColor(Colors.Red)
-            .addTextDisplayComponents(new TextDisplayBuilder().setContent('Invalid date format\nPlease YYYY-MM-DD.')),
+          new ContainerBuilder().setAccentColor(Colors.Red).addTextDisplayComponents(new TextDisplayBuilder().setContent(t('birthday.setup.invalidDate'))),
         ],
         flags: [MessageFlags.IsComponentsV2],
       });
@@ -165,20 +150,14 @@ async function handleSetup(interaction: ChatInputCommandInteraction) {
   } catch (error) {
     console.error('Error creating birthday configuration:', error);
     return interaction.editReply({
-      components: [
-        new ContainerBuilder()
-          .setAccentColor(Colors.Red)
-          .addTextDisplayComponents(new TextDisplayBuilder().setContent('There was an error setting your birthday. Please try again later.')),
-      ],
+      components: [new ContainerBuilder().setAccentColor(Colors.Red).addTextDisplayComponents(new TextDisplayBuilder().setContent(t('birthday.setup.error')))],
       flags: [MessageFlags.IsComponentsV2],
     });
   }
 
   return interaction.editReply({
     components: [
-      new ContainerBuilder()
-        .setAccentColor(Colors.Green)
-        .addTextDisplayComponents(new TextDisplayBuilder().setContent('Your birthday has been set successfully! 🎉')),
+      new ContainerBuilder().setAccentColor(Colors.Green).addTextDisplayComponents(new TextDisplayBuilder().setContent(t('birthday.setup.success'))),
     ],
     flags: [MessageFlags.IsComponentsV2],
   });
@@ -190,11 +169,7 @@ async function handleEdit(interaction: ChatInputCommandInteraction) {
 
   if (!currentConfig) {
     return interaction.editReply({
-      components: [
-        new ContainerBuilder()
-          .setAccentColor(Colors.Yellow)
-          .addTextDisplayComponents(new TextDisplayBuilder().setContent('No birthday is set\nUse setup to create one.')),
-      ],
+      components: [new ContainerBuilder().setAccentColor(Colors.Yellow).addTextDisplayComponents(new TextDisplayBuilder().setContent(t('birthday.none')))],
       flags: [MessageFlags.IsComponentsV2],
     });
   }
@@ -206,11 +181,7 @@ async function handleEdit(interaction: ChatInputCommandInteraction) {
 
   if (!dateInput && !timezoneInput && showAge === null && announceInGuildsByDefault === null) {
     return interaction.editReply({
-      components: [
-        new ContainerBuilder()
-          .setAccentColor(Colors.Yellow)
-          .addTextDisplayComponents(new TextDisplayBuilder().setContent('No changes provided\nPlease provide at least one option to change.')),
-      ],
+      components: [new ContainerBuilder().setAccentColor(Colors.Yellow).addTextDisplayComponents(new TextDisplayBuilder().setContent(t('birthday.edit.none')))],
       flags: [MessageFlags.IsComponentsV2],
     });
   }
@@ -223,9 +194,7 @@ async function handleEdit(interaction: ChatInputCommandInteraction) {
     ) {
       return interaction.editReply({
         components: [
-          new ContainerBuilder()
-            .setAccentColor(Colors.Red)
-            .addTextDisplayComponents(new TextDisplayBuilder().setContent('Invalid timezone\nPlease use a valid timezone (e.g. Europe/Berlin).')),
+          new ContainerBuilder().setAccentColor(Colors.Red).addTextDisplayComponents(new TextDisplayBuilder().setContent(t('birthday.setup.invalidTimezone'))),
         ],
         flags: [MessageFlags.IsComponentsV2],
       });
@@ -239,9 +208,7 @@ async function handleEdit(interaction: ChatInputCommandInteraction) {
     if (typeof dateParts[0] === 'undefined' || typeof dateParts[1] === 'undefined' || typeof dateParts[2] === 'undefined') {
       return interaction.editReply({
         components: [
-          new ContainerBuilder()
-            .setAccentColor(Colors.Red)
-            .addTextDisplayComponents(new TextDisplayBuilder().setContent('Invalid date format\nPlease use YYYY-MM-DD.')),
+          new ContainerBuilder().setAccentColor(Colors.Red).addTextDisplayComponents(new TextDisplayBuilder().setContent(t('birthday.setup.invalidDate'))),
         ],
         flags: [MessageFlags.IsComponentsV2],
       });
@@ -252,9 +219,7 @@ async function handleEdit(interaction: ChatInputCommandInteraction) {
     if (isNaN(date.getTime())) {
       return interaction.editReply({
         components: [
-          new ContainerBuilder()
-            .setAccentColor(Colors.Red)
-            .addTextDisplayComponents(new TextDisplayBuilder().setContent('Invalid date format\nPlease use YYYY-MM-DD.')),
+          new ContainerBuilder().setAccentColor(Colors.Red).addTextDisplayComponents(new TextDisplayBuilder().setContent(t('birthday.setup.invalidDate'))),
         ],
         flags: [MessageFlags.IsComponentsV2],
       });
@@ -271,21 +236,13 @@ async function handleEdit(interaction: ChatInputCommandInteraction) {
   } catch (error) {
     console.error('Error updating birthday configuration:', error);
     return interaction.editReply({
-      components: [
-        new ContainerBuilder()
-          .setAccentColor(Colors.Red)
-          .addTextDisplayComponents(new TextDisplayBuilder().setContent('There was an error updating your birthday. Please try again later.')),
-      ],
+      components: [new ContainerBuilder().setAccentColor(Colors.Red).addTextDisplayComponents(new TextDisplayBuilder().setContent(t('birthday.edit.error')))],
       flags: [MessageFlags.IsComponentsV2],
     });
   }
 
   await interaction.editReply({
-    components: [
-      new ContainerBuilder()
-        .setAccentColor(Colors.Green)
-        .addTextDisplayComponents(new TextDisplayBuilder().setContent('Your birthday has been updated successfully! 🎉')),
-    ],
+    components: [new ContainerBuilder().setAccentColor(Colors.Green).addTextDisplayComponents(new TextDisplayBuilder().setContent(t('birthday.edit.success')))],
     flags: [MessageFlags.IsComponentsV2],
   });
 
@@ -299,11 +256,7 @@ async function handleAnnounceInGuilds(interaction: ChatInputCommandInteraction) 
   if (currentConfig?.announceInGuildsByDefault) {
     return interaction.editReply({
       components: [
-        new ContainerBuilder()
-          .setAccentColor(Colors.Yellow)
-          .addTextDisplayComponents(
-            new TextDisplayBuilder().setContent('Your birthday is set to be announced in all guilds by default.\nYou cannot manage specific guilds.'),
-          ),
+        new ContainerBuilder().setAccentColor(Colors.Yellow).addTextDisplayComponents(new TextDisplayBuilder().setContent(t('birthday.announceInGuild.all'))),
       ],
       flags: [MessageFlags.IsComponentsV2],
     });
@@ -314,10 +267,10 @@ async function handleAnnounceInGuilds(interaction: ChatInputCommandInteraction) 
   // Add a placeholder option to allow deselecting all guilds
   const guildOptions = [
     {
-      label: 'No guilds selected',
+      label: t('birthday.announceInGuild.noneLabel'),
       value: 'none',
       default: currentConfig?.announceInGuildIds.length === 0,
-      description: 'Select this to announce in no guilds',
+      description: t('birthday.announceInGuild.noneDescription'),
     },
     ...mutualGuilds
       .map((g) => ({
@@ -332,14 +285,13 @@ async function handleAnnounceInGuilds(interaction: ChatInputCommandInteraction) 
     components: [
       new ContainerBuilder()
         .setAccentColor(Colors.Yellow)
-        .addTextDisplayComponents(
-          new TextDisplayBuilder().setContent(
-            `This feature is not yet implemented.\nYou are in ${mutualGuilds.size} mutual guild(s) with the bot.\nThis feature will be available in a future update.`,
-          ),
-        )
+        .addTextDisplayComponents(new TextDisplayBuilder().setContent(t('birthday.announceInGuild.selectDescription')))
         .addActionRowComponents(
           new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
-            new StringSelectMenuBuilder().setCustomId('birthday-announce-in-guilds-select').setPlaceholder('Manage guilds...').setOptions(guildOptions),
+            new StringSelectMenuBuilder()
+              .setCustomId('birthday-announce-in-guilds-select')
+              .setPlaceholder(t('birthday.announceInGuild.selectPlaceholder'))
+              .setOptions(guildOptions),
           ),
         ),
     ],
@@ -350,7 +302,7 @@ async function handleAnnounceInGuilds(interaction: ChatInputCommandInteraction) 
 
   collector.on('collect', async (i) => {
     if (i.user.id !== interaction.user.id) {
-      return i.reply({ content: 'This is not your interaction.', flags: MessageFlags.Ephemeral });
+      return i.reply({ content: t('birthday.announceInGuild.selectFilter'), flags: MessageFlags.Ephemeral });
     }
 
     if (i.customId === 'birthday-announce-in-guilds-select' && i.isStringSelectMenu()) {
@@ -359,9 +311,6 @@ async function handleAnnounceInGuilds(interaction: ChatInputCommandInteraction) 
       // If placeholder is selected, treat as empty selection
       if (selectedGuildIds.includes('none')) {
         selectedGuildIds = [];
-      } else {
-        // Remove placeholder if accidentally selected with others
-        selectedGuildIds = selectedGuildIds.filter((id) => id !== 'none');
       }
 
       try {
@@ -372,7 +321,7 @@ async function handleAnnounceInGuilds(interaction: ChatInputCommandInteraction) 
           components: [
             new ContainerBuilder()
               .setAccentColor(Colors.Red)
-              .addTextDisplayComponents(new TextDisplayBuilder().setContent('There was an error updating your guilds. Please try again later.')),
+              .addTextDisplayComponents(new TextDisplayBuilder().setContent(t('birthday.announceInGuild.error'))),
           ],
           flags: [MessageFlags.IsComponentsV2],
         });
@@ -382,12 +331,12 @@ async function handleAnnounceInGuilds(interaction: ChatInputCommandInteraction) 
         components: [
           new ContainerBuilder()
             .setAccentColor(Colors.Green)
-            .addTextDisplayComponents(new TextDisplayBuilder().setContent('Your guild announcement settings have been updated successfully! 🎉'))
+            .addTextDisplayComponents(new TextDisplayBuilder().setContent(t('birthday.announceInGuild.success')))
             .addActionRowComponents(
               new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
                 new StringSelectMenuBuilder()
                   .setCustomId('birthday-announce-in-guilds-select')
-                  .setPlaceholder('Manage guilds...')
+                  .setPlaceholder(t('birthday.announceInGuild.selectPlaceholder'))
                   .setOptions(
                     guildOptions.map((option) => ({
                       ...option,
@@ -435,11 +384,7 @@ async function handleInfo(interaction: ChatInputCommandInteraction) {
 
   if (!currentConfig) {
     return interaction.editReply({
-      components: [
-        new ContainerBuilder()
-          .setAccentColor(Colors.Yellow)
-          .addTextDisplayComponents(new TextDisplayBuilder().setContent('No birthday is set\nUse setup to create one.')),
-      ],
+      components: [new ContainerBuilder().setAccentColor(Colors.Yellow).addTextDisplayComponents(new TextDisplayBuilder().setContent(t('birthday.none')))],
       flags: [MessageFlags.IsComponentsV2],
     });
   }
@@ -456,11 +401,16 @@ async function handleInfo(interaction: ChatInputCommandInteraction) {
         .setAccentColor(Colors.Green)
         .addTextDisplayComponents(
           new TextDisplayBuilder().setContent(
-            `### Your Birthday Information\n- **Date:** ${currentConfig.date.toLocaleDateString('en-US', dateOptions)}\n- **Timezone:** ${
-              currentConfig.timezone
-            }\n- **Show Age:** ${currentConfig.showAge ? 'Yes' : 'No'}\n- **Announce in Guilds by Default:** ${currentConfig.announceInGuildsByDefault ? 'Yes' : 'No'}\n- **Announce in Specific Guilds:** ${
-              currentConfig.announceInGuildIds.length > 0 ? currentConfig.announceInGuildIds.join(', ') : 'None'
-            }`,
+            [
+              t('birthday.info.title'),
+              t('birthday.info.date', { date: currentConfig.date.toLocaleDateString('en-US', dateOptions) }),
+              t('birthday.info.timezone', { timezone: currentConfig.timezone }),
+              t('birthday.info.showAge', { showAge: currentConfig.showAge ? t('state.yes') : t('state.no') }),
+              t('birthday.info.announceInGuilds', { announceInGuilds: currentConfig.announceInGuildsByDefault ? t('state.yes') : t('state.no') }),
+              currentConfig.announceInGuildIds.length > 0
+                ? t('birthday.info.announceInSpecificGuilds', { guilds: currentConfig.announceInGuildIds.join(', ') })
+                : t('birthday.info.announceInSpecificGuildsNone'),
+            ].join('\n'),
           ),
         ),
     ],
@@ -477,7 +427,7 @@ async function handleReset(interaction: ChatInputCommandInteraction) {
       components: [
         new ContainerBuilder()
           .setAccentColor(Colors.Yellow)
-          .addTextDisplayComponents(new TextDisplayBuilder().setContent('No birthday is set\nUse setup to create one.')),
+          .addTextDisplayComponents(new TextDisplayBuilder().setContent(t('birthday.none'))),
       ],
       flags: [MessageFlags.IsComponentsV2],
     });
@@ -489,7 +439,7 @@ async function handleReset(interaction: ChatInputCommandInteraction) {
     components: [
       new ContainerBuilder()
         .setAccentColor(Colors.Green)
-        .addTextDisplayComponents(new TextDisplayBuilder().setContent('Your birthday has been deleted successfully.')),
+        .addTextDisplayComponents(new TextDisplayBuilder().setContent(t('birthday.reset.success'))),
     ],
     flags: [MessageFlags.IsComponentsV2],
   });
