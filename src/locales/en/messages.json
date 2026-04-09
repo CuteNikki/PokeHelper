@@ -195,7 +195,7 @@
     "levelUp": "🎉 Congratulations {{user}}! You've advanced to **Level {{level}}**! 🎈",
     "disabled": "Leveling is currently disabled or not configured in this server.",
     "rank": {
-      "state": "You are currently level {{level}} with {{xp}} XP.\nYou need {{remaining}}/{{total}} more XP to reach the next level."
+      "state": "You are currently level {{level}} with {{xp}} XP.\nThat puts you at rank #{{rank}} on the leaderboard.\nYou need {{remaining}}/{{total}} more XP to reach the next level."
     },
     "leaderboard": {
       "noUsers": "No users have gained XP in this server yet!",

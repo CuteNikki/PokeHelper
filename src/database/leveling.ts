@@ -89,6 +89,19 @@ export const getTopUsersByXP = async (guildId: string, take: number = 10, skip: 
     skip,
   });
 
+export const getUserRank = async (guildId: string, targetXp: number) => {
+  const usersWithMoreXp = await prisma.userLeveling.count({
+    where: {
+      guildId,
+      xp: {
+        gt: targetXp,
+      },
+    },
+  });
+
+  return usersWithMoreXp + 1;
+};
+
 export const getTotalUsersWithXP = async (guildId: string) =>
   prisma.userLeveling.count({
     where: { guildId },
