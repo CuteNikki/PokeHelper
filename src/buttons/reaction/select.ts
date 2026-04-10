@@ -5,6 +5,8 @@ import { Button } from 'classes/base/button';
 
 import { getReactionRoleMenuConfigurationByMessageId } from 'database/reaction-role';
 
+import { logger } from 'utility/logger';
+
 export default new Button({
   customId: 'rr_sel',
   includesCustomId: true,
@@ -68,7 +70,7 @@ export default new Button({
         allowedMentions: { roles: [] },
       });
     } catch (error) {
-      console.error(error);
+      logger.error(error);
       return interaction.editReply({
         content: t('reactionRole.select.error'),
       });

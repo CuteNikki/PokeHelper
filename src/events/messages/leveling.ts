@@ -6,6 +6,8 @@ import { Event } from 'classes/base/event';
 import { addXpToUser, getGuildLevelingConfiguration, getLevelFromXP } from 'database/leveling';
 import { getUserData } from 'database/user';
 
+import { logger } from 'utility/logger';
+
 export default new Event({
   name: Events.MessageCreate,
   once: false,
@@ -64,9 +66,9 @@ export default new Event({
       if (rewardsToGive.length > 0) {
         const roleIdsToGive = rewardsToGive.map((reward) => reward.roleId);
         await message.member?.roles.add(roleIdsToGive).catch((err) => {
-          console.error(
-            t('system.leveling.failedAssignment', { level: newLevel, user: message.author.tag, id: message.author.id, guild: message.guildId }),
+          logger.error(
             err,
+            t('system.leveling.failedAssignment', { level: newLevel, user: message.author.tag, id: message.author.id, guild: message.guildId }),
           );
         });
       }
@@ -80,10 +82,7 @@ export default new Event({
             content: t('leveling.levelUp', { user: message.author.toString(), username: message.author.username, userId: message.author.id, level: newLevel }),
           })
           .catch((err) => {
-            console.error(
-              t('system.leveling.failedMessage', { level: newLevel, user: message.author.tag, id: message.author.id, guild: message.guildId }),
-              err,
-            );
+            logger.error(err, t('system.leveling.failedMessage', { level: newLevel, user: message.author.tag, id: message.author.id, guild: message.guildId }));
           });
       }
     }

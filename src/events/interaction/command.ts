@@ -6,6 +6,8 @@ import { Event } from 'classes/base/event';
 import { getGuildOrCreate } from 'database/guild';
 import { getUserData } from 'database/user';
 
+import { logger } from 'utility/logger';
+
 export default new Event({
   name: Events.InteractionCreate,
   once: false,
@@ -16,7 +18,7 @@ export default new Event({
 
     // If the command is not found, log a warning and return
     if (!command) {
-      console.warn(t('system.command.notFound', { command: interaction.commandName }));
+      logger.warn(t('system.command.notFound', { command: interaction.commandName }));
       return;
     }
 
@@ -73,7 +75,7 @@ export default new Event({
     try {
       await command.options.execute(interaction);
     } catch (error) {
-      console.error(t('system.command.error', { command: interaction.commandName }), error);
+      logger.error(error, t('system.command.error', { command: interaction.commandName }));
 
       // If the interaction has already been replied to or deferred, follow up with an error message
       if (interaction.replied || interaction.deferred) {

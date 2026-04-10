@@ -3,6 +3,8 @@ import { t } from 'i18next';
 
 import { Event } from 'classes/base/event';
 
+import { logger } from 'utility/logger';
+
 export default new Event({
   name: Events.InteractionCreate,
   once: false,
@@ -15,7 +17,7 @@ export default new Event({
     try {
       await command.options.autocomplete(interaction);
     } catch (error) {
-      console.error(t('system.autocomplete.error', { command: interaction.commandName }), error);
+      logger.error(error, t('system.autocomplete.error', { command: interaction.commandName }));
     }
   },
 });

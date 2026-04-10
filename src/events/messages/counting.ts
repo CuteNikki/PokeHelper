@@ -5,6 +5,8 @@ import { Event } from 'classes/base/event';
 
 import { getCounting, incrementCountingCount, resetCountingCount } from 'database/counting';
 
+import { logger } from 'utility/logger';
+
 export default new Event({
   name: Events.MessageCreate,
   once: false,
@@ -27,11 +29,11 @@ export default new Event({
           ],
           flags: [MessageFlags.IsComponentsV2],
         })
-        .catch(console.error);
+        .catch(logger.error);
       // Delete the warning after 3 seconds
       setTimeout(() => {
-        message.delete().catch(console.error);
-        warnMessage?.delete().catch(console.error);
+        message.delete().catch(logger.error);
+        warnMessage?.delete().catch(logger.error);
       }, 3000);
       return;
     }
@@ -61,11 +63,11 @@ export default new Event({
             ],
             flags: [MessageFlags.IsComponentsV2],
           })
-          .catch(console.error);
+          .catch(logger.error);
         // Delete the warning after 3 seconds
         setTimeout(() => {
-          message.delete().catch(console.error);
-          warnMessage?.delete().catch(console.error);
+          message.delete().catch(logger.error);
+          warnMessage?.delete().catch(logger.error);
         }, 3000);
       }
       return;

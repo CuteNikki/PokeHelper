@@ -4,6 +4,7 @@ import type { Button } from 'classes/base/button';
 import type { ExtendedClient } from 'classes/base/client';
 
 import { getFilesFrom } from 'utility/files';
+import { logger } from 'utility/logger';
 
 /**
  * Loads buttons into the client.
@@ -28,7 +29,7 @@ export async function loadButtons(client: ExtendedClient) {
       } else {
         // Remove the path from filePaths if the button is invalid to show the correct count of successfully loaded buttons
         filePaths.splice(filePaths.indexOf(filePath), 1);
-        console.warn(t('system.button.invalid', { file: filePath }));
+        logger.warn(t('system.button.invalid', { file: filePath }));
       }
     }),
   );

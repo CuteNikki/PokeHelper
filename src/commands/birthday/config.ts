@@ -16,6 +16,8 @@ import { Command } from 'classes/base/command';
 
 import { createUserBirthday, deleteUserBirthday, getUserBirthday, updateUserBirthday } from 'database/birthday';
 
+import { logger } from 'utility/logger';
+
 export default new Command({
   data: new SlashCommandBuilder()
     .setContexts(InteractionContextType.Guild, InteractionContextType.BotDM, InteractionContextType.PrivateChannel)
@@ -148,7 +150,7 @@ async function handleSetup(interaction: ChatInputCommandInteraction) {
 
     await createUserBirthday(interaction.user.id, date, timezoneInput, showAge, announceInGuildsByDefault);
   } catch (error) {
-    console.error('Error creating birthday configuration:', error);
+    logger.error(error, 'Error creating birthday configuration:');
     return interaction.editReply({
       components: [new ContainerBuilder().setAccentColor(Colors.Red).addTextDisplayComponents(new TextDisplayBuilder().setContent(t('birthday.setup.error')))],
       flags: [MessageFlags.IsComponentsV2],
@@ -234,7 +236,7 @@ async function handleEdit(interaction: ChatInputCommandInteraction) {
       announceInGuildsByDefault: announceInGuildsByDefault ?? currentConfig.announceInGuildsByDefault,
     });
   } catch (error) {
-    console.error('Error updating birthday configuration:', error);
+    logger.error(error, 'Error updating birthday configuration:');
     return interaction.editReply({
       components: [new ContainerBuilder().setAccentColor(Colors.Red).addTextDisplayComponents(new TextDisplayBuilder().setContent(t('birthday.edit.error')))],
       flags: [MessageFlags.IsComponentsV2],
@@ -316,7 +318,7 @@ async function handleAnnounceInGuilds(interaction: ChatInputCommandInteraction) 
       try {
         await updateUserBirthday(interaction.user.id, { announceInGuildIds: selectedGuildIds });
       } catch (error) {
-        console.error('Error updating announceInGuildIds:', error);
+        logger.error(error, 'Error updating announceInGuildIds:');
         return i.update({
           components: [
             new ContainerBuilder()
@@ -424,11 +426,7 @@ async function handleReset(interaction: ChatInputCommandInteraction) {
 
   if (!currentConfig) {
     return interaction.editReply({
-      components: [
-        new ContainerBuilder()
-          .setAccentColor(Colors.Yellow)
-          .addTextDisplayComponents(new TextDisplayBuilder().setContent(t('birthday.none'))),
-      ],
+      components: [new ContainerBuilder().setAccentColor(Colors.Yellow).addTextDisplayComponents(new TextDisplayBuilder().setContent(t('birthday.none')))],
       flags: [MessageFlags.IsComponentsV2],
     });
   }
@@ -437,9 +435,7 @@ async function handleReset(interaction: ChatInputCommandInteraction) {
 
   return interaction.editReply({
     components: [
-      new ContainerBuilder()
-        .setAccentColor(Colors.Green)
-        .addTextDisplayComponents(new TextDisplayBuilder().setContent(t('birthday.reset.success'))),
+      new ContainerBuilder().setAccentColor(Colors.Green).addTextDisplayComponents(new TextDisplayBuilder().setContent(t('birthday.reset.success'))),
     ],
     flags: [MessageFlags.IsComponentsV2],
   });

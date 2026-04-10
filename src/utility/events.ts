@@ -5,6 +5,7 @@ import type { ExtendedClient } from 'classes/base/client';
 import type { Event } from 'classes/base/event';
 
 import { getFilesFrom } from 'utility/files';
+import { logger } from 'utility/logger';
 
 /**
  * Loads and registers events for the client.
@@ -28,7 +29,7 @@ export async function loadEvents(client: ExtendedClient) {
       } else {
         // Remove the path from filePaths if the event is invalid to show the correct count of successfully loaded events
         filePaths.splice(filePaths.indexOf(filePath), 1);
-        console.warn(t('system.event.invalid', { file: filePath }));
+        logger.warn(t('system.event.invalid', { file: filePath }));
       }
     }),
   );

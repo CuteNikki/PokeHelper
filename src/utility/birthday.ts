@@ -5,6 +5,7 @@ import cron from 'node-cron';
 import { prisma } from 'database/index';
 
 import type { UserBirthday } from 'generated/prisma/client';
+import { logger } from 'utility/logger';
 
 export async function startBirthdayCron(client: Client) {
   cron.schedule('0 * * * *', async () => {
@@ -62,7 +63,7 @@ async function announceBirthday(client: Client, bdayConfig: UserBirthday) {
             ? t('birthday.announcement.withAge', { user: userMention(bdayConfig.userId), age })
             : t('birthday.announcement.message', { user: userMention(bdayConfig.userId) }),
         })
-        .catch(console.error);
+        .catch((err) => logger.error(err, 'Failed to send birthday announcement:'));
     }
   }
 }
@@ -89,7 +90,7 @@ async function manageBirthdayRole(client: Client, bdayConfig: UserBirthday, acti
         await member.roles.remove(role);
       }
     } catch (err) {
-      console.error(`Failed to ${action} role in ${guild.name}:`, err);
+      logger.error(err, `Failed to ${action} role in ${guild.name}:`);
     }
   }
 }
