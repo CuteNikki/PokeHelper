@@ -13,6 +13,7 @@ import {
   SlashCommandBuilder,
   TextInputBuilder,
   TextInputStyle,
+  userMention,
 } from 'discord.js';
 import { t } from 'i18next';
 
@@ -60,12 +61,12 @@ export default new Command({
           const level = getLevelFromXP(user.xp);
           return t('leveling.leaderboard.entry', {
             position: index + 1 + offset,
-            user: `<@${user.userId}>`,
+            user: userMention(user.userId),
             level,
             xp: user.xp,
           });
         })
-        .join('\n\n');
+        .join('\n');
 
       const embed = new EmbedBuilder()
         .setTitle(t('leveling.leaderboard.title', { guild: interaction.guild.name }))
