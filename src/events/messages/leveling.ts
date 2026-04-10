@@ -4,6 +4,7 @@ import { t } from 'i18next';
 import { Event } from 'classes/base/event';
 
 import { addXpToUser, getGuildLevelingConfiguration, getLevelFromXP } from 'database/leveling';
+import { getUserData } from 'database/user';
 
 export default new Event({
   name: Events.MessageCreate,
@@ -47,6 +48,7 @@ export default new Event({
     // Random XP between 15 and 25
     const xpToAdd = Math.floor(Math.random() * (25 - 15 + 1)) + 15;
 
+    await getUserData(message.author.id); // make sure user exists in database
     const userLevelingData = await addXpToUser(message.guildId, userId, xpToAdd);
 
     const newXp = userLevelingData.xp;
