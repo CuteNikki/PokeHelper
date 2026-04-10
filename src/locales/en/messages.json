@@ -232,29 +232,34 @@
       "set": "The level up channel has been set to {{channel}}.",
       "alreadyIgnored": "The channel {{channel}} is already in the ignored channels list.",
       "addIgnored": "Added {{channel}} to the ignored channels list! Users will no longer receive XP in that channel.",
-      "notIHgnored": "The channel {{channel}} is not in the ignored channels list.",
+      "notIgnored": "The channel {{channel}} is not in the ignored channels list.",
       "removedIgnored": "Removed {{channel}} from the ignored channels list! Users will now receive XP in that channel again.",
       "addEnabled": "Added {{channel}} to the enabled channels list! Users will only receive XP in enabled channels.",
       "alreadyEnabled": "The channel {{channel}} is already in the enabled channels list.",
       "notEnabled": "The channel {{channel}} is not in the enabled channels list.",
-      "removedEnabled": "Removed {{channel}} from the enabled channels list."
+      "removedEnabled": "Removed {{channel}} from the enabled channels list.",
+      "enabledLimit": "You cannot enable more than {{limit}} channels for the leveling system.",
+      "ignoredLimit": "You cannot ignore more than {{limit}} channels for the leveling system."
     },
     "role": {
       "alreadyIgnored": "The role {{role}} is already in the ignored roles list.",
       "addIgnored": "Added {{role}} to the ignored roles list! Users with that role will no longer receive XP.",
-      "notIHgnored": "The role {{role}} is not in the ignored roles list.",
+      "notIgnored": "The role {{role}} is not in the ignored roles list.",
       "removedIgnored": "Removed {{role}} from the ignored roles list! Users with that role will now receive XP again.",
       "addEnabled": "Added {{role}} to the enabled roles list! Only users with that role will receive XP.",
       "alreadyEnabled": "The role {{role}} is already in the enabled roles list.",
       "notEnabled": "The role {{role}} is not in the enabled roles list.",
-      "removedEnabled": "Removed {{role}} from the enabled roles list."
+      "removedEnabled": "Removed {{role}} from the enabled roles list.",
+      "enabledLimit": "You cannot enable more than {{limit}} roles for the leveling system.",
+      "ignoredLimit": "You cannot ignore more than {{limit}} roles for the leveling system."
     },
     "reward": {
       "exists": "That role is already set as a reward for leveling up!",
       "added": "Added a new leveling reward: {{entry}}!",
       "none": "Please specify either a level or a role to remove from the leveling rewards!",
       "notFound": "No reward found for level {{level}} and role {{role}}!",
-      "removed": "Removed the leveling reward for {{entry}}!"
+      "removed": "Removed the leveling reward for {{entry}}!",
+      "limit": "You cannot have more than {{limit}} leveling rewards configured!"
     }
   },
   "counting": {

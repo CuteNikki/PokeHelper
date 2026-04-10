@@ -24,6 +24,12 @@ import {
   updateGuildLevelingConfiguration,
 } from 'database/leveling';
 
+const MAX_REWARDS = 20;
+const MAX_IGNORED_CHANNELS = 20;
+const MAX_ENABLED_CHANNELS = 20;
+const MAX_IGNORED_ROLES = 20;
+const MAX_ENABLED_ROLES = 20;
+
 export default new Command({
   data: new SlashCommandBuilder()
     .setContexts(InteractionContextType.Guild)
@@ -182,13 +188,13 @@ async function handleInfo(interaction: ChatInputCommandInteraction<'cached'>) {
 
   const infoMessage = [
     t('leveling.info.title'),
-    t('leveling.info.status', { status: enabled ? t('state.enabled') : t('state.disabled') }),
+    t('leveling.info.status', { state: enabled ? t('state.enabled') : t('state.disabled') }),
     t('leveling.info.channel', { channel: levelUpChannel }),
-    t('leveling.info.rewards', { rewards: rewardsList }),
-    t('leveling.info.ignoredChannels', { channels: ignoredChannelsList }),
-    t('leveling.info.enabledChannels', { channels: enabledChannelsList }),
-    t('leveling.info.ignoredRoles', { roles: ignoredRolesList }),
-    t('leveling.info.enabledRoles', { roles: enabledRolesList }),
+    t('leveling.info.rewards', { rewards: rewardsList, count: rewards.length, total: MAX_REWARDS }),
+    t('leveling.info.ignoredChannels', { channels: ignoredChannelsList, count: ignoredChannels.length, total: MAX_IGNORED_CHANNELS }),
+    t('leveling.info.enabledChannels', { channels: enabledChannelsList, count: enabledChannels.length, total: MAX_ENABLED_CHANNELS }),
+    t('leveling.info.ignoredRoles', { roles: ignoredRolesList, count: ignoredRoles.length, total: MAX_IGNORED_ROLES }),
+    t('leveling.info.enabledRoles', { roles: enabledRolesList, count: enabledRoles.length, total: MAX_ENABLED_ROLES }),
   ].join('\n');
 
   return interaction.editReply({ content: infoMessage });
@@ -215,7 +221,7 @@ async function handleToggle(interaction: ChatInputCommandInteraction<'cached'>) 
   const newStatus = levelingConfig ? !levelingConfig.enabled : true;
   await updateGuildLevelingConfiguration(interaction.guildId, { enabled: newStatus });
 
-  return interaction.editReply({ content: t('leveling.toggle', { status: newStatus ? t('state.enabled') : t('state.disabled') }) });
+  return interaction.editReply({ content: t('leveling.toggle.success', { status: newStatus ? t('state.enabled') : t('state.disabled') }) });
 }
 
 async function handleSetChannel(interaction: ChatInputCommandInteraction<'cached'>) {
@@ -249,6 +255,10 @@ async function handleAddReward(interaction: ChatInputCommandInteraction<'cached'
   let levelingConfig = await getGuildLevelingConfiguration(interaction.guildId);
   if (!levelingConfig) {
     levelingConfig = await createGuildLevelingConfiguration(interaction.guildId);
+  }
+
+  if (levelingConfig.rewards.length >= MAX_REWARDS) {
+    return interaction.editReply({ content: t('leveling.reward.limit', { limit: MAX_REWARDS }) });
   }
 
   const level = interaction.options.getInteger('level', true);
@@ -307,6 +317,10 @@ async function handleAddIgnoredChannel(interaction: ChatInputCommandInteraction<
     return interaction.editReply({ content: t('leveling.disabled') });
   }
 
+  if (levelingConfig.ignoredChannels.length >= MAX_IGNORED_CHANNELS) {
+    return interaction.editReply({ content: t('leveling.channel.ignoredLimit', { limit: MAX_IGNORED_CHANNELS }) });
+  }
+
   const channel = interaction.options.getChannel('channel', true);
   if (levelingConfig.ignoredChannels.includes(channel.id)) {
     return interaction.editReply({ content: t('leveling.channel.alreadyIgnored', { channel: channelMention(channel.id) }) });
@@ -340,6 +354,10 @@ async function handleAddEnabledChannel(interaction: ChatInputCommandInteraction<
   const levelingConfig = await getGuildLevelingConfiguration(interaction.guildId);
   if (!levelingConfig) {
     return interaction.editReply({ content: t('leveling.disabled') });
+  }
+
+  if (levelingConfig.enabledChannels.length >= MAX_ENABLED_CHANNELS) {
+    return interaction.editReply({ content: t('leveling.channel.enabledLimit', { limit: MAX_ENABLED_CHANNELS }) });
   }
 
   const channel = interaction.options.getChannel('channel', true);
@@ -377,6 +395,10 @@ async function handleAddIgnoredRole(interaction: ChatInputCommandInteraction<'ca
     return interaction.editReply({ content: t('leveling.disabled') });
   }
 
+  if (levelingConfig.ignoredRoles.length >= MAX_IGNORED_ROLES) {
+    return interaction.editReply({ content: t('leveling.role.ignoredLimit', { limit: MAX_IGNORED_ROLES }) });
+  }
+
   const role = interaction.options.getRole('role', true);
   if (levelingConfig.ignoredRoles.includes(role.id)) {
     return interaction.editReply({ content: t('leveling.role.alreadyIgnored', { role: roleMention(role.id) }) });
@@ -410,6 +432,10 @@ async function handleAddEnabledRole(interaction: ChatInputCommandInteraction<'ca
   const levelingConfig = await getGuildLevelingConfiguration(interaction.guildId);
   if (!levelingConfig) {
     return interaction.editReply({ content: t('leveling.disabled') });
+  }
+
+  if (levelingConfig.enabledRoles.length >= MAX_ENABLED_ROLES) {
+    return interaction.editReply({ content: t('leveling.role.enabledLimit', { limit: MAX_ENABLED_ROLES }) });
   }
 
   const role = interaction.options.getRole('role', true);
