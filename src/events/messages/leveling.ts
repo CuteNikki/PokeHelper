@@ -75,7 +75,7 @@ export default new Event({
       if (targetChannel?.isTextBased()) {
         targetChannel
           .send({
-            content: t('leveling.levelUp', { user: message.author.tag, level: newLevel }),
+            content: t('leveling.levelUp', { user: message.author.toString(), username: message.author.username, userId: message.author.id, level: newLevel }),
           })
           .catch((err) => {
             console.error(
