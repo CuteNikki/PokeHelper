@@ -5,11 +5,13 @@ import { ExtendedClient } from 'classes/base/client';
 
 import { prisma } from 'database/index';
 
+import { loadButtons } from 'loading/buttons';
+import { loadCommands } from 'loading/commands';
+import { loadEvents } from 'loading/events';
+
 import { startBirthdayCron } from 'utility/birthday';
-import { loadButtons } from 'utility/buttons';
-import { loadCommands } from 'utility/commands';
-import { loadEvents } from 'utility/events';
 import { initI18Next } from 'utility/i18next';
+import { logger, table } from 'utility/logger';
 import { measure } from 'utility/measure';
 
 const client = new ExtendedClient({
@@ -20,9 +22,15 @@ const client = new ExtendedClient({
 await initI18Next();
 await Promise.all([
   measure(t('system.database.loaded'), () => prisma.$connect()),
-  measure(t('system.event.loaded'), () => loadEvents(client)),
-  measure(t('system.command.loaded'), () => loadCommands(client)),
-  measure(t('system.button.loaded'), () => loadButtons(client)),
+  loadEvents(client).then(({ files, tableData, duration }) =>
+    logger.info(t('system.event.loaded', { count: files.length, duration: duration.toFixed(2) }) + '\n' + table(tableData)),
+  ),
+  loadCommands(client).then(({ files, tableData, duration, count }) =>
+    logger.info(t('system.command.loaded', { count, duration: duration.toFixed(2), files: files.length }) + '\n' + table(tableData)),
+  ),
+  loadButtons(client).then(({ files, tableData, duration, count }) =>
+    logger.info(t('system.button.loaded', { count, duration: duration.toFixed(2), files: files.length }) + '\n' + table(tableData)),
+  ),
   measure(t('system.cron.loaded'), () => startBirthdayCron(client)),
 ]);
 

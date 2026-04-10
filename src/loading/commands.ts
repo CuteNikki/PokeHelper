@@ -16,6 +16,9 @@ export async function loadCommands(client: ExtendedClient) {
   // This is useful during development when commands are frequently updated
   client.commands.clear();
 
+  const tableData: { file: string; name: string; valid: boolean }[] = [];
+  const startTime = performance.now();
+
   const filePaths = await getFilesFrom('src/commands');
 
   // Use Promise.all to load all command files concurrently
@@ -26,13 +29,22 @@ export async function loadCommands(client: ExtendedClient) {
       if (isValidCommand(command)) {
         // Add the command to the commands collection of the client
         client.commands.set(command.options.data.name, command);
+
+        tableData.push({ file: filePath.split('/').slice(-2).join('/'), name: command.options.data?.name ?? '?', valid: true });
       } else {
         // Remove the path from filePaths if the command is invalid to show the correct count of successfully loaded commands
         filePaths.splice(filePaths.indexOf(filePath), 1);
         logger.warn(t('system.command.invalid', { file: filePath }));
+
+        tableData.push({ file: filePath.split('/').slice(-2).join('/'), name: command?.options?.data?.name ?? '?', valid: false });
       }
     }),
   );
+
+  const endTime = performance.now();
+  const duration = endTime - startTime;
+
+  return { files: filePaths, tableData, duration, count: client.commands.size };
 }
 
 /**

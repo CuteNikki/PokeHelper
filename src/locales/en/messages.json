@@ -117,14 +117,14 @@
     },
     "button": {
       "invalid": "Invalid button found in file {{file}}. Skipping registration.",
-      "loaded": "Buttons loaded",
+      "loaded": "Successfully loaded {{count}} buttons from {{files}} files. ({{duration}}ms)",
       "authorOnly": "You can't use this button.",
       "permissions": "You don't have the required permissions to use this button! Required permissions: {{permissions}}",
       "error": "An error occurred while executing this button."
     },
     "command": {
       "invalid": "Invalid command found in file {{file}}. Skipping registration.",
-      "loaded": "Commands loaded",
+      "loaded": "Successfully loaded {{count}} commands from {{files}} files. ({{duration}}ms)",
       "notFound": "Command not found: {{command}}",
       "error": "An error occurred while executing {{command}}"
     },
@@ -133,7 +133,7 @@
     },
     "event": {
       "invalid": "Invalid event found in file {{file}}. Skipping registration.",
-      "loaded": "Events loaded"
+      "loaded": "Successfully loaded {{count}} events. ({{duration}}ms)"
     },
     "cron": {
       "loaded": "Cron jobs started"

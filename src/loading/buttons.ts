@@ -16,6 +16,9 @@ export async function loadButtons(client: ExtendedClient) {
   // This is useful during development when buttons are frequently updated
   client.buttons.clear();
 
+  const tableData: { file: string; customId: string; valid: boolean }[] = [];
+  const startTime = performance.now();
+
   const filePaths = await getFilesFrom('src/buttons');
 
   // Use Promise.all to load all button files concurrently
@@ -26,13 +29,22 @@ export async function loadButtons(client: ExtendedClient) {
       if (isValidButton(button)) {
         // Add the button to the buttons collection of the client
         client.buttons.set(button.options.customId, button);
+
+        tableData.push({ file: filePath.split('/').slice(-2).join('/'), customId: button.options.customId, valid: true });
       } else {
         // Remove the path from filePaths if the button is invalid to show the correct count of successfully loaded buttons
         filePaths.splice(filePaths.indexOf(filePath), 1);
         logger.warn(t('system.button.invalid', { file: filePath }));
+
+        tableData.push({ file: filePath.split('/').slice(-2).join('/'), customId: button?.options?.customId ?? '?', valid: false });
       }
     }),
   );
+
+  const endTime = performance.now();
+  const duration = endTime - startTime;
+
+  return { files: filePaths, tableData, duration, count: client.buttons.size };
 }
 
 /**

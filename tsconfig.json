@@ -30,7 +30,8 @@
       "database/*": ["./src/database/*"],
       "classes/*": ["./src/classes/*"],
       "generated/*": ["./generated/*"],
-      "utility/*": ["./src/utility/*"]
+      "utility/*": ["./src/utility/*"],
+      "loading/*": ["./src/loading/*"]
     }
   }
 }
