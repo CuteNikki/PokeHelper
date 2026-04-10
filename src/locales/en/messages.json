@@ -211,7 +211,7 @@
       "noEnabledRoles": "All roles",
       "title": "### Leveling System Configuration",
       "status": "Status: {{state}}",
-      "levelUpChannel": "Level Up Channel: {{channel}}",
+      "channel": "Level Up Channel: {{channel}}",
       "rewards": "Rewards ({{count}}/{{total}}):\n{{rewards}}",
       "rewardEntry": "Level {{level}}: {{reward}}",
       "ignoredChannels": "Ignored Channels ({{count}}/{{total}}): {{channels}}",
