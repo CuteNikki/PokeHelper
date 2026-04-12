@@ -15,7 +15,7 @@ export default new Event({
     // Ignore bot messages and non-guild messages
     if (message.author.bot || !message.inGuild()) return;
 
-    const levelingConfig = await getGuildLevelingConfiguration(message.guildId);
+    const levelingConfig = await getGuildLevelingConfiguration(message.guildId).catch(logger.error);
     if (!levelingConfig || !levelingConfig.enabled) return; // If leveling is not configured or disabled, do nothing
 
     // If the channel is ignored, do nothing
@@ -50,10 +50,10 @@ export default new Event({
     // Random XP between 15 and 25
     const xpToAdd = Math.floor(Math.random() * (25 - 15 + 1)) + 15;
 
-    await getUserData(message.author.id); // make sure user exists in database
-    const userLevelingData = await addXpToUser(message.guildId, userId, xpToAdd);
+    await getUserData(message.author.id).catch(logger.error); // make sure user exists in database
+    const userLevelingData = await addXpToUser(message.guildId, userId, xpToAdd).catch(logger.error);
 
-    const newXp = userLevelingData.xp;
+    const newXp = userLevelingData?.xp ?? 0;
     const oldXp = newXp - xpToAdd;
 
     const newLevel = getLevelFromXP(newXp);
