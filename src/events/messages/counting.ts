@@ -14,7 +14,7 @@ export default new Event({
     // Ignore bot messages and non-guild messages
     if (message.author.bot || !message.inGuild()) return;
 
-    const counting = await getCounting(message.guildId);
+    const counting = await getCounting(message.guildId).catch(logger.error);
     // Check if counting is set up and in the correct channel
     if (!counting || message.channelId !== counting.channelId) return;
 
@@ -44,7 +44,7 @@ export default new Event({
     if (isNaN(count) || count !== counting.lastNumber + 1) {
       // If the count is invalid, reset the counting configuration if resetOnFail is true
       if (counting.resetOnFail) {
-        await resetCountingCount(message.guildId);
+        await resetCountingCount(message.guildId).catch(logger.error);
         await message.reply({
           components: [
             new ContainerBuilder()
@@ -52,7 +52,7 @@ export default new Event({
               .addTextDisplayComponents(new TextDisplayBuilder().setContent(t('counting.reset', { number: counting.lastNumber }))),
           ],
           flags: [MessageFlags.IsComponentsV2],
-        });
+        }).catch(logger.error);
       } else {
         const warnMessage = await message
           .reply({
@@ -74,6 +74,6 @@ export default new Event({
     }
 
     // Increment the counting number
-    await incrementCountingCount(message.guildId, message.author.id, message.id);
+    await incrementCountingCount(message.guildId, message.author.id, message.id).catch(logger.error);
   },
 });
