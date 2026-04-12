@@ -92,7 +92,7 @@
       "icon": "◀️"
     },
     "page": {
-      "label": "Page {{current}}/{{total}}",
+      "label": "{{current}}/{{total}}",
       "icon": "⏸️"
     },
     "next": {
