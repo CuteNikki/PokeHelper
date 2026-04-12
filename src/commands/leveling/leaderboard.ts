@@ -76,31 +76,31 @@ export default new Command({
       const actionRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
         new ButtonBuilder()
           .setCustomId('lb_first')
-          .setLabel(t('pagination.first.label'))
+          // .setLabel(t('pagination.first.label'))
           .setEmoji(t('pagination.first.icon'))
           .setStyle(ButtonStyle.Secondary)
           .setDisabled(page === 1),
         new ButtonBuilder()
           .setCustomId('lb_prev')
-          .setLabel(t('pagination.previous.label'))
+          // .setLabel(t('pagination.previous.label'))
           .setEmoji(t('pagination.previous.icon'))
           .setStyle(ButtonStyle.Secondary)
           .setDisabled(maxPages === 1),
         new ButtonBuilder()
           .setCustomId('lb_custom')
           .setLabel(t('pagination.page.label', { current: page, total: maxPages }))
-          .setEmoji(t('pagination.page.icon'))
+          // .setEmoji(t('pagination.page.icon'))
           .setStyle(ButtonStyle.Secondary)
           .setDisabled(false),
         new ButtonBuilder()
           .setCustomId('lb_next')
-          .setLabel(t('pagination.next.label'))
+          // .setLabel(t('pagination.next.label'))
           .setEmoji(t('pagination.next.icon'))
           .setStyle(ButtonStyle.Secondary)
           .setDisabled(maxPages === 1),
         new ButtonBuilder()
           .setCustomId('lb_last')
-          .setLabel(t('pagination.last.label'))
+          // .setLabel(t('pagination.last.label'))
           .setEmoji(t('pagination.last.icon'))
           .setStyle(ButtonStyle.Secondary)
           .setDisabled(page === maxPages),
@@ -171,31 +171,31 @@ export default new Command({
       const disabledRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
         new ButtonBuilder()
           .setCustomId('lb_first')
-          .setLabel(t('pagination.first.label'))
+          // .setLabel(t('pagination.first.label'))
           .setEmoji(t('pagination.first.icon'))
           .setStyle(ButtonStyle.Primary)
           .setDisabled(true),
         new ButtonBuilder()
           .setCustomId('lb_prev')
-          .setLabel(t('pagination.previous.label'))
+          // .setLabel(t('pagination.previous.label'))
           .setEmoji(t('pagination.previous.icon'))
           .setStyle(ButtonStyle.Primary)
           .setDisabled(true),
         new ButtonBuilder()
           .setCustomId('lb_custom')
           .setLabel(t('pagination.page.label', { current: currentPage, total: maxPages }))
-          .setEmoji(t('pagination.page.icon'))
+          // .setEmoji(t('pagination.page.icon'))
           .setStyle(ButtonStyle.Primary)
           .setDisabled(true),
         new ButtonBuilder()
           .setCustomId('lb_next')
-          .setLabel(t('pagination.next.label'))
+          // .setLabel(t('pagination.next.label'))
           .setEmoji(t('pagination.next.icon'))
           .setStyle(ButtonStyle.Primary)
           .setDisabled(true),
         new ButtonBuilder()
           .setCustomId('lb_last')
-          .setLabel(t('pagination.last.label'))
+          // .setLabel(t('pagination.last.label'))
           .setEmoji(t('pagination.last.icon'))
           .setStyle(ButtonStyle.Primary)
           .setDisabled(true),
