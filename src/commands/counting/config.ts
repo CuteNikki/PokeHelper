@@ -162,8 +162,8 @@ async function handleInfo(interaction: ChatInputCommandInteraction<'cached'>): P
           [
             t('counting.info.title'),
             '',
-            t('counting.info.channel'),
-            t('counting.info.resetOnFail', { status: currentCounting.resetOnFail ? t('enabled') : t('disabled') }),
+            t('counting.info.channel', { channel: channelMention(currentCounting.channelId) }),
+            t('counting.info.resetOnFail', { state: currentCounting.resetOnFail ? t('enabled') : t('disabled') }),
             '',
             t('counting.info.lastNumber', { number: currentCounting.lastNumber ?? 0 }),
             currentCounting.lastNumberByUserId
