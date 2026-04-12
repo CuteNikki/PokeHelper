@@ -200,7 +200,7 @@
     "leaderboard": {
       "noUsers": "No users have gained XP in this server yet!",
       "title": "🏆 Leveling Leaderboard | {{guild}}",
-      "entry": "{{position}}. {{user}} - Level {{level}} ({{xp}} XP)"
+      "entry": "{{position}}. {{xp}} XP (Level {{level}}) - {{user}}"
     },
     "info": {
       "noChannel": "None",
