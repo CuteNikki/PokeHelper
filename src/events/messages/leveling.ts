@@ -1,4 +1,4 @@
-import { Collection, Events } from 'discord.js';
+import { Collection, Colors, EmbedBuilder, Events } from 'discord.js';
 import { t } from 'i18next';
 
 import { Event } from 'classes/base/event';
@@ -79,7 +79,14 @@ export default new Event({
       if (targetChannel?.isTextBased()) {
         targetChannel
           .send({
-            content: t('leveling.levelUp', { user: message.author.toString(), username: message.author.username, userId: message.author.id, level: newLevel }),
+            content: t('system.leveling.levelUp.content', { user: message.author.toString() }),
+            embeds: [
+              new EmbedBuilder()
+                .setColor(Colors.DarkRed)
+                .setThumbnail(message.member?.displayAvatarURL() ?? message.author.displayAvatarURL())
+                .setDescription(t('system.leveling.levelUp.body', { username: message.author.username, level: newLevel }))
+                .setFooter({ text: t('system.leveling.levelUp.footer', { guild: message.guild.name }), iconURL: message.guild.iconURL() ?? undefined }),
+            ],
           })
           .catch((err) => {
             logger.error(err, t('system.leveling.failedMessage', { level: newLevel, user: message.author.tag, id: message.author.id, guild: message.guildId }));
