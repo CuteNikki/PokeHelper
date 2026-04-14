@@ -194,7 +194,7 @@
   "leveling": {
     "levelUp": {
       "content": "{{user}}",
-      "body": "{{username}} has leveled up!\nCongratulations, you are now **level {{level}}**.",
+      "body": "### {{username}} has leveled up!\nCongratulations, you are now **level {{level}}**.",
       "footer": "{{guild}}"
     },
     "disabled": "Leveling is currently disabled or not configured in this server.",
