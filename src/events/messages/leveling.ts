@@ -79,13 +79,13 @@ export default new Event({
       if (targetChannel?.isTextBased()) {
         targetChannel
           .send({
-            content: t('system.leveling.levelUp.content', { user: message.author.toString() }),
+            content: t('leveling.levelUp.content', { user: message.author.toString() }),
             embeds: [
               new EmbedBuilder()
                 .setColor(Colors.DarkRed)
                 .setThumbnail(message.member?.displayAvatarURL() ?? message.author.displayAvatarURL())
-                .setDescription(t('system.leveling.levelUp.body', { username: message.author.username, level: newLevel }))
-                .setFooter({ text: t('system.leveling.levelUp.footer', { guild: message.guild.name }), iconURL: message.guild.iconURL() ?? undefined }),
+                .setDescription(t('leveling.levelUp.body', { username: message.author.username, level: newLevel }))
+                .setFooter({ text: t('leveling.levelUp.footer', { guild: message.guild.name }), iconURL: message.guild.iconURL() ?? undefined }),
             ],
           })
           .catch((err) => {
