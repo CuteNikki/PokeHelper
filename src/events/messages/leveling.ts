@@ -84,7 +84,7 @@ export default new Event({
               new EmbedBuilder()
                 .setColor(Colors.DarkRed)
                 .setThumbnail(message.member?.displayAvatarURL() ?? message.author.displayAvatarURL())
-                .setDescription(t('leveling.levelUp.body', { username: message.author.username, level: newLevel }))
+                .setDescription(t('leveling.levelUp.body', { username: message.member?.displayName ?? message.author.displayName, level: newLevel }))
                 .setFooter({ text: t('leveling.levelUp.footer', { guild: message.guild.name }), iconURL: message.guild.iconURL() ?? undefined }),
             ],
           })
