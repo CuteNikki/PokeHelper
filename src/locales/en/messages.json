@@ -169,6 +169,37 @@
       "message": "🎉 Happy Birthday to {{user}}! 🎂🎈",
       "withAge": "🎉 Happy Birthday to {{user}}! They turned {{age}} years old today! 🎂🎈"
     },
+    "announce": {
+      "none": "The birthday announcements are not set up in this server yet.\nPlease use the setup command for the initial configuration.",
+      "already": "The birthday configuration is already set up in this server.\nPlease use the edit command to change the settings or reset the settings to start over.",
+      "setup": {
+        "invalidChannel": "The channel you provided is not valid. Please provide a valid channel.",
+        "success": "Successfully set up the birthday announcements!\nBirthdays will from now on be announced in {{channel}}."
+      },
+      "edit": {
+        "none": "You did not provide any changes! Please provide at least one option to edit.",
+        "invalidChannel": "The channel you provided is not valid. Please provide a valid channel.",
+        "success": "Successfully updated the birthday announcement channel to {{channel}}!",
+        "channelRemoved": "Birthday announcements will no longer be sent.",
+        "channelUpdated": "Birthday announcements will now be made in {{channel}}.",
+        "roleRemoved": "Birthday role will no longer be assigned.",
+        "roleUpdated": "Birthday role has been updated to {{role}}!"
+      },
+      "info": {
+        "title": "### Birthday Announcements",
+        "state": "Status: {{state}}",
+        "channel": "Channel: {{channel}}",
+        "noChannel": "Channel: Not set",
+        "role": "Birthday Role: {{role}}",
+        "noRole": "Birthday Role: Not set"
+      },
+      "toggle": {
+        "success": "Birthday announcements have been set to: **{{state}}**"
+      },
+      "reset": {
+        "success": "The birthday announcement configuration has been reset to default settings! Birthday announcements are now disabled and no channel or role is set."
+      }
+    },
     "setup": {
       "already": "A birthday is already set! Use edit to change it or reset to delete it.",
       "invalidTimezone": "The timezone you provided is not valid. Please provide a valid IANA timezone string (e.g. 'America/New_York').",
