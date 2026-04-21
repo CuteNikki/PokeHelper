@@ -22,5 +22,8 @@ export async function initI18Next() {
       logger.error(`Missing interpolation for key: ${text}, value: ${value}`);
       return text;
     },
+    missingKeyHandler: (lng, ns, key) => {
+      logger.error(`Missing key: ${key} in language: ${lng.join(', ')}, namespace: ${ns}`);
+    },
   });
 }
