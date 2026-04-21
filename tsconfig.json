@@ -31,7 +31,9 @@
       "classes/*": ["./src/classes/*"],
       "generated/*": ["./generated/*"],
       "utility/*": ["./src/utility/*"],
-      "loading/*": ["./src/loading/*"]
+      "loading/*": ["./src/loading/*"],
+      "locales/*": ["./src/locales/*"],
+      "types/*": ["./src/types/*"]
     }
   }
 }

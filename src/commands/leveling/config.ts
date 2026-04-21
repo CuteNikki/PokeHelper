@@ -119,46 +119,46 @@ export default new Command({
 
     switch (subcommand) {
       case 'info':
-        handleInfo(interaction);
+        await handleInfo(interaction);
         break;
       case 'reset':
-        handleReset(interaction);
+        await handleReset(interaction);
         break;
       case 'toggle':
-        handleToggle(interaction);
+        await handleToggle(interaction);
         break;
       case 'set-channel':
-        handleSetChannel(interaction);
+        await handleSetChannel(interaction);
         break;
       case 'add-reward':
-        handleAddReward(interaction);
+        await handleAddReward(interaction);
         break;
       case 'remove-reward':
-        handleRemoveReward(interaction);
+        await handleRemoveReward(interaction);
         break;
       case 'add-ignored-channel':
-        handleAddIgnoredChannel(interaction);
+        await handleAddIgnoredChannel(interaction);
         break;
       case 'remove-ignored-channel':
-        handleRemoveIgnoredChannel(interaction);
+        await handleRemoveIgnoredChannel(interaction);
         break;
       case 'add-enabled-channel':
-        handleAddEnabledChannel(interaction);
+        await handleAddEnabledChannel(interaction);
         break;
       case 'remove-enabled-channel':
-        handleRemoveEnabledChannel(interaction);
+        await handleRemoveEnabledChannel(interaction);
         break;
       case 'add-ignored-role':
-        handleAddIgnoredRole(interaction);
+        await handleAddIgnoredRole(interaction);
         break;
       case 'remove-ignored-role':
-        handleRemoveIgnoredRole(interaction);
+        await handleRemoveIgnoredRole(interaction);
         break;
       case 'add-enabled-role':
-        handleAddEnabledRole(interaction);
+        await handleAddEnabledRole(interaction);
         break;
       case 'remove-enabled-role':
-        handleRemoveEnabledRole(interaction);
+        await handleRemoveEnabledRole(interaction);
         break;
       default:
         return;

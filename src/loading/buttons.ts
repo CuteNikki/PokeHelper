@@ -24,7 +24,7 @@ export async function loadButtons(client: ExtendedClient) {
   // Use Promise.all to load all button files concurrently
   await Promise.all(
     filePaths.map(async (filePath) => {
-      const button = (await import(`${filePath}?update=${Date.now()}`)).default;
+      const button = ((await import(`${filePath}?update=${Date.now()}`)) as { default: unknown }).default;
 
       if (isValidButton(button)) {
         // Add the button to the buttons collection of the client
@@ -36,7 +36,7 @@ export async function loadButtons(client: ExtendedClient) {
         filePaths.splice(filePaths.indexOf(filePath), 1);
         logger.warn(t('system.button.invalid', { file: filePath }));
 
-        tableData.push({ file: filePath.split('/').slice(-2).join('/'), customId: button?.options?.customId ?? '?', valid: false });
+        tableData.push({ file: filePath.split('/').slice(-2).join('/'), customId: '?', valid: false });
       }
     }),
   );
@@ -53,13 +53,13 @@ export async function loadButtons(client: ExtendedClient) {
  * @param button - The object to check.
  * @returns True if the object is a valid button, false otherwise.
  */
-export function isValidButton(button: Button): button is Button {
+export function isValidButton(button: unknown): button is Button {
   return (
     typeof button === 'object' &&
     button !== null &&
-    typeof button.options === 'object' &&
-    button.options !== null &&
-    'customId' in button.options &&
-    'execute' in button.options
+    typeof (button as Button).options === 'object' &&
+    (button as Button).options !== null &&
+    'customId' in (button as Button).options &&
+    'execute' in (button as Button).options
   );
 }

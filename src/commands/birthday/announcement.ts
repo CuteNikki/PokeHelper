@@ -126,7 +126,7 @@ async function handleSetup(interaction: ChatInputCommandInteraction<'cached'>) {
 
   return interaction.editReply(
     createResponse(
-      `Successfully set up the birthday configuration!\nBirthday announcements will be made in ${channel}.\n\nYou can change this later using the edit command.`,
+      `Successfully set up the birthday configuration!\nBirthday announcements will be made in ${channel?.toString()}.\n\nYou can change this later using the edit command.`,
       Colors.Green,
     ),
   );
@@ -179,7 +179,7 @@ async function handleEdit(
     if (updates.channelId === null) {
       responseTextParts.push('Birthday announcement channel has been removed.');
     } else {
-      responseTextParts.push(`Birthday announcements will now be made in ${channel}.`);
+      responseTextParts.push(`Birthday announcements will now be made in ${channel?.toString()}.`);
     }
   }
 
@@ -187,7 +187,7 @@ async function handleEdit(
     if (updates.roleId === null) {
       responseTextParts.push('Birthday role has been removed.');
     } else {
-      responseTextParts.push(`Birthday role is now set to ${role}.`);
+      responseTextParts.push(`Birthday role is now set to ${role?.toString()}.`);
     }
   }
 
@@ -201,8 +201,8 @@ async function handleInfo(interaction: ChatInputCommandInteraction<'cached'>, cu
   const content =
     `### Birthday Configuration Info\n\n` +
     `**Status:** ${currentConfig.enabled ? 'Enabled' : 'Disabled'}\n` +
-    `**Announcement Channel:** ${currentConfig.channelId ? (channel ? `${channel}` : `Channel ID: ${currentConfig.channelId} (channel not found)`) : 'Not set'}\n` +
-    `**Birthday Role:** ${currentConfig.roleId ? (role ? `${role}` : `Role ID: ${currentConfig.roleId} (role not found)`) : 'Not set'}\n\n` +
+    `**Announcement Channel:** ${currentConfig.channelId ? (channel ? `${channel?.toString()}` : `Channel ID: ${currentConfig.channelId} (channel not found)`) : 'Not set'}\n` +
+    `**Birthday Role:** ${currentConfig.roleId ? (role ? `${role?.toString()}` : `Role ID: ${currentConfig.roleId} (role not found)`) : 'Not set'}\n\n` +
     `You can change this using the edit command, or reset the configuration.`;
 
   return interaction.editReply(createResponse(content, Colors.Blue));

@@ -302,81 +302,81 @@ async function handleAnnounceInGuilds(interaction: ChatInputCommandInteraction) 
 
   const collector = message.createMessageComponentCollector({ time: 5 * 60 * 1000 });
 
-  collector.on('collect', async (i) => {
-    if (i.user.id !== interaction.user.id) {
-      return i.reply({ content: t('birthday.announceInGuild.selectFilter'), flags: MessageFlags.Ephemeral });
-    }
-
-    if (i.customId === 'birthday-announce-in-guilds-select' && i.isStringSelectMenu()) {
-      let selectedGuildIds = i.values;
-
-      // If placeholder is selected, treat as empty selection
-      if (selectedGuildIds.includes('none')) {
-        selectedGuildIds = [];
+  collector.on('collect', (i) => {
+    void (async () => {
+      if (i.user.id !== interaction.user.id) {
+        return i.reply({ content: t('birthday.announceInGuild.selectFilter'), flags: MessageFlags.Ephemeral });
       }
 
-      try {
-        await updateUserBirthday(interaction.user.id, { announceInGuildIds: selectedGuildIds });
-      } catch (error) {
-        logger.error(error, 'Error updating announceInGuildIds:');
+      if (i.customId === 'birthday-announce-in-guilds-select' && i.isStringSelectMenu()) {
+        let selectedGuildIds = i.values;
+
+        // If placeholder is selected, treat as empty selection
+        if (selectedGuildIds.includes('none')) {
+          selectedGuildIds = [];
+        }
+
+        try {
+          await updateUserBirthday(interaction.user.id, { announceInGuildIds: selectedGuildIds });
+        } catch (error) {
+          logger.error(error, 'Error updating announceInGuildIds:');
+          return i.update({
+            components: [
+              new ContainerBuilder()
+                .setAccentColor(Colors.Red)
+                .addTextDisplayComponents(new TextDisplayBuilder().setContent(t('birthday.announceInGuild.error'))),
+            ],
+            flags: [MessageFlags.IsComponentsV2],
+          });
+        }
+
         return i.update({
           components: [
             new ContainerBuilder()
-              .setAccentColor(Colors.Red)
-              .addTextDisplayComponents(new TextDisplayBuilder().setContent(t('birthday.announceInGuild.error'))),
+              .setAccentColor(Colors.Green)
+              .addTextDisplayComponents(new TextDisplayBuilder().setContent(t('birthday.announceInGuild.success')))
+              .addActionRowComponents(
+                new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
+                  new StringSelectMenuBuilder()
+                    .setCustomId('birthday-announce-in-guilds-select')
+                    .setPlaceholder(t('birthday.announceInGuild.selectPlaceholder'))
+                    .setOptions(
+                      guildOptions.map((option) => ({
+                        ...option,
+                        default: selectedGuildIds.includes(option.value),
+                      })),
+                    ),
+                ),
+              ),
           ],
           flags: [MessageFlags.IsComponentsV2],
         });
       }
-
-      return i.update({
-        components: [
-          new ContainerBuilder()
-            .setAccentColor(Colors.Green)
-            .addTextDisplayComponents(new TextDisplayBuilder().setContent(t('birthday.announceInGuild.success')))
-            .addActionRowComponents(
-              new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
-                new StringSelectMenuBuilder()
-                  .setCustomId('birthday-announce-in-guilds-select')
-                  .setPlaceholder(t('birthday.announceInGuild.selectPlaceholder'))
-                  .setOptions(
-                    guildOptions.map((option) => ({
-                      ...option,
-                      default: selectedGuildIds.includes(option.value),
-                    })),
-                  ),
-              ),
-            ),
-        ],
-        flags: [MessageFlags.IsComponentsV2],
-      });
-    }
+    })();
   });
 
-  collector.on('end', async () => {
-    if (message.editable) {
-      await message.edit({
-        components: message.components
-          .filter((row) => row.type === 1)
-          .map((row) =>
-            ActionRowBuilder.from(row)
-              .setComponents(
-                ...row.components.map((component) => {
-                  if (component.type === 3) {
-                    // StringSelectMenu
-                    return StringSelectMenuBuilder.from(component).setDisabled(true);
-                  }
-                  // Convert other component types to their respective builders if needed
-                  if ('toBuilder' in component && typeof component.toBuilder === 'function') {
-                    return component.toBuilder();
-                  }
-                  return component;
-                }),
-              )
-              .toJSON(),
-          ),
-      });
-    }
+  collector.on('end', () => {
+    void (async () => {
+      if (message.editable) {
+        await message.edit({
+          components: [
+            new ContainerBuilder()
+              .setAccentColor(Colors.Yellow)
+              .addTextDisplayComponents(new TextDisplayBuilder().setContent(t('birthday.announceInGuild.selectDescription')))
+              .addActionRowComponents(
+                new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
+                  new StringSelectMenuBuilder()
+                    .setCustomId('birthday-announce-in-guilds-select')
+                    .setPlaceholder(t('birthday.announceInGuild.selectPlaceholder'))
+                    .setOptions(guildOptions)
+                    .setDisabled(true),
+                ),
+              ),
+          ],
+          flags: [MessageFlags.IsComponentsV2],
+        });
+      }
+    })();
   });
 }
 

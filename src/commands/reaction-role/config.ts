@@ -157,7 +157,7 @@ export default new Command({
         await handleDelete(interaction);
         break;
       default:
-        interaction.reply({
+        await interaction.reply({
           components: [
             new ContainerBuilder().setAccentColor(Colors.Red).addTextDisplayComponents(new TextDisplayBuilder().setContent(t('reactionRole.subcommand'))),
           ],
@@ -200,7 +200,7 @@ export async function handleSetup(interaction: ChatInputCommandInteraction<'cach
         components.push(
           new ActionRowBuilder<ButtonBuilder>().addComponents(
             new ButtonBuilder().setCustomId('setup_single').setLabel(t('choice.single')).setStyle(ButtonStyle.Secondary),
-            new ButtonBuilder().setCustomId('setup_multi').setLabel(t('choice.multi')).setStyle(ButtonStyle.Secondary),
+            new ButtonBuilder().setCustomId('setup_multi').setLabel(t('choice.multiple')).setStyle(ButtonStyle.Secondary),
           ),
         );
         break;
@@ -309,93 +309,97 @@ export async function handleSetup(interaction: ChatInputCommandInteraction<'cach
     idle: 180_000,
   });
 
-  componentCollector.on('collect', async (componentInteraction) => {
-    if (componentInteraction.isButton()) {
-      if (componentInteraction.customId === 'setup_single' || componentInteraction.customId === 'setup_multi') {
-        state.singleChoice = componentInteraction.customId === 'setup_single';
-        state.step = 'REQUIRED_ROLES';
-        await componentInteraction.update(generateReactionRoleView());
-      }
-
-      if (componentInteraction.customId === 'setup_skip_req_roles') {
-        state.requiredRoleIds = [];
-        state.step = 'CHANNEL';
-        await componentInteraction.update(generateReactionRoleView());
-      }
-
-      if (componentInteraction.customId === 'setup_save') {
-        if (isSaving) return;
-        isSaving = true;
-        await componentInteraction.deferUpdate();
-
-        const targetChannel = await interaction.guild?.channels.fetch(state.channelId!).catch(() => null);
-        if (!targetChannel || !targetChannel.isTextBased()) {
-          return componentInteraction.followUp({ content: t('reactionRole.setup.invalidChannel'), flags: [MessageFlags.Ephemeral] });
+  componentCollector.on('collect', (componentInteraction) => {
+    void (async () => {
+      if (componentInteraction.isButton()) {
+        if (componentInteraction.customId === 'setup_single' || componentInteraction.customId === 'setup_multi') {
+          state.singleChoice = componentInteraction.customId === 'setup_single';
+          state.step = 'REQUIRED_ROLES';
+          await componentInteraction.update(generateReactionRoleView());
         }
 
-        const embed = new EmbedBuilder()
-          .setTitle(t('reactionRole.message.title'))
-          .setDescription(
-            `${t('reactionRole.message.description')}\n\n${state.roles.map((r) => t('reactionRole.message.item', { emoji: r.emoji, role: roleMention(r.roleId) })).join('\n')}`,
-          )
-          .setColor(Colors.Blurple);
+        if (componentInteraction.customId === 'setup_skip_req_roles') {
+          state.requiredRoleIds = [];
+          state.step = 'CHANNEL';
+          await componentInteraction.update(generateReactionRoleView());
+        }
 
-        const buttonRows: ActionRowBuilder<ButtonBuilder>[] = [];
+        if (componentInteraction.customId === 'setup_save') {
+          if (isSaving) return;
+          isSaving = true;
+          await componentInteraction.deferUpdate();
 
-        for (let i = 0; i < state.roles.length; i += 5) {
-          const row = new ActionRowBuilder<ButtonBuilder>();
-          const chunk = state.roles.slice(i, i + 5);
-
-          for (const role of chunk) {
-            row.addComponents(new ButtonBuilder().setCustomId(`rr_sel_${role.roleId}`).setEmoji(role.emoji).setStyle(ButtonStyle.Secondary));
+          const targetChannel = await interaction.guild?.channels.fetch(state.channelId!).catch(() => null);
+          if (!targetChannel || !targetChannel.isTextBased()) {
+            await componentInteraction.followUp({ content: t('reactionRole.setup.invalidChannel'), flags: [MessageFlags.Ephemeral] });
+            isSaving = false;
+            return;
           }
-          buttonRows.push(row);
+
+          const embed = new EmbedBuilder()
+            .setTitle(t('reactionRole.message.title'))
+            .setDescription(
+              `${t('reactionRole.message.description')}\n\n${state.roles.map((r) => t('reactionRole.message.item', { emoji: r.emoji, role: roleMention(r.roleId) })).join('\n')}`,
+            )
+            .setColor(Colors.Blurple);
+
+          const buttonRows: ActionRowBuilder<ButtonBuilder>[] = [];
+
+          for (let i = 0; i < state.roles.length; i += 5) {
+            const row = new ActionRowBuilder<ButtonBuilder>();
+            const chunk = state.roles.slice(i, i + 5);
+
+            for (const role of chunk) {
+              row.addComponents(new ButtonBuilder().setCustomId(`rr_sel_${role.roleId}`).setEmoji(role.emoji).setStyle(ButtonStyle.Secondary));
+            }
+            buttonRows.push(row);
+          }
+
+          const sentMessage = await targetChannel.send({ embeds: [embed], components: buttonRows });
+
+          await createReactionRoleMenuConfiguration(
+            interaction.guildId,
+            state.channelId!,
+            sentMessage.id,
+            state.roles,
+            state.singleChoice,
+            state.requiredRoleIds,
+          );
+
+          const successContainer = new ContainerBuilder()
+            .setAccentColor(Colors.Green)
+            .addTextDisplayComponents(new TextDisplayBuilder().setContent(t('reactionRole.setup.complete', { channel: channelMention(state.channelId!) })));
+
+          await interaction.editReply({ components: [successContainer] });
+          componentCollector.stop('COMPLETED');
+          reactionCollector.stop('COMPLETED');
+        }
+      }
+
+      if (componentInteraction.isAnySelectMenu()) {
+        if (componentInteraction.customId === 'setup_req_roles' && componentInteraction.isRoleSelectMenu()) {
+          state.requiredRoleIds = componentInteraction.roles.sort((a, b) => a.position - b.position).map((role) => role.id);
+          state.step = 'CHANNEL';
+          await componentInteraction.update(generateReactionRoleView());
         }
 
-        const sentMessage = await targetChannel.send({ embeds: [embed], components: buttonRows });
+        if (componentInteraction.customId === 'setup_channel') {
+          state.channelId = componentInteraction.values[0] ?? null;
+          state.step = 'MENU_ROLES';
+          await componentInteraction.update(generateReactionRoleView());
+        }
 
-        await createReactionRoleMenuConfiguration(
-          interaction.guildId,
-          state.channelId!,
-          sentMessage.id,
-          state.roles,
-          state.singleChoice,
-          state.requiredRoleIds,
-        );
-
-        const successContainer = new ContainerBuilder()
-          .setAccentColor(Colors.Green)
-          .addTextDisplayComponents(new TextDisplayBuilder().setContent(t('reactionRole.setup.complete', { channel: channelMention(state.channelId!) })));
-
-        await interaction.editReply({ components: [successContainer] });
-        componentCollector.stop('COMPLETED');
-        reactionCollector.stop('COMPLETED');
+        if (componentInteraction.customId === 'setup_menu_roles' && componentInteraction.isRoleSelectMenu()) {
+          state.menuRoleIds = componentInteraction.roles.sort((a, b) => a.position - b.position).map((role) => role.id);
+          state.pairingIndex = 0;
+          state.step = 'EMOJI_PAIRING';
+          await componentInteraction.update(generateReactionRoleView());
+        }
       }
-    }
-
-    if (componentInteraction.isAnySelectMenu()) {
-      if (componentInteraction.customId === 'setup_req_roles' && componentInteraction.isRoleSelectMenu()) {
-        state.requiredRoleIds = componentInteraction.roles.sort((a, b) => a.position - b.position).map((role) => role.id);
-        state.step = 'CHANNEL';
-        await componentInteraction.update(generateReactionRoleView());
-      }
-
-      if (componentInteraction.customId === 'setup_channel') {
-        state.channelId = componentInteraction.values[0] ?? null;
-        state.step = 'MENU_ROLES';
-        await componentInteraction.update(generateReactionRoleView());
-      }
-
-      if (componentInteraction.customId === 'setup_menu_roles' && componentInteraction.isRoleSelectMenu()) {
-        state.menuRoleIds = componentInteraction.roles.sort((a, b) => a.position - b.position).map((role) => role.id);
-        state.pairingIndex = 0;
-        state.step = 'EMOJI_PAIRING';
-        await componentInteraction.update(generateReactionRoleView());
-      }
-    }
+    })().catch(() => null);
   });
 
-  reactionCollector.on('collect', async (reaction) => {
+  reactionCollector.on('collect', (reaction) => {
     if (state.step !== 'EMOJI_PAIRING') return;
 
     const roleId = state.menuRoleIds[state.pairingIndex];
@@ -405,18 +409,18 @@ export async function handleSetup(interaction: ChatInputCommandInteraction<'cach
     state.roles.push({ emoji, roleId });
     state.pairingIndex++;
 
-    await reaction.message.reactions.removeAll().catch(() => null);
+    void reaction.message.reactions.removeAll().catch(() => null);
 
     if (state.pairingIndex >= state.menuRoleIds.length) {
       state.step = 'CONFIRM';
     }
 
-    await interaction.editReply(generateReactionRoleView());
+    void interaction.editReply(generateReactionRoleView()).catch(() => null);
   });
 
   componentCollector.on('end', (_, reason) => {
     if (reason !== 'COMPLETED') {
-      interaction.editReply({ content: t('reactionRole.setup.timeout'), components: [] }).catch(() => null);
+      void interaction.editReply({ content: t('reactionRole.setup.timeout'), components: [] }).catch(() => null);
     }
   });
 }
@@ -428,7 +432,7 @@ async function handleInfo(interaction: ChatInputCommandInteraction<'cached'>) {
   const menus = await getAllReactionRoleMenusForGuild(interaction.guildId);
 
   if (menus.length === 0) {
-    return interaction.editReply(t('reactionRole.info.none'));
+    return interaction.editReply(t('reactionRole.none'));
   }
 
   const generateMenuDetails = (menu: (typeof menus)[0]) => {
@@ -470,7 +474,7 @@ async function handleInfo(interaction: ChatInputCommandInteraction<'cached'>) {
   if (providedMenuId) {
     const targetMenu = menus.find((m) => m.id === providedMenuId);
     if (!targetMenu) {
-      return interaction.editReply(t('reactionRole.info.notFound'));
+      return interaction.editReply(t('reactionRole.notFound'));
     }
     return interaction.editReply({
       components: [generateMenuDetails(targetMenu).toJSON()],
@@ -523,16 +527,18 @@ async function handleInfo(interaction: ChatInputCommandInteraction<'cached'>) {
     idle: 180_000,
   });
 
-  collector.on('collect', async (i) => {
+  collector.on('collect', (i) => {
     if (i.customId === 'info_menu_select') {
       const selectedMenu = menus.find((m) => m.id === i.values[0]);
       if (selectedMenu) {
         currentDisplay = generateMenuDetails(selectedMenu).toJSON();
 
-        await i.update({
-          components: [currentDisplay, actionRow.toJSON()],
-          flags: [MessageFlags.IsComponentsV2],
-        });
+        void i
+          .update({
+            components: [currentDisplay, actionRow.toJSON()],
+            flags: [MessageFlags.IsComponentsV2],
+          })
+          .catch(() => null);
       }
     }
   });
@@ -587,8 +593,7 @@ async function handleResend(interaction: ChatInputCommandInteraction<'cached'>) 
   }
 
   const sentMessage = await targetChannel.send({ embeds: [embed], components: buttonRows }).catch(() => {
-    interaction.editReply({ content: t('reactionRole.resend.failed', { channel: channelMention(targetChannel.id) }) });
-    return null;
+    return interaction.editReply({ content: t('reactionRole.resend.failed', { channel: channelMention(targetChannel.id) }) });
   });
   if (!sentMessage) return;
 

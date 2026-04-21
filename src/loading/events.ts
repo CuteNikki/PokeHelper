@@ -21,7 +21,7 @@ export async function loadEvents(client: ExtendedClient) {
   // Use Promise.all to load all event files concurrently
   await Promise.all(
     filePaths.map(async (filePath) => {
-      const event = (await import(`${filePath}?update=${Date.now()}`)).default;
+      const event = ((await import(`${filePath}?update=${Date.now()}`)) as { default: unknown }).default;
 
       if (isValidEvent(event)) {
         // Register the event with the client
@@ -36,7 +36,7 @@ export async function loadEvents(client: ExtendedClient) {
         filePaths.splice(filePaths.indexOf(filePath), 1);
         logger.warn(t('system.event.invalid', { file: filePath }));
 
-        tableData.push({ file: filePath.split('/').slice(-2).join('/'), name: event?.options?.name ?? '?', valid: false });
+        tableData.push({ file: filePath.split('/').slice(-2).join('/'), name: '?', valid: false });
       }
     }),
   );
@@ -53,13 +53,13 @@ export async function loadEvents(client: ExtendedClient) {
  * @param event - The object to check.
  * @returns True if the object is a valid event, false otherwise.
  */
-function isValidEvent(event: Event<keyof ClientEvents>): event is Event<keyof ClientEvents> {
+function isValidEvent(event: unknown): event is Event<keyof ClientEvents> {
   return (
     typeof event === 'object' &&
     event !== null &&
-    typeof event.options === 'object' &&
-    event.options !== null &&
-    'name' in event.options &&
-    'execute' in event.options
+    typeof (event as Event<keyof ClientEvents>).options === 'object' &&
+    (event as Event<keyof ClientEvents>).options !== null &&
+    'name' in (event as Event<keyof ClientEvents>).options &&
+    'execute' in (event as Event<keyof ClientEvents>).options
   );
 }

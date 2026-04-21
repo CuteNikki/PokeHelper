@@ -24,7 +24,7 @@ export async function loadCommands(client: ExtendedClient) {
   // Use Promise.all to load all command files concurrently
   await Promise.all(
     filePaths.map(async (filePath) => {
-      const command = (await import(`${filePath}?update=${Date.now()}`)).default;
+      const command = ((await import(`${filePath}?update=${Date.now()}`)) as { default: unknown }).default;
 
       if (isValidCommand(command)) {
         // Add the command to the commands collection of the client
@@ -36,7 +36,7 @@ export async function loadCommands(client: ExtendedClient) {
         filePaths.splice(filePaths.indexOf(filePath), 1);
         logger.warn(t('system.command.invalid', { file: filePath }));
 
-        tableData.push({ file: filePath.split('/').slice(-2).join('/'), name: command?.options?.data?.name ?? '?', valid: false });
+        tableData.push({ file: filePath.split('/').slice(-2).join('/'), name: '?', valid: false });
       }
     }),
   );
@@ -53,13 +53,13 @@ export async function loadCommands(client: ExtendedClient) {
  * @param command - The object to check.
  * @returns True if the object is a valid command, false otherwise.
  */
-export function isValidCommand(command: Command): command is Command {
+export function isValidCommand(command: unknown): command is Command {
   return (
     typeof command === 'object' &&
     command !== null &&
-    typeof command.options === 'object' &&
-    command.options !== null &&
-    'data' in command.options &&
-    'execute' in command.options
+    typeof (command as Command).options === 'object' &&
+    (command as Command).options !== null &&
+    'data' in (command as Command).options &&
+    'execute' in (command as Command).options
   );
 }

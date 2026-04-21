@@ -20,7 +20,7 @@ const commands: ApplicationCommandDataResolvable[] = [];
 // Use Promise.all to load all command files concurrently
 await Promise.all(
   filePaths.map(async (filePath) => {
-    const command = (await import(`${filePath}?update=${Date.now()}`)).default;
+    const command = ((await import(`${filePath}?update=${Date.now()}`)) as { default: unknown }).default;
 
     if (isValidCommand(command)) {
       // Add the command to the commands array for registration

@@ -7,7 +7,7 @@ import { prisma } from 'database/index';
 import type { UserBirthday } from 'generated/prisma/client';
 import { logger } from 'utility/logger';
 
-export async function startBirthdayCron(client: Client) {
+export function startBirthdayCron(client: Client) {
   cron.schedule('0 * * * *', async () => {
     const allBirthdays = await prisma.userBirthday.findMany();
 

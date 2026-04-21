@@ -24,7 +24,7 @@ export async function loadSelectMenus(client: ExtendedClient) {
   // Use Promise.all to load all select menu files concurrently
   await Promise.all(
     filePaths.map(async (filePath) => {
-      const selectMenu = (await import(`${filePath}?update=${Date.now()}`)).default;
+      const selectMenu = ((await import(`${filePath}?update=${Date.now()}`)) as { default: unknown }).default;
 
       if (isValidSelectMenu(selectMenu)) {
         // Add the select menu to the selectMenus collection of the client
@@ -36,7 +36,7 @@ export async function loadSelectMenus(client: ExtendedClient) {
         filePaths.splice(filePaths.indexOf(filePath), 1);
         logger.warn(t('system.selectMenu.invalid', { file: filePath }));
 
-        tableData.push({ file: filePath.split('/').slice(-2).join('/'), customId: selectMenu?.options?.customId ?? '?', valid: false });
+        tableData.push({ file: filePath.split('/').slice(-2).join('/'), customId: '?', valid: false });
       }
     }),
   );
@@ -53,13 +53,13 @@ export async function loadSelectMenus(client: ExtendedClient) {
  * @param selectMenu - The object to check.
  * @returns True if the object is a valid select menu, false otherwise.
  */
-export function isValidSelectMenu(selectMenu: SelectMenu): selectMenu is SelectMenu {
+export function isValidSelectMenu(selectMenu: unknown): selectMenu is SelectMenu {
   return (
     typeof selectMenu === 'object' &&
     selectMenu !== null &&
-    typeof selectMenu.options === 'object' &&
-    selectMenu.options !== null &&
-    'customId' in selectMenu.options &&
-    'execute' in selectMenu.options
+    typeof (selectMenu as SelectMenu).options === 'object' &&
+    (selectMenu as SelectMenu).options !== null &&
+    'customId' in (selectMenu as SelectMenu).options &&
+    'execute' in (selectMenu as SelectMenu).options
   );
 }
