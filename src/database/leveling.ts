@@ -81,10 +81,10 @@ export const getUserLevelingData = async (guildId: string, userId: string) =>
     where: { guildId_userId: { guildId, userId } },
   });
 
-export const getTopUsersByXP = async (guildId: string, take: number = 10, skip: number = 0) =>
+export const getTopUsersByXP = async (guildId: string, take: number = 10, skip: number = 0, sortOrder: 'asc' | 'desc' = 'desc') =>
   prisma.userLeveling.findMany({
     where: { guildId },
-    orderBy: { xp: 'desc' },
+    orderBy: { xp: sortOrder },
     take,
     skip,
   });

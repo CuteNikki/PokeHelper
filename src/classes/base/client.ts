@@ -2,6 +2,7 @@ import { ApplicationCommandType, Client, Collection } from 'discord.js';
 
 import type { Button } from 'classes/base/button';
 import type { Command } from 'classes/base/command';
+import type { SelectMenu } from 'classes/base/select';
 
 /**
  * ExtendedClient is a custom Discord.js client that includes additional functionality.
@@ -19,6 +20,12 @@ export class ExtendedClient extends Client {
    * Collection<customId, Button>
    */
   buttons = new Collection<string, Button>();
+
+  /**
+   * A collection of select menus that the client can handle.
+   * Collection<customId, SelectMenu>
+   */
+  selectMenus = new Collection<string, SelectMenu>();
 
   /**
    * This collection is used to keep track of cooldowns.

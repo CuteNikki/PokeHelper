@@ -109,6 +109,10 @@
       "placeholder": "Enter the page number you want to go to (1-{{maxPages}})",
       "timeout": "You did not submit a page number in time!",
       "invalid": "Invalid page number entered. Please enter a number between 1 and {{maxPages}}."
+    },
+    "sort": {
+      "ascending": "Ascending",
+      "descending": "Descending"
     }
   },
   "system": {
@@ -117,14 +121,24 @@
     },
     "button": {
       "invalid": "Invalid button found in file {{file}}. Skipping registration.",
-      "loaded": "Successfully loaded {{count}} buttons from {{files}} files. ({{duration}}ms)",
+      "loaded_one": "Successfully loaded {{count}} button from {{files}} files. ({{duration}}ms)",
+      "loaded_other": "Successfully loaded {{count}} buttons from {{files}} files. ({{duration}}ms)",
       "authorOnly": "You can't use this button.",
       "permissions": "You don't have the required permissions to use this button! Required permissions: {{permissions}}",
       "error": "An error occurred while executing this button."
     },
+    "selectMenu": {
+      "invalid": "Invalid select menu found in file {{file}}. Skipping registration.",
+      "loaded_one": "Successfully loaded {{count}} select menu from {{files}} files. ({{duration}}ms)",
+      "loaded_other": "Successfully loaded {{count}} select menus from {{files}} files. ({{duration}}ms)",
+      "authorOnly": "You can't use this select menu.",
+      "permissions": "You don't have the required permissions to use this select menu! Required permissions: {{permissions}}",
+      "error": "An error occurred while executing this select menu."
+    },
     "command": {
       "invalid": "Invalid command found in file {{file}}. Skipping registration.",
-      "loaded": "Successfully loaded {{count}} commands from {{files}} files. ({{duration}}ms)",
+      "loaded_one": "Successfully loaded {{count}} command from {{files}} files. ({{duration}}ms)",
+      "loaded_other": "Successfully loaded {{count}} commands from {{files}} files. ({{duration}}ms)",
       "notFound": "Command not found: {{command}}",
       "error": "An error occurred while executing {{command}}"
     },
@@ -203,7 +217,7 @@
     },
     "leaderboard": {
       "noUsers": "No users have gained XP in this server yet!",
-      "title": "🏆 Leveling Leaderboard | {{guild}}",
+      "title": "### 🏆 Leveling Leaderboard | {{guild}}",
       "entry": "{{position}}. {{xp}} XP (Level {{level}}) - {{user}}"
     },
     "info": {
