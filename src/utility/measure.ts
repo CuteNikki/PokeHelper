@@ -2,7 +2,7 @@ import chalk from 'chalk';
 
 import { logger } from 'utility/logger';
 
-export async function measure<T>(label: string, fn: () => Promise<T>, indent = 0): Promise<T> {
+export async function measure<T>(label: string, fn: () => Promise<T> | T, indent = 0): Promise<T> {
   const pad = ' '.repeat(indent);
   const start = performance.now();
   const result = await fn();
