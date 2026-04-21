@@ -1,5 +1,6 @@
 import { use } from 'i18next';
 import i18NextFsBackend from 'i18next-fs-backend';
+import { logger } from 'utility/logger';
 
 const supportLanguages = ['en'];
 const nameSpaces = ['messages'];
@@ -16,6 +17,10 @@ export async function initI18Next() {
     },
     backend: {
       loadPath: 'src/locales/{{lng}}/{{ns}}.json',
+    },
+    missingInterpolationHandler: (text, value) => {
+      logger.error(`Missing interpolation for key: ${text}, value: ${value}`);
+      return text;
     },
   });
 }
