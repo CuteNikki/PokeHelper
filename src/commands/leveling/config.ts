@@ -221,7 +221,7 @@ async function handleToggle(interaction: ChatInputCommandInteraction<'cached'>) 
   const newStatus = levelingConfig ? !levelingConfig.enabled : true;
   await updateGuildLevelingConfiguration(interaction.guildId, { enabled: newStatus });
 
-  return interaction.editReply({ content: t('leveling.toggle.success', { status: newStatus ? t('state.enabled') : t('state.disabled') }) });
+  return interaction.editReply({ content: t('leveling.toggle.success', { state: newStatus ? t('state.enabled') : t('state.disabled') }) });
 }
 
 async function handleSetChannel(interaction: ChatInputCommandInteraction<'cached'>) {
