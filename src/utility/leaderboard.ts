@@ -36,21 +36,24 @@ export async function buildLeaderboard({
 
   const container = new ContainerBuilder()
     .setAccentColor(Colors.Gold)
-    .addTextDisplayComponents(new TextDisplayBuilder().setContent(t('leveling.leaderboard.title', { guild: guild.name })));
-
-  pageData.forEach((entry, index) => {
-    const position = (page - 1) * ITEMS_PER_PAGE + index + 1;
-    container.addTextDisplayComponents(
+    .addTextDisplayComponents(new TextDisplayBuilder().setContent(t('leveling.leaderboard.title', { guild: guild.name })))
+    .addTextDisplayComponents(
       new TextDisplayBuilder().setContent(
-        t('leveling.leaderboard.entry', {
-          user: userMention(entry.userId),
-          level: getLevelFromXP(entry.xp),
-          xp: entry.xp,
-          position,
-        }),
+        pageData.length > 0
+          ? pageData
+              .map((entry, index) => {
+                const position = (page - 1) * ITEMS_PER_PAGE + index + 1;
+                return t('leveling.leaderboard.entry', {
+                  user: userMention(entry.userId),
+                  level: getLevelFromXP(entry.xp),
+                  xp: entry.xp,
+                  position,
+                });
+              })
+              .join('\n')
+          : t('leveling.leaderboard.none'),
       ),
     );
-  });
 
   const rowPageButtons = new ActionRowBuilder<ButtonBuilder>().addComponents(
     new ButtonBuilder()

@@ -216,7 +216,7 @@
       "state": "You are currently level {{level}} with {{xp}} XP.\nThat puts you at rank #{{rank}} on the leaderboard.\nYou need {{remaining}}/{{total}} more XP to reach the next level."
     },
     "leaderboard": {
-      "noUsers": "No users have gained XP in this server yet!",
+      "none": "No users have gained XP in this server yet!",
       "title": "### 🏆 Leveling Leaderboard | {{guild}}",
       "entry": "{{position}}. {{xp}} XP (Level {{level}}) - {{user}}"
     },
