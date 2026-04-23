@@ -66,7 +66,7 @@ export default new Button({
 
       await interaction.member.roles.add(roleId);
       return interaction.editReply({
-        content: t('reactionRole.assigned', { role: roleMention(roleId) }),
+        content: t('reactionRole.select.assigned', { role: roleMention(roleId) }),
         allowedMentions: { roles: [] },
       });
     } catch (error) {
