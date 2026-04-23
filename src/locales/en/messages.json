@@ -278,6 +278,9 @@
       "body": "### {{username}} has leveled up!\nCongratulations, you are now **level {{level}}**.",
       "footer": "{{guild}}"
     },
+    "weeklyReset": {
+      "message": "### Weekly XP Reset\nAll weekly XP has been reset to 0 and the weekly leaderboard has been cleared.\nCongratulations to {{winner}} for topping the weekly XP leaderboard with {{xp}} XP!"
+    },
     "disabled": "Leveling is currently disabled or not configured in this server.",
     "rank": {
       "state": "You are currently level {{level}} with {{xp}} XP.\nThat puts you at rank #{{rank}} on the leaderboard.\nYou need {{remaining}}/{{total}} more XP to reach the next level."

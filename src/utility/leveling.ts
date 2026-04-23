@@ -1,4 +1,5 @@
-import { Client } from 'discord.js';
+import { Client, Colors, ContainerBuilder, MessageFlags, TextDisplayBuilder, userMention } from 'discord.js';
+import { t } from 'i18next';
 
 import { getActiveLevelingConfigs, getTopWeeklyUsersByXP, processWeeklyResetTransaction } from 'database/leveling';
 
@@ -39,9 +40,28 @@ export const startWeeklyCron = (client: Client) => {
               await newWinner.roles.add(roleId).catch((err) => logger.error(err, `Failed to add weekly role to ${topUser.userId}:`));
             }
           }
-        }
 
-        await processWeeklyResetTransaction(guildId, newWinnerId);
+          await processWeeklyResetTransaction(guildId, newWinnerId);
+
+          if (config.channelId) {
+            const levelUpChannel = guild.channels.cache.get(config.channelId);
+
+            if (levelUpChannel && levelUpChannel.isTextBased()) {
+              await levelUpChannel
+                .send({
+                  components: [
+                    new ContainerBuilder()
+                      .setAccentColor(Colors.Gold)
+                      .addTextDisplayComponents(
+                        new TextDisplayBuilder().setContent(t('leveling.weeklyReset.message', { winner: userMention(newWinnerId), xp: topUser.xp })),
+                      ),
+                  ],
+                  flags: [MessageFlags.IsComponentsV2],
+                })
+                .catch((err) => logger.error(err, `Failed to send weekly winner announcement in guild ${guildId}:`));
+            }
+          }
+        }
       } catch (error) {
         logger.error(error, `Error processing weekly reset for guild ${config.guildId}:`);
       }
