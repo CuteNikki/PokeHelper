@@ -11,8 +11,9 @@ model User {
   userId String @id
 
   // Configuration and state
-  birthday UserBirthday?  @relation("UserBirthday")
-  leveling UserLeveling[]
+  birthday     UserBirthday? @relation("UserBirthday")
+  levels       Level[]
+  levelsWeekly WeeklyLevel[]
 
   // Timestamps
   createdAt DateTime @default(now())
@@ -43,7 +44,8 @@ model Guild {
   birthday          GuildBirthday?     @relation("GuildBirthday")
   leveling          GuildLeveling?     @relation("GuildLeveling")
   reactionRoleMenus ReactionRoleMenu[]
-  userLeveling      UserLeveling[]
+  levels            Level[]
+  levelsWeekly      WeeklyLevel[]
 
   // Timestamps
   createdAt DateTime @default(now())
@@ -142,14 +144,17 @@ model GuildLeveling {
   guild   Guild  @relation("GuildLeveling", fields: [guildId], references: [guildId], onDelete: Cascade)
 
   // Configuration
-  enabled         Boolean               @default(false)
-  channelId       String?
-  rewards         GuildLevelingReward[]
+  enabled           Boolean               @default(false)
+  channelId         String?
+  rewards           GuildLevelingReward[]
+  weeklyReward      String? // roleId of the weekly reward
+  weeklyLastResetAt DateTime?
+  weeklyLastWinner  String? // userId of the last weekly winner
   // Filters
-  ignoredChannels String[]              @default([]) // if empty, no channels are ignored otherwise only the specified channels are ignored
-  enabledChannels String[]              @default([]) // if empty, all channels are enabled otherwise only the specified channels are enabled
-  ignoredRoles    String[]              @default([]) // if empty, no roles are ignored otherwise only the specified roles are ignored
-  enabledRoles    String[]              @default([]) // if empty, all roles are enabled otherwise only the specified roles are enabled
+  ignoredChannels   String[]              @default([]) // if empty, no channels are ignored otherwise only the specified channels are ignored
+  enabledChannels   String[]              @default([]) // if empty, all channels are enabled otherwise only the specified channels are enabled
+  ignoredRoles      String[]              @default([]) // if empty, no roles are ignored otherwise only the specified roles are ignored
+  enabledRoles      String[]              @default([]) // if empty, all roles are enabled otherwise only the specified roles are enabled
 
   // Timestamps
   createdAt DateTime @default(now())
@@ -178,7 +183,7 @@ model GuildLevelingReward {
   @@index([guildId])
 }
 
-model UserLeveling {
+model Level {
   // State
   xp Int @default(0)
 
@@ -193,4 +198,23 @@ model UserLeveling {
   createdAt DateTime @default(now())
 
   @@id([guildId, userId])
+  @@map("UserLeveling")
+}
+
+model WeeklyLevel {
+  // State
+  xp Int @default(0)
+
+  // Relation
+  userId  String
+  user    User   @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  guildId String
+  guild   Guild  @relation(fields: [guildId], references: [guildId], onDelete: Cascade)
+
+  // Timestamps
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+
+  @@id([guildId, userId])
+  @@map("UserLevelingWeekly")
 }

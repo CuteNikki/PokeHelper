@@ -5,7 +5,15 @@ import { join } from 'path';
 
 import { Command } from 'classes/base/command';
 
-import { getGuildLevelingConfiguration, getLevelFromXP, getUserLevelingData, getUserRank, getXPForLevel } from 'database/leveling';
+import {
+  getGuildLevelingConfiguration,
+  getLevelFromXP,
+  getUserLevelingData,
+  getUserRank,
+  getWeeklyUserLevelingData,
+  getWeeklyUserRank,
+  getXPForLevel,
+} from 'database/leveling';
 
 GlobalFonts.registerFromPath(join(process.cwd(), 'fonts', 'NotoColorEmoji.ttf'), 'EmojiFallback');
 GlobalFonts.registerFromPath(join(process.cwd(), 'fonts', 'Roboto.ttf'), 'Roboto');
@@ -17,7 +25,10 @@ export default new Command({
     .setName('rank')
     .setDescription('Check current level and XP in the server.')
     .addUserOption((option) => option.setName('user').setDescription('The user to check the rank of. Defaults to yourself.').setRequired(false))
-    .addBooleanOption((option) => option.setName('ephemeral').setDescription('Whether the response should be ephemeral. Defaults to true.').setRequired(false)),
+    .addBooleanOption((option) => option.setName('ephemeral').setDescription('Whether the response should be ephemeral. Defaults to true.').setRequired(false))
+    .addBooleanOption((option) =>
+      option.setName('weekly').setDescription('Whether to view the weekly leaderboard rank. Defaults to false.').setRequired(false),
+    ),
   async execute(interaction) {
     if (!interaction.inCachedGuild()) {
       return;
@@ -26,6 +37,7 @@ export default new Command({
     const targetUser = interaction.options.getUser('user') || interaction.user;
     const targetMember = interaction.guild.members.cache.get(targetUser.id);
     const ephemeral = interaction.options.getBoolean('ephemeral') ?? true;
+    const weekly = interaction.options.getBoolean('weekly') ?? false;
 
     await interaction.deferReply({ flags: ephemeral ? [MessageFlags.Ephemeral] : undefined });
 
@@ -34,7 +46,9 @@ export default new Command({
       return interaction.editReply({ content: t('leveling.disabled') });
     }
 
-    const userLevelingData = await getUserLevelingData(interaction.guildId, targetUser.id);
+    const userLevelingData = weekly
+      ? await getWeeklyUserLevelingData(interaction.guildId, targetUser.id)
+      : await getUserLevelingData(interaction.guildId, targetUser.id);
     const xp = userLevelingData?.xp || 0;
     const level = getLevelFromXP(xp);
     const xpForNextLevel = getXPForLevel(level + 1);
@@ -42,7 +56,7 @@ export default new Command({
     const xpIntoCurrentLevel = xp - xpForCurrentLevel;
     const xpNeededForNextLevel = xpForNextLevel - xpForCurrentLevel;
 
-    const rank = await getUserRank(interaction.guildId, xp);
+    const rank = weekly ? await getWeeklyUserRank(interaction.guildId, xp) : await getUserRank(interaction.guildId, xp);
 
     // --- CANVAS GENERATION ---
     const canvas = createCanvas(700, 200);

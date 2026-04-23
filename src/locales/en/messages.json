@@ -20,7 +20,42 @@
     "ViewGuildInsights": "View Server Insights",
     "ViewGuild": "View Server",
     "ViewMessage": "View Message",
-    "ViewThread": "View Thread"
+    "ViewThread": "View Thread",
+    "AddReactions": "Add Reactions",
+    "AttachFiles": "Attach Files",
+    "BanMembers": "Ban Members",
+    "ChangeNickname": "Change Nickname",
+    "Connect": "Connect",
+    "CreateInstantInvite": "Create Invite",
+    "CreatePrivateThreads": "Create Private Threads",
+    "CreatePublicThreads": "Create Public Threads",
+    "DeafenMembers": "Deafen Members",
+    "EmbedLinks": "Embed Links",
+    "KickMembers": "Kick Members",
+    "ManageEmojisAndStickers": "Manage Emojis & Stickers",
+    "ManageEvents": "Manage Events",
+    "ManageNicknames": "Manage Nicknames",
+    "MoveMembers": "Move Members",
+    "MuteMembers": "Mute Members",
+    "PrioritySpeaker": "Priority Speaker",
+    "RequestToSpeak": "Request to Speak",
+    "SendTTSMessages": "Send TTS Messages",
+    "SendVoiceMessages": "Send Voice Messages",
+    "Speak": "Speak",
+    "Stream": "Stream",
+    "UseEmbeddedActivities": "Use Activities",
+    "UseExternalSounds": "Use External Sounds",
+    "UseVAD": "Use Voice Activity",
+    "ViewCreatorMonetizationAnalytics": "View Creator Monetization Analytics",
+    "ManageExpressions": "Manage Expressions",
+    "CreateEvents": "Create Events",
+    "UseExternalApps": "Use External Apps",
+    "SendPolls": "Send Polls",
+    "BypassSlowmode": "Bypass Slowmode",
+    "ManageGuildExpressions": "Manage Guild Expressions",
+    "UseSoundboard": "Use Soundboard",
+    "CreateGuildExpressions": "Create Guild Expressions",
+    "PinMessages": "Pin Messages"
   },
   "state": {
     "enabled": "enabled",
@@ -150,7 +185,8 @@
       "loaded": "Successfully loaded {{count}} events. ({{duration}}ms)"
     },
     "cron": {
-      "loaded": "Cron jobs started"
+      "leveling": "Weekly leveling reset cron started",
+      "birthday": "Birthday announcement cron started"
     },
     "database": {
       "loaded": "Database connected"

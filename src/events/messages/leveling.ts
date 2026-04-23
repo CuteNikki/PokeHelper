@@ -3,7 +3,7 @@ import { t } from 'i18next';
 
 import { Event } from 'classes/base/event';
 
-import { addXpToUser, getGuildLevelingConfiguration, getLevelFromXP } from 'database/leveling';
+import { addXpToUser, addXpToUserWeekly, getGuildLevelingConfiguration, getLevelFromXP } from 'database/leveling';
 import { getUserData } from 'database/user';
 
 import { logger } from 'utility/logger';
@@ -15,7 +15,9 @@ export default new Event({
     // Ignore bot messages and non-guild messages
     if (message.author.bot || !message.inGuild()) return;
 
-    const levelingConfig = await getGuildLevelingConfiguration(message.guildId).catch(logger.error);
+    const levelingConfig = await getGuildLevelingConfiguration(message.guildId).catch((err) =>
+      logger.error(err, 'Failed to fetch leveling configuration for guild {guildId}', { guildId: message.guildId }),
+    );
     if (!levelingConfig || !levelingConfig.enabled) return; // If leveling is not configured or disabled, do nothing
 
     // If the channel is ignored, do nothing
@@ -50,8 +52,14 @@ export default new Event({
     // Random XP between 15 and 25
     const xpToAdd = Math.floor(Math.random() * (25 - 15 + 1)) + 15;
 
-    await getUserData(message.author.id).catch(logger.error); // make sure user exists in database
-    const userLevelingData = await addXpToUser(message.guildId, userId, xpToAdd).catch(logger.error);
+    await getUserData(message.author.id).catch((err) => logger.error(err, 'Failed to fetch user data for {userId}', { userId: message.author.id })); // make sure user exists in database
+    const userLevelingData = await addXpToUser(message.guildId, userId, xpToAdd).catch((err) =>
+      logger.error(err, 'Failed to add XP for user {userId} in guild {guildId}', { userId, guildId: message.guildId }),
+    );
+    // Add XP to weekly leaderboard as well
+    await addXpToUserWeekly(message.guildId, userId, xpToAdd).catch((err) =>
+      logger.error(err, 'Failed to add weekly XP for user {userId} in guild {guildId}', { userId, guildId: message.guildId }),
+    );
 
     const newXp = userLevelingData?.xp ?? 0;
     const oldXp = newXp - xpToAdd;

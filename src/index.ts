@@ -12,6 +12,7 @@ import { loadSelectMenus } from 'loading/selects';
 
 import { startBirthdayCron } from 'utility/birthday';
 import { initI18Next } from 'utility/i18next';
+import { startWeeklyCron } from 'utility/leveling';
 import { logger, table } from 'utility/logger';
 import { measure } from 'utility/measure';
 
@@ -35,7 +36,8 @@ await Promise.all([
   loadSelectMenus(client).then(({ files, tableData, duration, count }) =>
     logger.info(t('system.selectMenu.loaded', { count, duration: duration.toFixed(2), files: files.length }) + '\n' + table(tableData)),
   ),
-  measure(t('system.cron.loaded'), () => startBirthdayCron(client)),
+  measure(t('system.cron.birthday'), () => startBirthdayCron(client)),
+  measure(t('system.cron.leveling'), () => startWeeklyCron(client)),
 ]);
 
 await client.login(process.env.DISCORD_TOKEN);

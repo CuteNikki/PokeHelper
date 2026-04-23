@@ -7,7 +7,7 @@ export default new SelectMenu({
   includesCustomId: true,
   isAuthorOnly: true,
   async execute(interaction) {
-    const [, , pageStr] = interaction.customId.split('_');
+    const [, , pageStr, weeklyStr] = interaction.customId.split('_');
     const page = parseInt(pageStr ?? '1', 10);
 
     if (!interaction.inCachedGuild()) return;
@@ -17,6 +17,7 @@ export default new SelectMenu({
       page,
       sortOrder: parseSortOrder(interaction.values[0]),
       guild: interaction.guild,
+      weekly: weeklyStr === '1',
     }).then((response) => interaction.editReply(response));
   },
 });

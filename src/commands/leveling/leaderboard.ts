@@ -12,7 +12,8 @@ export default new Command({
     .setIntegrationTypes(ApplicationIntegrationType.GuildInstall)
     .setName('leaderboard')
     .setDescription('Check the server leaderboard for levels and XP.')
-    .addIntegerOption((option) => option.setName('page').setDescription('The page number of the leaderboard to view.').setRequired(false).setMinValue(1)),
+    .addIntegerOption((option) => option.setName('page').setDescription('The page number of the leaderboard to view.').setRequired(false).setMinValue(1))
+    .addBooleanOption((option) => option.setName('weekly').setDescription('Whether to view the weekly leaderboard.').setRequired(false)),
   async execute(interaction) {
     if (!interaction.inCachedGuild()) {
       return;
@@ -28,6 +29,7 @@ export default new Command({
     await buildLeaderboard({
       page: interaction.options.getInteger('page') || 1,
       guild: interaction.guild,
+      weekly: interaction.options.getBoolean('weekly') || false,
     }).then((response) => interaction.editReply(response));
   },
 });

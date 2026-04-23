@@ -13,7 +13,7 @@ export default new Button({
   includesCustomId: true,
   isAuthorOnly: true,
   async execute(interaction) {
-    const [, , sortOrder] = interaction.customId.split('_');
+    const [, , sortOrder, weeklyStr] = interaction.customId.split('_');
 
     if (!interaction.inCachedGuild()) return;
     await interaction.deferUpdate();
@@ -25,6 +25,7 @@ export default new Button({
       page: 1,
       sortOrder: parseSortOrder(sortOrder),
       guild: interaction.guild,
+      weekly: weeklyStr === '1',
     }).then((response) => interaction.editReply(response));
   },
 });
