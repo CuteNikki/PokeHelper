@@ -40,7 +40,11 @@ export async function buildLeaderboard({
 
   const container = new ContainerBuilder()
     .setAccentColor(Colors.Gold)
-    .addTextDisplayComponents(new TextDisplayBuilder().setContent(t('leveling.leaderboard.title', { guild: guild.name })))
+    .addTextDisplayComponents(
+      new TextDisplayBuilder().setContent(
+        weekly ? t('leveling.leaderboard.titleWeekly', { guild: guild.name }) : t('leveling.leaderboard.title', { guild: guild.name }),
+      ),
+    )
     .addTextDisplayComponents(
       new TextDisplayBuilder().setContent(
         pageData.length > 0
