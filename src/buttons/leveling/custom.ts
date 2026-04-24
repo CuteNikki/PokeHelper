@@ -50,7 +50,7 @@ export default new Button({
     const rawRequestedPage = parseInt(modalSubmit.fields.getTextInputValue('page_input'), 10);
 
     if (isNaN(rawRequestedPage)) {
-      return modalSubmit.followUp({ content: t('pagination.modal.invalid'), flags: [MessageFlags.Ephemeral] });
+      return modalSubmit.followUp({ content: t('pagination.modal.invalid', { maxPages: totalPages }), flags: [MessageFlags.Ephemeral] });
     }
 
     const requestedPage = Math.max(1, Math.min(rawRequestedPage, totalPages));
