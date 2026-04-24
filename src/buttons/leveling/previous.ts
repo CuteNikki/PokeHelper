@@ -10,6 +10,7 @@ import { getLeaderboardState, saveLeaderboardState } from 'utility/leaderboardSt
 
 export default new Button({
   customId: 'lb_prev',
+  includesCustomId: true,
   isAuthorOnly: true,
   async execute(interaction) {
     if (!interaction.inCachedGuild()) return;

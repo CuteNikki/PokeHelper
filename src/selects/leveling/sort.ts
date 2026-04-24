@@ -5,6 +5,7 @@ import { parseSortOrder } from 'utility/pagination';
 
 export default new SelectMenu({
   customId: 'lb_sort',
+  includesCustomId: true,
   isAuthorOnly: true,
   async execute(interaction) {
     if (!interaction.inCachedGuild()) return;
