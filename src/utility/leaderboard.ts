@@ -6,8 +6,6 @@ import {
   ContainerBuilder,
   Guild,
   MessageFlags,
-  SeparatorBuilder,
-  SeparatorSpacingSize,
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder,
   TextDisplayBuilder,
@@ -110,13 +108,9 @@ export async function buildLeaderboard({
     ),
   );
 
-  container.addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large));
-  container.addActionRowComponents(rowPageButtons);
-  container.addActionRowComponents(rowSortOrder);
-
   return {
     allowedMentions: { users: [] },
-    components: [container],
+    components: [container, rowPageButtons, rowSortOrder],
     flags: MessageFlags.IsComponentsV2,
   };
 }

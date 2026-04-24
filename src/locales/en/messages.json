@@ -287,8 +287,8 @@
     },
     "leaderboard": {
       "none": "No users have gained XP in this server yet!",
-      "title": "### 🏆 Leveling Leaderboard | {{guild}}",
-      "titleWeekly": "### 🏆 Weekly Leveling Leaderboard | {{guild}}",
+      "title": "### {{guild}} - Leaderboard 🏆",
+      "titleWeekly": "### {{guild}} - Weekly Leaderboard 🏆",
       "entry": "{{position}}. {{xp}} XP (Level {{level}}) - {{user}}"
     },
     "info": {
