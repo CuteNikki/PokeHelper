@@ -218,3 +218,18 @@ model WeeklyLevel {
   @@id([guildId, userId])
   @@map("UserLevelingWeekly")
 }
+
+model LeaderboardState {
+  messageId String    @id
+  page      Int       @default(1)
+  sortOrder SortOrder @default(desc)
+  weekly    Boolean   @default(false)
+
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+}
+
+enum SortOrder {
+  asc
+  desc
+}

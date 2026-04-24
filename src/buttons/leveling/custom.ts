@@ -6,16 +6,16 @@ import { Button } from 'classes/base/button';
 import { getGuildLevelingConfiguration } from 'database/leveling';
 
 import { buildLeaderboard } from 'utility/leaderboard';
-import { parseSortOrder } from 'utility/pagination';
+import { getLeaderboardState, saveLeaderboardState } from 'utility/leaderboardState';
 
 export default new Button({
   customId: 'lb_custom',
   includesCustomId: true,
   isAuthorOnly: true,
   async execute(interaction) {
-    const [, , sortOrder, currentPageStr, totalPagesStr, weeklyStr] = interaction.customId.split('_');
-    const currentPage = parseInt(currentPageStr ?? '1', 10);
+    const [, , pagesStr, totalPagesStr] = interaction.customId.split('_');
     const totalPages = parseInt(totalPagesStr ?? '1', 10);
+    const currentPage = parseInt(pagesStr ?? '1', 10);
 
     if (!interaction.inCachedGuild()) return;
 
@@ -47,13 +47,22 @@ export default new Button({
       return interaction.followUp({ content: t('pagination.modal.timeout'), flags: [MessageFlags.Ephemeral] });
     }
     await modalSubmit.deferUpdate();
-    const requestedPage = parseInt(modalSubmit.fields.getTextInputValue('page_input'), 10);
+    const rawRequestedPage = parseInt(modalSubmit.fields.getTextInputValue('page_input'), 10);
 
-    await buildLeaderboard({
+    if (isNaN(rawRequestedPage)) {
+      return modalSubmit.followUp({ content: t('pagination.modal.invalid'), flags: [MessageFlags.Ephemeral] });
+    }
+
+    const requestedPage = Math.max(1, Math.min(rawRequestedPage, totalPages));
+
+    const state = await getLeaderboardState(interaction.message.id);
+    const newState = {
+      messageId: interaction.message.id,
       page: requestedPage,
-      sortOrder: parseSortOrder(sortOrder),
-      guild: interaction.guild,
-      weekly: weeklyStr === '1',
-    }).then((response) => modalSubmit.editReply(response));
+      sortOrder: state?.sortOrder ?? 'desc',
+      weekly: state?.weekly ?? false,
+    };
+    await saveLeaderboardState(newState);
+    await buildLeaderboard({ ...newState, guild: interaction.guild }).then((response) => modalSubmit.editReply(response));
   },
 });

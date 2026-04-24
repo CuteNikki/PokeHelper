@@ -5,6 +5,7 @@ import { Command } from 'classes/base/command';
 
 import { getGuildLevelingConfiguration } from 'database/leveling';
 import { buildLeaderboard } from 'utility/leaderboard';
+import { saveLeaderboardState } from 'utility/leaderboardState';
 
 export default new Command({
   data: new SlashCommandBuilder()
@@ -30,6 +31,15 @@ export default new Command({
       page: interaction.options.getInteger('page') || 1,
       guild: interaction.guild,
       weekly: interaction.options.getBoolean('weekly') || false,
-    }).then((response) => interaction.editReply(response));
+    }).then((response) =>
+      interaction.editReply(response).then((message) => {
+        void saveLeaderboardState({
+          messageId: message.id,
+          page: interaction.options.getInteger('page') || 1,
+          sortOrder: 'desc',
+          weekly: interaction.options.getBoolean('weekly') || false,
+        });
+      }),
+    );
   },
 });

@@ -12,6 +12,7 @@ import { loadSelectMenus } from 'loading/selects';
 
 import { startBirthdayCron } from 'utility/birthday';
 import { initI18Next } from 'utility/i18next';
+import { startLeaderboardCacheCleanup } from 'utility/leaderboardState';
 import { startWeeklyCron } from 'utility/leveling';
 import { logger, table } from 'utility/logger';
 import { measure } from 'utility/measure';
@@ -38,6 +39,7 @@ await Promise.all([
   ),
   measure(t('system.cron.birthday'), () => startBirthdayCron(client)),
   measure(t('system.cron.leveling'), () => startWeeklyCron(client)),
+  measure(t('system.cron.leaderboard'), () => startLeaderboardCacheCleanup()),
 ]);
 
 await client.login(process.env.DISCORD_TOKEN);

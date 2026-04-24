@@ -186,7 +186,8 @@
     },
     "cron": {
       "leveling": "Weekly leveling reset cron started",
-      "birthday": "Birthday announcement cron started"
+      "birthday": "Birthday announcement cron started",
+      "leaderboard": "Leaderboard cache cleanup cron started"
     },
     "database": {
       "loaded": "Database connected"

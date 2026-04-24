@@ -63,38 +63,38 @@ export async function buildLeaderboard({
 
   const rowPageButtons = new ActionRowBuilder<ButtonBuilder>().addComponents(
     new ButtonBuilder()
-      .setCustomId(`lb_first_${sortOrder}_${weekly ? '1' : '0'}`)
+      .setCustomId('lb_first')
       // .setLabel(t('pagination.first.label'))
       .setEmoji(t('pagination.first.icon'))
       .setStyle(ButtonStyle.Secondary)
       .setDisabled(page === 1),
     new ButtonBuilder()
-      .setCustomId(`lb_prev_${sortOrder}_${page}_${weekly ? '1' : '0'}`)
+      .setCustomId('lb_prev')
       // .setLabel(t('pagination.previous.label'))
       .setEmoji(t('pagination.previous.icon'))
       .setStyle(ButtonStyle.Secondary)
       .setDisabled(page === 1),
     new ButtonBuilder()
-      .setCustomId(`lb_custom_${sortOrder}_${page}_${totalPages}_${weekly ? '1' : '0'}`)
+      .setCustomId(`lb_custom_${page}_${totalPages}`)
       .setLabel(t('pagination.page.label', { current: page, total: totalPages }))
       // .setEmoji(t('pagination.page.icon'))
       .setStyle(ButtonStyle.Secondary)
       .setDisabled(false),
     new ButtonBuilder()
-      .setCustomId(`lb_next_${sortOrder}_${page}_${weekly ? '1' : '0'}`)
+      .setCustomId('lb_next')
       // .setLabel(t('pagination.next.label'))
       .setEmoji(t('pagination.next.icon'))
       .setStyle(ButtonStyle.Secondary)
       .setDisabled(page === totalPages),
     new ButtonBuilder()
-      .setCustomId(`lb_last_${sortOrder}_${totalPages}_${weekly ? '1' : '0'}`)
+      .setCustomId(`lb_last_${totalPages}`)
       // .setLabel(t('pagination.last.label'))
       .setEmoji(t('pagination.last.icon'))
       .setStyle(ButtonStyle.Secondary)
       .setDisabled(page === totalPages),
   );
   const rowSortOrder = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
-    new StringSelectMenuBuilder().setCustomId(`lb_sort_${page}_${weekly ? '1' : '0'}`).addOptions(
+    new StringSelectMenuBuilder().setCustomId(`lb_sort`).addOptions(
       new StringSelectMenuOptionBuilder()
         .setLabel(t('pagination.sort.ascending'))
         .setValue('asc')
