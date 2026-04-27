@@ -32,7 +32,7 @@ export default new Button({
               .setCustomId('page_input')
               .setStyle(TextInputStyle.Short)
               .setPlaceholder(t('pagination.modal.placeholder', { maxPages: totalPages }))
-              .setValue(currentPage.toString())
+              .setValue(isNaN(currentPage) ? '' : currentPage.toString())
               .setMaxLength(totalPages.toString().length)
               .setMinLength(1)
               .setRequired(true),
