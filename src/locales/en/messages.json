@@ -284,7 +284,12 @@
     },
     "disabled": "Leveling is currently disabled or not configured in this server.",
     "rank": {
-      "state": "You are currently level {{level}} with {{xp}} XP.\nThat puts you at rank #{{rank}} on the leaderboard.\nYou need {{remaining}}/{{total}} more XP to reach the next level."
+      "all": "ALL-TIME",
+      "weekly": "WEEKLY",
+      "level": "LEVEL",
+      "rank": "RANK",
+      "exp": "XP",
+      "state": "Showing Stats for {{user}}:\nLevel {{Level}} (Rank #{{rank}}), {{xp}} Total XP ({{xpIntoLevel}}/{{total}} into current level).\nWeekly: Level {{weeklyLevel}} (Rank #{{weeklyRank}}), {{weeklyXP}} XP ({{xpIntoWeeklyLevel}}/{{weeklyTotal}} into current level)."
     },
     "leaderboard": {
       "none": "No users have gained XP in this server yet!",
