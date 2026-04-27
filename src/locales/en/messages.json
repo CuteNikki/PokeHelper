@@ -286,8 +286,8 @@
     "rank": {
       "all": "ALL-TIME",
       "weekly": "WEEKLY",
-      "level": "LEVEL",
-      "rank": "RANK",
+      "level": "Level",
+      "rank": "RANK:",
       "exp": "XP",
       "state": "Showing Stats for {{user}}:\nLevel {{Level}} (Rank #{{rank}}), {{xp}} Total XP ({{xpIntoLevel}}/{{total}} into current level).\nWeekly: Level {{weeklyLevel}} (Rank #{{weeklyRank}}), {{weeklyXP}} XP ({{xpIntoWeeklyLevel}}/{{weeklyTotal}} into current level)."
     },

@@ -1,4 +1,4 @@
-import { createCanvas, GlobalFonts } from '@napi-rs/canvas';
+import { createCanvas, GlobalFonts, loadImage } from '@napi-rs/canvas';
 import { ApplicationIntegrationType, AttachmentBuilder, InteractionContextType, MessageFlags, SlashCommandBuilder } from 'discord.js';
 import { t } from 'i18next';
 import { join } from 'path';
@@ -32,6 +32,7 @@ export default new Command({
     }
 
     const targetUser = interaction.options.getUser('user') || interaction.user;
+    const targetMember = interaction.guild.members.cache.get(targetUser.id);
     const ephemeral = interaction.options.getBoolean('ephemeral') ?? true;
 
     await interaction.deferReply({ flags: ephemeral ? [MessageFlags.Ephemeral] : undefined });
@@ -68,89 +69,132 @@ export default new Command({
     const weekly = getStats(xpWeekly);
 
     // --- CANVAS GENERATION ---
-    // Minimalist canvas size, perfectly hugging the two modules
-    const canvas = createCanvas(800, 220);
+    // Increased height to 220px to give elements more vertical breathing room
+    const canvas = createCanvas(900, 220);
     const ctx = canvas.getContext('2d');
 
     const colors = {
       bg: '#1e1e2e',
-      moduleBg: '#313244',
-      moduleTrack: '#181825',
+      moduleTrack: '#313244',
       accent: '#ff1b1b',
       textWhite: '#cdd6f4',
       textGray: '#a6adc8',
     };
 
-    // 1. Background
     ctx.fillStyle = colors.bg;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // --- STAT BLOCK RENDERER ---
-    const drawStatBlock = (x: number, title: string, level: number, rank: number, currentXP: number, totalXP: number) => {
-      const blockWidth = 370;
-      const blockHeight = 170;
-      const y = 25; // Centered vertically
+    const avatarSize = 140;
+    const avatarX = 40;
+    const avatarY = 40;
 
-      // Module Background
-      ctx.fillStyle = colors.moduleBg;
-      ctx.beginPath();
-      ctx.roundRect(x, y, blockWidth, blockHeight, 15);
-      ctx.fill();
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(avatarX + avatarSize / 2, avatarY + avatarSize / 2, avatarSize / 2, 0, Math.PI * 2, true);
+    ctx.closePath();
+    ctx.clip();
+    const avatar = await loadImage(targetUser.displayAvatarURL({ extension: 'png', size: 256 }));
+    ctx.drawImage(avatar, avatarX, avatarY, avatarSize, avatarSize);
+    ctx.restore();
 
-      const centerX = x + blockWidth / 2;
+    const contentX = 210;
 
-      // Title
-      ctx.textAlign = 'center';
-      ctx.font = 'bold 16px "Roboto"';
-      ctx.fillStyle = colors.textGray;
-      ctx.fillText(title.toUpperCase(), centerX, y + 25);
+    let displayName = targetMember?.displayName || targetUser.username;
+    ctx.font = `bold 36px "Roboto", "EmojiFallback"`;
 
-      // Level Area
-      ctx.font = 'bold 14px "Roboto"';
-      ctx.fillText(t('leveling.rank.level'), centerX - 60, y + 60);
-      ctx.font = 'bold 40px "Roboto"';
-      ctx.fillStyle = colors.accent;
-      ctx.fillText(level.toString(), centerX - 60, y + 95);
-
-      // Rank Area
-      ctx.fillStyle = colors.textGray;
-      ctx.font = 'bold 14px "Roboto"';
-      ctx.fillText(t('leveling.rank.rank'), centerX + 60, y + 60);
-      ctx.font = 'bold 40px "Roboto"';
-      ctx.fillStyle = colors.accent;
-      ctx.fillText(`#${rank}`, centerX + 60, y + 95);
-
-      // XP Text
-      ctx.font = 'bold 16px "Roboto"';
-      ctx.fillStyle = colors.textWhite;
-      ctx.fillText(`${currentXP.toLocaleString()} / ${totalXP.toLocaleString()} ${t('leveling.rank.exp')}`, centerX, y + 130);
-
-      // Progress Bar
-      const barW = 310;
-      const barH = 10;
-      const barX = centerX - barW / 2;
-      const barY = y + 140;
-
-      ctx.fillStyle = colors.moduleTrack;
-      ctx.beginPath();
-      ctx.roundRect(barX, barY, barW, barH, 5);
-      ctx.fill();
-
-      const progress = Math.max(0, Math.min(currentXP / totalXP, 1));
-      if (progress > 0) {
-        ctx.fillStyle = colors.accent;
-        ctx.beginPath();
-        ctx.roundRect(barX, barY, barW * progress, barH, 5);
-        ctx.fill();
+    const maxNameWidth = 410;
+    if (ctx.measureText(displayName).width > maxNameWidth) {
+      while (ctx.measureText(`${displayName}...`).width > maxNameWidth && displayName.length > 0) {
+        displayName = displayName.slice(0, -1);
       }
+      displayName += '...';
+    }
+
+    ctx.fillStyle = colors.textWhite;
+    ctx.textAlign = 'left';
+    ctx.fillText(displayName, contentX, 75);
+
+    const rightMargin = 860;
+    const rankGap = 8;
+    const labelGap = 16;
+
+    ctx.font = 'bold 24px "Roboto"';
+    const rankAllTimeWidth = ctx.measureText(`#${rankAllTime}`).width;
+
+    ctx.font = 'bold 18px "Roboto"';
+    const rankWeeklyWidth = ctx.measureText(`#${rankWeekly}`).width;
+
+    const maxRankWidth = Math.max(rankAllTimeWidth, rankWeeklyWidth);
+
+    const prefixRightEdge = rightMargin - maxRankWidth - rankGap;
+
+    ctx.font = 'bold 18px "Roboto"';
+    const maxPrefixWidth = ctx.measureText(t('leveling.rank.rank')).width;
+    const allTimeLabelWidth = ctx.measureText(t('leveling.rank.all')).width;
+
+    const prefixLeftEdge = prefixRightEdge - maxPrefixWidth;
+    const labelCenterX = prefixLeftEdge - labelGap - allTimeLabelWidth / 2;
+
+    const drawOverviewRow = (y: number, typeLabel: string, rankNumber: number, isSmaller: boolean) => {
+      const baseSize = isSmaller ? 16 : 18;
+      const rankSize = isSmaller ? 18 : 24;
+
+      const rankStr = `#${rankNumber}`;
+      const rankPrefix = t('leveling.rank.rank');
+
+      ctx.textAlign = 'center';
+      ctx.font = `bold ${baseSize}px "Roboto"`;
+      ctx.fillStyle = colors.textWhite;
+      ctx.fillText(typeLabel, labelCenterX, y);
+
+      ctx.textAlign = 'right';
+      ctx.font = `bold ${baseSize}px "Roboto"`;
+      ctx.fillStyle = colors.textGray;
+      ctx.fillText(rankPrefix, prefixRightEdge, y);
+
+      ctx.font = `bold ${rankSize}px "Roboto"`;
+      ctx.fillStyle = colors.accent;
+      ctx.fillText(rankStr, rightMargin, y);
     };
 
-    // Draw Section 1: All Time (Left side)
-    drawStatBlock(20, t('leveling.rank.all'), allTime.level, rankAllTime, allTime.xpIntoLevel, allTime.xpRequired);
+    drawOverviewRow(55, t('leveling.rank.all'), rankAllTime, false);
+    drawOverviewRow(85, t('leveling.rank.weekly'), rankWeekly, true);
 
-    // Draw Section 2: Weekly (Right side)
-    drawStatBlock(410, t('leveling.rank.weekly'), weekly.level, rankWeekly, weekly.xpIntoLevel, weekly.xpRequired);
+    const barY = 115;
+    const barW = canvas.width - contentX - 40;
+    const barH = 16;
 
+    ctx.fillStyle = colors.moduleTrack;
+    ctx.beginPath();
+    ctx.roundRect(contentX, barY, barW, barH, 8);
+    ctx.fill();
+
+    const progress = Math.max(0, Math.min(allTime.xpIntoLevel / allTime.xpRequired, 1));
+    if (progress > 0) {
+      ctx.fillStyle = colors.accent;
+      ctx.beginPath();
+      ctx.roundRect(contentX, barY, barW * progress, barH, 8);
+      ctx.fill();
+    }
+
+    ctx.textAlign = 'left';
+    const statsY = 175;
+
+    const drawStatsColumn = (x: number, label: string, level: number, current: number, total: number) => {
+      ctx.font = 'bold 18px "Roboto"';
+      ctx.fillStyle = colors.textWhite;
+      ctx.fillText(label, x, statsY);
+
+      ctx.fillStyle = colors.textGray;
+      const statsText = `${t('leveling.rank.level')}: ${level}  |  ${t('leveling.rank.exp')}: ${current.toLocaleString()} / ${total.toLocaleString()}`;
+      ctx.fillText(statsText, x + 85, statsY);
+    };
+
+    drawStatsColumn(contentX, t('leveling.rank.all').toUpperCase(), allTime.level, allTime.xpIntoLevel, allTime.xpRequired);
+    const column2X = contentX + barW / 2;
+    drawStatsColumn(column2X, t('leveling.rank.weekly').toUpperCase(), weekly.level, weekly.xpIntoLevel, weekly.xpRequired);
+
+    // --- FINALIZATION ---
     const attachment = new AttachmentBuilder(await canvas.encode('png'), { name: 'rank-card.png' });
 
     return interaction.editReply({
@@ -168,7 +212,7 @@ export default new Command({
         weeklyTotal: weekly.xpRequired.toLocaleString(),
       }),
       files: [attachment],
-      allowedMentions: { users: [] }, // Disable pings if user is mentioned
+      allowedMentions: { users: [] },
     });
   },
 });
