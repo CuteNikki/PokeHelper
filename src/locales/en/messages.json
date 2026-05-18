@@ -280,7 +280,7 @@
       "footer": "{{guild}}"
     },
     "weeklyReset": {
-      "message": "### Weekly XP Reset\nAll weekly XP has been reset to 0 and the weekly leaderboard has been cleared.\nCongratulations to {{winner}} for topping the weekly XP leaderboard with {{xp}} XP!"
+      "message": "### Weekly XP Reset\nAll weekly XP has been reset to 0 and the weekly leaderboard has been cleared.\nCongratulations to {{winner}} for topping the weekly XP leaderboard with {{xp}} XP!\nHere are the top weekly XP earners for the past week:"
     },
     "disabled": "Leveling is currently disabled or not configured in this server.",
     "rank": {

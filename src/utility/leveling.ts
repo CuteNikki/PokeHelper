@@ -1,7 +1,7 @@
 import { Client, Colors, ContainerBuilder, MessageFlags, TextDisplayBuilder, userMention } from 'discord.js';
 import { t } from 'i18next';
 
-import { getActiveLevelingConfigs, getTopWeeklyUsersByXP, processWeeklyResetTransaction } from 'database/leveling';
+import { getActiveLevelingConfigs, getLevelFromXP, getTopWeeklyUsersByXP, processWeeklyResetTransaction } from 'database/leveling';
 
 import { logger } from 'utility/logger';
 
@@ -26,7 +26,7 @@ export const startWeeklyCron = (client: Client) => {
           }
         }
 
-        const topUsers = await getTopWeeklyUsersByXP(guildId, 1);
+        const topUsers = await getTopWeeklyUsersByXP(guildId, 5, 0, 'desc');
         const topUser = topUsers[0];
 
         let newWinnerId: string | null = null;
@@ -53,10 +53,19 @@ export const startWeeklyCron = (client: Client) => {
                     new ContainerBuilder()
                       .setAccentColor(Colors.Gold)
                       .addTextDisplayComponents(
-                        new TextDisplayBuilder().setContent(t('leveling.weeklyReset.message', { winner: userMention(newWinnerId), xp: topUser.xp })),
+                        new TextDisplayBuilder().setContent(t('leveling.weeklyReset.message', { winner: userMention(newWinnerId), xp: topUser.xp }) + '\n\n' + topUsers.map((entry, index) => {
+                          const position = index + 1;
+                          return t('leveling.leaderboard.entry', {
+                            user: userMention(entry.userId),
+                            level: getLevelFromXP(entry.xp),
+                            xp: entry.xp,
+                            position,
+                          });
+                        }).join('\n')),
                       ),
                   ],
                   flags: [MessageFlags.IsComponentsV2],
+                  allowedMentions: { users: [] },
                 })
                 .catch((err) => logger.error(err, `Failed to send weekly winner announcement in guild ${guildId}:`));
             }
