@@ -53,7 +53,7 @@ export const startWeeklyCron = (client: Client) => {
                     new ContainerBuilder()
                       .setAccentColor(Colors.Gold)
                       .addTextDisplayComponents(
-                        new TextDisplayBuilder().setContent(t('leveling.weeklyReset.message', { winner: userMention(newWinnerId), xp: topUser.xp }) + '\n\n' + topUsers.map((entry, index) => {
+                        new TextDisplayBuilder().setContent(t('leveling.weeklyReset.message', { winner: userMention(newWinnerId), xp: topUser.xp }) + '\n' + topUsers.map((entry, index) => {
                           const position = index + 1;
                           return t('leveling.leaderboard.entry', {
                             user: userMention(entry.userId),
