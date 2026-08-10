@@ -1,4 +1,4 @@
-import { createCanvas, loadImage, type SKRSContext2D } from '@napi-rs/canvas';
+import { createCanvas, loadImage, type Image, type SKRSContext2D } from '@napi-rs/canvas';
 import {
   ActionRowBuilder,
   AttachmentBuilder,
@@ -21,7 +21,7 @@ interface LeaderboardEntry {
   position: number;
   displayName: string;
   tag: string;
-  avatarUrl: string | null;
+  avatarImage: Image | null;
 }
 
 interface LeaderboardColors {
@@ -42,7 +42,8 @@ function formatXP(xp: number): string {
   return xp.toLocaleString();
 }
 
-async function drawAvatar(ctx: SKRSContext2D, avatarUrl: string | null, x: number, y: number, radius: number, borderColor?: string) {
+// Synchronous drawAvatar using pre-loaded Image object
+function drawAvatar(ctx: SKRSContext2D, avatarImage: Image | null, x: number, y: number, radius: number, borderColor?: string) {
   ctx.save();
 
   if (borderColor) {
@@ -57,14 +58,8 @@ async function drawAvatar(ctx: SKRSContext2D, avatarUrl: string | null, x: numbe
   ctx.closePath();
   ctx.clip();
 
-  if (avatarUrl) {
-    try {
-      const avatar = await loadImage(avatarUrl);
-      ctx.drawImage(avatar, x - radius, y - radius, radius * 2, radius * 2);
-    } catch {
-      ctx.fillStyle = '#45475a';
-      ctx.fillRect(x - radius, y - radius, radius * 2, radius * 2);
-    }
+  if (avatarImage) {
+    ctx.drawImage(avatarImage, x - radius, y - radius, radius * 2, radius * 2);
   } else {
     ctx.fillStyle = '#45475a';
     ctx.fillRect(x - radius, y - radius, radius * 2, radius * 2);
@@ -73,8 +68,8 @@ async function drawAvatar(ctx: SKRSContext2D, avatarUrl: string | null, x: numbe
   ctx.restore();
 }
 
-// Row card matching Image #2 (Large #Rank on the far left)
-async function drawRowCard(ctx: SKRSContext2D, entry: LeaderboardEntry, x: number, y: number, w: number, h: number, colors: LeaderboardColors) {
+// Synchronous drawRowCard
+function drawRowCard(ctx: SKRSContext2D, entry: LeaderboardEntry, x: number, y: number, w: number, h: number, colors: LeaderboardColors) {
   ctx.fillStyle = colors.cardBg;
   ctx.beginPath();
   ctx.roundRect(x, y, w, h, 14);
@@ -82,18 +77,18 @@ async function drawRowCard(ctx: SKRSContext2D, entry: LeaderboardEntry, x: numbe
 
   const centerY = y + h / 2;
 
-  // 1. Rank Number (#4, #5, #6...) on the left
+  // Rank Number
   ctx.font = 'bold 32px "Roboto"';
   ctx.fillStyle = colors.textWhite;
   ctx.textAlign = 'left';
   ctx.textBaseline = 'middle';
   ctx.fillText(`#${entry.position}`, x + 24, centerY);
 
-  // 2. Avatar
+  // Avatar
   const avatarX = x + 120;
-  await drawAvatar(ctx, entry.avatarUrl, avatarX, centerY, 28);
+  drawAvatar(ctx, entry.avatarImage, avatarX, centerY, 28);
 
-  // 3. User Name & Tag
+  // User Name & Tag
   const nameX = avatarX + 44;
   ctx.textAlign = 'left';
   ctx.font = 'bold 20px "Roboto", "EmojiFallback"';
@@ -109,7 +104,7 @@ async function drawRowCard(ctx: SKRSContext2D, entry: LeaderboardEntry, x: numbe
   ctx.fillStyle = colors.textGray;
   ctx.fillText(`@${entry.tag}`, nameX, centerY + 14);
 
-  // 4. Stats on the Right
+  // Stats
   const rightX = x + w - 24;
   const level = getLevelFromXP(entry.xp);
 
@@ -117,11 +112,11 @@ async function drawRowCard(ctx: SKRSContext2D, entry: LeaderboardEntry, x: numbe
   ctx.font = 'bold 15px "Roboto"';
   ctx.fillStyle = colors.textGray;
   ctx.fillText(`LEVEL: ${level}`, rightX, centerY - 10);
-
   ctx.fillText(`XP: ${formatXP(entry.xp)}`, rightX, centerY + 14);
 }
 
-async function renderLeaderboardCanvas(entries: LeaderboardEntry[], isTopPodiumView: boolean): Promise<Buffer> {
+// Fully synchronous canvas rendering step
+function renderLeaderboardCanvas(entries: LeaderboardEntry[], isTopPodiumView: boolean): Buffer {
   const width = 760;
   const height = isTopPodiumView ? 620 : 610;
   const canvas = createCanvas(width, height);
@@ -158,13 +153,11 @@ async function renderLeaderboardCanvas(entries: LeaderboardEntry[], isTopPodiumV
 
       const isFirst = item.rank === 1;
 
-      // Card Base
       ctx.fillStyle = isFirst ? colors.podiumCenter : colors.podiumSides;
       ctx.beginPath();
       ctx.roundRect(item.x, item.y, item.w, item.h, 12);
       ctx.fill();
 
-      // Avatar & Border
       const avatarX = item.x + item.w / 2;
       const avatarY = item.y - 10;
       const avatarRadius = isFirst ? 42 : 36;
@@ -176,7 +169,7 @@ async function renderLeaderboardCanvas(entries: LeaderboardEntry[], isTopPodiumV
         ctx.fillText('👑', avatarX, avatarY - avatarRadius - 16);
       }
 
-      await drawAvatar(ctx, item.entry.avatarUrl, avatarX, avatarY, avatarRadius, item.color);
+      drawAvatar(ctx, item.entry.avatarImage, avatarX, avatarY, avatarRadius, item.color);
 
       // Rank Circle Badge
       ctx.beginPath();
@@ -216,24 +209,24 @@ async function renderLeaderboardCanvas(entries: LeaderboardEntry[], isTopPodiumV
       ctx.fillText(`XP: ${formatXP(item.entry.xp)}`, avatarX, item.y + (isFirst ? 138 : 124));
     }
 
-    // --- RANKS #4 AND #5 BELOW PODIUM ---
+    // --- RANKS #4 AND #5 ---
     const remaining = entries.slice(3);
     let startY = 325;
 
     for (const entry of remaining) {
-      await drawRowCard(ctx, entry, 30, startY, 700, 85, colors);
+      drawRowCard(ctx, entry, 30, startY, 700, 85, colors);
       startY += 100;
     }
   } else {
-    // --- STANDARD LIST VIEW (Page 2+ or Ascending Order) ---
+    // --- LIST VIEW ---
     let startY = 30;
     for (const entry of entries) {
-      await drawRowCard(ctx, entry, 30, startY, 700, 95, colors);
+      drawRowCard(ctx, entry, 30, startY, 700, 95, colors);
       startY += 110;
     }
   }
 
-  return canvas.encode('png');
+  return canvas.toBuffer('image/png');
 }
 
 export async function buildLeaderboard({
@@ -254,35 +247,41 @@ export async function buildLeaderboard({
     ? await getTopWeeklyUsersByXP(guild.id, ITEMS_PER_PAGE, (page - 1) * ITEMS_PER_PAGE, sortOrder)
     : await getTopUsersByXP(guild.id, ITEMS_PER_PAGE, (page - 1) * ITEMS_PER_PAGE, sortOrder);
 
-  const entries: LeaderboardEntry[] = await Promise.all(
+  // 1. Fetch Discord users/members (Cache First)
+  const entriesData = await Promise.all(
     pageData.map(async (entry, index) => {
       const position = (page - 1) * ITEMS_PER_PAGE + index + 1;
-      try {
-        const user = await guild.client.users.fetch(entry.userId);
-        const member = await guild.members.fetch(entry.userId).catch(() => null);
-        return {
-          userId: entry.userId,
-          xp: entry.xp,
-          position,
-          displayName: member?.displayName || user.displayName || user.username,
-          tag: user.username,
-          avatarUrl: user.displayAvatarURL({ extension: 'png', size: 128 }),
-        };
-      } catch {
-        return {
-          userId: entry.userId,
-          xp: entry.xp,
-          position,
-          displayName: 'Unknown User',
-          tag: entry.userId,
-          avatarUrl: null,
-        };
+
+      const member = guild.members.cache.get(entry.userId) ?? (await guild.members.fetch(entry.userId).catch(() => null));
+      const user = member?.user ?? guild.client.users.cache.get(entry.userId) ?? (await guild.client.users.fetch(entry.userId).catch(() => null));
+
+      return {
+        userId: entry.userId,
+        xp: entry.xp,
+        position,
+        displayName: member?.displayName || user?.displayName || user?.username || 'Unknown User',
+        tag: user?.username || entry.userId,
+        avatarUrl: user?.displayAvatarURL({ extension: 'png', size: 128 }) ?? null,
+      };
+    }),
+  );
+
+  // 2. Pre-fetch ALL images in PARALLEL before rendering
+  const entries: LeaderboardEntry[] = await Promise.all(
+    entriesData.map(async (entry) => {
+      let avatarImage: Image | null = null;
+      if (entry.avatarUrl) {
+        avatarImage = await loadImage(entry.avatarUrl).catch(() => null);
       }
+      return {
+        ...entry,
+        avatarImage,
+      };
     }),
   );
 
   const isTopPodiumView = page === 1 && sortOrder === 'desc';
-  const imageBuffer = await renderLeaderboardCanvas(entries, isTopPodiumView);
+  const imageBuffer = renderLeaderboardCanvas(entries, isTopPodiumView);
   const attachment = new AttachmentBuilder(imageBuffer, { name: 'leaderboard.png' });
 
   const rowPageButtons = new ActionRowBuilder<ButtonBuilder>().addComponents(
