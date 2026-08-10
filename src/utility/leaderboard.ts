@@ -123,13 +123,13 @@ function renderLeaderboardCanvas(entries: LeaderboardEntry[], isTopPodiumView: b
   const ctx = canvas.getContext('2d');
 
   const colors: LeaderboardColors = {
-    bg: '#1e1e2e',
+    bg: 'transparent',
     cardBg: '#2a2b3c',
-    podiumCenter: '#212330',
+    podiumCenter: '#35374a',
     podiumSides: '#35374a',
     accentGold: '#ffa000',
     accentSilver: '#9e9e9e',
-    accentBronze: '#cd7f32',
+    accentBronze: '#ac6926',
     textWhite: '#ffffff',
     textGray: '#a6adc8',
   };
