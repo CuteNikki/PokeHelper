@@ -460,5 +460,40 @@
       "swapped": "You have been switched from {{removed, list}} to {{assigned}}.",
       "error": "An error occured while assigning the role!\nPlease make sure I have the appropriate permissions, the bot role is placed higher than the roles in this menu and try again."
     }
+  },
+  "botinfo": {
+    "description": "Displays current status, host metrics, and statistics.",
+    "author": "{{username}} Status",
+    "na": "N/A",
+    "general": {
+      "title": "⚙️ General",
+      "developer": "> **Developer:** {{developer}}",
+      "created": "> **Created:** {{created}}",
+      "servers": "> **Servers:** {{servers}}",
+      "users": "> **Users:** {{users}}"
+    },
+    "network": {
+      "title": "⚡ Network",
+      "gateway": "> **Gateway:** {{ping}}",
+      "database": "> **Database:** {{latency}} ms"
+    },
+    "uptime": {
+      "title": "⏱️ Uptime",
+      "process": "> **Process:** {{time}}",
+      "system": "> **System:** {{time}}"
+    },
+    "memory": {
+      "title": "💾 Memory",
+      "process": "> **Process:** {{mb}} MB",
+      "system": "> **System:** {{used}}/{{total}}GB ({{percent}}%)"
+    },
+    "host": {
+      "title": "🖥️ Host Environment",
+      "cpu": "> **CPU:** {{name}} ({{cores}} cores)",
+      "cpuLoad": "> **CPU Load:** {{percent}}% ({{loadAvg}} load avg)",
+      "runtime": "> **Runtime:** {{runtime}} on {{osType}} ({{arch}})",
+      "nodeApi": "> **Node API:** {{version}}",
+      "discordJs": "> **Discord.JS:** v{{version}}"
+    }
   }
 }

@@ -1,4 +1,5 @@
 import { EmbedBuilder, SlashCommandBuilder, Team, TimestampStyles, version as discordJsVersion, time, userMention } from 'discord.js';
+import { t } from 'i18next';
 import os from 'node:os';
 
 import { Command } from 'classes/base/command';
@@ -34,7 +35,7 @@ export default new Command({
 
     // Bot Application Info
     const app = await interaction.client.application.fetch();
-    const owner = app.owner ? (app.owner instanceof Team ? userMention(app.owner.ownerId!) : userMention(app.owner.id)) : 'N/A';
+    const developer = app.owner ? (app.owner instanceof Team ? userMention(app.owner.ownerId!) : userMention(app.owner.id)) : t('botinfo.na');
     const createdTimestamp = Math.floor((interaction.client.user.createdTimestamp || 0) / 1000);
 
     // Memory stats
@@ -53,7 +54,7 @@ export default new Command({
       os
         .cpus()[0]
         ?.model.replace(/\(R\)|\(TM\)/gi, '')
-        .trim() || 'Processor';
+        .trim() || t('botinfo.na');
     const cores = os.cpus().length;
     const loadAvgRaw = os.loadavg()[0] || 0;
     const loadAvg = loadAvgRaw.toFixed(2);
@@ -63,33 +64,47 @@ export default new Command({
     const embed = new EmbedBuilder()
       .setColor(0x2b2d31)
       .setAuthor({
-        name: `${interaction.client.user.username} Status`,
+        name: t('botinfo.author', { username: interaction.client.user.username }),
         iconURL: interaction.client.user.displayAvatarURL(),
       })
       .addFields(
         {
-          name: '⚙️ General',
-          value: `> **Owner:** ${owner}\n> **Created:** ${time(createdTimestamp, TimestampStyles.RelativeTime)}\n> **Servers:** ${totalGuilds.toLocaleString()}\n> **Users:** ${totalUsers.toLocaleString()}`,
+          name: t('botinfo.general.title'),
+          value: [
+            t('botinfo.general.developer', { developer }),
+            t('botinfo.general.created', { created: time(createdTimestamp, TimestampStyles.RelativeTime) }),
+            t('botinfo.general.servers', { servers: totalGuilds.toLocaleString() }),
+            t('botinfo.general.users', { users: totalUsers.toLocaleString() }),
+          ].join('\n'),
           inline: false,
         },
         {
-          name: '⚡ Network',
-          value: `> **Gateway:** ${pingText}\n> **Database:** ${dbLatency} ms`,
+          name: t('botinfo.network.title'),
+          value: [t('botinfo.network.gateway', { ping: pingText }), t('botinfo.network.database', { latency: dbLatency })].join('\n'),
           inline: true,
         },
         {
-          name: '⏱️ Uptime',
-          value: `> **Process:** ${formatDuration(process.uptime())}\n> **System:** ${formatDuration(os.uptime())}`,
+          name: t('botinfo.uptime.title'),
+          value: [
+            t('botinfo.uptime.process', { time: formatDuration(process.uptime()) }),
+            t('botinfo.uptime.system', { time: formatDuration(os.uptime()) }),
+          ].join('\n'),
           inline: true,
         },
         {
-          name: '💾 Memory',
-          value: `> **Process:** ${processMb} MB\n> **System:** ${usedGb}/${totalGb}GB (${ramPercent}%)`,
+          name: t('botinfo.memory.title'),
+          value: [t('botinfo.memory.process', { mb: processMb }), t('botinfo.memory.system', { used: usedGb, total: totalGb, percent: ramPercent })].join('\n'),
           inline: true,
         },
         {
-          name: '🖥️ Host Environment',
-          value: `> **CPU:** ${cpuName} (${cores} cores)\n> **CPU Load:** ${cpuPercent}% (${loadAvg} load avg)\n> **Runtime:** ${runtimeVersion} on ${os.type()} (${os.arch()})\n> **Node API:** ${process.version}\n> **Discord.JS:** v${discordJsVersion}`,
+          name: t('botinfo.host.title'),
+          value: [
+            t('botinfo.host.cpu', { name: cpuName, cores }),
+            t('botinfo.host.cpuLoad', { percent: cpuPercent, loadAvg }),
+            t('botinfo.host.runtime', { runtime: runtimeVersion, osType: os.type(), arch: os.arch() }),
+            t('botinfo.host.nodeApi', { version: process.version }),
+            t('botinfo.host.discordJs', { version: discordJsVersion }),
+          ].join('\n'),
           inline: false,
         },
       )
