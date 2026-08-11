@@ -1,0 +1,9 @@
+services:
+  pokehelper:
+    build: .
+    container_name: pokehelper
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - ./logs:/app/logs
