@@ -274,7 +274,7 @@ export async function buildLeaderboard({
     ? await getTopWeeklyUsersByXP(guild.id, ITEMS_PER_PAGE, (page - 1) * ITEMS_PER_PAGE, sortOrder)
     : await getTopUsersByXP(guild.id, ITEMS_PER_PAGE, (page - 1) * ITEMS_PER_PAGE, sortOrder);
 
-  // 1. Fetch Discord users/members (Cache First)
+  // Fetch Discord users/members (Cache First)
   const entriesData = await Promise.all(
     pageData.map(async (entry, index) => {
       const position = (page - 1) * ITEMS_PER_PAGE + index + 1;
@@ -293,7 +293,7 @@ export async function buildLeaderboard({
     }),
   );
 
-  // 2. Fetch avatars in parallel via in-memory LRU cache
+  // Fetch avatars in parallel via in-memory LRU cache
   const entries: LeaderboardEntry[] = await Promise.all(
     entriesData.map(async (entry) => ({
       ...entry,

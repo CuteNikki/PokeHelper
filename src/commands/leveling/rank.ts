@@ -1,4 +1,4 @@
-import { createCanvas, GlobalFonts, loadImage } from '@napi-rs/canvas';
+import { createCanvas, GlobalFonts, loadImage, type Image, type SKRSContext2D } from '@napi-rs/canvas';
 import { ApplicationIntegrationType, AttachmentBuilder, InteractionContextType, MessageFlags, SlashCommandBuilder } from 'discord.js';
 import { t } from 'i18next';
 import { join } from 'path';
@@ -17,6 +17,48 @@ import {
 
 GlobalFonts.registerFromPath(join(process.cwd(), 'fonts', 'NotoColorEmoji.ttf'), 'EmojiFallback');
 GlobalFonts.registerFromPath(join(process.cwd(), 'fonts', 'Roboto.ttf'), 'Roboto');
+
+interface RankColors {
+  cardBg: string;
+  trackBg: string;
+  accent: string;
+  textWhite: string;
+  textGray: string;
+}
+
+function truncateText(ctx: SKRSContext2D, text: string, maxWidth: number): string {
+  if (ctx.measureText(text).width <= maxWidth) return text;
+  let truncated = text;
+  while (ctx.measureText(`${truncated}...`).width > maxWidth && truncated.length > 0) {
+    truncated = truncated.slice(0, -1);
+  }
+  return `${truncated}...`;
+}
+
+function drawAvatar(ctx: SKRSContext2D, avatarImage: Image | null, x: number, y: number, radius: number, borderColor?: string) {
+  ctx.save();
+
+  if (borderColor) {
+    ctx.beginPath();
+    ctx.arc(x, y, radius + 4, 0, Math.PI * 2);
+    ctx.fillStyle = borderColor;
+    ctx.fill();
+  }
+
+  ctx.beginPath();
+  ctx.arc(x, y, radius, 0, Math.PI * 2);
+  ctx.closePath();
+  ctx.clip();
+
+  if (avatarImage) {
+    ctx.drawImage(avatarImage, x - radius, y - radius, radius * 2, radius * 2);
+  } else {
+    ctx.fillStyle = '#45475a';
+    ctx.fillRect(x - radius, y - radius, radius * 2, radius * 2);
+  }
+
+  ctx.restore();
+}
 
 export default new Command({
   data: new SlashCommandBuilder()
@@ -42,7 +84,7 @@ export default new Command({
       return interaction.editReply({ content: t('leveling.disabled') });
     }
 
-    // --- DATA FETCHING ---
+    // Data Fetching
     const [allTimeData, weeklyData] = await Promise.all([
       getUserLevelingData(interaction.guildId, targetUser.id),
       getWeeklyUserLevelingData(interaction.guildId, targetUser.id),
@@ -51,9 +93,13 @@ export default new Command({
     const xpAllTime = allTimeData?.xp || 0;
     const xpWeekly = weeklyData?.xp || 0;
 
-    const [rankAllTime, rankWeekly] = await Promise.all([getUserRank(interaction.guildId, xpAllTime), getWeeklyUserRank(interaction.guildId, xpWeekly)]);
+    const [rankAllTime, rankWeekly, avatarImage] = await Promise.all([
+      getUserRank(interaction.guildId, xpAllTime),
+      getWeeklyUserRank(interaction.guildId, xpWeekly),
+      loadImage(targetUser.displayAvatarURL({ extension: 'png', size: 256 })).catch(() => null),
+    ]);
 
-    // Calculations Helper
+    // Stats Calculation Helper
     const getStats = (xp: number) => {
       const level = getLevelFromXP(xp);
       const currentLevelXP = getXPForLevel(level);
@@ -68,134 +114,118 @@ export default new Command({
     const allTime = getStats(xpAllTime);
     const weekly = getStats(xpWeekly);
 
-    // --- CANVAS GENERATION ---
-    // Increased height to 220px to give elements more vertical breathing room
-    const canvas = createCanvas(900, 220);
+    // Canvas Generation
+    const width = 880;
+    const height = 190;
+    const canvas = createCanvas(width, height);
     const ctx = canvas.getContext('2d');
 
-    const colors = {
-      bg: '#1e1e2e',
-      moduleTrack: '#313244',
-      accent: '#ff1b1b',
-      textWhite: '#cdd6f4',
+    const colors: RankColors = {
+      cardBg: 'rgba(42, 43, 60, 0.85)',
+      trackBg: '#1e1e2e',
+      accent: '#ff0000',
+      textWhite: '#ffffff',
       textGray: '#a6adc8',
     };
 
-    ctx.fillStyle = colors.bg;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    const avatarSize = 140;
-    const avatarX = 40;
-    const avatarY = 40;
-
-    ctx.save();
+    // Base Card Container
+    ctx.fillStyle = colors.cardBg;
     ctx.beginPath();
-    ctx.arc(avatarX + avatarSize / 2, avatarY + avatarSize / 2, avatarSize / 2, 0, Math.PI * 2, true);
-    ctx.closePath();
-    ctx.clip();
-    const avatar = await loadImage(targetUser.displayAvatarURL({ extension: 'png', size: 256 }));
-    ctx.drawImage(avatar, avatarX, avatarY, avatarSize, avatarSize);
-    ctx.restore();
+    ctx.roundRect(0, 0, width, height, 16);
+    ctx.fill();
 
-    const contentX = 210;
+    // Avatar
+    const avatarRadius = 60;
+    const avatarX = 35 + avatarRadius; // 95
+    const avatarY = height / 2; // 95
+    drawAvatar(ctx, avatarImage, avatarX, avatarY, avatarRadius);
 
-    let displayName = targetMember?.displayName || targetUser.username;
-    ctx.font = `bold 36px "Roboto", "EmojiFallback"`;
+    // Content Boundaries
+    const contentX = avatarX + avatarRadius + 28; // 183
+    const rightX = width - 35; // 845
 
-    const maxNameWidth = 410;
-    if (ctx.measureText(displayName).width > maxNameWidth) {
-      while (ctx.measureText(`${displayName}...`).width > maxNameWidth && displayName.length > 0) {
-        displayName = displayName.slice(0, -1);
-      }
-      displayName += '...';
-    }
-
-    ctx.fillStyle = colors.textWhite;
     ctx.textAlign = 'left';
-    ctx.fillText(displayName, contentX, 75);
+    ctx.textBaseline = 'alphabetic';
 
-    const rightMargin = 860;
-    const rankGap = 8;
-    const labelGap = 16;
+    // Display Name & Username
+    const displayNameStr = targetMember?.displayName || targetUser.displayName || targetUser.username;
 
-    ctx.font = 'bold 24px "Roboto"';
-    const rankAllTimeWidth = ctx.measureText(`#${rankAllTime}`).width;
+    ctx.font = 'bold 20px "Roboto", "EmojiFallback"';
+    ctx.fillStyle = colors.textWhite;
+    const displayName = truncateText(ctx, displayNameStr, 380);
+    ctx.fillText(displayName, contentX, 55);
 
-    ctx.font = 'bold 18px "Roboto"';
-    const rankWeeklyWidth = ctx.measureText(`#${rankWeekly}`).width;
+    ctx.font = '14px "Roboto"';
+    ctx.fillStyle = colors.textGray;
+    const username = truncateText(ctx, `@${targetUser.username}`, 380);
+    ctx.fillText(username, contentX, 77);
 
-    const maxRankWidth = Math.max(rankAllTimeWidth, rankWeeklyWidth);
+    // Rank Columns
+    const allTimeColX = rightX;
+    const weeklyColX = rightX - 110;
 
-    const prefixRightEdge = rightMargin - maxRankWidth - rankGap;
+    ctx.textAlign = 'right';
 
-    ctx.font = 'bold 18px "Roboto"';
-    const maxPrefixWidth = ctx.measureText(t('leveling.rank.rank')).width;
-    const allTimeLabelWidth = ctx.measureText(t('leveling.rank.all')).width;
+    // All-Time Rank Column
+    ctx.font = 'bold 11px "Roboto"';
+    ctx.fillStyle = colors.textGray;
+    ctx.fillText(t('leveling.rank.all').toUpperCase(), allTimeColX, 44);
 
-    const prefixLeftEdge = prefixRightEdge - maxPrefixWidth;
-    const labelCenterX = prefixLeftEdge - labelGap - allTimeLabelWidth / 2;
+    ctx.font = 'bold 28px "Roboto"';
+    ctx.fillStyle = colors.textWhite;
+    ctx.fillText(`#${rankAllTime}`, allTimeColX, 76);
 
-    const drawOverviewRow = (y: number, typeLabel: string, rankNumber: number, isSmaller: boolean) => {
-      const baseSize = isSmaller ? 16 : 18;
-      const rankSize = isSmaller ? 18 : 24;
+    // Weekly Rank Column
+    ctx.font = 'bold 11px "Roboto"';
+    ctx.fillStyle = colors.textGray;
+    ctx.fillText(t('leveling.rank.weekly').toUpperCase(), weeklyColX, 44);
 
-      const rankStr = `#${rankNumber}`;
-      const rankPrefix = t('leveling.rank.rank');
+    ctx.font = 'bold 22px "Roboto"';
+    ctx.fillStyle = colors.textGray;
+    ctx.fillText(`#${rankWeekly}`, weeklyColX, 76);
 
-      ctx.textAlign = 'center';
-      ctx.font = `bold ${baseSize}px "Roboto"`;
-      ctx.fillStyle = colors.textWhite;
-      ctx.fillText(typeLabel, labelCenterX, y);
-
-      ctx.textAlign = 'right';
-      ctx.font = `bold ${baseSize}px "Roboto"`;
-      ctx.fillStyle = colors.textGray;
-      ctx.fillText(rankPrefix, prefixRightEdge, y);
-
-      ctx.font = `bold ${rankSize}px "Roboto"`;
-      ctx.fillStyle = colors.accent;
-      ctx.fillText(rankStr, rightMargin, y);
-    };
-
-    drawOverviewRow(55, t('leveling.rank.all'), rankAllTime, false);
-    drawOverviewRow(85, t('leveling.rank.weekly'), rankWeekly, true);
-
-    const barY = 115;
-    const barW = canvas.width - contentX - 40;
+    // Progress Bar
+    const barX = contentX;
+    const barY = 104;
+    const barW = rightX - barX;
     const barH = 16;
 
-    ctx.fillStyle = colors.moduleTrack;
+    ctx.fillStyle = colors.trackBg;
     ctx.beginPath();
-    ctx.roundRect(contentX, barY, barW, barH, 8);
+    ctx.roundRect(barX, barY, barW, barH, 8);
     ctx.fill();
 
     const progress = Math.max(0, Math.min(allTime.xpIntoLevel / allTime.xpRequired, 1));
     if (progress > 0) {
       ctx.fillStyle = colors.accent;
       ctx.beginPath();
-      ctx.roundRect(contentX, barY, barW * progress, barH, 8);
+      ctx.roundRect(barX, barY, Math.max(barH, barW * progress), barH, 8);
       ctx.fill();
     }
 
+    // Stats Row
+    const statsY = 152;
+    const levelLabel = t('leveling.rank.level').toUpperCase();
+    const xpLabel = t('leveling.rank.exp').toUpperCase();
+
+    ctx.font = '14px "Roboto"';
+    ctx.fillStyle = colors.textGray;
+
+    // All-Time Stats
     ctx.textAlign = 'left';
-    const statsY = 175;
+    const allTimeLabel = t('leveling.rank.all').toUpperCase();
+    const allTimeStatsText = `${allTimeLabel}: ${levelLabel} ${allTime.level}  |  ${allTime.xpIntoLevel.toLocaleString()}/${allTime.xpRequired.toLocaleString()} ${xpLabel}`;
+    ctx.fillText(allTimeStatsText, barX, statsY);
 
-    const drawStatsColumn = (x: number, label: string, level: number, current: number, total: number) => {
-      ctx.font = 'bold 18px "Roboto"';
-      ctx.fillStyle = colors.textWhite;
-      ctx.fillText(label, x, statsY);
+    // Weekly Stats
+    ctx.textAlign = 'right';
+    const weeklyLabel = t('leveling.rank.weekly').toUpperCase();
+    const weeklyStatsText = `${weeklyLabel}: ${levelLabel} ${weekly.level}  |  ${weekly.xpIntoLevel.toLocaleString()}/${weekly.xpRequired.toLocaleString()} ${xpLabel}`;
+    ctx.fillText(weeklyStatsText, rightX, statsY);
 
-      ctx.fillStyle = colors.textGray;
-      const statsText = `${t('leveling.rank.level')}: ${level}  |  ${t('leveling.rank.exp')}: ${current.toLocaleString()} / ${total.toLocaleString()}`;
-      ctx.fillText(statsText, x + 85, statsY);
-    };
-
-    drawStatsColumn(contentX, t('leveling.rank.all').toUpperCase(), allTime.level, allTime.xpIntoLevel, allTime.xpRequired);
-    const column2X = contentX + barW / 2;
-    drawStatsColumn(column2X, t('leveling.rank.weekly').toUpperCase(), weekly.level, weekly.xpIntoLevel, weekly.xpRequired);
-
-    // --- FINALIZATION ---
-    const attachment = new AttachmentBuilder(await canvas.encode('png'), { name: 'rank-card.png' });
+    // Finalization
+    const imageBuffer = canvas.toBuffer('image/png');
+    const attachment = new AttachmentBuilder(imageBuffer, { name: 'rank-card.png' });
 
     return interaction.editReply({
       content: t('leveling.rank.state', {
