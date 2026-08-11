@@ -15,17 +15,38 @@ import { getLevelFromXP, getTopUsersByXP, getTopWeeklyUsersByXP, getTotalUsersWi
 
 const ITEMS_PER_PAGE = 5;
 
+// In-Memory Avatar Cache (15 minute TTL)
+const avatarCache = new Map<string, { image: Image; expiresAt: number }>();
+const CACHE_TTL = 1000 * 60 * 15;
+
+async function getCachedAvatar(url: string | null): Promise<Image | null> {
+  if (!url) return null;
+
+  const now = Date.now();
+  const cached = avatarCache.get(url);
+  if (cached && cached.expiresAt > now) {
+    return cached.image;
+  }
+
+  try {
+    const image = await loadImage(url);
+    avatarCache.set(url, { image, expiresAt: now + CACHE_TTL });
+    return image;
+  } catch {
+    return null;
+  }
+}
+
 interface LeaderboardEntry {
   userId: string;
   xp: number;
   position: number;
   displayName: string;
-  tag: string;
+  username: string;
   avatarImage: Image | null;
 }
 
 interface LeaderboardColors {
-  bg: string;
   cardBg: string;
   podiumCenter: string;
   podiumSides: string;
@@ -42,7 +63,15 @@ function formatXP(xp: number): string {
   return xp.toLocaleString();
 }
 
-// Synchronous drawAvatar using pre-loaded Image object
+function truncateText(ctx: SKRSContext2D, text: string, maxWidth: number): string {
+  if (ctx.measureText(text).width <= maxWidth) return text;
+  let truncated = text;
+  while (ctx.measureText(`${truncated}...`).width > maxWidth && truncated.length > 0) {
+    truncated = truncated.slice(0, -1);
+  }
+  return `${truncated}...`;
+}
+
 function drawAvatar(ctx: SKRSContext2D, avatarImage: Image | null, x: number, y: number, radius: number, borderColor?: string) {
   ctx.save();
 
@@ -68,7 +97,6 @@ function drawAvatar(ctx: SKRSContext2D, avatarImage: Image | null, x: number, y:
   ctx.restore();
 }
 
-// Synchronous drawRowCard
 function drawRowCard(ctx: SKRSContext2D, entry: LeaderboardEntry, x: number, y: number, w: number, h: number, colors: LeaderboardColors) {
   ctx.fillStyle = colors.cardBg;
   ctx.beginPath();
@@ -88,34 +116,33 @@ function drawRowCard(ctx: SKRSContext2D, entry: LeaderboardEntry, x: number, y: 
   const avatarX = x + 120;
   drawAvatar(ctx, entry.avatarImage, avatarX, centerY, 28);
 
-  // User Name & Tag
+  // User Name & Username
   const nameX = avatarX + 44;
   ctx.textAlign = 'left';
   ctx.font = 'bold 20px "Roboto", "EmojiFallback"';
   ctx.fillStyle = colors.textWhite;
 
-  let name = entry.displayName;
-  if (ctx.measureText(name).width > 240) {
-    name = `${name.slice(0, 14)}...`;
-  }
-  ctx.fillText(name, nameX, centerY - 10);
+  const displayName = truncateText(ctx, entry.displayName, 240);
+  ctx.fillText(displayName, nameX, centerY - 10);
 
   ctx.font = '14px "Roboto"';
   ctx.fillStyle = colors.textGray;
-  ctx.fillText(`@${entry.tag}`, nameX, centerY + 14);
+
+  const username = truncateText(ctx, `@${entry.username}`, 240);
+  ctx.fillText(username, nameX, centerY + 14);
 
   // Stats
   const rightX = x + w - 24;
   const level = getLevelFromXP(entry.xp);
+  const levelLabel = t('leveling.rank.level').toUpperCase();
 
   ctx.textAlign = 'right';
   ctx.font = 'bold 15px "Roboto"';
   ctx.fillStyle = colors.textGray;
-  ctx.fillText(`LEVEL: ${level}`, rightX, centerY - 10);
+  ctx.fillText(`${levelLabel}: ${level}`, rightX, centerY - 10);
   ctx.fillText(`XP: ${formatXP(entry.xp)}`, rightX, centerY + 14);
 }
 
-// Fully synchronous canvas rendering step
 function renderLeaderboardCanvas(entries: LeaderboardEntry[], isTopPodiumView: boolean): Buffer {
   const width = 760;
   const height = isTopPodiumView ? 620 : 610;
@@ -123,8 +150,7 @@ function renderLeaderboardCanvas(entries: LeaderboardEntry[], isTopPodiumView: b
   const ctx = canvas.getContext('2d');
 
   const colors: LeaderboardColors = {
-    bg: 'transparent',
-    cardBg: '#2a2b3c',
+    cardBg: 'rgba(42, 43, 60, 0.85)',
     podiumCenter: '#35374a',
     podiumSides: '#35374a',
     accentGold: '#ffa000',
@@ -134,11 +160,7 @@ function renderLeaderboardCanvas(entries: LeaderboardEntry[], isTopPodiumView: b
     textGray: '#a6adc8',
   };
 
-  ctx.fillStyle = colors.bg;
-  ctx.fillRect(0, 0, width, height);
-
   if (isTopPodiumView && entries.length >= 3) {
-    // --- TOP 3 PODIUM LAYOUT ---
     const podiumTopY = 130;
     const podiumHeight = 170;
 
@@ -171,7 +193,7 @@ function renderLeaderboardCanvas(entries: LeaderboardEntry[], isTopPodiumView: b
 
       drawAvatar(ctx, item.entry.avatarImage, avatarX, avatarY, avatarRadius, item.color);
 
-      // Rank Circle Badge
+      // Rank Badge
       ctx.beginPath();
       ctx.arc(avatarX, avatarY + avatarRadius, 12, 0, Math.PI * 2);
       ctx.fillStyle = item.color;
@@ -183,33 +205,38 @@ function renderLeaderboardCanvas(entries: LeaderboardEntry[], isTopPodiumView: b
       ctx.textBaseline = 'middle';
       ctx.fillText(`${item.rank}`, avatarX, avatarY + avatarRadius);
 
-      // Name & Tag
+      // Display & Username
       ctx.textBaseline = 'alphabetic';
       ctx.font = 'bold 18px "Roboto", "EmojiFallback"';
       ctx.fillStyle = colors.textWhite;
 
-      let name = item.entry.displayName;
-      if (ctx.measureText(name).width > item.w - 20) {
-        name = `${name.slice(0, 10)}...`;
-      }
-      ctx.fillText(name, avatarX, item.y + (isFirst ? 65 : 55));
+      const displayName = truncateText(ctx, item.entry.displayName, item.w - 20);
+      ctx.fillText(displayName, avatarX, item.y + (isFirst ? 65 : 55));
 
       ctx.font = '13px "Roboto"';
       ctx.fillStyle = colors.textGray;
-      ctx.fillText(`@${item.entry.tag}`, avatarX, item.y + (isFirst ? 85 : 73));
 
-      // Level & XP
+      const userName = truncateText(ctx, `@${item.entry.username}`, item.w - 20);
+      ctx.fillText(userName, avatarX, item.y + (isFirst ? 85 : 73));
+
+      // Level
       const level = getLevelFromXP(item.entry.xp);
+      const levelLabel = t('leveling.rank.level').toUpperCase();
+
       ctx.font = 'bold 14px "Roboto"';
       ctx.fillStyle = item.color;
-      ctx.fillText(`LEVEL: ${level}`, avatarX, item.y + (isFirst ? 118 : 104));
+      ctx.fillText(`${levelLabel}: ${level}`, avatarX, item.y + (isFirst ? 118 : 104));
+
+      // XP
+      const xp = formatXP(item.entry.xp);
+      const xpLabel = t('leveling.rank.exp').toUpperCase();
 
       ctx.font = 'bold 13px "Roboto"';
       ctx.fillStyle = colors.textGray;
-      ctx.fillText(`XP: ${formatXP(item.entry.xp)}`, avatarX, item.y + (isFirst ? 138 : 124));
+      ctx.fillText(`${xpLabel}: ${xp}`, avatarX, item.y + (isFirst ? 138 : 124));
     }
 
-    // --- RANKS #4 AND #5 ---
+    // Ranks #4 and #5
     const remaining = entries.slice(3);
     let startY = 325;
 
@@ -218,7 +245,7 @@ function renderLeaderboardCanvas(entries: LeaderboardEntry[], isTopPodiumView: b
       startY += 100;
     }
   } else {
-    // --- LIST VIEW ---
+    // List View
     let startY = 30;
     for (const entry of entries) {
       drawRowCard(ctx, entry, 30, startY, 700, 95, colors);
@@ -260,24 +287,18 @@ export async function buildLeaderboard({
         xp: entry.xp,
         position,
         displayName: member?.displayName || user?.displayName || user?.username || 'Unknown User',
-        tag: user?.username || entry.userId,
+        username: user?.username || entry.userId,
         avatarUrl: user?.displayAvatarURL({ extension: 'png', size: 128 }) ?? null,
       };
     }),
   );
 
-  // 2. Pre-fetch ALL images in PARALLEL before rendering
+  // 2. Fetch avatars in parallel via in-memory LRU cache
   const entries: LeaderboardEntry[] = await Promise.all(
-    entriesData.map(async (entry) => {
-      let avatarImage: Image | null = null;
-      if (entry.avatarUrl) {
-        avatarImage = await loadImage(entry.avatarUrl).catch(() => null);
-      }
-      return {
-        ...entry,
-        avatarImage,
-      };
-    }),
+    entriesData.map(async (entry) => ({
+      ...entry,
+      avatarImage: await getCachedAvatar(entry.avatarUrl),
+    })),
   );
 
   const isTopPodiumView = page === 1 && sortOrder === 'desc';
