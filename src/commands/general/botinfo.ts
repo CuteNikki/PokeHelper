@@ -84,7 +84,7 @@ export default new Command({
         },
         {
           name: '💾 Memory',
-          value: `> **Process:** ${processMb} MB\n> **System:** ${usedGb} / ${totalGb} GB (${ramPercent}%)`,
+          value: `> **Process:** ${processMb} MB\n> **System:** ${usedGb}/${totalGb}GB (${ramPercent}%)`,
           inline: true,
         },
         {
