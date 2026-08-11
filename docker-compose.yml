@@ -7,9 +7,17 @@ services:
       - .env
     volumes:
       - ./logs:/app/logs
+    networks:
+      - default
+      - postgres_network
 
     labels:
       homepage.group: 'Discord Bots'
       homepage.name: 'PokeHelper'
       homepage.icon: 'discord.svg'
       homepage.href: 'https://github.com/CuteNikki/PokeHelper'
+
+networks:
+  postgres_network:
+    external: true
+    name: postgres_default
