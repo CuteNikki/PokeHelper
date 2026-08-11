@@ -8,6 +8,7 @@ import { prisma } from 'database/index';
 import { loadButtons } from 'loading/buttons';
 import { loadCommands } from 'loading/commands';
 import { loadEvents } from 'loading/events';
+import { loadFonts } from 'loading/fonts';
 import { loadSelectMenus } from 'loading/selects';
 
 import { startBirthdayCron } from 'utility/birthday';
@@ -37,6 +38,7 @@ await Promise.all([
   loadSelectMenus(client).then(({ files, tableData, duration, count }) =>
     logger.info(t('system.selectMenu.loaded', { count, duration: duration.toFixed(2), files: files.length }) + '\n' + table(tableData)),
   ),
+  measure(t('system.fonts.loaded'), () => loadFonts()),
   measure(t('system.cron.birthday'), () => startBirthdayCron(client)),
   measure(t('system.cron.leveling'), () => startWeeklyCron(client)),
   measure(t('system.cron.leaderboard'), () => startLeaderboardCacheCleanup()),

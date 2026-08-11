@@ -1,7 +1,6 @@
-import { createCanvas, GlobalFonts, loadImage, type Image, type SKRSContext2D } from '@napi-rs/canvas';
+import { createCanvas, loadImage, type Image, type SKRSContext2D } from '@napi-rs/canvas';
 import { ApplicationIntegrationType, AttachmentBuilder, InteractionContextType, MessageFlags, SlashCommandBuilder } from 'discord.js';
 import { t } from 'i18next';
-import { join } from 'path';
 
 import { Command } from 'classes/base/command';
 
@@ -14,9 +13,6 @@ import {
   getWeeklyUserRank,
   getXPForLevel,
 } from 'database/leveling';
-
-GlobalFonts.registerFromPath(join(process.cwd(), 'fonts', 'NotoColorEmoji.ttf'), 'EmojiFallback');
-GlobalFonts.registerFromPath(join(process.cwd(), 'fonts', 'Roboto.ttf'), 'Roboto');
 
 interface RankColors {
   cardBg: string;

@@ -198,6 +198,9 @@
     "leveling": {
       "failedAssignment": "Failed to assign level {{level}} rewards to {{user}} (ID: {{id}}) in {{guild}}",
       "failedMessage": "Failed to send level {{level}} level up message for {{user}} (ID: {{id}}) in {{guild}}"
+    },
+    "fonts": {
+      "loaded": "Fonts loaded"
     }
   },
   "birthday": {
