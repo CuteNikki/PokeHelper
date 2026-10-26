@@ -11,12 +11,6 @@ services:
       - default
       - postgres_network
 
-    labels:
-      homepage.group: 'Discord Bots'
-      homepage.name: 'PokeHelper'
-      homepage.icon: '/icons/pokeball.webp'
-      homepage.href: 'https://github.com/CuteNikki/PokeHelper'
-
 networks:
   postgres_network:
     external: true
