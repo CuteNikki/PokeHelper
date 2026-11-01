@@ -1,0 +1,120 @@
+{
+  "birthday": {
+    "description": "Verwalte deinen Geburtstag und wo er angekündigt wird",
+    "options": {
+      "setup": {
+        "description": "Trag deinen Geburtstag ein",
+        "options": {
+          "date": { "description": "Dein Geburtstag (JJJJ-MM-TT)" },
+          "timezone": { "description": "Deine Zeitzone (z. B. Europe/Berlin). Ohne Angabe wird UTC genommen" },
+          "show-age": { "description": "Ob dein Alter in der Ankündigung steht" },
+          "announce-in-guilds-by-default": { "description": "Ob dein Geburtstag standardmäßig auf Servern angekündigt wird" }
+        }
+      },
+      "edit": {
+        "description": "Ändere deine Geburtstagseinstellungen",
+        "options": {
+          "date": { "description": "Dein Geburtstag (JJJJ-MM-TT)" },
+          "timezone": { "description": "Deine Zeitzone (z. B. Europe/Berlin). Ohne Angabe wird UTC genommen" },
+          "show-age": { "description": "Ob dein Alter in der Ankündigung steht" },
+          "announce-in-guilds-by-default": { "description": "Ob dein Geburtstag standardmäßig auf ALLEN Servern angekündigt wird" }
+        }
+      },
+      "announce-in-guilds": { "description": "Wähl die Server aus, auf denen dein Geburtstag angekündigt wird" },
+      "info": { "description": "Zeig, was zu deinem Geburtstag eingetragen ist" },
+      "reset": { "description": "Lösch deinen Geburtstag" }
+    }
+  },
+  "birthday-config": {
+    "description": "Richte Geburtstagsankündigungen und die Geburtstagsrolle ein",
+    "options": {
+      "settings": { "description": "Ändere den Ankündigungskanal, die Geburtstagsrolle und mehr" },
+      "reset": { "description": "Setz die Geburtstagseinstellungen dieses Servers zurück" }
+    }
+  },
+  "reaction-role": {
+    "description": "Verwalte die Rollenmenüs dieses Servers",
+    "options": {
+      "setup": { "description": "Erstell ein Rollenmenü" },
+      "info": {
+        "description": "Zeig Infos zu den Rollenmenüs",
+        "options": {
+          "menu-id": { "description": "Die ID des Rollenmenüs" }
+        }
+      },
+      "re-send": {
+        "description": "Schick ein Rollenmenü nochmal, z. B. wenn die Nachricht gelöscht wurde",
+        "options": {
+          "menu-id": { "description": "Die ID des Rollenmenüs, das nochmal geschickt werden soll" },
+          "target-channel": { "description": "Ein anderer Kanal, in den das Menü soll" }
+        }
+      },
+      "toggle": {
+        "description": "Schalte ein Rollenmenü an oder aus. Ausgeschaltet bleibt die Nachricht, tut aber nichts",
+        "options": {
+          "menu-id": { "description": "Die ID des Rollenmenüs, leer lassen für alle" },
+          "enabled": { "description": "An oder aus. Ohne Angabe wird es umgeschaltet" }
+        }
+      },
+      "delete": {
+        "description": "Lösch ein Rollenmenü",
+        "options": {
+          "menu-id": { "description": "Die ID des Rollenmenüs, das gelöscht werden soll" }
+        }
+      }
+    }
+  },
+  "botinfo": {
+    "description": "Status, Host-Infos und Statistiken des Bots"
+  },
+  "counting-config": {
+    "description": "Richte das Zählspiel ein und pass es an",
+    "options": {
+      "setup": {
+        "description": "Richte das Zählspiel ein",
+        "options": {
+          "channel": { "description": "Der Kanal, in dem gezählt wird" }
+        }
+      },
+      "settings": { "description": "Ändere die Einstellungen des Zählspiels" },
+      "reset": { "description": "Entfern das Zählspiel samt allen Statistiken" }
+    }
+  },
+  "counting": {
+    "description": "Schau, wie das Zählspiel läuft",
+    "options": {
+      "info": { "description": "Die aktuelle Runde, ihre Meilensteine und die Rekorde" },
+      "leaderboard": { "description": "Die Mitglieder, die am meisten gezählt haben" },
+      "user": {
+        "description": "Die Zählstatistiken eines Mitglieds",
+        "options": {
+          "user": { "description": "Wessen Statistiken du sehen willst. Ohne Angabe deine eigenen" }
+        }
+      },
+      "runs": { "description": "Die letzten Runden und wie sie geendet haben" }
+    }
+  },
+  "leveling-config": {
+    "description": "Richte das Leveln ein und pass es an",
+    "options": {
+      "settings": { "description": "Ändere die Einstellungen, Belohnungen und Multiplikatoren fürs Leveln" },
+      "reset": { "description": "Setz die Einstellungen, Belohnungen und Multiplikatoren fürs Leveln zurück" }
+    }
+  },
+  "leaderboard": {
+    "description": "Die Bestenliste des Servers nach Level und XP",
+    "options": {
+      "page": { "description": "Welche Seite der Bestenliste du sehen willst" },
+      "weekly": { "description": "Ob die Wochen-Bestenliste gezeigt wird" },
+      "text": { "description": "Zeig die Bestenliste als Text statt als Bild, z. B. für Screenreader" }
+    }
+  },
+  "rank": {
+    "description": "Level und XP auf dem Server, insgesamt und diese Woche",
+    "options": {
+      "user": { "description": "Wessen Rang du sehen willst. Ohne Angabe dein eigener" },
+      "ephemeral": { "description": "Ob nur du die Antwort siehst. Standardmäßig ja" },
+      "text": { "description": "Zeig den Rang als Text statt als Bild, z. B. für Screenreader" }
+    }
+  }
+}

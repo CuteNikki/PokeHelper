@@ -2,6 +2,8 @@ import { Routes, type ApplicationCommandType, type REST, type RESTPostAPIApplica
 
 import type { Command } from 'classes/base/command';
 
+import { loadCommandTranslations, localizeCommand } from 'utility/commandLocalization';
+
 export interface RegistrationResult {
   /** How many commands were registered globally. */
   global: number;
@@ -23,7 +25,9 @@ export async function registerCommands(
   commands: Command<ApplicationCommandType>[],
   devGuildId?: string,
 ): Promise<RegistrationResult> {
-  const toJSON = (command: Command<ApplicationCommandType>) => command.options.data.toJSON() as RESTPostAPIApplicationCommandsJSONBody;
+  const translations = loadCommandTranslations();
+  const toJSON = (command: Command<ApplicationCommandType>) =>
+    localizeCommand(command.options.data.toJSON() as RESTPostAPIApplicationCommandsJSONBody, translations);
   const globalCommands = commands.filter((command) => !command.options.devOnly).map(toJSON);
   const devCommands = commands.filter((command) => command.options.devOnly).map(toJSON);
 
