@@ -171,7 +171,11 @@ model ReactionRoleMenu {
 
   // Configuration
   channelId       String
-  messageId       String
+  // Null until the menu has roles and its message is posted
+  messageId       String?
+  // Null to use the default text
+  title           String?
+  description     String?
   enabled         Boolean  @default(true)
   singleChoice    Boolean  @default(false)
   requiredRoleIds String[] @default([])

@@ -37,8 +37,12 @@ const SINGLE_PAGE = '_';
 const PAGE_KEY = '_page';
 /** Placeholder in custom IDs for a missing argument or shown value. */
 const NONE = '-';
+/** In place of the shown value, marks the custom ID of a popup. */
+const MODAL_MARK = 'modal';
 /** Discord shows at most 25 options in a select. */
 const MAX_SELECT_OPTIONS = 25;
+/** How much of a text setting is shown in the panel. */
+const TEXT_PREVIEW_LENGTH = 300;
 
 interface BaseSetting<C, V> {
   /** Identifies the setting within its panel, used in the custom ID. */
@@ -51,8 +55,8 @@ interface BaseSetting<C, V> {
   defaultValue?: V;
   /** Read the current value from the configuration. */
   get: (config: C) => V;
-  /** Save a new value. */
-  set: (guildId: string, value: V) => Promise<unknown>;
+  /** Save a new value. The guild is there for settings that change more than the database, like moving a posted message. */
+  set: (guildId: string, value: V, guild: Guild) => Promise<unknown>;
 }
 
 /** A boolean, toggled with a button. */
@@ -81,11 +85,21 @@ export type RoleSetting<C> = BaseSetting<C, string | null> & {
 export type ChannelsSetting<C> = BaseSetting<C, string[]> & { type: 'channels'; channelTypes: ChannelType[]; max: number };
 /** Several roles, picked at once with a role select. */
 export type RolesSetting<C> = BaseSetting<C, string[]> & { type: 'roles'; max: number };
+/** A text, typed into a popup with a button. Submitting it empty clears it, which uses the default instead. */
+export type TextSetting<C> = Omit<BaseSetting<C, string | null>, 'defaultValue'> & {
+  type: 'text';
+  maxLength: number;
+  /** Whether the text can have several lines. */
+  paragraph?: boolean;
+  placeholder?: (t: Translate) => string;
+  /** The text used while none is set, shown in the popup to start from. */
+  defaultText?: (t: Translate) => string;
+};
 
-/** A channel or role with a value, like a multiplier or the level a reward role is given at. */
-export interface Entry {
+/** A channel or role with a value, like a multiplier, the level a reward role is given at, or the emoji of a role. */
+export interface Entry<V extends number | string = number> {
   targetId: string;
-  value: number;
+  value: V;
 }
 
 /**
@@ -93,9 +107,11 @@ export interface Entry {
  *
  * With presets, every entry gets a row with a button that cycles through them, and after the last preset asks for a custom value.
  * Without presets, the entries are listed compactly, and adding an entry asks for its value, which also changes the value of an existing entry.
+ *
+ * The functions are written as methods, which TypeScript checks loosely enough that settings with number and text values fit in one list.
  */
-export interface EntriesSetting<C> {
-  type: 'entries';
+interface EntriesSettingBase<C, V extends number | string> {
+  type: 'entries' | 'textEntries';
   key: string;
   category?: string;
   label: (t: Translate) => string;
@@ -108,28 +124,48 @@ export interface EntriesSetting<C> {
   /** The most entries there can be. With presets, keep it at 10 at most, as a message can only have 40 components. */
   max: number;
   /** The values the button of an entry cycles through. */
-  presets?: number[];
+  presets?: V[];
   /** The value new entries start with, with presets. */
-  defaultValue?: number;
-  formatValue: (value: number, t: Translate) => string;
+  defaultValue?: V;
+  formatValue(value: V, t: Translate): string;
   /** How an entry is listed without presets, like `Level 5: @Role`. */
-  formatEntry?: (target: string, value: string) => string;
+  formatEntry?(target: string, value: string): string;
   /** The popup that asks for a value. */
   input: {
     label: (t: Translate) => string;
     placeholder?: (t: Translate) => string;
+    /** The most characters that can be typed. Defaults to 20. */
+    maxLength?: number;
     /** Turn what was typed into a value, or null if it isn't valid. */
-    parse: (input: string) => number | null;
+    parse(input: string, guild: Guild): V | null;
     invalid: (t: Translate) => string;
   };
-  get: (config: C) => Entry[];
+  get(config: C): Entry<V>[];
   /** Save the value of an entry, or remove it with null. */
-  set: (guildId: string, targetId: string, value: number | null) => Promise<unknown>;
+  set(guildId: string, targetId: string, value: V | null): Promise<unknown>;
   /** Runs after an entry was saved, for follow-up work like giving a new reward role to everyone who already qualifies. */
-  onSaved?: (guild: Guild, targetId: string, value: number | null) => void;
+  onSaved?(guild: Guild, targetId: string, value: V | null): void;
 }
 
-export type Setting<C> = BooleanSetting<C> | ChoiceSetting<C> | ChannelSetting<C> | RoleSetting<C> | ChannelsSetting<C> | RolesSetting<C> | EntriesSetting<C>;
+/** An entries setting with number values, like multipliers, or with text values, like emoji, which is a `textEntries` setting. */
+export type EntriesSetting<C, V extends number | string = number> = EntriesSettingBase<C, V> & { type: V extends string ? 'textEntries' : 'entries' };
+
+export type Setting<C> =
+  | BooleanSetting<C>
+  | ChoiceSetting<C>
+  | ChannelSetting<C>
+  | RoleSetting<C>
+  | ChannelsSetting<C>
+  | RolesSetting<C>
+  | TextSetting<C>
+  | EntriesSetting<C, number>
+  | EntriesSetting<C, string>;
+
+/** Any entries setting, as the panel handles them the same whatever their values are. */
+type AnyEntriesSetting<C> = EntriesSettingBase<C, number | string>;
+
+const isEntries = <C>(setting: Setting<C> | AnyEntriesSetting<C>): setting is AnyEntriesSetting<C> =>
+  setting.type === 'entries' || setting.type === 'textEntries';
 
 export interface SettingsCategory {
   id: string;
@@ -149,15 +185,29 @@ export interface SettingsPanelDefinition<C> {
   load: (guildId: string) => Promise<C | null>;
   /** Shown instead of the settings when the feature isn't set up. */
   notConfigured: (t: Translate) => string;
+  /** Text shown under the title, like where a role menu is posted. */
+  header?: (config: C, guild: Guild, t: Translate) => string | null;
+  /** Buttons shown under the settings, for actions that aren't settings, like deleting a role menu. */
+  footer?: (config: C, t: Translate) => ButtonBuilder[];
+  /** Runs after any setting was saved, before the panel is shown again, like to update a posted role menu. */
+  onSaved?: (guild: Guild) => Promise<unknown>;
   settings: Setting<C>[];
 }
 
 /** A popup asking for a value, which the settings handler shows. */
 export interface SettingsModal {
+  /** Says what the popup is for, so it can be handled whenever it's submitted, like a button. */
+  customId: string;
   title: string;
   label: string;
   placeholder?: string;
   value?: string;
+  /** The most characters that can be typed. Defaults to 20. */
+  maxLength?: number;
+  /** Whether the text can have several lines. */
+  paragraph?: boolean;
+  /** Whether it can be submitted empty, like to go back to a default text. */
+  optional?: boolean;
   /** Check what was typed. Returns an error to show, or how to save it. */
   submit: (input: string) => { error: string } | { save: () => Promise<unknown> };
 }
@@ -193,6 +243,10 @@ export interface SettingsPanel {
   render: (guild: Guild, t: Translate, page?: string) => Promise<ResponsePayload>;
   /** Work out what a button or select of the panel should do. */
   handle: (guild: Guild, id: ParsedSettingsCustomId, input: SettingsInput, t: Translate) => Promise<SettingsResult>;
+  /** Work out what a submitted popup should do, with what was typed into it. */
+  submitModal: (guild: Guild, id: ParsedSettingsCustomId, input: string, t: Translate) => Promise<Omit<SettingsResult, 'modal' | 'outdated'>>;
+  /** Runs after any setting was saved. */
+  onSaved?: (guild: Guild) => Promise<unknown>;
 }
 
 export interface ParsedSettingsCustomId {
@@ -250,8 +304,10 @@ export function unassignableReason(guild: Guild, roleId: string, t: Translate): 
 }
 
 /** How a value is shown as a default, or in a choice button. */
-function formatValue<C>(setting: Exclude<Setting<C>, EntriesSetting<C>>, value: boolean | string | string[] | null, t: Translate): string {
+function formatValue<C>(setting: Exclude<Setting<C>, { type: 'entries' | 'textEntries' }>, value: boolean | string | string[] | null, t: Translate): string {
   switch (setting.type) {
+    case 'text':
+      return typeof value === 'string' ? value : t('settings.none');
     case 'boolean':
       return value ? t('state.on') : t('state.off');
     case 'choice':
@@ -266,9 +322,10 @@ function formatValue<C>(setting: Exclude<Setting<C>, EntriesSetting<C>>, value: 
   }
 }
 
-function describe<C>(setting: Setting<C>, t: Translate, extra: string[] = []): string {
+function describe<C>(setting: Setting<C> | AnyEntriesSetting<C>, t: Translate, extra: string[] = []): string {
   const lines = [`**${setting.label(t)}**`, `-# ${setting.description(t)}`];
-  if (setting.type !== 'entries' && setting.defaultValue !== undefined) {
+  // A default text is shown in place of the value instead, as it can be long
+  if (!isEntries(setting) && setting.type !== 'text' && setting.defaultValue !== undefined) {
     lines.push(`-# ${t('settings.default', { value: formatValue(setting, setting.defaultValue, t) })}`);
   }
   return [...lines, ...extra].join('\n');
@@ -352,20 +409,45 @@ function addSetting<C>(container: ContainerBuilder, guild: Guild, panelId: strin
         .addActionRowComponents(new ActionRowBuilder<RoleSelectMenuBuilder>().addComponents(select));
       return;
     }
+    case 'text': {
+      const value = setting.get(config);
+      const shown = value ?? setting.defaultText?.(t) ?? null;
+      // Quoted, so the text stands apart from the setting's description, and cut short so long texts don't take over the panel
+      const preview = shown === null ? t('settings.none') : quote(shown.length > TEXT_PREVIEW_LENGTH ? `${shown.slice(0, TEXT_PREVIEW_LENGTH)}…` : shown);
+      const extra = [value === null && setting.defaultText ? `-# ${t('settings.text.usingDefault')}` : null, preview].filter((line) => line !== null);
+      container.addSectionComponents(
+        new SectionBuilder().addTextDisplayComponents(new TextDisplayBuilder().setContent(describe(setting, t, extra))).setButtonAccessory(
+          new ButtonBuilder()
+            .setCustomId(customId(panelId, page, setting.key))
+            .setLabel(t('settings.text.edit'))
+            .setEmoji('✏️')
+            .setStyle(ButtonStyle.Primary),
+        ),
+      );
+      return;
+    }
     case 'entries':
+    case 'textEntries':
       addEntries(container, guild, panelId, page, setting, config, t);
       return;
   }
 }
 
+/** Quote every line of a text. */
+const quote = (text: string) =>
+  text
+    .split('\n')
+    .map((line) => `> ${line}`)
+    .join('\n');
+
 /** A warning for an entry whose channel or role was deleted, or whose role the bot can't give. */
-function entryWarning<C>(guild: Guild, setting: EntriesSetting<C>, targetId: string, t: Translate): string {
+function entryWarning<C>(guild: Guild, setting: AnyEntriesSetting<C>, targetId: string, t: Translate): string {
   if (!exists(guild, setting.target, targetId)) return ` ⚠️ ${t('settings.entries.missing')}`;
   const reason = setting.target === 'role' && setting.assignable ? unassignableReason(guild, targetId, t) : null;
   return reason ? ` ⚠️ ${reason}` : '';
 }
 
-function addEntries<C>(container: ContainerBuilder, guild: Guild, panelId: string, page: string, setting: EntriesSetting<C>, config: C, t: Translate) {
+function addEntries<C>(container: ContainerBuilder, guild: Guild, panelId: string, page: string, setting: AnyEntriesSetting<C>, config: C, t: Translate) {
   const entries = setting.get(config);
   const count = t('settings.entries.count', { count: entries.length, max: setting.max });
 
@@ -386,7 +468,7 @@ function addEntries<C>(container: ContainerBuilder, guild: Guild, panelId: strin
       );
     }
   } else {
-    const format = setting.formatEntry ?? ((target: string, value: string) => `${target}: ${value}`);
+    const format = (target: string, value: string) => (setting.formatEntry ? setting.formatEntry(target, value) : `${target}: ${value}`);
     const list =
       entries.length > 0
         ? entries.map(
@@ -430,22 +512,50 @@ function addEntries<C>(container: ContainerBuilder, guild: Guild, panelId: strin
 }
 
 /** Save an entry and run its follow-up work. */
-async function saveEntry<C>(guild: Guild, setting: EntriesSetting<C>, targetId: string, value: number | null) {
+async function saveEntry<C>(guild: Guild, setting: AnyEntriesSetting<C>, targetId: string, value: number | string | null) {
   await setting.set(guild.id, targetId, value);
   setting.onSaved?.(guild, targetId, value);
 }
 
 /** The popup asking for the value of an entry. */
-function entryModal<C>(guild: Guild, setting: EntriesSetting<C>, targetId: string, t: Translate, current?: number): SettingsModal {
+function entryModal<C>(
+  guild: Guild,
+  setting: AnyEntriesSetting<C>,
+  id: ParsedSettingsCustomId,
+  targetId: string,
+  t: Translate,
+  current?: number | string,
+): SettingsModal {
   return {
+    customId: customId(id.panelId, id.page, setting.key, targetId, MODAL_MARK),
     title: t('settings.entries.modalTitle', { target: targetName(guild, setting.target, targetId, t) }).slice(0, 45),
     label: setting.input.label(t),
     placeholder: setting.input.placeholder?.(t),
     value: current === undefined ? undefined : String(current),
+    maxLength: setting.input.maxLength,
     submit(input) {
-      const value = setting.input.parse(input.trim());
+      const value = setting.input.parse(input.trim(), guild);
       if (value === null) return { error: setting.input.invalid(t) };
       return { save: () => saveEntry(guild, setting, targetId, value) };
+    },
+  };
+}
+
+/** The popup asking for a text. */
+function textModal<C>(guild: Guild, setting: TextSetting<C>, id: ParsedSettingsCustomId, t: Translate, current: string | null): SettingsModal {
+  return {
+    customId: customId(id.panelId, id.page, setting.key, undefined, MODAL_MARK),
+    title: setting.label(t).slice(0, 45),
+    label: setting.label(t).slice(0, 45),
+    placeholder: setting.placeholder?.(t),
+    value: current ?? setting.defaultText?.(t),
+    maxLength: setting.maxLength,
+    paragraph: setting.paragraph,
+    optional: true,
+    submit(input) {
+      // Left empty, or the same as the default, it keeps following the default, like when that's translated
+      const text = input.trim();
+      return { save: () => setting.set(guild.id, text && text !== setting.defaultText?.(t) ? text : null, guild) };
     },
   };
 }
@@ -476,6 +586,8 @@ export function createSettingsPanel<C>(definition: SettingsPanelDefinition<C>): 
       const container = new ContainerBuilder()
         .setAccentColor(ThemeColors.info)
         .addTextDisplayComponents(new TextDisplayBuilder().setContent(definition.title(t)));
+      const header = definition.header?.(config, guild, t);
+      if (header) container.addTextDisplayComponents(new TextDisplayBuilder().setContent(header));
 
       if (definition.categories?.length) {
         container.addActionRowComponents(
@@ -500,6 +612,13 @@ export function createSettingsPanel<C>(definition: SettingsPanelDefinition<C>): 
         addSetting(container, guild, definition.id, page, setting, config, t);
       });
 
+      const footer = definition.footer?.(config, t) ?? [];
+      if (footer.length > 0) {
+        container
+          .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Small))
+          .addActionRowComponents(new ActionRowBuilder<ButtonBuilder>().addComponents(footer));
+      }
+
       return { components: [container], flags: [MessageFlags.IsComponentsV2] };
     },
 
@@ -515,14 +634,14 @@ export function createSettingsPanel<C>(definition: SettingsPanelDefinition<C>): 
         case 'boolean': {
           const value = setting.get(config);
           if (id.shown !== (value ? '1' : '0')) return { page, outdated: true };
-          return { page, save: () => setting.set(guild.id, !value) };
+          return { page, save: () => setting.set(guild.id, !value, guild) };
         }
         case 'choice': {
           const value = setting.get(config);
           if (id.shown !== value) return { page, outdated: true };
           const index = setting.options.findIndex((option) => option.value === value);
           const next = setting.options[(index + 1) % setting.options.length];
-          return next ? { page, save: () => setting.set(guild.id, next.value) } : { page };
+          return next ? { page, save: () => setting.set(guild.id, next.value, guild) } : { page };
         }
         case 'channel':
         case 'role': {
@@ -543,25 +662,47 @@ export function createSettingsPanel<C>(definition: SettingsPanelDefinition<C>): 
             const reason = unassignableReason(guild, value, t);
             if (reason) return { page, error: t('settings.role.refused', { role: roleMention(value), reason }) };
           }
-          return { page, save: () => setting.set(guild.id, value) };
+          return { page, save: () => setting.set(guild.id, value, guild) };
         }
         case 'channels':
         case 'roles': {
           if (input.type !== 'select') return { page };
           const values = input.values.slice(0, setting.max);
-          return { page, save: () => setting.set(guild.id, values) };
+          return { page, save: () => setting.set(guild.id, values, guild) };
         }
+        case 'text':
+          return { page, modal: textModal(guild, setting, id, t, setting.get(config)) };
         case 'entries':
+        case 'textEntries':
           return { page, ...handleEntries(guild, setting, config, id, input, t) };
       }
     },
+
+    async submitModal(guild, id, input, t) {
+      const page = resolvePage(id.page);
+      const setting = findSetting(id.key);
+      const config = await definition.load(guild.id);
+      if (!setting || !config) return { page };
+
+      const modal =
+        setting.type === 'text'
+          ? textModal(guild, setting, id, t, setting.get(config))
+          : (setting.type === 'entries' || setting.type === 'textEntries') && id.argument
+            ? entryModal(guild, setting, id, id.argument, t)
+            : null;
+      if (!modal) return { page };
+      const result = modal.submit(input);
+      return 'error' in result ? { page, error: result.error } : { page, save: result.save };
+    },
+
+    onSaved: definition.onSaved,
   };
 }
 
 /** Work out what a button or select of an entries setting should do. */
 function handleEntries<C>(
   guild: Guild,
-  setting: EntriesSetting<C>,
+  setting: AnyEntriesSetting<C>,
   config: C,
   id: ParsedSettingsCustomId,
   input: SettingsInput,
@@ -586,7 +727,7 @@ function handleEntries<C>(
     }
 
     // Without presets, the value is always typed, also to change it for an existing entry
-    if (!setting.presets) return { modal: entryModal(guild, setting, targetId, t, existing?.value) };
+    if (!setting.presets) return { modal: entryModal(guild, setting, id, targetId, t, existing?.value) };
     if (existing) return {};
     const value = setting.defaultValue ?? setting.presets[0] ?? 1;
     return { save: () => saveEntry(guild, setting, targetId, value) };
@@ -598,7 +739,7 @@ function handleEntries<C>(
   if (id.shown !== String(entry.value)) return { outdated: true };
 
   const index = setting.presets.indexOf(entry.value);
-  if (index === setting.presets.length - 1) return { modal: entryModal(guild, setting, entry.targetId, t, entry.value) };
+  if (index === setting.presets.length - 1) return { modal: entryModal(guild, setting, id, entry.targetId, t, entry.value) };
   // A custom value starts over at the first preset
   const next = setting.presets[index + 1] ?? setting.presets[0]!;
   return { save: () => saveEntry(guild, setting, entry.targetId, next) };

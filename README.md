@@ -30,9 +30,11 @@ _A Pokémon themed Discord bot_
 - February 29 birthdays are celebrated on February 28 in other years
 - Birthdays missed while the bot was offline are announced once it's back
 
-### 🎭 Reaction Roles
+### 🎭 Role Menus
 
-- Menus where members pick their own roles, re-sendable to other channels, and can be turned off without deleting them
+- Menus where members pick their own roles with a button, one or as many as they like
+- Your own title and description, and roles members need to use a menu
+- Every change shows up in the posted menu right away, and deleted roles are taken out by themselves
 
 ### ⚙️ And more
 
@@ -42,18 +44,18 @@ _A Pokémon themed Discord bot_
 
 ## 💬 Commands
 
-| Command            | What it does                                           |
-| ------------------ | ------------------------------------------------------ |
-| `/counting`        | Current run, records, leaderboard, user stats and runs |
-| `/rank`            | Your rank card or someone else's                       |
-| `/leaderboard`     | The server's level leaderboard, all time or weekly     |
-| `/birthday`        | Set, edit, show or remove your birthday                |
-| `/botinfo`         | Bot status, host stats and versions                    |
-| `/counting-config` | Set up the counting game and change its settings       |
-| `/leveling-config` | Change leveling settings, rewards and multipliers      |
-| `/birthday-config` | Set the birthday channel and role                      |
-| `/reaction-role`   | Create, re-send, toggle and delete reaction role menus |
-| `/dev`             | Reload and register commands, only in the dev server   |
+| Command             | What it does                                           |
+| ------------------- | ------------------------------------------------------ |
+| `/counting`         | Current run, records, leaderboard, user stats and runs |
+| `/rank`             | Your rank card or someone else's                       |
+| `/leaderboard`      | The server's level leaderboard, all time or weekly     |
+| `/birthday`         | Set, edit, show or remove your birthday                |
+| `/botinfo`          | Bot status, host stats and versions                    |
+| `/counting-config`  | Set up the counting game and change its settings       |
+| `/leveling-config`  | Change leveling settings, rewards and multipliers      |
+| `/birthday-config`  | Set the birthday channel and role                      |
+| `/role-menu-config` | Create role menus and change them                      |
+| `/dev`              | Reload and register commands, only in the dev server   |
 
 The config commands need the **Manage Server** permission.
 

@@ -15,9 +15,21 @@ interface Config {
   ignoredChannels: string[];
   multipliers: Entry[];
   rewards: Entry[];
+  title: string | null;
+  emojis: Entry<string>[];
 }
 
-const baseConfig: Config = { enabled: false, mode: 'image', channelId: '123', roleId: null, ignoredChannels: [], multipliers: [], rewards: [] };
+const baseConfig: Config = {
+  enabled: false,
+  mode: 'image',
+  channelId: '123',
+  roleId: null,
+  ignoredChannels: [],
+  multipliers: [],
+  rewards: [],
+  title: null,
+  emojis: [],
+};
 
 /** A panel over an in-memory configuration, with every setting type, split over two categories. */
 function createTestPanel(initial: Config | null) {
@@ -40,6 +52,7 @@ function createTestPanel(initial: Config | null) {
       { id: 'general', label: () => 'General' },
       { id: 'lists', label: () => 'Lists' },
       { id: 'multipliers', label: () => 'Multipliers' },
+      { id: 'text', label: () => 'Text' },
     ],
     load: () => Promise.resolve(config),
     notConfigured: () => 'Not set up',
@@ -137,6 +150,33 @@ function createTestPanel(initial: Config | null) {
         get: (c) => c.rewards,
         set: (_, targetId, value) => setEntry('rewards', targetId, value),
       },
+      {
+        type: 'text',
+        key: 'title',
+        category: 'text',
+        maxLength: 100,
+        defaultText: () => 'Default title',
+        label: () => 'Title',
+        description: () => '',
+        get: (c) => c.title,
+        set: (_, title) => patch({ title }),
+      },
+      {
+        type: 'textEntries',
+        key: 'emojis',
+        category: 'text',
+        target: 'role',
+        max: 20,
+        formatValue: (value) => value,
+        input: { label: () => 'Emoji', parse: (input) => (/^:\w+:$/.test(input) ? input : null), invalid: () => 'Not an emoji' },
+        label: () => 'Emojis',
+        description: () => '',
+        get: (c) => c.emojis,
+        set: (_, targetId, value) => {
+          const others = config!.emojis.filter((entry) => entry.targetId !== targetId);
+          return patch({ emojis: value === null ? others : [...others, { targetId, value }] });
+        },
+      },
     ],
   });
 
@@ -227,7 +267,7 @@ describe('settings panel', () => {
     const rewards = Array.from({ length: 20 }, (_, i) => ({ targetId: String(100 + i), value: i }));
     const { panel } = createTestPanel({ ...baseConfig, ignoredChannels: ['1', '2'], multipliers: full, rewards });
 
-    for (const page of ['general', 'lists', 'multipliers']) {
+    for (const page of ['general', 'lists', 'multipliers', 'text']) {
       const components = await renderJson(panel, page);
       expect(components.reduce((sum, component) => sum + countComponents(component), 0)).toBeLessThanOrEqual(40);
     }
@@ -332,6 +372,71 @@ describe('settings panel', () => {
       expect(edit.modal?.value).toBe('10');
       await submit(edit.modal!, '15');
       expect(getConfig().rewards).toEqual([{ targetId: '6', value: 15 }]);
+    });
+  });
+
+  describe('texts', () => {
+    test('the popup starts from the default, and an empty or unchanged text keeps following it', async () => {
+      const { panel, getConfig } = createTestPanel(baseConfig);
+
+      const { modal } = await use(panel, 'settings:test:text:title');
+      expect(modal?.value).toBe('Default title');
+      expect(modal?.optional).toBe(true);
+      await submit(modal!, '  My menu  ');
+      expect(getConfig().title).toBe('My menu');
+
+      await submit(modal!, 'Default title');
+      expect(getConfig().title).toBeNull();
+      await submit(modal!, 'Again');
+      await submit(modal!, '');
+      expect(getConfig().title).toBeNull();
+    });
+
+    test('the panel shows the text, or the default while none is set', async () => {
+      const { panel } = createTestPanel(baseConfig);
+      expect(JSON.stringify(await renderJson(panel, 'text'))).toContain('> Default title');
+
+      const { modal } = await use(panel, 'settings:test:text:title');
+      await submit(modal!, 'Line one\nLine two');
+      // Every line is quoted, which JSON shows with an escaped line break
+      expect(JSON.stringify(await renderJson(panel, 'text'))).toContain('> Line one\\n> Line two');
+    });
+  });
+
+  test('entries can have text values, like emoji', async () => {
+    const { panel, getConfig } = createTestPanel(baseConfig);
+
+    const { modal } = await use(panel, 'settings:test:text:emojis:add', { type: 'select', values: ['6'] });
+    expect(await submit(modal!, 'star')).toBe('Not an emoji');
+    expect(await submit(modal!, ':star:')).toBeNull();
+    expect(getConfig().emojis).toEqual([{ targetId: '6', value: ':star:' }]);
+  });
+
+  describe('popups', () => {
+    test('are handled by their custom ID whenever they are submitted, like after a restart', async () => {
+      const t = getTranslate('en');
+      const { panel: before } = createTestPanel(baseConfig);
+      const { modal } = await use(before, 'settings:test:lists:rewards:add', { type: 'select', values: ['6'] });
+
+      // A new panel, like after a restart, knows what the popup was for from its custom ID alone
+      const { panel, getConfig } = createTestPanel(baseConfig);
+      const result = await panel.submitModal(fakeGuild(), parseSettingsCustomId(modal!.customId)!, '12', t);
+      await result.save?.();
+      expect(getConfig().rewards).toEqual([{ targetId: '6', value: 12 }]);
+
+      const text = await use(panel, 'settings:test:text:title');
+      await (await panel.submitModal(fakeGuild(), parseSettingsCustomId(text.modal!.customId)!, 'Later', t)).save?.();
+      expect(getConfig().title).toBe('Later');
+    });
+
+    test('with an invalid value give the error and save nothing', async () => {
+      const { panel, getConfig } = createTestPanel(baseConfig);
+      const { modal } = await use(panel, 'settings:test:lists:rewards:add', { type: 'select', values: ['6'] });
+
+      const result = await panel.submitModal(fakeGuild(), parseSettingsCustomId(modal!.customId)!, 'abc', getTranslate('en'));
+      expect(result.error).toBe('Not a level');
+      expect(result.save).toBeUndefined();
+      expect(getConfig().rewards).toEqual([]);
     });
   });
 

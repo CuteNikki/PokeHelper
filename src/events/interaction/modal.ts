@@ -1,0 +1,29 @@
+import { Events } from 'discord.js';
+
+import { Event } from 'classes/base/event';
+
+import { handleSettingsModal } from 'settings/index';
+
+import { getTranslate } from 'utility/i18next';
+import { logger } from 'utility/logger';
+import { sendError } from 'utility/response';
+import { SETTINGS_CUSTOM_ID_PREFIX } from 'utility/settings';
+
+/**
+ * Popups are handled by their custom ID, like buttons, instead of being waited for where they were shown,
+ * so they work however long they were open, even across restarts.
+ */
+export default new Event({
+  name: Events.InteractionCreate,
+  once: false,
+  async execute(_client, interaction) {
+    if (!interaction.isModalSubmit()) return;
+
+    try {
+      if (interaction.customId.startsWith(SETTINGS_CUSTOM_ID_PREFIX)) await handleSettingsModal(interaction);
+    } catch (error) {
+      logger.error(error, `Failed to handle the popup ${interaction.customId}`);
+      await sendError(interaction, getTranslate(interaction.locale)('system.button.error'));
+    }
+  },
+});

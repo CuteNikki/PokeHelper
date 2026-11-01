@@ -75,59 +75,27 @@
       }
     }
   },
-  "reaction-role": {
-    "name": "rollenmenü",
-    "description": "Verwalte die Rollenmenüs dieses Servers",
+  "role-menu-config": {
+    "name": "rollenmenü-einstellungen",
+    "description": "Richte die Menüs ein, aus denen man sich Rollen aussucht",
     "options": {
-      "setup": {
+      "create": {
         "name": "erstellen",
-        "description": "Erstell ein Rollenmenü"
-      },
-      "info": {
-        "name": "info",
-        "description": "Zeig Infos zu den Rollenmenüs",
+        "description": "Erstell ein Rollenmenü",
         "options": {
-          "menu-id": {
-            "name": "menü-id",
-            "description": "Die ID des Rollenmenüs"
-          }
-        }
-      },
-      "re-send": {
-        "name": "nochmal-senden",
-        "description": "Schick ein Rollenmenü nochmal, z. B. wenn die Nachricht gelöscht wurde",
-        "options": {
-          "menu-id": {
-            "name": "menü-id",
-            "description": "Die ID des Rollenmenüs, das nochmal geschickt werden soll"
-          },
-          "target-channel": {
+          "channel": {
             "name": "kanal",
-            "description": "Ein anderer Kanal, in den das Menü soll"
+            "description": "Der Kanal, in dem das Menü gepostet wird"
           }
         }
       },
-      "toggle": {
-        "name": "umschalten",
-        "description": "Schalte ein Rollenmenü an oder aus. Ausgeschaltet bleibt die Nachricht, tut aber nichts",
+      "settings": {
+        "name": "einstellungen",
+        "description": "Ändere ein Rollenmenü oder sieh dir alle an",
         "options": {
-          "menu-id": {
-            "name": "menü-id",
-            "description": "Die ID des Rollenmenüs, leer lassen für alle"
-          },
-          "enabled": {
-            "name": "aktiv",
-            "description": "An oder aus. Ohne Angabe wird es umgeschaltet"
-          }
-        }
-      },
-      "delete": {
-        "name": "löschen",
-        "description": "Lösch ein Rollenmenü",
-        "options": {
-          "menu-id": {
-            "name": "menü-id",
-            "description": "Die ID des Rollenmenüs, das gelöscht werden soll"
+          "menu": {
+            "name": "menü",
+            "description": "Das Menü, das du ändern willst. Lass es weg, um alle zu sehen"
           }
         }
       }

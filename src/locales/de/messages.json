@@ -97,7 +97,11 @@
       "modalTitle": "Einstellung für {{target}}"
     },
     "unknown": "Unbekannt ({{id}})",
-    "outdated": "Jemand anderes hat die Einstellung geändert, seit du das hier geöffnet hast, also hat sich nichts getan. So sieht's jetzt aus."
+    "outdated": "Jemand anderes hat die Einstellung geändert, seit du das hier geöffnet hast, also hat sich nichts getan. So sieht's jetzt aus.",
+    "text": {
+      "edit": "Bearbeiten",
+      "usingDefault": "Nutzt den Standardtext"
+    }
   },
   "state": {
     "enabled": "an",
@@ -399,63 +403,82 @@
     "single": "Nur eine",
     "multiple": "So viele sie wollen"
   },
-  "reactionRole": {
-    "none": "Hier gibt es noch keine Rollenmenüs. Erstell eins mit `/rollenmenü erstellen`.",
-    "notFound": "Das Rollenmenü konnte ich nicht finden.",
-    "toggle": {
-      "all": "Alle Rollenmenüs sind jetzt {{state}}.",
-      "single": "Das Rollenmenü `{{id}}` ist jetzt {{state}}.",
-      "function": "Die Buttons vergeben wieder Rollen.",
-      "noFunction": "Die Nachricht bleibt, aber die Buttons vergeben keine Rollen, bis du es wieder einschaltest."
+  "roleMenu": {
+    "notFound": "Ich finde dieses Rollenmenü nicht. Vielleicht wurde es gelöscht.",
+    "message": {
+      "title": "🎭 Such dir deine Rollen aus",
+      "description": "Klick auf einen Button, um seine Rolle zu bekommen, und nochmal, um sie wieder loszuwerden.",
+      "item": "{{emoji}} {{role}}",
+      "disabled": "Dieses Menü ist gerade ausgeschaltet."
+    },
+    "create": {
+      "maximum": "Dieser Server hat schon {{max}} Rollenmenüs, mehr gehen nicht. Lösch eins, bevor du ein neues erstellst."
+    },
+    "list": {
+      "title": "### 🎭 Rollenmenüs",
+      "count": "{{count}}/{{max}} Menüs",
+      "none": "Hier gibt es noch keine Rollenmenüs. Erstell eins mit `/rollenmenü-einstellungen erstellen`.",
+      "item": "- **{{name}}** in {{channel}} · {{roles}}",
+      "roles_one": "{{count}} Rolle",
+      "roles_other": "{{count}} Rollen",
+      "placeholder": "Wähl ein Menü aus, um es zu ändern",
+      "unnamed": "Menü in {{channel}}",
+      "unknownChannel": "einem gelöschten Kanal"
+    },
+    "settings": {
+      "title": "### 🎭 Rollenmenü",
+      "categories": {
+        "roles": "Rollen",
+        "text": "Text",
+        "general": "Allgemein"
+      },
+      "status": {
+        "noRoles": "-# Füg eine Rolle hinzu, dann wird das Menü in {{channel}} gepostet.",
+        "posted": "-# Hier gepostet: {{link}}",
+        "missingChannel": "Den Kanal des Menüs gibt es nicht mehr. Wähl unter Allgemein einen neuen aus.",
+        "missingPermissions": "Ich kann das Menü nicht in {{channel}} posten, weil mir dort diese Berechtigungen fehlen: {{permissions}}.",
+        "notPosted": "Das Menü ist gerade nicht in {{channel}} gepostet. Versuch, es nochmal zu posten."
+      },
+      "roles": {
+        "label": "Rollen",
+        "description": "Die Rollen, die man sich aussuchen kann, jede mit dem Emoji ihres Buttons. Wähl eine Rolle nochmal aus, um ihr Emoji zu ändern.",
+        "input": "Emoji",
+        "placeholder": "🔴 oder :emoji_name:",
+        "invalid": "Das ist kein Emoji, das ich benutzen kann. Gib ein normales Emoji ein oder den Namen von einem Emoji dieses Servers, wie `:valor:`."
+      },
+      "messageTitle": {
+        "label": "Titel",
+        "description": "Die Überschrift des Menüs."
+      },
+      "messageDescription": {
+        "label": "Beschreibung",
+        "description": "Der Text unter der Überschrift. Du kannst Discord-Formatierung benutzen, wie **fett** oder Links."
+      },
+      "channel": {
+        "label": "Kanal",
+        "description": "Wo das Menü gepostet ist. Wählst du einen anderen Kanal, zieht es dorthin um."
+      },
+      "mode": {
+        "label": "Modus",
+        "description": "Ob man mehrere Rollen aus diesem Menü haben kann oder nur eine, die wechselt, wenn man eine andere auswählt."
+      },
+      "enabled": {
+        "label": "Eingeschaltet",
+        "description": "Ausgeschaltet bleibt das Menü gepostet, aber seine Buttons geben keine Rollen mehr."
+      },
+      "requiredRoles": {
+        "label": "Benötigte Rollen",
+        "description": "Man braucht eine dieser Rollen, um das Menü zu benutzen. Lass es leer, damit es alle können."
+      },
+      "repost": "Nochmal posten",
+      "delete": "Löschen",
+      "back": "Alle Menüs"
     },
     "delete": {
-      "success": "Das Rollenmenü ist gelöscht. Die Nachricht bleibt, aber die Buttons tun nichts mehr, du kannst sie also auch löschen."
-    },
-    "resend": {
-      "channel": "Ich kann den Kanal nicht finden oder sehen. Prüf den Kanal und meine Berechtigungen.",
-      "failed": "Ich konnte das Menü nicht in {{channel}} posten. Schau, dass ich dort Nachrichten senden darf.",
-      "success": "Das Rollenmenü ist wieder in {{channel}} gepostet."
-    },
-    "message": {
-      "title": "### 🎭 Such dir deine Rollen aus",
-      "description": "Klick auf einen Button, um die Rolle zu bekommen, und nochmal, um sie wieder loszuwerden.",
-      "item": "{{emoji}} {{role}}"
-    },
-    "setup": {
-      "timeout": "⏱️ *Die Einrichtung ist abgelaufen. Führ den Befehl nochmal aus, um neu anzufangen.*",
-      "maximum": "Dieser Server hat schon {{total}} Rollenmenüs, mehr geht nicht. Lösch eins, bevor du ein neues erstellst.",
-      "complete": "### ✅ Fertig!\nDas Rollenmenü ist in {{channel}} gepostet.",
-      "invalidChannel": "Ich kann den Kanal nicht mehr finden oder sehen. Prüf den Kanal und meine Berechtigungen.",
-      "save": "Menü posten",
-      "rolePlaceholder": "Wähl die Rollen fürs Menü",
-      "channelPlaceholder": "Wähl den Kanal fürs Menü",
-      "requiredPlaceholder": "Wähl die benötigten Rollen (optional)",
-      "skipRequired": "Überspringen, keine Voraussetzungen",
-      "cantAssign": "Ein paar dieser Rollen kann ich nicht vergeben:\n{{roles}}\nNimm andere Rollen oder schieb meine Rolle in den Servereinstellungen darüber.",
-      "roleProblem": "- {{role}}: {{reason}}",
-      "step1": "### Schritt 1: Modus\nSollen sich Mitglieder nur eine Rolle aus dem Menü aussuchen können, oder so viele sie wollen?",
-      "step2": "### Schritt 2: Benötigte Rollen\nBraucht man eine Rolle, um das Menü zu benutzen? Du kannst bis zu {{total}} auswählen oder das überspringen, wenn es jeder benutzen darf.",
-      "step3": "### Schritt 3: Kanal\nWo soll das Menü gepostet werden?",
-      "step4": "### Schritt 4: Rollen\nWelche Rollen kann man sich im Menü aussuchen? Du kannst bis zu {{total}} auswählen.",
-      "step5": "### Schritt 5: Emoji ({{current}}/{{total}})\nReagier auf **diese Nachricht** mit dem Emoji für {{role}}.",
-      "step6": "### Schritt 6: Prüfen & Posten\nSo sieht dein Menü aus. Wenn alles passt, klick auf **Menü posten**.\n\n{{details}}"
-    },
-    "info": {
-      "timeout": "⏱️ *Das ist abgelaufen. Führ den Befehl nochmal aus, um dir andere Menüs anzuschauen.*",
-      "selectItem": "Menü in {{channel}} | {{roles}}/{{total}} Rollen | ID: {{id}}",
-      "selectPlaceholder": "Wähl ein Menü aus, um die Details zu sehen",
-      "overview": "### 🎭 Rollenmenüs\nDieser Server hat **{{count}}/{{total}}** Rollenmenüs.\n\n*Wähl unten eins aus, um die Details zu sehen.*",
-      "deleteMenu": "Menü löschen",
-      "title": "### 🎭 Rollenmenü\nID: `{{id}}`",
-      "status": "Status: {{state}}",
-      "channel": "Kanal: {{channel}}",
-      "messageId": "Nachrichten-ID: {{id}}",
-      "choice": "Modus: {{choice}}",
-      "required": "Benötigte Rollen ({{count}}/{{total}}): {{roles}}",
-      "noRequired": "Benötigte Rollen (0/{{total}}): keine",
-      "roles": "Rollen ({{count}}/{{total}}): {{roles}}",
-      "noRoles": "Rollen (0/{{total}}): keine",
-      "roleItem": "{{emoji}} {{role}}"
+      "question": "### **{{name}}** löschen?\nSeine Nachricht wird auch gelöscht. Rollen, die sich schon jemand ausgesucht hat, bleiben.",
+      "confirm": "Menü löschen",
+      "cancel": "Behalten",
+      "success": "Das Rollenmenü und seine Nachricht sind gelöscht."
     },
     "select": {
       "requirements": "Dir fehlt die Rolle, die man für dieses Menü braucht.",
