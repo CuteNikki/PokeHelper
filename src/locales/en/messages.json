@@ -243,8 +243,6 @@
       "failed": "Failed to respond to interaction {{id}} from user {{user}}"
     },
     "cron": {
-      "leveling": "Weekly leveling reset cron started",
-      "birthday": "Birthday announcement cron started",
       "leaderboard": "Leaderboard cache cleanup cron started"
     },
     "database": {

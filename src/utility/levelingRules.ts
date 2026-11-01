@@ -45,3 +45,18 @@ export const applyMultiplier = (baseXp: number, multiplier: number) => Math.roun
 /** The reward roles a member at a level should have: every reward up to and including that level. */
 export const getEarnedRewardRoles = (rewards: { level: number; roleId: string }[], level: number) =>
   rewards.filter((reward) => reward.level <= level).map((reward) => reward.roleId);
+
+/** The start of the week a time is in: Monday 00:00 UTC. */
+export function startOfWeek(now: Date): Date {
+  const start = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+  // getUTCDay is 0 for Sunday, which belongs to the week that started six days before
+  const daysSinceMonday = (start.getUTCDay() + 6) % 7;
+  start.setUTCDate(start.getUTCDate() - daysSinceMonday);
+  return start;
+}
+
+/**
+ * Whether the weekly XP should be reset: the last reset, or the setup if there was none, was before this week started.
+ * Checked regularly instead of only at Monday 00:00, so a week isn't skipped when the bot was offline then.
+ */
+export const isWeeklyResetDue = (lastResetAt: Date | null, createdAt: Date, now: Date) => (lastResetAt ?? createdAt) < startOfWeek(now);

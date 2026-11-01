@@ -11,10 +11,8 @@ import { loadEvents } from 'loading/events';
 import { loadFonts } from 'loading/fonts';
 import { loadSelectMenus } from 'loading/selects';
 
-import { startBirthdayCron } from 'utility/birthday';
 import { initI18Next } from 'utility/i18next';
 import { startLeaderboardCacheCleanup } from 'utility/leaderboardState';
-import { startWeeklyCron } from 'utility/leveling';
 import { logger, table } from 'utility/logger';
 import { measure } from 'utility/measure';
 
@@ -48,8 +46,6 @@ await Promise.all([
     logger.info(t('system.selectMenu.loaded', { count, duration: duration.toFixed(2), files: files.length }) + '\n' + table(tableData)),
   ),
   measure(t('system.fonts.loaded'), () => loadFonts()),
-  measure(t('system.cron.birthday'), () => startBirthdayCron(client)),
-  measure(t('system.cron.leveling'), () => startWeeklyCron(client)),
   measure(t('system.cron.leaderboard'), () => startLeaderboardCacheCleanup()),
 ]);
 

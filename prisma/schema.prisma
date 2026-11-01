@@ -31,6 +31,11 @@ model UserBirthday {
   announceInGuildsByDefault Boolean  @default(false)
   announceInGuildIds        String[] @default([])
 
+  // State, so nothing is done twice or missed while the bot was offline
+  roleYear      Int? // the year the birthday role was last given
+  roleActive    Boolean @default(false) // whether the birthday role is on and has to be taken away after the birthday
+  announcedYear Int? // the year the birthday was last announced
+
   // Timestamps
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

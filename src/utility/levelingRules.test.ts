@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 
-import { applyMultiplier, earnsXp, getEarnedRewardRoles, getMultiplier } from 'utility/levelingRules';
+import { applyMultiplier, earnsXp, getEarnedRewardRoles, getMultiplier, isWeeklyResetDue, startOfWeek } from 'utility/levelingRules';
 
 const noFilters = { ignoredChannels: [], enabledChannels: [], ignoredRoles: [], enabledRoles: [] };
 // A thread in #general, which is in the Chat category
@@ -72,4 +72,24 @@ test('every reward up to the level is earned', () => {
   ];
   expect(getEarnedRewardRoles(rewards, 10)).toEqual(['five', 'ten']);
   expect(getEarnedRewardRoles(rewards, 4)).toEqual([]);
+});
+
+describe('the weekly reset', () => {
+  test('weeks start on Monday 00:00 UTC', () => {
+    expect(startOfWeek(new Date('2026-11-04T15:00:00Z'))).toEqual(new Date('2026-11-02T00:00:00Z'));
+    expect(startOfWeek(new Date('2026-11-08T23:59:00Z'))).toEqual(new Date('2026-11-02T00:00:00Z'));
+    expect(startOfWeek(new Date('2026-11-09T00:00:00Z'))).toEqual(new Date('2026-11-09T00:00:00Z'));
+  });
+
+  test('is due once a new week started, also when the bot was offline at Monday 00:00', () => {
+    const wednesday = new Date('2026-11-04T15:00:00Z');
+    expect(isWeeklyResetDue(new Date('2026-11-02T00:00:05Z'), new Date('2026-01-01'), wednesday)).toBe(false);
+    expect(isWeeklyResetDue(new Date('2026-10-26T00:00:05Z'), new Date('2026-01-01'), wednesday)).toBe(true);
+  });
+
+  test('without a reset yet, counts from when leveling was set up', () => {
+    const wednesday = new Date('2026-11-04T15:00:00Z');
+    expect(isWeeklyResetDue(null, new Date('2026-11-03T10:00:00Z'), wednesday)).toBe(false);
+    expect(isWeeklyResetDue(null, new Date('2026-10-20T10:00:00Z'), wednesday)).toBe(true);
+  });
 });
