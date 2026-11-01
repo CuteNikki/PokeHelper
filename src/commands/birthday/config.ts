@@ -1,7 +1,6 @@
 import {
   ApplicationIntegrationType,
   ChatInputCommandInteraction,
-  Colors,
   ContainerBuilder,
   InteractionContextType,
   MessageFlags,
@@ -13,9 +12,10 @@ import { Command } from 'classes/base/command';
 
 import { createUserBirthday, deleteUserBirthday, getUserBirthday, updateUserBirthday } from 'database/birthday';
 
-import { getTranslate, type Translate } from 'utility/i18next';
 import { buildAnnounceInGuildsPicker } from 'utility/birthdayGuilds';
+import { getTranslate, type Translate } from 'utility/i18next';
 import { logger } from 'utility/logger';
+import { ThemeColors } from 'utility/theme';
 
 export default new Command({
   data: new SlashCommandBuilder()
@@ -103,7 +103,7 @@ async function handleSetup(interaction: ChatInputCommandInteraction, t: Translat
   if (currentConfig) {
     return interaction.editReply({
       components: [
-        new ContainerBuilder().setAccentColor(Colors.Red).addTextDisplayComponents(new TextDisplayBuilder().setContent(t('birthday.setup.already'))),
+        new ContainerBuilder().setAccentColor(ThemeColors.error).addTextDisplayComponents(new TextDisplayBuilder().setContent(t('birthday.setup.already'))),
       ],
       flags: [MessageFlags.IsComponentsV2],
     });
@@ -121,7 +121,9 @@ async function handleSetup(interaction: ChatInputCommandInteraction, t: Translat
   ) {
     return interaction.editReply({
       components: [
-        new ContainerBuilder().setAccentColor(Colors.Red).addTextDisplayComponents(new TextDisplayBuilder().setContent(t('birthday.setup.invalidTimezone'))),
+        new ContainerBuilder()
+          .setAccentColor(ThemeColors.error)
+          .addTextDisplayComponents(new TextDisplayBuilder().setContent(t('birthday.setup.invalidTimezone'))),
       ],
       flags: [MessageFlags.IsComponentsV2],
     });
@@ -141,7 +143,9 @@ async function handleSetup(interaction: ChatInputCommandInteraction, t: Translat
     if (isNaN(date.getTime())) {
       return interaction.editReply({
         components: [
-          new ContainerBuilder().setAccentColor(Colors.Red).addTextDisplayComponents(new TextDisplayBuilder().setContent(t('birthday.setup.invalidDate'))),
+          new ContainerBuilder()
+            .setAccentColor(ThemeColors.error)
+            .addTextDisplayComponents(new TextDisplayBuilder().setContent(t('birthday.setup.invalidDate'))),
         ],
         flags: [MessageFlags.IsComponentsV2],
       });
@@ -151,14 +155,16 @@ async function handleSetup(interaction: ChatInputCommandInteraction, t: Translat
   } catch (error) {
     logger.error(error, 'Error creating birthday configuration:');
     return interaction.editReply({
-      components: [new ContainerBuilder().setAccentColor(Colors.Red).addTextDisplayComponents(new TextDisplayBuilder().setContent(t('birthday.setup.error')))],
+      components: [
+        new ContainerBuilder().setAccentColor(ThemeColors.error).addTextDisplayComponents(new TextDisplayBuilder().setContent(t('birthday.setup.error'))),
+      ],
       flags: [MessageFlags.IsComponentsV2],
     });
   }
 
   return interaction.editReply({
     components: [
-      new ContainerBuilder().setAccentColor(Colors.Green).addTextDisplayComponents(new TextDisplayBuilder().setContent(t('birthday.setup.success'))),
+      new ContainerBuilder().setAccentColor(ThemeColors.success).addTextDisplayComponents(new TextDisplayBuilder().setContent(t('birthday.setup.success'))),
     ],
     flags: [MessageFlags.IsComponentsV2],
   });
@@ -170,7 +176,7 @@ async function handleEdit(interaction: ChatInputCommandInteraction, t: Translate
 
   if (!currentConfig) {
     return interaction.editReply({
-      components: [new ContainerBuilder().setAccentColor(Colors.Yellow).addTextDisplayComponents(new TextDisplayBuilder().setContent(t('birthday.none')))],
+      components: [new ContainerBuilder().setAccentColor(ThemeColors.info).addTextDisplayComponents(new TextDisplayBuilder().setContent(t('birthday.none')))],
       flags: [MessageFlags.IsComponentsV2],
     });
   }
@@ -182,7 +188,9 @@ async function handleEdit(interaction: ChatInputCommandInteraction, t: Translate
 
   if (!dateInput && !timezoneInput && showAge === null && announceInGuildsByDefault === null) {
     return interaction.editReply({
-      components: [new ContainerBuilder().setAccentColor(Colors.Yellow).addTextDisplayComponents(new TextDisplayBuilder().setContent(t('birthday.edit.none')))],
+      components: [
+        new ContainerBuilder().setAccentColor(ThemeColors.info).addTextDisplayComponents(new TextDisplayBuilder().setContent(t('birthday.edit.none'))),
+      ],
       flags: [MessageFlags.IsComponentsV2],
     });
   }
@@ -195,7 +203,9 @@ async function handleEdit(interaction: ChatInputCommandInteraction, t: Translate
     ) {
       return interaction.editReply({
         components: [
-          new ContainerBuilder().setAccentColor(Colors.Red).addTextDisplayComponents(new TextDisplayBuilder().setContent(t('birthday.setup.invalidTimezone'))),
+          new ContainerBuilder()
+            .setAccentColor(ThemeColors.error)
+            .addTextDisplayComponents(new TextDisplayBuilder().setContent(t('birthday.setup.invalidTimezone'))),
         ],
         flags: [MessageFlags.IsComponentsV2],
       });
@@ -209,7 +219,9 @@ async function handleEdit(interaction: ChatInputCommandInteraction, t: Translate
     if (typeof dateParts[0] === 'undefined' || typeof dateParts[1] === 'undefined' || typeof dateParts[2] === 'undefined') {
       return interaction.editReply({
         components: [
-          new ContainerBuilder().setAccentColor(Colors.Red).addTextDisplayComponents(new TextDisplayBuilder().setContent(t('birthday.setup.invalidDate'))),
+          new ContainerBuilder()
+            .setAccentColor(ThemeColors.error)
+            .addTextDisplayComponents(new TextDisplayBuilder().setContent(t('birthday.setup.invalidDate'))),
         ],
         flags: [MessageFlags.IsComponentsV2],
       });
@@ -220,7 +232,9 @@ async function handleEdit(interaction: ChatInputCommandInteraction, t: Translate
     if (isNaN(date.getTime())) {
       return interaction.editReply({
         components: [
-          new ContainerBuilder().setAccentColor(Colors.Red).addTextDisplayComponents(new TextDisplayBuilder().setContent(t('birthday.setup.invalidDate'))),
+          new ContainerBuilder()
+            .setAccentColor(ThemeColors.error)
+            .addTextDisplayComponents(new TextDisplayBuilder().setContent(t('birthday.setup.invalidDate'))),
         ],
         flags: [MessageFlags.IsComponentsV2],
       });
@@ -237,13 +251,17 @@ async function handleEdit(interaction: ChatInputCommandInteraction, t: Translate
   } catch (error) {
     logger.error(error, 'Error updating birthday configuration:');
     return interaction.editReply({
-      components: [new ContainerBuilder().setAccentColor(Colors.Red).addTextDisplayComponents(new TextDisplayBuilder().setContent(t('birthday.edit.error')))],
+      components: [
+        new ContainerBuilder().setAccentColor(ThemeColors.error).addTextDisplayComponents(new TextDisplayBuilder().setContent(t('birthday.edit.error'))),
+      ],
       flags: [MessageFlags.IsComponentsV2],
     });
   }
 
   await interaction.editReply({
-    components: [new ContainerBuilder().setAccentColor(Colors.Green).addTextDisplayComponents(new TextDisplayBuilder().setContent(t('birthday.edit.success')))],
+    components: [
+      new ContainerBuilder().setAccentColor(ThemeColors.success).addTextDisplayComponents(new TextDisplayBuilder().setContent(t('birthday.edit.success'))),
+    ],
     flags: [MessageFlags.IsComponentsV2],
   });
 
@@ -257,7 +275,9 @@ async function handleAnnounceInGuilds(interaction: ChatInputCommandInteraction, 
   if (currentConfig?.announceInGuildsByDefault) {
     return interaction.editReply({
       components: [
-        new ContainerBuilder().setAccentColor(Colors.Yellow).addTextDisplayComponents(new TextDisplayBuilder().setContent(t('birthday.announceInGuild.all'))),
+        new ContainerBuilder()
+          .setAccentColor(ThemeColors.info)
+          .addTextDisplayComponents(new TextDisplayBuilder().setContent(t('birthday.announceInGuild.all'))),
       ],
       flags: [MessageFlags.IsComponentsV2],
     });
@@ -272,7 +292,7 @@ async function handleInfo(interaction: ChatInputCommandInteraction, t: Translate
 
   if (!currentConfig) {
     return interaction.editReply({
-      components: [new ContainerBuilder().setAccentColor(Colors.Yellow).addTextDisplayComponents(new TextDisplayBuilder().setContent(t('birthday.none')))],
+      components: [new ContainerBuilder().setAccentColor(ThemeColors.info).addTextDisplayComponents(new TextDisplayBuilder().setContent(t('birthday.none')))],
       flags: [MessageFlags.IsComponentsV2],
     });
   }
@@ -286,7 +306,7 @@ async function handleInfo(interaction: ChatInputCommandInteraction, t: Translate
   return interaction.editReply({
     components: [
       new ContainerBuilder()
-        .setAccentColor(Colors.Green)
+        .setAccentColor(ThemeColors.success)
         .addTextDisplayComponents(
           new TextDisplayBuilder().setContent(
             [
@@ -312,7 +332,7 @@ async function handleReset(interaction: ChatInputCommandInteraction, t: Translat
 
   if (!currentConfig) {
     return interaction.editReply({
-      components: [new ContainerBuilder().setAccentColor(Colors.Yellow).addTextDisplayComponents(new TextDisplayBuilder().setContent(t('birthday.none')))],
+      components: [new ContainerBuilder().setAccentColor(ThemeColors.info).addTextDisplayComponents(new TextDisplayBuilder().setContent(t('birthday.none')))],
       flags: [MessageFlags.IsComponentsV2],
     });
   }
@@ -321,7 +341,7 @@ async function handleReset(interaction: ChatInputCommandInteraction, t: Translat
 
   return interaction.editReply({
     components: [
-      new ContainerBuilder().setAccentColor(Colors.Green).addTextDisplayComponents(new TextDisplayBuilder().setContent(t('birthday.reset.success'))),
+      new ContainerBuilder().setAccentColor(ThemeColors.success).addTextDisplayComponents(new TextDisplayBuilder().setContent(t('birthday.reset.success'))),
     ],
     flags: [MessageFlags.IsComponentsV2],
   });

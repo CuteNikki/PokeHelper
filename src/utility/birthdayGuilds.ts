@@ -1,7 +1,8 @@
-import { ActionRowBuilder, Colors, ContainerBuilder, MessageFlags, StringSelectMenuBuilder, TextDisplayBuilder, type Client } from 'discord.js';
+import { ActionRowBuilder, ContainerBuilder, MessageFlags, StringSelectMenuBuilder, TextDisplayBuilder, type Client } from 'discord.js';
 
 import type { Translate } from 'utility/i18next';
 import type { ResponsePayload } from 'utility/response';
+import { ThemeColors } from 'utility/theme';
 
 /** The select where members pick the servers their birthday is announced in. */
 export const ANNOUNCE_IN_GUILDS_SELECT_ID = 'birthday-announce-in-guilds-select';
@@ -35,7 +36,7 @@ export function buildAnnounceInGuildsPicker(client: Client, userId: string, sele
   return {
     components: [
       new ContainerBuilder()
-        .setAccentColor(saved ? Colors.Green : Colors.Yellow)
+        .setAccentColor(saved ? ThemeColors.success : ThemeColors.info)
         .addTextDisplayComponents(
           new TextDisplayBuilder().setContent(t(saved ? 'birthday.announceInGuild.success' : 'birthday.announceInGuild.selectDescription')),
         )

@@ -1,4 +1,4 @@
-import { Colors, ContainerBuilder, MessageFlags, TextDisplayBuilder } from 'discord.js';
+import { ContainerBuilder, MessageFlags, TextDisplayBuilder } from 'discord.js';
 
 import { SelectMenu } from 'classes/base/select';
 
@@ -7,6 +7,7 @@ import { updateUserBirthday } from 'database/birthday';
 import { ANNOUNCE_IN_GUILDS_SELECT_ID, buildAnnounceInGuildsPicker, pickedGuilds } from 'utility/birthdayGuilds';
 import { getTranslate } from 'utility/i18next';
 import { logger } from 'utility/logger';
+import { ThemeColors } from 'utility/theme';
 
 /** Saves the servers a member picked to announce their birthday in. It's about their own birthday, so it works however late it's used. */
 export default new SelectMenu({
@@ -24,7 +25,9 @@ export default new SelectMenu({
       logger.error(error, `Failed to save the birthday servers of ${interaction.user.id}`);
       return interaction.update({
         components: [
-          new ContainerBuilder().setAccentColor(Colors.Red).addTextDisplayComponents(new TextDisplayBuilder().setContent(t('birthday.announceInGuild.error'))),
+          new ContainerBuilder()
+            .setAccentColor(ThemeColors.error)
+            .addTextDisplayComponents(new TextDisplayBuilder().setContent(t('birthday.announceInGuild.error'))),
         ],
         flags: [MessageFlags.IsComponentsV2],
       });
