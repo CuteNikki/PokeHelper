@@ -63,7 +63,9 @@ export default new Command({
     const freeMemBytes = os.freemem();
     const usedMemBytes = totalMemBytes - freeMemBytes;
 
-    const totalGb = (totalMemBytes / 1024 / 1024 / 1024).toFixed(1);
+    // The system reports the usable memory, which is a bit less than what's installed as some is reserved by the hardware,
+    // like 31.1 for 32 GB. Rounding up gives the installed amount
+    const totalGb = Math.ceil(totalMemBytes / 1024 / 1024 / 1024);
     const usedGb = (usedMemBytes / 1024 / 1024 / 1024).toFixed(1);
     const ramPercent = Math.round((usedMemBytes / totalMemBytes) * 100);
 
