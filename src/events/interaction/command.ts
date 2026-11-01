@@ -62,6 +62,15 @@ export default new Event({
       }
 
       await command.options.execute(interaction);
+
+      // A command that didn't respond would leave the user with "The application did not respond".
+      // Most often it's a subcommand Discord still shows but the code no longer has, until the commands are registered again
+      if (!interaction.replied && !interaction.deferred) {
+        const subcommand = interaction.isChatInputCommand() ? interaction.options.getSubcommand(false) : null;
+        const name = subcommand ? `${interaction.commandName} ${subcommand}` : interaction.commandName;
+        logger.warn(t('system.command.noResponse', { command: name }));
+        await sendError(interaction, t('system.command.outdated'));
+      }
     } catch (error) {
       logger.error(error, t('system.command.error', { command: interaction.commandName }));
       // Picks reply, editReply or followUp depending on how far the command got, and never throws itself

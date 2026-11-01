@@ -184,7 +184,9 @@
       "loaded_one": "Successfully loaded {{count}} command from {{files}} files. ({{duration}}ms)",
       "loaded_other": "Successfully loaded {{count}} commands from {{files}} files. ({{duration}}ms)",
       "notFound": "Command not found: {{command}}",
-      "error": "An error occurred while executing {{command}}"
+      "error": "An error occurred while executing {{command}}",
+      "noResponse": "/{{command}} finished without responding. If it was changed recently, the commands may need to be registered again",
+      "outdated": "This command isn't available anymore or has changed. Its new version will show up once the bot's commands are updated."
     },
     "autocomplete": {
       "error": "An error occurred while executing autocomplete for {{command}}"
