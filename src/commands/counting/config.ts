@@ -1,21 +1,14 @@
 import {
-  ActionRowBuilder,
   ApplicationIntegrationType,
-  ButtonBuilder,
-  ButtonStyle,
   channelMention,
   ChannelType,
   ChatInputCommandInteraction,
-  ComponentType,
-  ContainerBuilder,
   InteractionContextType,
   MessageFlags,
   PermissionFlagsBits,
   SlashCommandBuilder,
   SnowflakeUtil,
-  TextDisplayBuilder,
 } from 'discord.js';
-import { getTranslate } from 'utility/i18next';
 
 import { Command } from 'classes/base/command';
 
@@ -23,13 +16,11 @@ import { createCounting, getCounting, resetCounting } from 'database/counting';
 
 import { COUNTING_CHANNEL_PERMISSIONS, countingSettings } from 'settings/counting';
 
+import { confirmAction } from 'utility/confirm';
 import { runCountingTask } from 'utility/countingGame';
+import { getTranslate } from 'utility/i18next';
 import { createResponse, sendResponse } from 'utility/response';
 import { formatPermissions, missingBotPermissions } from 'utility/settings';
-import { ThemeColors } from 'utility/theme';
-
-/** How long the reset confirmation waits for an answer, in milliseconds. */
-const RESET_CONFIRM_TIME = 30_000;
 
 export default new Command({
   data: new SlashCommandBuilder()
@@ -128,35 +119,14 @@ async function handleReset(interaction: ChatInputCommandInteraction<'cached'>): 
     return interaction.editReply(createResponse(t('counting.none'), 'error'));
   }
 
-  // Custom IDs include the interaction ID, so they can't be confused with another reset confirmation
-  const confirmId = `counting_reset_confirm_${interaction.id}`;
-  const cancelId = `counting_reset_cancel_${interaction.id}`;
-  const confirmation = await interaction.editReply({
-    components: [
-      new ContainerBuilder()
-        .setAccentColor(ThemeColors.warning)
-        .addTextDisplayComponents(new TextDisplayBuilder().setContent(t('counting.resetConfiguration.confirm')))
-        .addActionRowComponents(
-          new ActionRowBuilder<ButtonBuilder>().addComponents(
-            new ButtonBuilder().setCustomId(confirmId).setLabel(t('counting.resetConfiguration.confirmButton')).setStyle(ButtonStyle.Danger),
-            new ButtonBuilder().setCustomId(cancelId).setLabel(t('counting.resetConfiguration.cancelButton')).setStyle(ButtonStyle.Secondary),
-          ),
-        ),
-    ],
-    flags: [MessageFlags.IsComponentsV2],
+  const confirmed = await confirmAction(interaction, {
+    question: t('counting.resetConfiguration.confirm'),
+    confirm: t('counting.resetConfiguration.confirmButton'),
+    cancel: t('counting.resetConfiguration.cancelButton'),
+    cancelled: t('counting.resetConfiguration.cancelled'),
   });
+  if (!confirmed) return;
 
-  const choice = await confirmation
-    .awaitMessageComponent({ componentType: ComponentType.Button, time: RESET_CONFIRM_TIME, filter: (i) => i.user.id === interaction.user.id })
-    .catch(() => null);
-
-  if (choice?.customId !== confirmId) {
-    const cancelled = createResponse(t('counting.resetConfiguration.cancelled'), 'info');
-    // Cancel pressed: answer that button. No answer in time: there's no button to answer, so edit the reply
-    return choice ? choice.update(cancelled) : interaction.editReply(cancelled);
-  }
-
-  await choice.deferUpdate();
   await runCountingTask(interaction.guildId, async () => {
     if (await getCounting(interaction.guildId)) await resetCounting(interaction.guildId);
   });

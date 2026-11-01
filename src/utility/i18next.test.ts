@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+
 import { beforeAll, expect, test } from 'bun:test';
 
 import { getTranslate, initI18Next, resolveLanguage } from 'utility/i18next';
@@ -21,5 +23,12 @@ test('translated keys use the language', () => {
 });
 
 test('keys that are not translated yet fall back to English', () => {
-  expect(getTranslate('de')('leveling.disabled')).toBe(getTranslate('en')('leveling.disabled'));
+  // Any key German doesn't have yet
+  const english = JSON.parse(readFileSync('src/locales/en/messages.json', 'utf8')) as { botinfo: Record<string, unknown> };
+  const german = JSON.parse(readFileSync('src/locales/de/messages.json', 'utf8')) as { botinfo?: Record<string, unknown> };
+  const key = Object.keys(english.botinfo).find((name) => typeof english.botinfo[name] === 'string' && !german.botinfo?.[name]);
+  if (!key) return;
+
+  const t = getTranslate('de') as (key: string) => string;
+  expect(t(`botinfo.`)).toBe((getTranslate('en') as (key: string) => string)(`botinfo.`));
 });

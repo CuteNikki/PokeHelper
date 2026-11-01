@@ -279,5 +279,80 @@
       "cancelled": "Es wurde nichts entfernt.",
       "success": "Das Zählspiel und seine Statistiken sind weg. Mit `/counting-config setup` kannst du ein neues starten."
     }
+  },
+  "locale": "de-DE",
+  "leveling": {
+    "levelUp": {
+      "body": "### Level-Up! 🎉\n{{user}} ist jetzt **Level {{level}}**!",
+      "rewards_one": "Dafür gibt es die Rolle {{roles}}.",
+      "rewards_other": "Dafür gibt es die Rollen {{roles}}."
+    },
+    "disabled": "Leveling ist hier nicht an. Schalte es mit `/leveling-config settings` ein.",
+    "settings": {
+      "title": "### ⚙️ Leveling-Einstellungen",
+      "categories": {
+        "general": "Allgemein",
+        "filters": "Filter",
+        "rewards": "Level-Belohnungen",
+        "channelMultipliers": "Kanal-Multiplikatoren",
+        "roleMultipliers": "Rollen-Multiplikatoren"
+      },
+      "enabled": {
+        "label": "Leveling",
+        "description": "Mitglieder sammeln XP fürs Schreiben und steigen mit der Zeit im Level auf."
+      },
+      "channel": {
+        "label": "Level-Up-Kanal",
+        "description": "Wo Level-Ups angekündigt werden. Ohne Kanal tauchen sie in dem Kanal auf, in dem jemand aufgestiegen ist."
+      },
+      "weeklyReward": {
+        "label": "Rolle für den Wochensieger",
+        "description": "Bekommt, wer in der Woche die meisten XP gesammelt hat, und wandert beim Wochen-Reset zum nächsten Sieger."
+      },
+      "ignoredChannels": {
+        "label": "Ignorierte Kanäle",
+        "description": "Keine XP für Nachrichten hier. Eine Kategorie gilt für alle ihre Kanäle, und Threads eines Kanals zählen mit."
+      },
+      "enabledChannels": {
+        "label": "Nur diese Kanäle",
+        "description": "Wenn welche ausgewählt sind, geben nur Nachrichten hier XP. Kategorien und Threads funktionieren wie bei den ignorierten Kanälen."
+      },
+      "ignoredRoles": {
+        "label": "Ignorierte Rollen",
+        "description": "Mitglieder mit einer dieser Rollen bekommen nie XP."
+      },
+      "enabledRoles": {
+        "label": "Nur diese Rollen",
+        "description": "Wenn welche ausgewählt sind, bekommen nur Mitglieder mit einer dieser Rollen XP."
+      },
+      "rewards": {
+        "label": "Level-Belohnungen",
+        "description": "Rollen, die man bei einem Level bekommt. Wer schon drüber ist, bekommt sie sofort. Wähl eine Rolle aus der Liste aus, um ihr Level zu ändern.",
+        "level": "Level {{level}}",
+        "input": "Level",
+        "invalid": "Das muss eine ganze Zahl von 1 bis {{max}} sein."
+      },
+      "channelMultipliers": {
+        "label": "Kanal-Multiplikatoren",
+        "description": "Mehr oder weniger XP für Nachrichten in diesen Kanälen. Eine Kategorie gilt für ihre Kanäle. Nur der höchste passende Multiplikator zählt, sie addieren sich nicht. Klick auf einen Wert, um ihn zu ändern, nach 3x kannst du einen eigenen eingeben."
+      },
+      "roleMultipliers": {
+        "label": "Rollen-Multiplikatoren",
+        "description": "Mehr oder weniger XP für Mitglieder mit diesen Rollen. Nur der höchste passende Multiplikator zählt, sie addieren sich nicht. Klick auf einen Wert, um ihn zu ändern, nach 3x kannst du einen eigenen eingeben."
+      },
+      "multipliers": {
+        "input": "Multiplikator",
+        "invalid": "Das muss eine Zahl über 0 und bis {{max}} sein, zum Beispiel 1,5."
+      },
+      "multiplier": "{{value}}x"
+    },
+    "resetConfiguration": {
+      "confirm": "### ⚠️ Leveling zurücksetzen?\nDas setzt die Leveling-Einstellungen, Belohnungen und Multiplikatoren zurück. Alle behalten ihre XP und Level.",
+      "confirmButton": "Zurücksetzen",
+      "cancelButton": "Abbrechen",
+      "cancelled": "Es wurde nichts zurückgesetzt.",
+      "nothing": "Hier gibt es nichts zurückzusetzen, Leveling wurde noch nicht eingerichtet.",
+      "success": "Leveling ist zurückgesetzt. Mit `/leveling-config settings` kannst du es neu einrichten."
+    }
   }
 }

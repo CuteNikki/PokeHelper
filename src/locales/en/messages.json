@@ -343,7 +343,7 @@
     "weeklyReset": {
       "message": "### Weekly XP Reset\nAll weekly XP has been reset to 0 and the weekly leaderboard has been cleared.\nCongratulations to {{winner}} for topping the weekly XP leaderboard with {{xp}} XP!\n\nHere are the top weekly XP earners for the past week:"
     },
-    "disabled": "Leveling is currently disabled or not configured in this server.",
+    "disabled": "Leveling isn't turned on here. Turn it on with `/leveling-config settings`.",
     "rank": {
       "all": "ALL-TIME",
       "weekly": "WEEKLY",
@@ -358,64 +358,71 @@
       "titleWeekly": "### {{guild}} - Weekly Leaderboard 🏆",
       "entry": "{{position}}. {{xp}} XP (Level {{level}}) - {{user}}"
     },
-    "info": {
-      "noChannel": "None",
-      "noRewards": "No rewards",
-      "noIgnoredChannels": "None",
-      "noEnabledChannels": "All channels",
-      "noIgnoredRoles": "None",
-      "noEnabledRoles": "All roles",
-      "title": "### Leveling System Configuration",
-      "status": "Status: {{state}}",
-      "channel": "Level Up Channel: {{channel}}",
-      "rewards": "Rewards ({{count}}/{{total}}):\n{{rewards}}",
-      "rewardEntry": "Level {{level}}: {{reward}}",
-      "ignoredChannels": "Ignored Channels ({{count}}/{{total}}): {{channels}}",
-      "enabledChannels": "Enabled Channels ({{count}}/{{total}}): {{channels}}",
-      "ignoredRoles": "Ignored Roles ({{count}}/{{total}}): {{roles}}",
-      "enabledRoles": "Enabled Roles ({{count}}/{{total}}): {{roles}}"
+    "settings": {
+      "title": "### ⚙️ Leveling Settings",
+      "categories": {
+        "general": "General",
+        "filters": "Filters",
+        "rewards": "Level Rewards",
+        "channelMultipliers": "Channel Multipliers",
+        "roleMultipliers": "Role Multipliers"
+      },
+      "enabled": {
+        "label": "Leveling",
+        "description": "Members earn XP for chatting and level up over time."
+      },
+      "channel": {
+        "label": "Level Up Channel",
+        "description": "Where level ups get announced. Without one, they show up in the channel the member leveled up in."
+      },
+      "weeklyReward": {
+        "label": "Weekly Winner Role",
+        "description": "Goes to whoever earned the most XP each week, and moves on to the next winner when the week resets."
+      },
+      "ignoredChannels": {
+        "label": "Ignored Channels",
+        "description": "No XP for messages here. Picking a category covers all its channels, and a channel's threads count too."
+      },
+      "enabledChannels": {
+        "label": "Only These Channels",
+        "description": "If any are picked, only messages here earn XP. Categories and threads work like with ignored channels."
+      },
+      "ignoredRoles": {
+        "label": "Ignored Roles",
+        "description": "Members with any of these roles never earn XP."
+      },
+      "enabledRoles": {
+        "label": "Only These Roles",
+        "description": "If any are picked, only members with one of these roles earn XP."
+      },
+      "rewards": {
+        "label": "Level Rewards",
+        "description": "Roles members get when they reach a level. Members who are already past it get it right away. Pick a role that's already in the list to change its level.",
+        "level": "Level {{level}}",
+        "input": "Level",
+        "invalid": "That needs to be a whole number from 1 to {{max}}."
+      },
+      "channelMultipliers": {
+        "label": "Channel Multipliers",
+        "description": "More or less XP for messages in these channels. A category covers its channels. Only the highest multiplier that applies counts, they don't stack. Click a value to change it, after 3x you can type your own."
+      },
+      "roleMultipliers": {
+        "label": "Role Multipliers",
+        "description": "More or less XP for members with these roles. Only the highest multiplier that applies counts, they don't stack. Click a value to change it, after 3x you can type your own."
+      },
+      "multipliers": {
+        "input": "Multiplier",
+        "invalid": "That needs to be a number above 0 and up to {{max}}, like 1.5."
+      },
+      "multiplier": "{{value}}x"
     },
-    "reset": {
-      "success": "The leveling system has been reset to default settings!"
-    },
-    "toggle": {
-      "success": "The leveling system has been set to: {{state}}"
-    },
-    "channel": {
-      "none": "No channel was set up for level up messages!",
-      "removed": "The level up channel has been removed. Level up messages will be sent wherever the user levels up.",
-      "already": "The level up channel is already set to {{channel}}.",
-      "set": "The level up channel has been set to {{channel}}.",
-      "alreadyIgnored": "The channel {{channel}} is already in the ignored channels list.",
-      "addIgnored": "Added {{channel}} to the ignored channels list! Users will no longer receive XP in that channel.",
-      "notIgnored": "The channel {{channel}} is not in the ignored channels list.",
-      "removedIgnored": "Removed {{channel}} from the ignored channels list! Users will now receive XP in that channel again.",
-      "addEnabled": "Added {{channel}} to the enabled channels list! Users will only receive XP in enabled channels.",
-      "alreadyEnabled": "The channel {{channel}} is already in the enabled channels list.",
-      "notEnabled": "The channel {{channel}} is not in the enabled channels list.",
-      "removedEnabled": "Removed {{channel}} from the enabled channels list.",
-      "enabledLimit": "You cannot enable more than {{limit}} channels for the leveling system.",
-      "ignoredLimit": "You cannot ignore more than {{limit}} channels for the leveling system."
-    },
-    "role": {
-      "alreadyIgnored": "The role {{role}} is already in the ignored roles list.",
-      "addIgnored": "Added {{role}} to the ignored roles list! Users with that role will no longer receive XP.",
-      "notIgnored": "The role {{role}} is not in the ignored roles list.",
-      "removedIgnored": "Removed {{role}} from the ignored roles list! Users with that role will now receive XP again.",
-      "addEnabled": "Added {{role}} to the enabled roles list! Only users with that role will receive XP.",
-      "alreadyEnabled": "The role {{role}} is already in the enabled roles list.",
-      "notEnabled": "The role {{role}} is not in the enabled roles list.",
-      "removedEnabled": "Removed {{role}} from the enabled roles list.",
-      "enabledLimit": "You cannot enable more than {{limit}} roles for the leveling system.",
-      "ignoredLimit": "You cannot ignore more than {{limit}} roles for the leveling system."
-    },
-    "reward": {
-      "exists": "That role is already set as a reward for leveling up!",
-      "added": "Added a new leveling reward: {{entry}}!",
-      "none": "Please specify either a level or a role to remove from the leveling rewards!",
-      "notFound": "No reward found for level {{level}} and role {{role}}!",
-      "removed": "Removed the leveling reward for {{entry}}!",
-      "limit": "You cannot have more than {{limit}} leveling rewards configured!"
+    "resetConfiguration": {
+      "confirm": "### ⚠️ Reset leveling?\nThis resets the leveling settings, rewards and multipliers. Everyone keeps their XP and levels.",
+      "confirmButton": "Reset",
+      "cancelButton": "Cancel",
+      "cancelled": "Nothing was reset.",
+      "nothing": "There's nothing to reset, leveling hasn't been set up here yet.",
+      "success": "Leveling is reset. Use `/leveling-config settings` to set it up again."
     }
   },
   "counting": {
@@ -635,5 +642,6 @@
       "nodeApi": "> **Node API:** {{version}}",
       "discordJs": "> **Discord.JS:** v{{version}}"
     }
-  }
+  },
+  "locale": "en-US"
 }

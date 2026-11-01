@@ -125,6 +125,8 @@ export interface EntriesSetting<C> {
   get: (config: C) => Entry[];
   /** Save the value of an entry, or remove it with null. */
   set: (guildId: string, targetId: string, value: number | null) => Promise<unknown>;
+  /** Runs after an entry was saved, for follow-up work like giving a new reward role to everyone who already qualifies. */
+  onSaved?: (guild: Guild, targetId: string, value: number | null) => void;
 }
 
 export type Setting<C> = BooleanSetting<C> | ChoiceSetting<C> | ChannelSetting<C> | RoleSetting<C> | ChannelsSetting<C> | RolesSetting<C> | EntriesSetting<C>;
@@ -427,6 +429,12 @@ function addEntries<C>(container: ContainerBuilder, guild: Guild, panelId: strin
   }
 }
 
+/** Save an entry and run its follow-up work. */
+async function saveEntry<C>(guild: Guild, setting: EntriesSetting<C>, targetId: string, value: number | null) {
+  await setting.set(guild.id, targetId, value);
+  setting.onSaved?.(guild, targetId, value);
+}
+
 /** The popup asking for the value of an entry. */
 function entryModal<C>(guild: Guild, setting: EntriesSetting<C>, targetId: string, t: Translate, current?: number): SettingsModal {
   return {
@@ -437,7 +445,7 @@ function entryModal<C>(guild: Guild, setting: EntriesSetting<C>, targetId: strin
     submit(input) {
       const value = setting.input.parse(input.trim());
       if (value === null) return { error: setting.input.invalid(t) };
-      return { save: () => setting.set(guild.id, targetId, value) };
+      return { save: () => saveEntry(guild, setting, targetId, value) };
     },
   };
 }
@@ -563,7 +571,7 @@ function handleEntries<C>(
 
   if (id.argument === 'remove') {
     const targetId = input.type === 'select' ? input.values[0] : undefined;
-    return targetId ? { save: () => setting.set(guild.id, targetId, null) } : {};
+    return targetId ? { save: () => saveEntry(guild, setting, targetId, null) } : {};
   }
 
   if (id.argument === 'add') {
@@ -581,7 +589,7 @@ function handleEntries<C>(
     if (!setting.presets) return { modal: entryModal(guild, setting, targetId, t, existing?.value) };
     if (existing) return {};
     const value = setting.defaultValue ?? setting.presets[0] ?? 1;
-    return { save: () => setting.set(guild.id, targetId, value) };
+    return { save: () => saveEntry(guild, setting, targetId, value) };
   }
 
   // A button of an entry: move to the next preset, and after the last one ask for a custom value
@@ -593,5 +601,5 @@ function handleEntries<C>(
   if (index === setting.presets.length - 1) return { modal: entryModal(guild, setting, entry.targetId, t, entry.value) };
   // A custom value starts over at the first preset
   const next = setting.presets[index + 1] ?? setting.presets[0]!;
-  return { save: () => setting.set(guild.id, entry.targetId, next) };
+  return { save: () => saveEntry(guild, setting, entry.targetId, next) };
 }
