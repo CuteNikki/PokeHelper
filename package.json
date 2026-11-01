@@ -31,7 +31,6 @@
     "@napi-rs/canvas": "^1.0.13",
     "@prisma/adapter-pg": "^7.10.1",
     "@prisma/client": "^7.10.1",
-    "chalk": "^6.0.1",
     "discord.js": "^14.27.0",
     "globby": "^16.2.4",
     "i18next": "^26.5.11",
