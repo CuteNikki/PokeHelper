@@ -1,6 +1,6 @@
 import { beforeAll, expect, test } from 'bun:test';
 
-import { formatDuration, formatNumber } from 'utility/duration';
+import { formatCompactNumber, formatDuration, formatNumber } from 'utility/duration';
 import { getTranslate, initI18Next } from 'utility/i18next';
 
 beforeAll(() => initI18Next());
@@ -20,4 +20,20 @@ test.each([
 
 test('numbers get thousands separators', () => {
   expect(formatNumber(1234567)).toBe('1,234,567');
+});
+
+test.each([
+  [999, 'en', '999'],
+  [1234, 'en', '1.2k'],
+  [1093, 'en', '1.1k'],
+  [9999, 'en', '10k'],
+  [12345, 'en', '12.3k'],
+  [152100, 'en', '152k'],
+  [1234567, 'en', '1.2M'],
+  [2850000, 'en', '2.9M'],
+  [1093, 'de', '1,1k'],
+  [12345, 'de', '12,3k'],
+  [1234567, 'de', '1,2M'],
+])('%p in %s is shortened to %p', (value, language, expected) => {
+  expect(formatCompactNumber(value, getTranslate(language))).toBe(expected);
 });

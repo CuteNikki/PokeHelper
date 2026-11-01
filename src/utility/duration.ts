@@ -24,3 +24,22 @@ export function formatDuration(ms: number, t: Translate): string {
 
 /** Format a number with thousands separators, like `1,234`. */
 export const formatNumber = (number: number) => number.toLocaleString('en-US');
+
+/** Numbers from here on are shortened, like 1.2k, as exact ones get hard to read in images. */
+const COMPACT_FROM = 1_000;
+
+/**
+ * Format a number for images: exact below 1,000, like `999`, and shortened from there, like `1.2k`, `152k` or `1.2M`.
+ * The decimal separator follows the language, and the suffixes are translatable.
+ * @param t The translation for the locale and the suffixes.
+ */
+export function formatCompactNumber(value: number, t: Translate): string {
+  const locale = t('locale');
+  if (Math.abs(value) < COMPACT_FROM) return value.toLocaleString(locale);
+
+  const [divisor, suffix] = Math.abs(value) >= 1_000_000 ? [1_000_000, t('number.million')] : [1_000, t('number.thousand')];
+  const scaled = value / divisor;
+  // One decimal while it still says something, like 12.3k, but not for 152k
+  const digits = Math.abs(scaled) < 100 ? 1 : 0;
+  return `${scaled.toLocaleString(locale, { maximumFractionDigits: digits })}${suffix}`;
+}

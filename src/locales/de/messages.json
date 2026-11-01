@@ -358,7 +358,24 @@
       "message": "### 🏆 Neue Woche, neues Glück!\nDie Wochen-XP sind wieder bei 0. {{winner}} hat letzte Woche mit **{{xp}}** XP am meisten gesammelt, Glückwunsch!\n\nDie Top-Schreiber der letzten Woche:"
     },
     "leaderboard": {
-      "entry": "{{position}}. {{user}} · {{xp}} XP (Level {{level}})"
+      "entry": "{{position}}. {{user}} · {{xp}} XP (Level {{level}})",
+      "none": "Hier hat noch niemand XP gesammelt. Fangt an zu schreiben!",
+      "title": "### 🏆 {{guild}} Bestenliste",
+      "titleWeekly": "### 🏆 {{guild}} Wochen-Bestenliste"
+    },
+    "rank": {
+      "all": "GESAMT",
+      "weekly": "WOCHE",
+      "level": "Level",
+      "exp": "XP",
+      "text": {
+        "title": "### 📊 Rang von {{user}}",
+        "allTime": "**Gesamt:** Level **{{level}}** · Platz **#{{rank}}** · {{xpIntoLevel}}/{{xpRequired}} XP bis zum nächsten Level ({{xp}} XP insgesamt)",
+        "weekly": "**Diese Woche:** Level **{{level}}** · Platz **#{{rank}}** · {{xpIntoLevel}}/{{xpRequired}} XP bis zum nächsten Level ({{xp}} XP insgesamt)",
+        "allTimePlain": "gesamt Level {{level}}, Platz {{rank}}, {{xpIntoLevel}} von {{xpRequired}} XP bis zum nächsten Level",
+        "weeklyPlain": "diese Woche Level {{level}}, Platz {{rank}}, {{xpIntoLevel}} von {{xpRequired}} XP bis zum nächsten Level"
+      },
+      "altText": "Rangkarte von {{user}}: {{allTime}}; {{weekly}}."
     }
   },
   "pagination": {
@@ -368,6 +385,14 @@
       "placeholder": "1 bis {{maxPages}}",
       "timeout": "Du hast keine Seite eingegeben, versuch es nochmal.",
       "invalid": "Das ist keine gültige Seite. Gib eine Zahl von 1 bis {{maxPages}} ein."
+    },
+    "sort": {
+      "ascending": "Aufsteigend",
+      "descending": "Absteigend"
     }
+  },
+  "number": {
+    "thousand": "k",
+    "million": "M"
   }
 }

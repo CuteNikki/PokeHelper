@@ -348,14 +348,20 @@
       "all": "ALL-TIME",
       "weekly": "WEEKLY",
       "level": "Level",
-      "rank": "RANK:",
       "exp": "XP",
-      "state": "Showing Stats for {{user}}:\nLevel {{Level}} (Rank #{{rank}}), {{xp}} Total XP ({{xpIntoLevel}}/{{total}} into current level).\nWeekly: Level {{weeklyLevel}} (Rank #{{weeklyRank}}), {{weeklyXP}} XP ({{xpIntoWeeklyLevel}}/{{weeklyTotal}} into current level)."
+      "text": {
+        "title": "### 📊 Rank of {{user}}",
+        "allTime": "**All-time:** level **{{level}}** · rank **#{{rank}}** · {{xpIntoLevel}}/{{xpRequired}} XP to the next level ({{xp}} XP in total)",
+        "weekly": "**This week:** level **{{level}}** · rank **#{{rank}}** · {{xpIntoLevel}}/{{xpRequired}} XP to the next level ({{xp}} XP in total)",
+        "allTimePlain": "all-time level {{level}}, rank {{rank}}, {{xpIntoLevel}} of {{xpRequired}} XP to the next level",
+        "weeklyPlain": "this week level {{level}}, rank {{rank}}, {{xpIntoLevel}} of {{xpRequired}} XP to the next level"
+      },
+      "altText": "Rank card of {{user}}: {{allTime}}; {{weekly}}."
     },
     "leaderboard": {
-      "none": "No users have gained XP in this server yet!",
-      "title": "### {{guild}} - Leaderboard 🏆",
-      "titleWeekly": "### {{guild}} - Weekly Leaderboard 🏆",
+      "none": "Nobody has earned XP here yet. Start chatting!",
+      "title": "### 🏆 {{guild}} Leaderboard",
+      "titleWeekly": "### 🏆 {{guild}} Weekly Leaderboard",
       "entry": "{{position}}. {{user}} · {{xp}} XP (level {{level}})"
     },
     "settings": {
@@ -643,5 +649,9 @@
       "discordJs": "> **Discord.JS:** v{{version}}"
     }
   },
-  "locale": "en-US"
+  "locale": "en-US",
+  "number": {
+    "thousand": "k",
+    "million": "M"
+  }
 }

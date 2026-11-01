@@ -6,6 +6,8 @@ interface LeaderboardState {
   page: number;
   sortOrder: 'asc' | 'desc';
   weekly: boolean;
+  // Shown as text instead of an image
+  text: boolean;
 }
 
 export const leaderboardCache = new Map<string, LeaderboardState>();

@@ -289,6 +289,7 @@ model LeaderboardState {
   page      Int       @default(1)
   sortOrder SortOrder @default(desc)
   weekly    Boolean   @default(false)
+  text      Boolean   @default(false) // shown as text instead of an image
 
   updatedAt DateTime @updatedAt
   createdAt DateTime @default(now())

@@ -27,8 +27,9 @@ export default new Button({
       page: totalPages,
       sortOrder: state?.sortOrder ?? 'desc',
       weekly: state?.weekly ?? false,
+      text: state?.text ?? false,
     };
     await saveLeaderboardState(newState);
-    await buildLeaderboard({ ...newState, guild: interaction.guild }).then((response) => interaction.editReply(response));
+    await buildLeaderboard({ ...newState, guild: interaction.guild, t: getTranslate(interaction.locale) }).then((response) => interaction.editReply(response));
   },
 });
