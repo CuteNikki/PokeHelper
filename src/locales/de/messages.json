@@ -1,0 +1,283 @@
+{
+  "permission": {
+    "CreateInstantInvite": "Einladung erstellen",
+    "KickMembers": "Mitglieder kicken",
+    "BanMembers": "Mitglieder bannen",
+    "Administrator": "Administrator",
+    "ManageChannels": "Kanäle verwalten",
+    "ManageGuild": "Server verwalten",
+    "AddReactions": "Reaktionen hinzufügen",
+    "ViewAuditLog": "Audit-Log anzeigen",
+    "PrioritySpeaker": "Very Important Speaker",
+    "Stream": "Video",
+    "ViewChannel": "Kanal ansehen",
+    "SendMessages": "Nachrichten senden",
+    "SendTTSMessages": "Text-zu-Sprache-Nachrichten senden",
+    "ManageMessages": "Nachrichten verwalten",
+    "EmbedLinks": "Links einbetten",
+    "AttachFiles": "Dateien anhängen",
+    "ReadMessageHistory": "Nachrichtenverlauf anzeigen",
+    "MentionEveryone": "@everyone, @here und alle Rollen erwähnen",
+    "UseExternalEmojis": "Externe Emojis verwenden",
+    "ViewGuildInsights": "Server-Einblicke anzeigen",
+    "Connect": "Verbinden",
+    "Speak": "Sprechen",
+    "MuteMembers": "Mitglieder stummschalten",
+    "DeafenMembers": "Ein- und Ausgabe von Mitgliedern deaktivieren",
+    "MoveMembers": "Mitglieder verschieben",
+    "UseVAD": "Sprachaktivierung verwenden",
+    "ChangeNickname": "Nickname ändern",
+    "ManageNicknames": "Nicknames verwalten",
+    "ManageRoles": "Rollen verwalten",
+    "ManageWebhooks": "Webhooks verwalten",
+    "ManageEmojisAndStickers": "Emojis und Sticker verwalten",
+    "ManageGuildExpressions": "Ausdrücke verwalten",
+    "UseApplicationCommands": "Anwendungsbefehle verwenden",
+    "RequestToSpeak": "Redeanfrage",
+    "ManageEvents": "Events verwalten",
+    "ManageThreads": "Threads verwalten",
+    "CreatePublicThreads": "Öffentliche Threads erstellen",
+    "CreatePrivateThreads": "Private Threads erstellen",
+    "UseExternalStickers": "Externe Sticker verwenden",
+    "SendMessagesInThreads": "Nachrichten in Threads senden",
+    "UseEmbeddedActivities": "Aktivitäten verwenden",
+    "ModerateMembers": "Mitglieder in den Timeout schicken",
+    "ViewCreatorMonetizationAnalytics": "Creator-Monetarisierungsanalysen anzeigen",
+    "UseSoundboard": "Soundboard verwenden",
+    "CreateGuildExpressions": "Ausdrücke erstellen",
+    "CreateEvents": "Events erstellen",
+    "UseExternalSounds": "Externe Sounds verwenden",
+    "SendVoiceMessages": "Sprachnachrichten senden",
+    "SetVoiceChannelStatus": "Sprachkanalstatus festlegen",
+    "SendPolls": "Umfragen erstellen",
+    "UseExternalApps": "Externe Apps verwenden",
+    "PinMessages": "Nachrichten anpinnen",
+    "BypassSlowmode": "Slowmode umgehen"
+  },
+  "duration": {
+    "days": "{{count}}T",
+    "hours": "{{count}}h",
+    "minutes": "{{count}}min",
+    "lessThanMinute": "<1min"
+  },
+  "settings": {
+    "default": "Standard: {{value}}",
+    "none": "Keine",
+    "channel": {
+      "placeholder": "Kanal auswählen",
+      "missing": "Den Kanal gibt's nicht mehr, wähl einen neuen aus.",
+      "botPermissions": "Mir fehlen in diesem Kanal Berechtigungen: {{permissions}}",
+      "botPermissionsRefused": "Ich kann {{channel}} nicht nutzen, weil mir dort diese Berechtigungen fehlen: {{permissions}}. Gib sie mir oder nimm einen anderen Kanal."
+    },
+    "role": {
+      "placeholder": "Rolle auswählen",
+      "missing": "Die Rolle gibt's nicht mehr, wähl eine neue aus.",
+      "everyone": "@everyone kann man nicht vergeben",
+      "managed": "sie wird von einer Integration verwaltet, wie eine Bot- oder Booster-Rolle",
+      "noManageRoles": "mir fehlt die Berechtigung „Rollen verwalten“",
+      "tooHigh": "sie ist nicht unter meiner höchsten Rolle",
+      "cantAssign": "Ich kann diese Rolle nicht vergeben: {{reason}}.",
+      "refused": "Ich kann {{role}} nicht nutzen, weil ich sie nicht vergeben kann: {{reason}}. Nimm eine andere Rolle oder schieb meine Rolle in den Servereinstellungen darüber."
+    },
+    "channels": {
+      "placeholder": "Kanäle auswählen",
+      "missing": "Ein paar dieser Kanäle gibt's nicht mehr. Sie fliegen raus, wenn du das hier das nächste Mal änderst."
+    },
+    "roles": {
+      "placeholder": "Rollen auswählen",
+      "missing": "Ein paar dieser Rollen gibt's nicht mehr. Sie fliegen raus, wenn du das hier das nächste Mal änderst."
+    },
+    "entries": {
+      "count": "{{count}}/{{max}}",
+      "missing": "gibt's nicht mehr",
+      "addChannel": "Kanal hinzufügen",
+      "addRole": "Rolle hinzufügen",
+      "addOrEditRole": "Rolle hinzufügen oder eine zum Ändern auswählen",
+      "remove": "Eine entfernen",
+      "modalTitle": "Einstellung für {{target}}"
+    },
+    "unknown": "Unbekannt ({{id}})",
+    "outdated": "Jemand anderes hat die Einstellung geändert, seit du das hier geöffnet hast, also hat sich nichts getan. So sieht's jetzt aus."
+  },
+  "state": {
+    "enabled": "an",
+    "disabled": "aus",
+    "toggled": "umgeschaltet",
+    "yes": "Ja",
+    "no": "Nein",
+    "on": "An",
+    "off": "Aus",
+    "show": "Anzeigen",
+    "hide": "Ausblenden",
+    "public": "Öffentlich",
+    "private": "Privat",
+    "open": "Offen",
+    "closed": "Geschlossen",
+    "active": "Aktiv",
+    "inactive": "Inaktiv",
+    "available": "Verfügbar",
+    "unavailable": "Nicht verfügbar",
+    "visible": "Sichtbar",
+    "hidden": "Versteckt",
+    "allow": "Erlauben",
+    "deny": "Verbieten",
+    "required": "Pflicht",
+    "optional": "Optional",
+    "success": "Erfolg",
+    "failure": "Fehlschlag",
+    "positive": "Positiv",
+    "negative": "Negativ",
+    "accept": "Annehmen",
+    "decline": "Ablehnen",
+    "connected": "Verbunden",
+    "disconnected": "Getrennt",
+    "joined": "Beigetreten",
+    "left": "Verlassen",
+    "started": "Gestartet",
+    "stopped": "Gestoppt",
+    "completed": "Abgeschlossen",
+    "pending": "Ausstehend",
+    "approved": "Angenommen",
+    "rejected": "Abgelehnt",
+    "locked": "Gesperrt",
+    "unlocked": "Entsperrt",
+    "sent": "Gesendet",
+    "received": "Empfangen",
+    "updated": "Aktualisiert",
+    "deleted": "Gelöscht",
+    "created": "Erstellt",
+    "added": "Hinzugefügt",
+    "removed": "Entfernt",
+    "increased": "Erhöht",
+    "decreased": "Verringert",
+    "gained": "Bekommen",
+    "lost": "Verloren",
+    "won": "Gewonnen",
+    "tied": "Unentschieden"
+  },
+  "system": {
+    "cooldown": {
+      "message": "Mach mal langsam! Du kannst das {{remaining}} wieder benutzen."
+    },
+    "button": {
+      "authorOnly": "Den Button kannst du nicht benutzen.",
+      "permissions": "Für diesen Button brauchst du diese Berechtigungen: {{permissions}}",
+      "error": "Bei diesem Button ist was schiefgelaufen."
+    },
+    "selectMenu": {
+      "authorOnly": "Das Menü kannst du nicht benutzen.",
+      "permissions": "Für dieses Menü brauchst du diese Berechtigungen: {{permissions}}",
+      "error": "Bei diesem Menü ist was schiefgelaufen."
+    },
+    "command": {
+      "error": "Bei {{command}} ist was schiefgelaufen.",
+      "outdated": "Diesen Befehl gibt's nicht mehr oder er hat sich geändert. Die neue Version taucht auf, sobald die Befehle des Bots aktualisiert sind.",
+      "devOnly": "Dieser Befehl ist nur für die Entwickler des Bots."
+    }
+  },
+  "counting": {
+    "noConsecutive": "Du kannst nicht zweimal hintereinander zählen! Lass erst jemand anderen dran.",
+    "wrongNumber": "Falsche Zahl! Wir sind bei **{{number}}**.",
+    "reset": "Falsche Zahl! Wir waren bei **{{number}}** und fangen jetzt wieder bei 0 an.",
+    "lifeLost_one": "Falsche Zahl! Das kostet ein Leben, aber wir bleiben bei **{{number}}**.\n{{lives}} Nur noch **{{count}}** Leben, pass auf!",
+    "lifeLost_other": "Falsche Zahl! Das kostet ein Leben, aber wir bleiben bei **{{number}}**.\n{{lives}} Noch **{{count}}** Leben.",
+    "outOfLives": "Falsche Zahl, und das war das letzte Leben! Ihr habt es bis **{{number}}** geschafft, jetzt geht's wieder bei 0 los.\nDie nächste Runde startet mit allen Leben: {{lives}}",
+    "none": "Hier gibt's noch kein Zählspiel. Richte eins mit `/counting-config setup` ein.",
+    "removed": "Die letzte Zahl wurde gelöscht oder bearbeitet. Es war die **{{number}}** von {{user}}, also kommt als Nächstes die **{{next}}**.",
+    "sync": {
+      "title": "### Zählen nachgeholt",
+      "description": "Ich war kurz offline und hab mir die Nachrichten von der Zwischenzeit angeschaut.",
+      "counted_one": "{{count}} Zahl wurde richtig gezählt.",
+      "counted_other": "{{count}} Zahlen wurden richtig gezählt.",
+      "removed_one": "{{count}} falsche Nachricht wurde entfernt.",
+      "removed_other": "{{count}} falsche Nachrichten wurden entfernt.",
+      "reset": "{{user}} hat bei **{{number}}** zurückgesetzt.",
+      "livesLost_one": "{{count}} Leben ging verloren.",
+      "livesLost_other": "{{count}} Leben gingen verloren.",
+      "livesGained_one": "{{count}} Leben kam durch einen Meilenstein zurück.",
+      "livesGained_other": "{{count}} Leben kamen durch Meilensteine zurück.",
+      "next": "Als Nächstes kommt die **{{number}}**.",
+      "lives": "Leben: {{lives}}"
+    },
+    "setup": {
+      "already": "Hier gibt's schon ein Zählspiel. Ändere es mit `/counting-config settings` oder setz es zurück, um neu anzufangen.",
+      "success": "Zählen ist in {{channel}} eingerichtet! Schick dort eine `1`, um loszulegen.\nDie Einstellungen kannst du unten ändern oder später mit `/counting-config settings`."
+    },
+    "settings": {
+      "title": "### ⚙️ Zähl-Einstellungen",
+      "channel": {
+        "label": "Kanal",
+        "description": "Der Kanal, in dem gezählt wird. Nachrichten, die schon in einem neuen Kanal sind, bleiben in Ruhe."
+      },
+      "lives": {
+        "label": "Leben",
+        "description": "Wie viele falsche Zahlen eine Runde übersteht. Jede kostet ein Leben, und wenn das letzte weg ist, geht's wieder bei 0 los. Mit unendlich Leben werden falsche Zahlen nur entfernt.",
+        "unlimited": "Unendlich",
+        "one": "1 (sofort zurücksetzen)",
+        "count": "{{count}} Leben"
+      },
+      "regenerateLives": {
+        "label": "Leben regenerieren",
+        "description": "Gibt bei einem Meilenstein wie 100, 250, 500 oder 1000 ein Leben zurück, bis zum Maximum. Nur mit begrenzten Leben."
+      },
+      "allowMath": {
+        "label": "Mathe",
+        "description": "Erlaubt Zahlen als Rechnung, wie `1+1`, `2*3`, `2^3` oder `3!`."
+      },
+      "milestoneReactions": {
+        "label": "Meilenstein-Reaktionen",
+        "description": "Reagiert mit 🎉, wenn ein Meilenstein wie 100, 250, 500 oder 1000 gezählt wird."
+      }
+    },
+    "info": {
+      "title": "### 🔢 Zählen",
+      "overview": "Es wird in {{channel}} gezählt · Nächste Zahl: **{{next}}**",
+      "currentRun": "**Aktuelle Runde #{{run}}**",
+      "started": "Gestartet {{time}} ({{relative}})",
+      "startedUnknown": "Gestartet, bevor es Statistiken gab",
+      "notStarted": "Hier hat noch niemand gezählt. Schick eine `1` in {{channel}}, um loszulegen!",
+      "progress": "**{{number}}** Zahlen gezählt",
+      "lives": "Leben: {{lives}}",
+      "pacePerDay": "ungefähr **{{pace}}** pro Tag",
+      "pacePerHour": "ungefähr **{{pace}}** pro Stunde",
+      "milestones": "Meilensteine: {{milestones}}",
+      "milestoneAfter": "**{{number}}** nach {{duration}}",
+      "milestoneOn": "**{{number}}** am {{time}}",
+      "lastCounted": "Zuletzt gezählt von {{user}} {{relative}} · [hinspringen]({{link}})",
+      "records": "**Rekorde**",
+      "highest": "Höchste Zahl: **{{number}}** von {{user}}, {{time}} · [hinspringen]({{link}})",
+      "runs_one": "Bisher {{count}} Runde",
+      "runs_other": "Bisher {{count}} Runden"
+    },
+    "leaderboard": {
+      "title": "### 🏆 Top-Zähler",
+      "entry": "**{{position}}.** {{user}} · **{{counted}}** gezählt · {{accuracy}}% richtig",
+      "empty": "Hier hat noch niemand gezählt."
+    },
+    "user": {
+      "title": "### 🔢 Zähl-Statistiken von {{user}}",
+      "rank": "Platz: **#{{rank}}**",
+      "counted": "Gezählt: **{{counted}}**",
+      "mistakes": "Fehler: **{{mistakes}}**",
+      "accuracy": "Trefferquote: **{{accuracy}}%**",
+      "lastCounted": "Zuletzt gezählt: {{relative}}",
+      "none": "{{user}} hat noch nicht gezählt."
+    },
+    "runs": {
+      "title": "### 📜 Letzte Runden",
+      "ongoing": "**#{{run}}** · läuft · bei **{{number}}** · {{started}}",
+      "finished": "**#{{run}}** · bis **{{number}}** · beendet von {{user}} {{relative}}",
+      "lasted": " · hat {{duration}} gehalten",
+      "started": "gestartet {{relative}}",
+      "startedUnknown": "gestartet, bevor es Statistiken gab",
+      "empty": "Noch keine Runden. Schick eine `1` in den Zählkanal, um die erste zu starten!"
+    },
+    "resetConfiguration": {
+      "confirm": "### ⚠️ Zählspiel entfernen?\nDas entfernt das Zählspiel auf diesem Server **mit allen Statistiken**: Runden, gezählte Zahlen und die Zahlen von allen. Das kann man nicht rückgängig machen.",
+      "confirmButton": "Alles entfernen",
+      "cancelButton": "Abbrechen",
+      "cancelled": "Es wurde nichts entfernt.",
+      "success": "Das Zählspiel und seine Statistiken sind weg. Mit `/counting-config setup` kannst du ein neues starten."
+    }
+  }
+}

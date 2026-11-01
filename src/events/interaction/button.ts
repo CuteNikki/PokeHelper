@@ -3,6 +3,7 @@ import { t } from 'i18next';
 
 import { Event } from 'classes/base/event';
 
+import { getTranslate } from 'utility/i18next';
 import { logger } from 'utility/logger';
 import { sendError } from 'utility/response';
 
@@ -11,6 +12,8 @@ export default new Event({
   once: false,
   async execute(client, interaction) {
     if (!interaction.isButton()) return; // Check if the interaction is a button
+    // Replies are in the user's language, while logs stay in English for developers
+    const translate = getTranslate(interaction.locale);
 
     let button = client.buttons.get(interaction.customId); // Retrieve the button from the client's buttons collection
 
@@ -40,7 +43,7 @@ export default new Event({
         // The referenced message may have been deleted, in which case nobody counts as the author
         (interaction.message.reference && interaction.user.id !== (await interaction.message.fetchReference().catch(() => null))?.author.id)
       ) {
-        return sendError(interaction, t('system.button.authorOnly'));
+        return sendError(interaction, translate('system.button.authorOnly'));
       }
     }
 
@@ -53,7 +56,7 @@ export default new Event({
       if (!memberPermissions.has(button.options.permissions)) {
         return sendError(
           interaction,
-          t('system.button.permissions', { permissions: button.options.permissions.map((perm) => t(`permission.${perm}`)).join(', ') }),
+          translate('system.button.permissions', { permissions: button.options.permissions.map((perm) => translate(`permission.${perm}`)).join(', ') }),
         );
       }
     }
@@ -80,7 +83,7 @@ export default new Event({
           const expirationTimestamp = Math.round(expirationTime / 1_000); // Convert to seconds for discords timestamp format
 
           // Using a relative time format for the cooldown message, will show like "in 5 seconds"
-          return sendError(interaction, t('system.cooldown.message', { remaining: time(expirationTimestamp, TimestampStyles.RelativeTime) }));
+          return sendError(interaction, translate('system.cooldown.message', { remaining: time(expirationTimestamp, TimestampStyles.RelativeTime) }));
         }
       }
 
@@ -98,7 +101,7 @@ export default new Event({
     } catch (error) {
       logger.error(error, t('system.button.error'));
       // Picks reply, editReply or followUp depending on how far the button got, and never throws itself
-      await sendError(interaction, t('system.button.error'));
+      await sendError(interaction, translate('system.button.error'));
     }
   },
 });

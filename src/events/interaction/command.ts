@@ -7,6 +7,7 @@ import { getGuildOrCreate } from 'database/guild';
 import { getUserData } from 'database/user';
 
 import { isDeveloper } from 'utility/developers';
+import { getTranslate } from 'utility/i18next';
 import { logger } from 'utility/logger';
 import { sendError } from 'utility/response';
 
@@ -15,13 +16,15 @@ export default new Event({
   once: false,
   async execute(client, interaction) {
     if (!interaction.isCommand()) return; // Check if the interaction is a command
+    // Replies are in the user's language, while logs stay in English for developers
+    const translate = getTranslate(interaction.locale);
 
     const command = client.commands.get(interaction.commandName); // Retrieve the command from the client's commands collection
 
     // If the command is not found, log a warning and tell the user, it's likely still registered after being removed
     if (!command) {
       logger.warn(t('system.command.notFound', { command: interaction.commandName }));
-      return sendError(interaction, t('system.command.outdated'));
+      return sendError(interaction, translate('system.command.outdated'));
     }
 
     // Developer commands are only registered in the developer server, but check anyway in case they end up elsewhere
@@ -30,7 +33,7 @@ export default new Event({
         logger.error(error, t('system.command.developerCheckFailed'));
         return false;
       });
-      if (!allowed) return sendError(interaction, t('system.command.devOnly'));
+      if (!allowed) return sendError(interaction, translate('system.command.devOnly'));
     }
 
     // Handling cooldowns for the command
@@ -53,7 +56,7 @@ export default new Event({
           const expirationTimestamp = Math.round(expirationTime / 1_000); // Convert to seconds for discords timestamp format
 
           // Using a relative time format for the cooldown message, will show like "in 5 seconds"
-          return sendError(interaction, t('system.cooldown.message', { remaining: time(expirationTimestamp, TimestampStyles.RelativeTime) }));
+          return sendError(interaction, translate('system.cooldown.message', { remaining: time(expirationTimestamp, TimestampStyles.RelativeTime) }));
         }
       }
 
@@ -79,12 +82,12 @@ export default new Event({
         const subcommand = interaction.isChatInputCommand() ? interaction.options.getSubcommand(false) : null;
         const name = subcommand ? `${interaction.commandName} ${subcommand}` : interaction.commandName;
         logger.warn(t('system.command.noResponse', { command: name }));
-        await sendError(interaction, t('system.command.outdated'));
+        await sendError(interaction, translate('system.command.outdated'));
       }
     } catch (error) {
       logger.error(error, t('system.command.error', { command: interaction.commandName }));
       // Picks reply, editReply or followUp depending on how far the command got, and never throws itself
-      await sendError(interaction, t('system.command.error', { command: interaction.commandName }));
+      await sendError(interaction, translate('system.command.error', { command: interaction.commandName }));
     }
   },
 });

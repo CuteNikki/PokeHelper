@@ -1,7 +1,7 @@
 import { beforeAll, describe, expect, test } from 'bun:test';
 import { ChannelType, Collection, ComponentType, SelectMenuDefaultValueType, type APIContainerComponent, type Guild } from 'discord.js';
 
-import { initI18Next } from 'utility/i18next';
+import { getTranslate, initI18Next } from 'utility/i18next';
 import { createSettingsPanel, parseSettingsCustomId, type Entry, type SettingsInput, type SettingsModal } from 'utility/settings';
 
 // The panel renders labels like On and Off through i18next
@@ -163,13 +163,13 @@ const fakeGuild = ({ channelIds = [] as string[], roleIds = [] as string[], botM
 
 /** Render to JSON, which is where discord.js validates the components. */
 async function renderJson(panel: ReturnType<typeof createTestPanel>['panel'], page?: string, guild = fakeGuild()) {
-  const payload = await panel.render(guild, page);
+  const payload = await panel.render(guild, getTranslate('en'), page);
   return (payload.components ?? []).map((component) => ('toJSON' in component ? component.toJSON() : component)) as APIContainerComponent[];
 }
 
 /** Use a component of the panel and save the change, like the settings handler does when it's clicked or selected. */
 async function use(panel: ReturnType<typeof createTestPanel>['panel'], customId: string, input: SettingsInput = { type: 'button' }, guild = fakeGuild()) {
-  const result = await panel.handle(guild, parseSettingsCustomId(customId)!, input);
+  const result = await panel.handle(guild, parseSettingsCustomId(customId)!, input, getTranslate('en'));
   await result.save?.();
   return result;
 }
@@ -242,7 +242,7 @@ describe('settings panel', () => {
 
     const [deleted] = await renderJson(panel, 'general', fakeGuild());
     expect(defaultValuesOf(deleted!, 'settings:test:general:channel:-:-')).toEqual([]);
-    expect(JSON.stringify(deleted)).toContain('The saved channel no longer exists');
+    expect(JSON.stringify(deleted)).toContain("That channel doesn't exist anymore");
   });
 
   test('shows a message instead when the feature is not set up', async () => {

@@ -3,6 +3,7 @@ import { t } from 'i18next';
 
 import { Event } from 'classes/base/event';
 
+import { getTranslate } from 'utility/i18next';
 import { logger } from 'utility/logger';
 import { sendError } from 'utility/response';
 
@@ -11,6 +12,8 @@ export default new Event({
   once: false,
   async execute(client, interaction) {
     if (!interaction.isAnySelectMenu()) return; // Check if the interaction is a select menu
+    // Replies are in the user's language, while logs stay in English for developers
+    const translate = getTranslate(interaction.locale);
 
     let selectMenu = client.selectMenus.get(interaction.customId); // Retrieve the select menu from the client's selectMenus collection
 
@@ -40,7 +43,7 @@ export default new Event({
         // The referenced message may have been deleted, in which case nobody counts as the author
         (interaction.message.reference && interaction.user.id !== (await interaction.message.fetchReference().catch(() => null))?.author.id)
       ) {
-        return sendError(interaction, t('system.selectMenu.authorOnly'));
+        return sendError(interaction, translate('system.selectMenu.authorOnly'));
       }
     }
 
@@ -53,7 +56,7 @@ export default new Event({
       if (!memberPermissions.has(selectMenu.options.permissions)) {
         return sendError(
           interaction,
-          t('system.selectMenu.permissions', { permissions: selectMenu.options.permissions.map((perm) => t(`permission.${perm}`)).join(', ') }),
+          translate('system.selectMenu.permissions', { permissions: selectMenu.options.permissions.map((perm) => translate(`permission.${perm}`)).join(', ') }),
         );
       }
     }
@@ -80,7 +83,7 @@ export default new Event({
           const expirationTimestamp = Math.round(expirationTime / 1_000); // Convert to seconds for discords timestamp format
 
           // Using a relative time format for the cooldown message, will show like "in 5 seconds"
-          return sendError(interaction, t('system.cooldown.message', { remaining: time(expirationTimestamp, TimestampStyles.RelativeTime) }));
+          return sendError(interaction, translate('system.cooldown.message', { remaining: time(expirationTimestamp, TimestampStyles.RelativeTime) }));
         }
       }
 
@@ -98,7 +101,7 @@ export default new Event({
     } catch (error) {
       logger.error(error, t('system.selectMenu.error'));
       // Picks reply, editReply or followUp depending on how far the select menu got, and never throws itself
-      await sendError(interaction, t('system.selectMenu.error'));
+      await sendError(interaction, translate('system.selectMenu.error'));
     }
   },
 });

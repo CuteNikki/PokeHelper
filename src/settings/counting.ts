@@ -1,5 +1,4 @@
 import { ChannelType, SnowflakeUtil, type PermissionsString } from 'discord.js';
-import { t } from 'i18next';
 
 import { getCounting, updateCounting } from 'database/counting';
 
@@ -18,10 +17,10 @@ const update = (guildId: string, query: Partial<GuildCounting>) => runCountingTa
 
 export const countingSettings = createSettingsPanel<GuildCounting>({
   id: 'counting',
-  title: () => t('counting.settings.title'),
+  title: (t) => t('counting.settings.title'),
   permissions: ['ManageChannels'],
   load: getCounting,
-  notConfigured: () => t('counting.none'),
+  notConfigured: (t) => t('counting.none'),
   settings: [
     {
       type: 'channel',
@@ -29,8 +28,8 @@ export const countingSettings = createSettingsPanel<GuildCounting>({
       channelTypes: [ChannelType.GuildText],
       required: true,
       botPermissions: COUNTING_CHANNEL_PERMISSIONS,
-      label: () => t('counting.settings.channel.label'),
-      description: () => t('counting.settings.channel.description'),
+      label: (t) => t('counting.settings.channel.label'),
+      description: (t) => t('counting.settings.channel.description'),
       get: (config) => config.channelId,
       set: (guildId, channelId) =>
         runCountingTask(guildId, async () => {
@@ -45,13 +44,13 @@ export const countingSettings = createSettingsPanel<GuildCounting>({
       key: 'lives',
       defaultValue: UNLIMITED,
       options: [
-        { value: UNLIMITED, label: () => t('counting.settings.lives.unlimited') },
-        { value: '1', label: () => t('counting.settings.lives.one') },
-        { value: '3', label: () => t('counting.settings.lives.count', { count: 3 }) },
-        { value: '5', label: () => t('counting.settings.lives.count', { count: 5 }) },
+        { value: UNLIMITED, label: (t) => t('counting.settings.lives.unlimited') },
+        { value: '1', label: (t) => t('counting.settings.lives.one') },
+        { value: '3', label: (t) => t('counting.settings.lives.count', { count: 3 }) },
+        { value: '5', label: (t) => t('counting.settings.lives.count', { count: 5 }) },
       ],
-      label: () => t('counting.settings.lives.label'),
-      description: () => t('counting.settings.lives.description'),
+      label: (t) => t('counting.settings.lives.label'),
+      description: (t) => t('counting.settings.lives.description'),
       get: (config) => (config.maxLives === null ? UNLIMITED : String(config.maxLives)),
       set: (guildId, value) => {
         const maxLives = value === UNLIMITED ? null : Number(value);
@@ -63,8 +62,8 @@ export const countingSettings = createSettingsPanel<GuildCounting>({
       type: 'boolean',
       key: 'regenerateLives',
       defaultValue: false,
-      label: () => t('counting.settings.regenerateLives.label'),
-      description: () => t('counting.settings.regenerateLives.description'),
+      label: (t) => t('counting.settings.regenerateLives.label'),
+      description: (t) => t('counting.settings.regenerateLives.description'),
       get: (config) => config.regenerateLives,
       set: (guildId, regenerateLives) => update(guildId, { regenerateLives }),
     },
@@ -72,8 +71,8 @@ export const countingSettings = createSettingsPanel<GuildCounting>({
       type: 'boolean',
       key: 'allowMath',
       defaultValue: false,
-      label: () => t('counting.settings.allowMath.label'),
-      description: () => t('counting.settings.allowMath.description'),
+      label: (t) => t('counting.settings.allowMath.label'),
+      description: (t) => t('counting.settings.allowMath.description'),
       get: (config) => config.allowMath,
       set: (guildId, allowMath) => update(guildId, { allowMath }),
     },
@@ -81,8 +80,8 @@ export const countingSettings = createSettingsPanel<GuildCounting>({
       type: 'boolean',
       key: 'milestoneReactions',
       defaultValue: false,
-      label: () => t('counting.settings.milestoneReactions.label'),
-      description: () => t('counting.settings.milestoneReactions.description'),
+      label: (t) => t('counting.settings.milestoneReactions.label'),
+      description: (t) => t('counting.settings.milestoneReactions.description'),
       get: (config) => config.milestoneReactions,
       set: (guildId, milestoneReactions) => update(guildId, { milestoneReactions }),
     },

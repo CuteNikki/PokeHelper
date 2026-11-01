@@ -15,7 +15,7 @@ import {
   SnowflakeUtil,
   TextDisplayBuilder,
 } from 'discord.js';
-import { t } from 'i18next';
+import { getTranslate } from 'utility/i18next';
 
 import { Command } from 'classes/base/command';
 
@@ -68,6 +68,7 @@ export default new Command({
  * @returns {Promise<unknown>} A promise that resolves when the setup is complete.
  */
 async function handleSetup(interaction: ChatInputCommandInteraction<'cached'>): Promise<unknown> {
+  const t = getTranslate(interaction.locale);
   await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
 
   const channel = interaction.options.getChannel('channel', true, [ChannelType.GuildText]);
@@ -76,7 +77,7 @@ async function handleSetup(interaction: ChatInputCommandInteraction<'cached'>): 
   const missing = missingBotPermissions(interaction.guild, channel.id, COUNTING_CHANNEL_PERMISSIONS);
   if (missing.length > 0) {
     return interaction.editReply(
-      createResponse(t('settings.channel.botPermissionsRefused', { channel: channelMention(channel.id), permissions: formatPermissions(missing) }), 'error'),
+      createResponse(t('settings.channel.botPermissionsRefused', { channel: channelMention(channel.id), permissions: formatPermissions(missing, t) }), 'error'),
     );
   }
 
@@ -100,7 +101,7 @@ async function handleSetup(interaction: ChatInputCommandInteraction<'cached'>): 
 
   // Show the settings right away, so the rest can be configured without another command
   const success = createResponse(t('counting.setup.success', { channel: channelMention(channel.id) }), 'success');
-  const settings = await countingSettings.render(interaction.guild);
+  const settings = await countingSettings.render(interaction.guild, t);
   return interaction.editReply({ ...settings, components: [...(success.components ?? []), ...(settings.components ?? [])] });
 }
 
@@ -110,7 +111,8 @@ async function handleSetup(interaction: ChatInputCommandInteraction<'cached'>): 
  * @returns {Promise<unknown>} A promise that resolves when the panel is shown.
  */
 async function handleSettings(interaction: ChatInputCommandInteraction<'cached'>): Promise<unknown> {
-  return sendResponse(interaction, await countingSettings.render(interaction.guild), { ephemeral: true });
+  const t = getTranslate(interaction.locale);
+  return sendResponse(interaction, await countingSettings.render(interaction.guild, t), { ephemeral: true });
 }
 
 /**
@@ -119,6 +121,7 @@ async function handleSettings(interaction: ChatInputCommandInteraction<'cached'>
  * @returns {Promise<unknown>} A promise that resolves when the reset is complete or cancelled.
  */
 async function handleReset(interaction: ChatInputCommandInteraction<'cached'>): Promise<unknown> {
+  const t = getTranslate(interaction.locale);
   await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
 
   if (!(await getCounting(interaction.guildId))) {

@@ -65,13 +65,13 @@
     "none": "None",
     "channel": {
       "placeholder": "Select a channel",
-      "missing": "The saved channel no longer exists, please select a new one.",
+      "missing": "That channel doesn't exist anymore, pick a new one.",
       "botPermissions": "I'm missing permissions in this channel: {{permissions}}",
       "botPermissionsRefused": "I can't use {{channel}}, as I'm missing these permissions there: {{permissions}}. Give me those, or pick another channel."
     },
     "role": {
       "placeholder": "Select a role",
-      "missing": "The saved role no longer exists, please select a new one.",
+      "missing": "That role doesn't exist anymore, pick a new one.",
       "everyone": "@everyone can't be given to members",
       "managed": "it's managed by an integration, like a bot or booster role",
       "noManageRoles": "I'm missing the Manage Roles permission",
@@ -81,11 +81,11 @@
     },
     "channels": {
       "placeholder": "Select channels",
-      "missing": "Some saved channels no longer exist and will be removed the next time this is changed."
+      "missing": "Some of these channels don't exist anymore. They're removed the next time you change this."
     },
     "roles": {
       "placeholder": "Select roles",
-      "missing": "Some saved roles no longer exist and will be removed the next time this is changed."
+      "missing": "Some of these roles don't exist anymore. They're removed the next time you change this."
     },
     "entries": {
       "count": "{{count}}/{{max}}",
@@ -97,7 +97,7 @@
       "modalTitle": "Settings for {{target}}"
     },
     "unknown": "Unknown ({{id}})",
-    "outdated": "That setting was changed by someone else since this panel was opened, so nothing was changed. The panel now shows the current settings."
+    "outdated": "Someone else changed that setting since you opened this, so nothing happened. Here's how it looks now."
   },
   "state": {
     "enabled": "enabled",
@@ -194,32 +194,32 @@
   },
   "system": {
     "cooldown": {
-      "message": "Please wait, you're on cooldown for this! Try again {{remaining}}."
+      "message": "Slow down a bit! You can use this again {{remaining}}."
     },
     "button": {
       "invalid": "Invalid button found in file {{file}}. Skipping registration.",
       "loaded_one": "Successfully loaded {{count}} button from {{files}} files. ({{duration}}ms)",
       "loaded_other": "Successfully loaded {{count}} buttons from {{files}} files. ({{duration}}ms)",
       "authorOnly": "You can't use this button.",
-      "permissions": "You don't have the required permissions to use this button! Required permissions: {{permissions}}",
-      "error": "An error occurred while executing this button."
+      "permissions": "You need these permissions to use this button: {{permissions}}",
+      "error": "Something went wrong with this button."
     },
     "selectMenu": {
       "invalid": "Invalid select menu found in file {{file}}. Skipping registration.",
       "loaded_one": "Successfully loaded {{count}} select menu from {{files}} files. ({{duration}}ms)",
       "loaded_other": "Successfully loaded {{count}} select menus from {{files}} files. ({{duration}}ms)",
       "authorOnly": "You can't use this select menu.",
-      "permissions": "You don't have the required permissions to use this select menu! Required permissions: {{permissions}}",
-      "error": "An error occurred while executing this select menu."
+      "permissions": "You need these permissions to use this menu: {{permissions}}",
+      "error": "Something went wrong with this menu."
     },
     "command": {
       "invalid": "Invalid command found in file {{file}}. Skipping registration.",
       "loaded_one": "Successfully loaded {{count}} command from {{files}} files. ({{duration}}ms)",
       "loaded_other": "Successfully loaded {{count}} commands from {{files}} files. ({{duration}}ms)",
       "notFound": "Command not found: {{command}}",
-      "error": "An error occurred while executing {{command}}",
+      "error": "Something went wrong while running {{command}}.",
       "noResponse": "/{{command}} finished without responding. If it was changed recently, the commands may need to be registered again",
-      "outdated": "This command isn't available anymore or has changed. Its new version will show up once the bot's commands are updated.",
+      "outdated": "This command doesn't exist anymore or has changed. The new version shows up once the bot's commands are updated.",
       "devOnly": "This command is only for the bot's developers.",
       "developerCheckFailed": "Failed to fetch the bot's owner to check for developer commands"
     },
@@ -419,14 +419,14 @@
     }
   },
   "counting": {
-    "noConsecutive": "You can't count twice in a row! Wait for someone else to count before you can count again.",
-    "wrongNumber": "That's not the correct number! The current count is {{number}}. Try again with the correct next number.",
-    "reset": "That's not the correct number! The current count was {{number}}. The count has been reset to 0.",
-    "lifeLost_one": "That's not the correct number! The count stays at **{{number}}**, but it cost a life.\n{{lives}} **{{count}}** life left, so be careful!",
-    "lifeLost_other": "That's not the correct number! The count stays at **{{number}}**, but it cost a life.\n{{lives}} **{{count}}** lives left.",
-    "outOfLives": "That's not the correct number, and it was the last life! The count reached **{{number}}** and has been reset to 0.\nThe next run starts with all lives again: {{lives}}",
-    "none": "No counting game is currently set up for this server. Please use the setup command to create a one.",
-    "removed": "The last number was deleted or edited. It was **{{number}}**, counted by {{user}}. The next number is **{{next}}**.",
+    "noConsecutive": "You can't count twice in a row! Let someone else go first.",
+    "wrongNumber": "Wrong number! We're at **{{number}}**.",
+    "reset": "Wrong number! The count was at **{{number}}** and is back to 0 now.",
+    "lifeLost_one": "Wrong number! That costs a life, but the count stays at **{{number}}**.\n{{lives}} Only **{{count}}** life left, careful!",
+    "lifeLost_other": "Wrong number! That costs a life, but the count stays at **{{number}}**.\n{{lives}} **{{count}}** lives left.",
+    "outOfLives": "Wrong number, and that was the last life! The count made it to **{{number}}** and is back to 0.\nThe next run starts with full lives: {{lives}}",
+    "none": "There's no counting game here yet. Set one up with `/counting-config setup`.",
+    "removed": "The last number got deleted or edited. It was **{{number}}** from {{user}}, so the next one is **{{next}}**.",
     "sync": {
       "title": "### Caught up on counting",
       "description": "I was offline for a bit, so I checked the messages sent in the meantime.",
@@ -443,8 +443,8 @@
       "lives": "Lives: {{lives}}"
     },
     "setup": {
-      "already": "A counting game is already set up in this server. Please use the settings command to change it, or reset the current game if you want to start over.",
-      "success": "The counting game has been set up in {{channel}}. To start counting, simply send a message with the number `1` in the counting channel. Happy counting!\nYou can change the settings below, or any time later with the settings command."
+      "already": "There's already a counting game here. Change it with `/counting-config settings`, or reset it to start over.",
+      "success": "Counting is set up in {{channel}}! Send `1` there to get started.\nYou can change the settings below, or later with `/counting-config settings`."
     },
     "settings": {
       "title": "### ⚙️ Counting Settings",
@@ -520,7 +520,7 @@
       "confirmButton": "Remove everything",
       "cancelButton": "Cancel",
       "cancelled": "Nothing was removed.",
-      "success": "The counting game and its stats have been removed. Use the setup command to start a new one."
+      "success": "The counting game and its stats are gone. Use `/counting-config setup` to start a new one."
     }
   },
   "reactionRole": {

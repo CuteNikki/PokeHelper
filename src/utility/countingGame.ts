@@ -9,7 +9,6 @@ import {
   type Message,
   type PartialMessage,
 } from 'discord.js';
-import { t } from 'i18next';
 
 import { getAllCountings, getCounting, saveCountingProgress, updateCounting } from 'database/counting';
 
@@ -26,6 +25,7 @@ import {
   type CountMessage,
 } from 'utility/counting';
 import { parseCount } from 'utility/countingParse';
+import { getTranslate } from 'utility/i18next';
 import { logger } from 'utility/logger';
 import { KeyedQueue } from 'utility/queue';
 import { createResponse, logFailure } from 'utility/response';
@@ -81,6 +81,8 @@ export async function handleCountingMessage(client: Client, message: Message<tru
   if (counting.lastCheckedMessageId && isAtOrBefore(message.id, counting.lastCheckedMessageId)) return;
 
   const processed = processCount(toCountingState(counting), counting, toCountMessage(message));
+  // Everyone in the channel sees these messages, so they're in the server's language
+  const t = getTranslate(message.guild.preferredLocale);
   if (!(await saveProgress(counting, processed.state, processed.events))) return;
 
   if (processed.outcome === 'valid') {
@@ -217,6 +219,7 @@ async function syncCounting(client: Client, counting: GuildCounting): Promise<Gu
   await deleteMessages(channel, invalid);
 
   if (invalid.length > 0 || resets.length > 0) {
+    const t = getTranslate(channel.guild.preferredLocale);
     const lines = [
       t('counting.sync.title'),
       t('counting.sync.description'),
@@ -270,6 +273,7 @@ export async function handleChangedCount(message: Message | PartialMessage, edit
 
   const channel = message.channel;
   if (!channel.isSendable()) return;
+  const t = getTranslate(message.guild?.preferredLocale);
 
   const repost = await channel
     .send({

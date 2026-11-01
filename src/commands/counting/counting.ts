@@ -9,7 +9,7 @@ import {
   TimestampStyles,
   userMention,
 } from 'discord.js';
-import { t } from 'i18next';
+import { getTranslate, type Translate } from 'utility/i18next';
 
 import { Command } from 'classes/base/command';
 
@@ -48,19 +48,21 @@ export default new Command({
     .addSubcommand((cmd) => cmd.setName('runs').setDescription('The most recent runs and how they ended')),
   async execute(interaction) {
     if (!interaction.inCachedGuild()) return;
+    // Replies to the person who used the command, so in their language, even though everyone can see them
+    const t = getTranslate(interaction.locale);
 
     const counting = await getCounting(interaction.guildId);
     if (!counting) return sendError(interaction, t('counting.none'));
 
     switch (interaction.options.getSubcommand()) {
       case 'info':
-        return reply(interaction, await buildInfo(counting));
+        return reply(interaction, await buildInfo(counting, t));
       case 'leaderboard':
-        return reply(interaction, await buildLeaderboard(counting.guildId));
+        return reply(interaction, await buildLeaderboard(counting.guildId, t));
       case 'user':
-        return reply(interaction, await buildUser(counting.guildId, interaction.options.getUser('user')?.id ?? interaction.user.id));
+        return reply(interaction, await buildUser(counting.guildId, interaction.options.getUser('user')?.id ?? interaction.user.id, t));
       case 'runs':
-        return reply(interaction, await buildRuns(counting));
+        return reply(interaction, await buildRuns(counting, t));
     }
   },
 });
@@ -71,7 +73,7 @@ const reply = (interaction: ChatInputCommandInteraction<'cached'>, lines: string
 
 const accuracy = (counted: number, mistakes: number) => Math.round((counted / Math.max(1, counted + mistakes)) * 100);
 
-async function buildInfo(counting: GuildCounting): Promise<string[]> {
+async function buildInfo(counting: GuildCounting, t: Translate): Promise<string[]> {
   const [run, runCount] = await Promise.all([getCurrentRun(counting.guildId), getRunCount(counting.guildId)]);
 
   const lines = [
@@ -83,7 +85,7 @@ async function buildInfo(counting: GuildCounting): Promise<string[]> {
   if (!run || counting.lastNumber === 0) {
     lines.push(t('counting.info.notStarted', { channel: channelMention(counting.channelId) }));
   } else {
-    lines.push(t('counting.info.currentRun', { run: await getRunNumber(counting.guildId, run.id) }), ...(await describeCurrentRun(counting, run)));
+    lines.push(t('counting.info.currentRun', { run: await getRunNumber(counting.guildId, run.id) }), ...(await describeCurrentRun(counting, run, t)));
   }
 
   if (counting.highestNumber > 0 && counting.highestNumberByUserId && counting.highestNumberAt && counting.highestNumberMessageId) {
@@ -104,7 +106,7 @@ async function buildInfo(counting: GuildCounting): Promise<string[]> {
 }
 
 /** When the run started, how fast it's going, its milestones and who counted last. */
-async function describeCurrentRun(counting: GuildCounting, run: CountingRun): Promise<string[]> {
+async function describeCurrentRun(counting: GuildCounting, run: CountingRun, t: Translate): Promise<string[]> {
   const lines: string[] = [];
   const progress = [t('counting.info.progress', { number: formatNumber(counting.lastNumber) })];
 
@@ -130,7 +132,7 @@ async function describeCurrentRun(counting: GuildCounting, run: CountingRun): Pr
       run.startedAt
         ? t('counting.info.milestoneAfter', {
             number: formatNumber(entry.number),
-            duration: formatDuration(entry.countedAt.getTime() - run.startedAt.getTime()),
+            duration: formatDuration(entry.countedAt.getTime() - run.startedAt.getTime(), t),
           })
         : t('counting.info.milestoneOn', { number: formatNumber(entry.number), time: time(entry.countedAt, TimestampStyles.ShortDate) }),
     );
@@ -150,7 +152,7 @@ async function describeCurrentRun(counting: GuildCounting, run: CountingRun): Pr
   return lines;
 }
 
-async function buildLeaderboard(guildId: string): Promise<string[]> {
+async function buildLeaderboard(guildId: string, t: Translate): Promise<string[]> {
   const counters = await getTopCounters(guildId, LEADERBOARD_SIZE);
   if (counters.length === 0) return [t('counting.leaderboard.title'), t('counting.leaderboard.empty')];
 
@@ -167,7 +169,7 @@ async function buildLeaderboard(guildId: string): Promise<string[]> {
   ];
 }
 
-async function buildUser(guildId: string, userId: string): Promise<string[]> {
+async function buildUser(guildId: string, userId: string, t: Translate): Promise<string[]> {
   const stats = await getCountingUser(guildId, userId);
   if (!stats || (stats.counted === 0 && stats.mistakes === 0)) return [t('counting.user.none', { user: userMention(userId) })];
 
@@ -181,7 +183,7 @@ async function buildUser(guildId: string, userId: string): Promise<string[]> {
   ];
 }
 
-async function buildRuns(counting: GuildCounting): Promise<string[]> {
+async function buildRuns(counting: GuildCounting, t: Translate): Promise<string[]> {
   const runs = await getRecentRuns(counting.guildId, SHOWN_RUNS);
   if (runs.length === 0) return [t('counting.runs.title'), t('counting.runs.empty')];
 
@@ -201,7 +203,7 @@ async function buildRuns(counting: GuildCounting): Promise<string[]> {
         user: run.endedByUserId ? userMention(run.endedByUserId) : '?',
         relative: time(run.endedAt, TimestampStyles.RelativeTime),
       });
-      return run.startedAt ? finished + t('counting.runs.lasted', { duration: formatDuration(run.endedAt.getTime() - run.startedAt.getTime()) }) : finished;
+      return run.startedAt ? finished + t('counting.runs.lasted', { duration: formatDuration(run.endedAt.getTime() - run.startedAt.getTime(), t) }) : finished;
     }),
   ];
 }

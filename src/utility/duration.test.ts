@@ -1,7 +1,7 @@
 import { beforeAll, expect, test } from 'bun:test';
 
 import { formatDuration, formatNumber } from 'utility/duration';
-import { initI18Next } from 'utility/i18next';
+import { getTranslate, initI18Next } from 'utility/i18next';
 
 beforeAll(() => initI18Next());
 
@@ -15,7 +15,7 @@ test.each([
   [minutes(60 * 24 * 3 + 60 * 4 + 30), '3d 4h'],
   [minutes(60 * 24 * 3 + 30), '3d'],
 ])('%pms is %p', (ms, expected) => {
-  expect(formatDuration(ms)).toBe(expected);
+  expect(formatDuration(ms, getTranslate('en'))).toBe(expected);
 });
 
 test('numbers get thousands separators', () => {

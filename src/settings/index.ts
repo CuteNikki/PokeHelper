@@ -1,5 +1,5 @@
 import { LabelBuilder, MessageFlags, ModalBuilder, TextInputBuilder, TextInputStyle, type AnySelectMenuInteraction, type ButtonInteraction } from 'discord.js';
-import { t } from 'i18next';
+import { getTranslate, type Translate } from 'utility/i18next';
 
 import { countingSettings } from 'settings/counting';
 
@@ -21,6 +21,8 @@ export const getSettingsPanel = (id: string) => panels.find((panel) => panel.id 
  */
 export async function handleSettingsInteraction(interaction: ButtonInteraction | AnySelectMenuInteraction) {
   if (!interaction.inCachedGuild()) return;
+  // Settings panels are only seen by the person using them, so they're in their language
+  const t = getTranslate(interaction.locale);
 
   const id = parseSettingsCustomId(interaction.customId);
   const panel = id && getSettingsPanel(id.panelId);
@@ -32,14 +34,14 @@ export async function handleSettingsInteraction(interaction: ButtonInteraction |
   }
 
   const input: SettingsInput = interaction.isAnySelectMenu() ? { type: 'select', values: interaction.values } : { type: 'button' };
-  const result = await panel.handle(interaction.guild, id, input);
+  const result = await panel.handle(interaction.guild, id, input, t);
 
   if (result.error) return sendError(interaction, result.error);
   // A popup has to be the first answer, so it's shown before anything is saved
-  if (result.modal) return handleModal(interaction, panel, result.page, result.modal);
+  if (result.modal) return handleModal(interaction, panel, result.page, result.modal, t);
 
   if (result.outdated) {
-    await interaction.update(await panel.render(interaction.guild, result.page));
+    await interaction.update(await panel.render(interaction.guild, t, result.page));
     await interaction.followUp({ ...createResponse(t('settings.outdated'), 'warning'), flags: [MessageFlags.IsComponentsV2, MessageFlags.Ephemeral] });
     return;
   }
@@ -47,7 +49,7 @@ export async function handleSettingsInteraction(interaction: ButtonInteraction |
   // Saving can wait behind other changes, like counting catching up, so defer to not run out of time to answer
   await interaction.deferUpdate();
   await result.save?.();
-  await interaction.editReply(await panel.render(interaction.guild, result.page));
+  await interaction.editReply(await panel.render(interaction.guild, t, result.page));
 }
 
 /** Show a popup asking for a value, save what's submitted, and update the panel. */
@@ -56,6 +58,7 @@ async function handleModal(
   panel: SettingsPanel,
   page: string,
   modal: SettingsModal,
+  t: Translate,
 ) {
   // Unique per interaction, so submitting an older popup can't be mistaken for this one
   const modalId = `settings-modal:${interaction.id}`;
@@ -78,5 +81,5 @@ async function handleModal(
 
   await submit.deferUpdate();
   await result.save();
-  await submit.editReply(await panel.render(interaction.guild, page));
+  await submit.editReply(await panel.render(interaction.guild, t, page));
 }
