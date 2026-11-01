@@ -452,7 +452,6 @@
     }
   },
   "birthday": {
-    "none": "Du hast deinen Geburtstag noch nicht eingetragen. Trag ihn mit `/geburtstag einrichten` ein.",
     "announcement": {
       "message": "🎉 Alles Gute zum Geburtstag, {{user}}! 🎂🎈",
       "withAge": "🎉 Alles Gute zum {{age}}. Geburtstag, {{user}}! 🎂🎈"
@@ -480,39 +479,40 @@
       "nothing": "Hier gibt es nichts zurückzusetzen, Geburtstage wurden noch nicht eingerichtet.",
       "success": "Die Geburtstags-Einstellungen sind zurückgesetzt. Mit `/geburtstag-einstellungen einstellungen` kannst du sie neu einrichten."
     },
-    "setup": {
-      "already": "Du hast deinen Geburtstag schon eingetragen. Ändere ihn mit `/geburtstag bearbeiten` oder lösch ihn mit `/geburtstag löschen`.",
-      "invalidTimezone": "Die Zeitzone kenne ich nicht. Wähl eine aus der Liste, zum Beispiel `Europe/Berlin`.",
-      "invalidDate": "Das Datum kann ich nicht lesen. Nimm das Format JJJJ-MM-TT, zum Beispiel `2000-01-31`.",
-      "error": "Beim Speichern deines Geburtstags ist was schiefgelaufen. Versuch es gleich nochmal.",
-      "success": "Dein Geburtstag ist gespeichert! 🎂"
-    },
-    "edit": {
-      "none": "Du hast nichts geändert. Wähl mindestens eine Option aus.",
-      "error": "Beim Speichern ist was schiefgelaufen. Versuch es gleich nochmal.",
-      "success": "Deine Geburtstags-Einstellungen sind aktualisiert!"
-    },
-    "announceInGuild": {
-      "all": "Dein Geburtstag wird auf jedem Server angekündigt, der Geburtstage eingerichtet hat, hier gibt es also nichts auszuwählen.",
-      "noneLabel": "Keine Server",
-      "noneDescription": "Wähl das, wenn dein Geburtstag nirgends angekündigt werden soll.",
-      "selectPlaceholder": "Wähl die Server, auf denen dein Geburtstag angekündigt wird",
-      "selectDescription": "Wähl die Server, auf denen dein Geburtstag angekündigt werden soll. Er taucht nur auf Servern auf, die Geburtstagsankündigungen eingerichtet haben.",
-      "error": "Beim Speichern ist was schiefgelaufen. Versuch es gleich nochmal.",
-      "success": "Alles klar, deine Geburtstags-Server sind aktualisiert!"
-    },
-    "info": {
+    "panel": {
       "title": "### 🎂 Dein Geburtstag",
-      "date": "Geburtstag: {{date}}",
-      "timezone": "Zeitzone: {{timezone}}",
-      "showAge": "Alter anzeigen: {{state}}",
-      "announceInGuilds": "Auf allen Servern ankündigen: {{state}}",
-      "announceInSpecificGuilds": "Auf diesen Servern ankündigen:\n{{guilds}}",
-      "announceInSpecificGuildsNone": "Auf diesen Servern ankündigen: keine",
-      "guildEntry": "- {{guild}}"
-    },
-    "reset": {
-      "success": "Dein Geburtstag ist gelöscht."
+      "none": "Du hast deinen Geburtstag noch nicht eingetragen. Trag ihn unten ein, dann wird er auf den Servern angekündigt, die Geburtstage eingerichtet haben.",
+      "date": {
+        "label": "Geburtstag",
+        "description": "Dein Geburtstag, eingegeben wie 2000-05-01.",
+        "placeholder": "JJJJ-MM-TT, wie 2000-05-01",
+        "invalid": "Mit dem Datum kann ich nichts anfangen. Gib es wie `2000-05-01` ein, mit ganzem Jahr und nicht in der Zukunft."
+      },
+      "timezone": {
+        "label": "Zeitzone",
+        "description": "Damit dein Geburtstag um Mitternacht bei dir anfängt, wie Europe/Berlin.",
+        "invalid": "Die Zeitzone kenne ich nicht. Gib eine wie `Europe/Berlin` oder `America/New_York` ein."
+      },
+      "showAge": {
+        "label": "Alter zeigen",
+        "description": "Ob in der Ankündigung steht, wie alt du wirst."
+      },
+      "everywhere": {
+        "label": "Auf allen Servern ankündigen",
+        "description": "Wird auf jedem Server mit Geburtstagen angekündigt. Schalt es aus, um die Server auszuwählen."
+      },
+      "servers": {
+        "label": "Server",
+        "description": "Die Server, auf denen dein Geburtstag angekündigt wird.",
+        "placeholder": "Wähl die Server aus",
+        "none": "Wir haben noch keinen gemeinsamen Server."
+      },
+      "delete": "Geburtstag löschen",
+      "deleteConfirm": {
+        "question": "### Deinen Geburtstag löschen?\nEr wird dann nirgends mehr angekündigt.",
+        "confirm": "Löschen",
+        "cancel": "Behalten"
+      }
     }
   },
   "botinfo": {

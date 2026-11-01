@@ -209,7 +209,6 @@
     "outdated": "This doesn't work anymore, as it's from an older version. Run the command again to get a new one."
   },
   "birthday": {
-    "none": "You haven't set your birthday yet. Set it with `/birthday setup`.",
     "announcement": {
       "message": "🎉 Happy birthday, {{user}}! 🎂🎈",
       "withAge": "🎉 Happy birthday, {{user}}! {{age}} today! 🎂🎈"
@@ -237,39 +236,40 @@
       "nothing": "There's nothing to reset, birthdays haven't been set up here yet.",
       "success": "The birthday settings are reset. Use `/birthday-config settings` to set them up again."
     },
-    "setup": {
-      "already": "You already set your birthday. Change it with `/birthday edit`, or delete it with `/birthday reset`.",
-      "invalidTimezone": "That's not a timezone I know. Pick one from the list, like `Europe/Berlin`.",
-      "invalidDate": "That's not a date I can read. Use the format YYYY-MM-DD, like `2000-01-31`.",
-      "error": "Something went wrong saving your birthday. Try again in a bit.",
-      "success": "Your birthday is saved! 🎂"
-    },
-    "edit": {
-      "none": "You didn't change anything. Pick at least one option to change.",
-      "error": "Something went wrong saving that. Try again in a bit.",
-      "success": "Your birthday settings are updated!"
-    },
-    "announceInGuild": {
-      "all": "Your birthday gets announced in every server that has birthdays set up, so there's nothing to pick here.",
-      "noneLabel": "No servers",
-      "noneDescription": "Pick this if your birthday shouldn't be announced anywhere.",
-      "selectPlaceholder": "Pick the servers to announce your birthday in",
-      "selectDescription": "Pick the servers where your birthday should be announced. It only shows up in servers that have birthday announcements set up.",
-      "error": "Something went wrong saving that. Try again in a bit.",
-      "success": "Got it, your birthday servers are updated!"
-    },
-    "info": {
+    "panel": {
       "title": "### 🎂 Your Birthday",
-      "date": "Birthday: {{date}}",
-      "timezone": "Timezone: {{timezone}}",
-      "showAge": "Show age: {{state}}",
-      "announceInGuilds": "Announce in all servers: {{state}}",
-      "announceInSpecificGuilds": "Announce in these servers:\n{{guilds}}",
-      "announceInSpecificGuildsNone": "Announce in these servers: none",
-      "guildEntry": "- {{guild}}"
-    },
-    "reset": {
-      "success": "Your birthday is deleted."
+      "none": "You haven't set your birthday yet. Set it below, and it gets announced in the servers that have birthdays set up.",
+      "date": {
+        "label": "Birthday",
+        "description": "Your birthday, typed like 2000-05-01.",
+        "placeholder": "YYYY-MM-DD, like 2000-05-01",
+        "invalid": "That's not a date I can use. Type it like `2000-05-01`, with the full year, and not in the future."
+      },
+      "timezone": {
+        "label": "Timezone",
+        "description": "So your birthday starts at midnight where you are, like Europe/Berlin.",
+        "invalid": "That's not a timezone I know. Type one like `Europe/Berlin` or `America/New_York`."
+      },
+      "showAge": {
+        "label": "Show age",
+        "description": "Whether announcements say how old you turn."
+      },
+      "everywhere": {
+        "label": "Announce in all servers",
+        "description": "Announced in every server with birthdays set up. Turn it off to pick the servers."
+      },
+      "servers": {
+        "label": "Servers",
+        "description": "The servers your birthday gets announced in.",
+        "placeholder": "Pick the servers",
+        "none": "There's no server we share yet."
+      },
+      "delete": "Delete birthday",
+      "deleteConfirm": {
+        "question": "### Delete your birthday?\nIt won't be announced anymore, anywhere.",
+        "confirm": "Delete",
+        "cancel": "Keep it"
+      }
     }
   },
   "leveling": {

@@ -13,13 +13,14 @@ import { getTranslate, type Translate } from 'utility/i18next';
 import { birthdaySettings } from 'settings/birthday';
 import { countingSettings } from 'settings/counting';
 import { levelingSettings } from 'settings/leveling';
+import { myBirthdaySettings } from 'settings/myBirthday';
 import { getRoleMenuSettings, ROLE_MENU_PANEL_PREFIX } from 'settings/roleMenu';
 
 import { createResponse, sendError } from 'utility/response';
 import { parseSettingsCustomId, settingsContext, type SettingsInput, type SettingsModal, type SettingsPanel } from 'utility/settings';
 
 /** Every settings panel, so their buttons and selects can find them by ID. Role menus each have their own, found by their ID. */
-const panels: SettingsPanel[] = [countingSettings, levelingSettings, birthdaySettings];
+const panels: SettingsPanel[] = [countingSettings, levelingSettings, birthdaySettings, myBirthdaySettings];
 
 const MODAL_INPUT_ID = 'value';
 /** The most characters typed into a popup, unless it says otherwise. */

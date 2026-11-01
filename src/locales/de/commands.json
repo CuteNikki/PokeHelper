@@ -1,65 +1,7 @@
 {
   "birthday": {
     "name": "geburtstag",
-    "description": "Verwalte deinen Geburtstag und wo er angekündigt wird",
-    "options": {
-      "setup": {
-        "name": "einrichten",
-        "description": "Trag deinen Geburtstag ein",
-        "options": {
-          "date": {
-            "name": "datum",
-            "description": "Dein Geburtstag (JJJJ-MM-TT)"
-          },
-          "timezone": {
-            "name": "zeitzone",
-            "description": "Deine Zeitzone (z. B. Europe/Berlin). Ohne Angabe wird UTC genommen"
-          },
-          "show-age": {
-            "name": "alter-zeigen",
-            "description": "Ob dein Alter in der Ankündigung steht"
-          },
-          "announce-in-guilds-by-default": {
-            "name": "überall-ankündigen",
-            "description": "Ob dein Geburtstag standardmäßig auf Servern angekündigt wird"
-          }
-        }
-      },
-      "edit": {
-        "name": "bearbeiten",
-        "description": "Ändere deine Geburtstagseinstellungen",
-        "options": {
-          "date": {
-            "name": "datum",
-            "description": "Dein Geburtstag (JJJJ-MM-TT)"
-          },
-          "timezone": {
-            "name": "zeitzone",
-            "description": "Deine Zeitzone (z. B. Europe/Berlin). Ohne Angabe wird UTC genommen"
-          },
-          "show-age": {
-            "name": "alter-zeigen",
-            "description": "Ob dein Alter in der Ankündigung steht"
-          },
-          "announce-in-guilds-by-default": {
-            "name": "überall-ankündigen",
-            "description": "Ob dein Geburtstag standardmäßig auf ALLEN Servern angekündigt wird"
-          }
-        }
-      },
-      "announce-in-guilds": {
-        "name": "server-auswählen",
-        "description": "Wähl die Server aus, auf denen dein Geburtstag angekündigt wird"
-      },
-      "info": {
-        "name": "info",
-        "description": "Zeig, was zu deinem Geburtstag eingetragen ist"
-      },
-      "reset": {
-        "name": "löschen",
-        "description": "Lösch deinen Geburtstag"
-      }
-    }
+    "description": "Trag deinen Geburtstag ein und wähl, wo er angekündigt wird"
   },
   "birthday-config": {
     "name": "geburtstag-einstellungen",

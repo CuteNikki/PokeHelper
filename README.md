@@ -2,7 +2,7 @@
 
 _A Pokémon themed Discord bot_
 
-**Poke Helper** is a Discord bot made for a Pokémon community server. It runs the server's counting game, levels, birthdays and reaction roles, in English and German.
+**Poke Helper** is a Discord bot made for a Pokémon community server. It runs the server's counting game, levels, birthdays and role menus, in English and German.
 
 ## ✨ Features
 
@@ -25,7 +25,7 @@ _A Pokémon themed Discord bot_
 
 ### 🎂 Birthdays
 
-- Members set their birthday once, with their own timezone, and pick the servers it gets announced in
+- Members set their birthday in their own panel, also in DMs, with their timezone and the servers it gets announced in
 - Announcements and a birthday role for the day
 - February 29 birthdays are celebrated on February 28 in other years
 - Birthdays missed while the bot was offline are announced once it's back
@@ -49,7 +49,7 @@ _A Pokémon themed Discord bot_
 | `/counting`         | Current run, records, leaderboard, user stats and runs |
 | `/rank`             | Your rank card or someone else's                       |
 | `/leaderboard`      | The server's level leaderboard, all time or weekly     |
-| `/birthday`         | Set, edit, show or remove your birthday                |
+| `/birthday`         | Your birthday, timezone and where it gets announced    |
 | `/botinfo`          | Bot status, host stats and versions                    |
 | `/counting-config`  | Set up the counting game and change its settings       |
 | `/leveling-config`  | Change leveling settings, rewards and multipliers      |

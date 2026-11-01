@@ -1,49 +1,77 @@
 import type { Guild, PermissionsString } from 'discord.js';
 
-import { deleteGuildBirthdayConfiguration } from 'database/birthday';
+import { deleteGuildBirthdayConfiguration, deleteUserBirthday } from 'database/birthday';
 import { getCounting, resetCounting } from 'database/counting';
 import { deleteGuildLevelingConfiguration } from 'database/leveling';
+
+import { myBirthdaySettings } from 'settings/myBirthday';
 
 import { runCountingTask } from 'utility/countingGame';
 import type { Translate } from 'utility/i18next';
 import { createResponse, type ResponsePayload } from 'utility/response';
+import type { SettingsContext } from 'utility/settings';
 
 /** What happens when a confirmation is answered. */
 interface Confirmation {
-  /** Needed to confirm, the same the command that asked needs. */
+  /** Whose it is: a server's, which needs the permissions there, or the user's own, which they can confirm anywhere, also in DMs. */
+  scope: 'guild' | 'user';
+  /** Needed to confirm server actions, the same the command that asked needs. */
   permissions: PermissionsString[];
-  /** Shown when cancelled. */
-  cancelled: (t: Translate) => string;
+  /** What to show when cancelled. */
+  cancel: (context: SettingsContext, t: Translate) => Promise<ResponsePayload>;
   /** Do it, and return what to show afterwards. */
-  run: (guild: Guild, t: Translate) => Promise<ResponsePayload>;
+  run: (context: SettingsContext, t: Translate) => Promise<ResponsePayload>;
 }
+
+/** The server of a server action, which are only confirmed in servers. */
+function guildOf(context: SettingsContext): Guild {
+  if (!context.guild) throw new Error('A server action was confirmed outside a server');
+  return context.guild;
+}
+
+const nothingReset = (key: 'counting' | 'leveling' | 'birthday') => (_context: SettingsContext, t: Translate) =>
+  Promise.resolve(createResponse(t(`${key}.resetConfiguration.cancelled`), 'info'));
 
 /** Every action a confirmation can ask about, by the name used in the custom IDs of its buttons. */
 export const confirmations: Record<string, Confirmation> = {
   'counting-reset': {
+    scope: 'guild',
     permissions: ['ManageChannels'],
-    cancelled: (t) => t('counting.resetConfiguration.cancelled'),
-    async run(guild, t) {
-      await runCountingTask(guild.id, async () => {
-        if (await getCounting(guild.id)) await resetCounting(guild.id);
+    cancel: nothingReset('counting'),
+    async run(context, t) {
+      const guildId = guildOf(context).id;
+      await runCountingTask(guildId, async () => {
+        if (await getCounting(guildId)) await resetCounting(guildId);
       });
       return createResponse(t('counting.resetConfiguration.success'), 'warning');
     },
   },
   'leveling-reset': {
+    scope: 'guild',
     permissions: ['ManageGuild'],
-    cancelled: (t) => t('leveling.resetConfiguration.cancelled'),
-    async run(guild, t) {
-      await deleteGuildLevelingConfiguration(guild.id);
+    cancel: nothingReset('leveling'),
+    async run(context, t) {
+      await deleteGuildLevelingConfiguration(guildOf(context).id);
       return createResponse(t('leveling.resetConfiguration.success'), 'warning');
     },
   },
   'birthday-reset': {
+    scope: 'guild',
     permissions: ['ManageGuild'],
-    cancelled: (t) => t('birthday.resetConfiguration.cancelled'),
-    async run(guild, t) {
-      await deleteGuildBirthdayConfiguration(guild.id);
+    cancel: nothingReset('birthday'),
+    async run(context, t) {
+      await deleteGuildBirthdayConfiguration(guildOf(context).id);
       return createResponse(t('birthday.resetConfiguration.success'), 'warning');
+    },
+  },
+  // Your own birthday, from its panel, which is shown again either way
+  'birthday-delete': {
+    scope: 'user',
+    permissions: [],
+    cancel: (context, t) => myBirthdaySettings.render(context, t),
+    async run(context, t) {
+      await deleteUserBirthday(context.userId);
+      return myBirthdaySettings.render(context, t);
     },
   },
 };
