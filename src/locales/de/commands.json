@@ -86,6 +86,10 @@
           "channel": {
             "name": "kanal",
             "description": "Der Kanal, in dem das Menü gepostet wird"
+          },
+          "name": {
+            "name": "name",
+            "description": "Wie das Menü in deiner Liste der Menüs heißt, nur für Admins sichtbar"
           }
         }
       },

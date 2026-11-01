@@ -33,18 +33,25 @@ export const ROLE_MENU_CUSTOM_ID = {
   back: 'rolemenu:back:',
 } as const;
 
+export const MAX_NAME_LENGTH = 50;
 const MAX_TITLE_LENGTH = 100;
 const MAX_DESCRIPTION_LENGTH = 1000;
+/** How many roles name a menu that has no name or title. */
+const ROLES_IN_NAME = 3;
 /** Long enough for a server emoji typed in full, like `<a:name:id>`. */
 const MAX_EMOJI_LENGTH = 64;
 const SINGLE = 'single';
 const MULTIPLE = 'multiple';
 
-/** How a menu is called in lists, by its title or else by its channel. */
+/** How a menu is called for admins: by its name, or for menus from before names, by its title or its first roles. */
 export function roleMenuName(menu: RoleMenu, guild: Guild, t: Translate): string {
+  if (menu.name) return menu.name;
   if (menu.title) return menu.title;
-  const channel = guild.channels.cache.get(menu.channelId)?.name;
-  return t('roleMenu.list.unnamed', { channel: channel ? `#${channel}` : t('roleMenu.list.unknownChannel') });
+
+  const roles = menu.roles.map((role) => guild.roles.cache.get(role.roleId)?.name).filter((name) => name !== undefined);
+  if (roles.length === 0) return t('roleMenu.list.unnamed');
+  const shown = roles.slice(0, ROLES_IN_NAME).join(', ');
+  return roles.length > ROLES_IN_NAME ? t('roleMenu.list.moreRoles', { roles: shown, count: roles.length - ROLES_IN_NAME }) : shown;
 }
 
 /** Where the menu is posted, or why it isn't. */
@@ -75,7 +82,7 @@ export function getRoleMenuSettings(menuId: string): SettingsPanel {
       return menu?.guildId === guildId ? menu : null;
     },
     notConfigured: (t) => t('roleMenu.notFound'),
-    header: (menu, guild, t) => status(menu, guild, t),
+    header: (menu, guild, t) => `**${roleMenuName(menu, guild, t)}**\n${status(menu, guild, t)}`,
     footer: (menu, t) => [
       new ButtonBuilder()
         .setCustomId(`${ROLE_MENU_CUSTOM_ID.repost}${menu.id}`)
@@ -135,6 +142,16 @@ export function getRoleMenuSettings(menuId: string): SettingsPanel {
         defaultText: (t) => t('roleMenu.message.description'),
         get: (menu) => menu.description,
         set: (_guildId, description) => updateRoleMenu(menuId, { description }),
+      },
+      {
+        type: 'text',
+        key: 'name',
+        category: 'general',
+        maxLength: MAX_NAME_LENGTH,
+        label: (t) => t('roleMenu.settings.name.label'),
+        description: (t) => t('roleMenu.settings.name.description'),
+        get: (menu) => menu.name,
+        set: (_guildId, name) => updateRoleMenu(menuId, { name }),
       },
       {
         type: 'channel',
@@ -220,7 +237,12 @@ export async function renderRoleMenuList(guild: Guild, t: Translate): Promise<Re
             menus.map((menu) =>
               new StringSelectMenuOptionBuilder()
                 .setLabel(roleMenuName(menu, guild, t).slice(0, 100))
-                .setDescription(t('roleMenu.list.roles', { count: menu.roles.length }))
+                .setDescription(
+                  t('roleMenu.list.optionDescription', {
+                    channel: `#${guild.channels.cache.get(menu.channelId)?.name ?? '?'}`,
+                    roles: t('roleMenu.list.roles', { count: menu.roles.length }),
+                  }).slice(0, 100),
+                )
                 .setValue(menu.id),
             ),
           ),

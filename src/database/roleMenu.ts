@@ -16,8 +16,8 @@ export const getRoleMenus = async (guildId: string) =>
 
 export const countRoleMenus = async (guildId: string) => prisma.reactionRoleMenu.count({ where: { guildId } });
 
-export const createRoleMenu = async (guildId: string, channelId: string) =>
-  prisma.reactionRoleMenu.create({ data: { guildId, channelId }, include: withRoles });
+export const createRoleMenu = async (guildId: string, channelId: string, name: string) =>
+  prisma.reactionRoleMenu.create({ data: { guildId, channelId, name }, include: withRoles });
 
 export const updateRoleMenu = async (id: string, data: Partial<Omit<ReactionRoleMenu, 'id' | 'guildId'>>) =>
   prisma.reactionRoleMenu.update({ where: { id }, data, include: withRoles });

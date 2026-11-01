@@ -547,8 +547,9 @@
       "roles_one": "{{count}} role",
       "roles_other": "{{count}} roles",
       "placeholder": "Pick a menu to change it",
-      "unnamed": "Menu in {{channel}}",
-      "unknownChannel": "a deleted channel"
+      "unnamed": "Unnamed menu",
+      "moreRoles": "{{roles}} +{{count}}",
+      "optionDescription": "{{channel}} · {{roles}}"
     },
     "settings": {
       "title": "### 🎭 Role Menu",
@@ -578,6 +579,10 @@
       "messageDescription": {
         "label": "Description",
         "description": "The text under the heading. You can use Discord formatting, like **bold** or links."
+      },
+      "name": {
+        "label": "Name",
+        "description": "What the menu is called in your list of menus. Only admins see it."
       },
       "channel": {
         "label": "Channel",

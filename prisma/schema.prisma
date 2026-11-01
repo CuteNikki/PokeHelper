@@ -173,6 +173,8 @@ model ReactionRoleMenu {
   channelId       String
   // Null until the menu has roles and its message is posted
   messageId       String?
+  // Only shown to admins, to tell menus apart. Menus from before names fall back to their title or roles
+  name            String?
   // Null to use the default text
   title           String?
   description     String?

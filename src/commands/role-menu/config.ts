@@ -12,7 +12,7 @@ import { Command } from 'classes/base/command';
 
 import { countRoleMenus, createRoleMenu, getRoleMenu, getRoleMenus } from 'database/roleMenu';
 
-import { getRoleMenuSettings, renderRoleMenuList, roleMenuName } from 'settings/roleMenu';
+import { getRoleMenuSettings, MAX_NAME_LENGTH, renderRoleMenuList, roleMenuName } from 'settings/roleMenu';
 
 import { getTranslate } from 'utility/i18next';
 import { createResponse, sendResponse } from 'utility/response';
@@ -38,6 +38,13 @@ export default new Command({
             .setName('channel')
             .setDescription('The channel the menu is posted in')
             .addChannelTypes(ChannelType.GuildText, ChannelType.GuildAnnouncement)
+            .setRequired(true),
+        )
+        .addStringOption((option) =>
+          option
+            .setName('name')
+            .setDescription('What the menu is called in your list of menus, only shown to admins')
+            .setMaxLength(MAX_NAME_LENGTH)
             .setRequired(true),
         ),
     )
@@ -91,7 +98,7 @@ async function handleCreate(interaction: ChatInputCommandInteraction<'cached'>):
     );
   }
 
-  const menu = await createRoleMenu(interaction.guildId, channel.id);
+  const menu = await createRoleMenu(interaction.guildId, channel.id, interaction.options.getString('name', true).trim());
   return sendResponse(interaction, await getRoleMenuSettings(menu.id).render(interaction.guild, t), { ephemeral: true });
 }
 

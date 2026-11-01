@@ -421,8 +421,9 @@
       "roles_one": "{{count}} Rolle",
       "roles_other": "{{count}} Rollen",
       "placeholder": "Wähl ein Menü aus, um es zu ändern",
-      "unnamed": "Menü in {{channel}}",
-      "unknownChannel": "einem gelöschten Kanal"
+      "unnamed": "Menü ohne Namen",
+      "moreRoles": "{{roles}} +{{count}}",
+      "optionDescription": "{{channel}} · {{roles}}"
     },
     "settings": {
       "title": "### 🎭 Rollenmenü",
@@ -452,6 +453,10 @@
       "messageDescription": {
         "label": "Beschreibung",
         "description": "Der Text unter der Überschrift. Du kannst Discord-Formatierung benutzen, wie **fett** oder Links."
+      },
+      "name": {
+        "label": "Name",
+        "description": "Wie das Menü in deiner Liste der Menüs heißt. Nur Admins sehen ihn."
       },
       "channel": {
         "label": "Kanal",
