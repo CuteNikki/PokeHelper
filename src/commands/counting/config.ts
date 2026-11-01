@@ -93,7 +93,7 @@ async function handleSetup(interaction: ChatInputCommandInteraction<'cached'>): 
 
   // Show the settings right away, so the rest can be configured without another command
   const success = createResponse(t('counting.setup.success', { channel: channelMention(channel.id) }), 'success');
-  const settings = await countingSettings.render(interaction.guildId);
+  const settings = await countingSettings.render(interaction.guild);
   return interaction.editReply({ ...settings, components: [...(success.components ?? []), ...(settings.components ?? [])] });
 }
 
@@ -103,7 +103,7 @@ async function handleSetup(interaction: ChatInputCommandInteraction<'cached'>): 
  * @returns {Promise<unknown>} A promise that resolves when the panel is shown.
  */
 async function handleSettings(interaction: ChatInputCommandInteraction<'cached'>): Promise<unknown> {
-  return sendResponse(interaction, await countingSettings.render(interaction.guildId), { ephemeral: true });
+  return sendResponse(interaction, await countingSettings.render(interaction.guild), { ephemeral: true });
 }
 
 /**

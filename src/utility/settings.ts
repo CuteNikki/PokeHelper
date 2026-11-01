@@ -13,6 +13,7 @@ import {
   SeparatorSpacingSize,
   TextDisplayBuilder,
   type ChannelType,
+  type Guild,
   type PermissionsString,
 } from 'discord.js';
 import { t } from 'i18next';
@@ -65,8 +66,8 @@ export interface SettingsPanelDefinition<C> {
 export interface SettingsPanel {
   id: string;
   permissions: PermissionsString[];
-  /** Render the panel with the guild's current settings. */
-  render: (guildId: string) => Promise<ResponsePayload>;
+  /** Render the panel with the guild's current settings. The guild is needed to check that saved channels and roles still exist. */
+  render: (guild: Guild) => Promise<ResponsePayload>;
   /** Handle a button press: toggles a boolean or moves a choice to its next option. */
   press: (guildId: string, key: string) => Promise<void>;
   /** Handle a channel or role selection. */
@@ -99,14 +100,15 @@ function formatValue<C>(setting: Setting<C>, value: boolean | string | null): st
   }
 }
 
-function describe<C>(setting: Setting<C>): string {
+function describe<C>(setting: Setting<C>, warning?: string): string {
   const lines = [`**${setting.label()}**`, `-# ${setting.description()}`];
   if (setting.defaultValue !== undefined) lines.push(`-# ${t('settings.default', { value: formatValue(setting, setting.defaultValue) })}`);
+  if (warning) lines.push(`⚠️ ${warning}`);
   return lines.join('\n');
 }
 
 /** Add one setting to the panel: a section with a button for booleans and choices, or text with a select below for channels and roles. */
-function addSetting<C>(container: ContainerBuilder, panelId: string, setting: Setting<C>, config: C) {
+function addSetting<C>(container: ContainerBuilder, guild: Guild, panelId: string, setting: Setting<C>, config: C) {
   const id = customId(panelId, setting.key);
 
   switch (setting.type) {
@@ -140,9 +142,11 @@ function addSetting<C>(container: ContainerBuilder, panelId: string, setting: Se
         .setPlaceholder(t('settings.channel.placeholder'))
         .setMinValues(setting.required ? 1 : 0)
         .setMaxValues(1);
-      if (value) select.setDefaultChannels(value);
+      // Only preselect a channel that still exists, so a deleted one doesn't break the panel that's needed to replace it
+      const exists = value !== null && guild.channels.cache.has(value);
+      if (exists) select.setDefaultChannels(value);
       container
-        .addTextDisplayComponents(new TextDisplayBuilder().setContent(describe(setting)))
+        .addTextDisplayComponents(new TextDisplayBuilder().setContent(describe(setting, value && !exists ? t('settings.channel.missing') : undefined)))
         .addActionRowComponents(new ActionRowBuilder<ChannelSelectMenuBuilder>().addComponents(select));
       return;
     }
@@ -153,9 +157,11 @@ function addSetting<C>(container: ContainerBuilder, panelId: string, setting: Se
         .setPlaceholder(t('settings.role.placeholder'))
         .setMinValues(setting.required ? 1 : 0)
         .setMaxValues(1);
-      if (value) select.setDefaultRoles(value);
+      // Only preselect a role that still exists, like with channels
+      const exists = value !== null && guild.roles.cache.has(value);
+      if (exists) select.setDefaultRoles(value);
       container
-        .addTextDisplayComponents(new TextDisplayBuilder().setContent(describe(setting)))
+        .addTextDisplayComponents(new TextDisplayBuilder().setContent(describe(setting, value && !exists ? t('settings.role.missing') : undefined)))
         .addActionRowComponents(new ActionRowBuilder<RoleSelectMenuBuilder>().addComponents(select));
       return;
     }
@@ -176,8 +182,8 @@ export function createSettingsPanel<C>(definition: SettingsPanelDefinition<C>): 
     id: definition.id,
     permissions: definition.permissions,
 
-    async render(guildId) {
-      const config = await definition.load(guildId);
+    async render(guild) {
+      const config = await definition.load(guild.id);
       if (!config) return createResponse(definition.notConfigured(), 'error');
 
       const container = new ContainerBuilder()
@@ -187,7 +193,7 @@ export function createSettingsPanel<C>(definition: SettingsPanelDefinition<C>): 
 
       definition.settings.forEach((setting, index) => {
         if (index > 0) container.addSeparatorComponents(new SeparatorBuilder().setDivider(false).setSpacing(SeparatorSpacingSize.Small));
-        addSetting(container, definition.id, setting, config);
+        addSetting(container, guild, definition.id, setting, config);
       });
 
       return { components: [container], flags: [MessageFlags.IsComponentsV2] };

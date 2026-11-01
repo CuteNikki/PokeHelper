@@ -32,5 +32,5 @@ export async function handleSettingsInteraction<I extends ButtonInteraction | An
 
   await interaction.deferUpdate();
   await apply(panel, interaction.guildId, parsed.key);
-  await interaction.editReply(await panel.render(interaction.guildId));
+  await interaction.editReply(await panel.render(interaction.guild));
 }

@@ -58,10 +58,12 @@
     "default": "Default: {{value}}",
     "none": "None",
     "channel": {
-      "placeholder": "Select a channel"
+      "placeholder": "Select a channel",
+      "missing": "The saved channel no longer exists, please select a new one."
     },
     "role": {
-      "placeholder": "Select a role"
+      "placeholder": "Select a role",
+      "missing": "The saved role no longer exists, please select a new one."
     }
   },
   "state": {

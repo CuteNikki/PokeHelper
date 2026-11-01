@@ -1,5 +1,5 @@
 import { beforeAll, describe, expect, test } from 'bun:test';
-import { ChannelType, ComponentType, type APIContainerComponent } from 'discord.js';
+import { ChannelType, Collection, ComponentType, SelectMenuDefaultValueType, type APIContainerComponent, type Guild } from 'discord.js';
 
 import { initI18Next } from 'utility/i18next';
 import { createSettingsPanel, parseSettingsCustomId } from 'utility/settings';
@@ -67,10 +67,28 @@ function createTestPanel(initial: Config | null) {
   return { panel, getConfig: () => config };
 }
 
+/** Just enough of a guild for the panel to check which channels and roles exist. */
+const fakeGuild = ({ channelIds = [] as string[], roleIds = [] as string[] } = {}) =>
+  ({
+    id: 'guild',
+    channels: { cache: new Collection(channelIds.map((id) => [id, {}])) },
+    roles: { cache: new Collection(roleIds.map((id) => [id, {}])) },
+  }) as unknown as Guild;
+
 /** Render to JSON, which is where discord.js validates the components. */
-async function renderJson(panel: ReturnType<typeof createTestPanel>['panel']) {
-  const payload = await panel.render('guild');
+async function renderJson(panel: ReturnType<typeof createTestPanel>['panel'], guild = fakeGuild()) {
+  const payload = await panel.render(guild);
   return (payload.components ?? []).map((component) => ('toJSON' in component ? component.toJSON() : component)) as APIContainerComponent[];
+}
+
+/** The default values of the select with the given custom ID. */
+function defaultValuesOf(container: APIContainerComponent, id: string) {
+  for (const component of container.components) {
+    if (component.type !== ComponentType.ActionRow) continue;
+    const select = component.components.find((child) => 'custom_id' in child && child.custom_id === id);
+    if (select && 'default_values' in select) return select.default_values ?? [];
+  }
+  return [];
 }
 
 describe('settings panel', () => {
@@ -82,6 +100,26 @@ describe('settings panel', () => {
     const types = container!.components.map((component) => component.type);
     expect(types.filter((type) => type === ComponentType.Section)).toHaveLength(2);
     expect(types.filter((type) => type === ComponentType.ActionRow)).toHaveLength(2);
+  });
+
+  test('preselects saved channels and roles that still exist', async () => {
+    const { panel } = createTestPanel({ enabled: true, mode: 'image', channelId: '123', roleId: '456' });
+    const [container] = await renderJson(panel, fakeGuild({ channelIds: ['123'], roleIds: ['456'] }));
+
+    expect(defaultValuesOf(container!, 'settings:test:channel')).toEqual([{ id: '123', type: SelectMenuDefaultValueType.Channel }]);
+    expect(defaultValuesOf(container!, 'settings:test:role')).toEqual([{ id: '456', type: SelectMenuDefaultValueType.Role }]);
+    expect(JSON.stringify(container)).not.toContain('⚠️');
+  });
+
+  test('does not preselect deleted channels and roles, and warns about them instead', async () => {
+    const { panel } = createTestPanel({ enabled: true, mode: 'image', channelId: '123', roleId: '456' });
+    const [container] = await renderJson(panel, fakeGuild());
+
+    expect(defaultValuesOf(container!, 'settings:test:channel')).toEqual([]);
+    expect(defaultValuesOf(container!, 'settings:test:role')).toEqual([]);
+    const text = JSON.stringify(container);
+    expect(text).toContain('The saved channel no longer exists');
+    expect(text).toContain('The saved role no longer exists');
   });
 
   test('shows a message instead when the feature is not set up', async () => {
