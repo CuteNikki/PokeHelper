@@ -1,5 +1,6 @@
 import {
   DiscordAPIError,
+  MessageType,
   RESTJSONErrorCodes,
   SnowflakeUtil,
   userMention,
@@ -46,6 +47,13 @@ const syncedGuilds = new Set<string>();
  * Changes to the configuration should go through here too, so they can't interleave with a message being checked.
  */
 export const runCountingTask = <T>(guildId: string, task: () => Promise<T>) => queue.run(guildId, task);
+
+/**
+ * Whether a message was sent by a member, and not by a bot or by Discord itself.
+ * System messages, like "X pinned a message" or join messages when the counting channel is also the system channel,
+ * have a member as author but aren't something they typed, so they mustn't count as wrong numbers.
+ */
+export const isPlayerMessage = (message: Message) => !message.author.bot && (message.type === MessageType.Default || message.type === MessageType.Reply);
 
 const toCountMessage = (message: Message): CountMessage => ({
   id: message.id,
@@ -192,7 +200,7 @@ async function syncCounting(client: Client, counting: GuildCounting): Promise<Gu
   const replay = replayCounts(
     toCountingState(counting),
     counting,
-    messages.map((message) => ({ ...toCountMessage(message), isBot: message.author.bot })),
+    messages.map((message) => ({ ...toCountMessage(message), isBot: !isPlayerMessage(message) })),
   );
   const { counted, resets } = replay;
   let { state } = replay;

@@ -4,14 +4,14 @@ import { Event } from 'classes/base/event';
 
 import { getCounting } from 'database/counting';
 
-import { handleCountingMessage, runCountingTask } from 'utility/countingGame';
+import { handleCountingMessage, isPlayerMessage, runCountingTask } from 'utility/countingGame';
 
 export default new Event({
   name: Events.MessageCreate,
   once: false,
   async execute(client, message) {
-    // Ignore bot messages and non-guild messages
-    if (message.author.bot || !message.inGuild()) return;
+    // Only messages members typed themselves count, not bot or system messages
+    if (!isPlayerMessage(message) || !message.inGuild()) return;
 
     // Filter out other channels before queueing, so only counting messages wait on each other
     const counting = await getCounting(message.guildId);
