@@ -608,23 +608,37 @@
     }
   },
   "botinfo": {
-    "title": "### {{username}} Status",
+    "author": "{{username}} Status",
     "na": "N/A",
     "general": {
-      "title": "**⚙️ General**",
-      "about": "> **Developer:** {{developer}} · **Created:** {{created}}",
-      "reach": "> **Servers:** {{servers}} · **Users:** {{users}}"
+      "title": "⚙️ General",
+      "developer": "> **Developer:** {{developer}}",
+      "created": "> **Created:** {{created}}",
+      "servers": "> **Servers:** {{servers}}",
+      "users": "> **Users:** {{users}}"
     },
-    "status": {
-      "title": "**📊 Status**",
-      "network": "> **Ping:** {{ping}} ms · **Database:** {{latency}} ms",
-      "uptime": "> **Uptime:** {{process}} (bot) · {{system}} (system)",
-      "memory": "> **Memory:** {{process}} MB (bot) · {{used}}/{{total}} GB, {{percent}}% (system)"
+    "network": {
+      "title": "⚡ Network",
+      "gateway": "> **Gateway:** {{ping}}",
+      "database": "> **Database:** {{latency}} ms"
+    },
+    "uptime": {
+      "title": "⏱️ Uptime",
+      "process": "> **Process:** {{time}}",
+      "system": "> **System:** {{time}}"
+    },
+    "memory": {
+      "title": "💾 Memory",
+      "process": "> **Process:** {{mb}} MB",
+      "system": "> **System:** {{used}}/{{total}}GB ({{percent}}%)"
     },
     "host": {
-      "title": "**🖥️ Host**",
-      "cpu": "> **CPU:** {{name}} ({{cores}} cores) · {{load}}% load",
-      "runtime": "> **Runtime:** {{runtime}} on {{os}} · Node {{node}} · discord.js v{{discordJs}}"
+      "title": "🖥️ Host Environment",
+      "cpu": "> **CPU:** {{name}} ({{cores}} cores)",
+      "cpuLoad": "> **CPU Load:** {{percent}}% ({{loadAvg}} load avg)",
+      "runtime": "> **Runtime:** {{runtime}} on {{osType}} ({{arch}})",
+      "nodeApi": "> **Node API:** {{version}}",
+      "discordJs": "> **Discord.JS:** v{{version}}"
     }
   },
   "locale": "en-US",
