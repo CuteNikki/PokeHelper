@@ -336,9 +336,9 @@
   },
   "leveling": {
     "levelUp": {
-      "content": "{{user}}",
-      "body": "### {{username}} has leveled up!\nCongratulations, you are now **level {{level}}**.",
-      "footer": "{{guild}}"
+      "body": "### Level up! 🎉\n{{user}} just reached **level {{level}}**!",
+      "rewards_one": "You got the {{roles}} role for it.",
+      "rewards_other": "You got the {{roles}} roles for it."
     },
     "weeklyReset": {
       "message": "### Weekly XP Reset\nAll weekly XP has been reset to 0 and the weekly leaderboard has been cleared.\nCongratulations to {{winner}} for topping the weekly XP leaderboard with {{xp}} XP!\n\nHere are the top weekly XP earners for the past week:"

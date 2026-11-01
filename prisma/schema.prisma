@@ -211,6 +211,7 @@ model GuildLeveling {
   enabled           Boolean               @default(false)
   channelId         String?
   rewards           GuildLevelingReward[]
+  multipliers       LevelingMultiplier[]
   weeklyReward      String? // roleId of the weekly reward
   weeklyLastResetAt DateTime?
   weeklyLastWinner  String? // userId of the last weekly winner
@@ -296,4 +297,23 @@ model LeaderboardState {
 enum SortOrder {
   asc
   desc
+}
+
+// Multiplies the XP for messages in a channel or category, or from members with a role. Only the highest one that applies counts
+model LevelingMultiplier {
+  guildId       String
+  guildLeveling GuildLeveling    @relation(fields: [guildId], references: [guildId], onDelete: Cascade)
+  targetId      String // the channel, category or role
+  type          MultiplierTarget
+  multiplier    Float
+
+  // Timestamps
+  createdAt DateTime @default(now())
+
+  @@id([guildId, targetId])
+}
+
+enum MultiplierTarget {
+  channel
+  role
 }

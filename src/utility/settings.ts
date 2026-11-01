@@ -22,6 +22,7 @@ import type { Translate } from 'utility/i18next';
 
 import type { ResponsePayload } from 'utility/response';
 import { createResponse } from 'utility/response';
+import { getRoleProblem } from 'utility/roles';
 import { ThemeColors } from 'utility/theme';
 
 /**
@@ -242,14 +243,8 @@ export const formatPermissions = (permissions: PermissionsString[], t: Translate
  * Unknown when the bot's member or the role isn't cached, in which case null is returned.
  */
 export function unassignableReason(guild: Guild, roleId: string, t: Translate): string | null {
-  const role = guild.roles.cache.get(roleId);
-  const me = guild.members?.me;
-  if (!role || !me) return null;
-  if (role.id === guild.id) return t('settings.role.everyone');
-  if (role.managed) return t('settings.role.managed');
-  if (!me.permissions.has('ManageRoles')) return t('settings.role.noManageRoles');
-  if (role.position >= me.roles.highest.position) return t('settings.role.tooHigh');
-  return null;
+  const problem = getRoleProblem(guild, roleId);
+  return problem ? t(`settings.role.${problem}`) : null;
 }
 
 /** How a value is shown as a default, or in a choice button. */
