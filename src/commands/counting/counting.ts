@@ -88,16 +88,19 @@ async function buildInfo(counting: GuildCounting, t: Translate): Promise<string[
     lines.push(t('counting.info.currentRun', { run: await getRunNumber(counting.guildId, run.id) }), ...(await describeCurrentRun(counting, run, t)));
   }
 
-  if (counting.highestNumber > 0 && counting.highestNumberByUserId && counting.highestNumberAt && counting.highestNumberMessageId) {
+  if (counting.highestNumber > 0 && counting.highestNumberByUserId && counting.highestNumberAt) {
+    const highest = {
+      number: formatNumber(counting.highestNumber),
+      user: userMention(counting.highestNumberByUserId),
+      time: time(counting.highestNumberAt, TimestampStyles.ShortDate),
+    };
     lines.push(
       '',
       t('counting.info.records'),
-      t('counting.info.highest', {
-        number: formatNumber(counting.highestNumber),
-        user: userMention(counting.highestNumberByUserId),
-        time: time(counting.highestNumberAt, TimestampStyles.ShortDate),
-        link: messageLink(counting.channelId, counting.highestNumberMessageId, counting.guildId),
-      }),
+      // Without a link once the game moved to another channel, as the message is in the old one
+      counting.highestNumberMessageId
+        ? t('counting.info.highest', { ...highest, link: messageLink(counting.channelId, counting.highestNumberMessageId, counting.guildId) })
+        : t('counting.info.highestNoLink', highest),
       t('counting.info.runs', { count: runCount }),
     );
   }

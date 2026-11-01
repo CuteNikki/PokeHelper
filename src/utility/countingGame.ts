@@ -39,6 +39,8 @@ const LIFE_LOST_DURATION = 6_000;
 
 /** Everything that reads or changes a guild's counting game runs through here, one task at a time per guild. */
 const queue = new KeyedQueue();
+/** How many resets the catch-up summary lists. */
+const MAX_RESETS_LISTED = 5;
 /** Guilds whose counting channel was caught up since the bot last connected. */
 const syncedGuilds = new Set<string>();
 
@@ -228,7 +230,9 @@ async function syncCounting(client: Client, counting: GuildCounting): Promise<Gu
       ...(invalid.length > 0 ? [t('counting.sync.removed', { count: invalid.length })] : []),
       ...(replay.livesLost > 0 ? [t('counting.sync.livesLost', { count: replay.livesLost })] : []),
       ...(replay.livesGained > 0 ? [t('counting.sync.livesGained', { count: replay.livesGained })] : []),
-      ...resets.map((reset) => t('counting.sync.reset', { number: reset.number, user: userMention(reset.userId) })),
+      // Only the first few, so a burst of wrong numbers can't make the summary longer than a message can be
+      ...resets.slice(0, MAX_RESETS_LISTED).map((reset) => t('counting.sync.reset', { number: reset.number, user: userMention(reset.userId) })),
+      ...(resets.length > MAX_RESETS_LISTED ? [t('counting.sync.moreResets', { count: resets.length - MAX_RESETS_LISTED })] : []),
       t('counting.sync.next', { number: state.lastNumber + 1 }),
       ...(counting.maxLives !== null && counting.maxLives > 1 ? [t('counting.sync.lives', { lives: formatLives(state.livesLeft, counting.maxLives) })] : []),
     ];
@@ -263,7 +267,7 @@ export async function handleChangedCount(message: Message | PartialMessage, edit
   if (!message.guildId) return;
 
   const counting = await getCounting(message.guildId);
-  if (!counting || counting.lastNumberMessageId !== message.id || !counting.lastNumberByUserId) return;
+  if (!counting || message.channelId !== counting.channelId || counting.lastNumberMessageId !== message.id || !counting.lastNumberByUserId) return;
 
   if (edited) {
     const current = message.partial ? await message.fetch().catch(() => null) : message;

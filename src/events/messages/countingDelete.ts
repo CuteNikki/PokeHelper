@@ -2,6 +2,8 @@ import { Events } from 'discord.js';
 
 import { Event } from 'classes/base/event';
 
+import { getCounting } from 'database/counting';
+
 import { handleChangedCount, runCountingTask } from 'utility/countingGame';
 
 export default new Event({
@@ -10,6 +12,10 @@ export default new Event({
   async execute(_, message) {
     const guildId = message.guildId;
     if (!guildId) return;
+
+    // Filtered before queueing, so edits and deletes elsewhere, like link previews loading, don't wait behind the counting game
+    const counting = await getCounting(guildId);
+    if (!counting || message.channelId !== counting.channelId) return;
 
     await runCountingTask(guildId, () => handleChangedCount(message, false));
   },

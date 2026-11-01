@@ -36,7 +36,13 @@ export const countingSettings = createSettingsPanel<GuildCounting>({
           const counting = await getCounting(guildId);
           if (!counting || !channelId || counting.channelId === channelId) return;
           // In a new channel, start checking from now, so the messages already there are left alone
-          await updateCounting(guildId, { channelId, lastCheckedMessageId: SnowflakeUtil.generate().toString() });
+          // The jump links point at messages in the old channel, so they're dropped
+          await updateCounting(guildId, {
+            channelId,
+            lastCheckedMessageId: SnowflakeUtil.generate().toString(),
+            lastNumberMessageId: null,
+            highestNumberMessageId: null,
+          });
         }),
     },
     {

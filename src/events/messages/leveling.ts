@@ -26,6 +26,13 @@ export default new Event({
     if (message.author.bot || message.system || !message.inGuild() || !message.member) return;
     const member = message.member;
 
+    // Checked before loading the settings, so chatting a lot doesn't load them with every message.
+    // Per guild, so chatting in one server doesn't stop earning XP in another
+    const cooldownKey = `${message.guildId}:${member.id}`;
+    const timestamps = client.cooldowns.ensure('leveling', () => new Collection());
+    const lastXpAt = timestamps.get(cooldownKey);
+    if (lastXpAt && Date.now() < lastXpAt + XP_COOLDOWN) return;
+
     const levelingConfig = await getGuildLevelingConfiguration(message.guildId);
     if (!levelingConfig?.enabled) return;
 
@@ -33,11 +40,6 @@ export default new Event({
     const context = { channelIds: getChannelChain(message.channel), roleIds: [...member.roles.cache.keys()] };
     if (!earnsXp(levelingConfig, context)) return;
 
-    // Per guild, so chatting in one server doesn't stop earning XP in another
-    const cooldownKey = `${message.guildId}:${member.id}`;
-    const timestamps = client.cooldowns.ensure('leveling', () => new Collection());
-    const lastXpAt = timestamps.get(cooldownKey);
-    if (lastXpAt && Date.now() < lastXpAt + XP_COOLDOWN) return;
     timestamps.set(cooldownKey, Date.now());
     setTimeout(() => timestamps.delete(cooldownKey), XP_COOLDOWN);
 

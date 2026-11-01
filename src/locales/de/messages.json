@@ -201,6 +201,8 @@
       "removed_one": "{{count}} falsche Nachricht wurde entfernt.",
       "removed_other": "{{count}} falsche Nachrichten wurden entfernt.",
       "reset": "{{user}} hat bei **{{number}}** zurückgesetzt.",
+      "moreResets_one": "…und noch {{count}}-mal zurückgesetzt",
+      "moreResets_other": "…und noch {{count}}-mal zurückgesetzt",
       "livesLost_one": "{{count}} Leben ging verloren.",
       "livesLost_other": "{{count}} Leben gingen verloren.",
       "livesGained_one": "{{count}} Leben kam durch einen Meilenstein zurück.",
@@ -255,6 +257,7 @@
       "lastCounted": "Zuletzt gezählt von {{user}} {{relative}} · [hinspringen]({{link}})",
       "records": "**Rekorde**",
       "highest": "Höchste Zahl: **{{number}}** von {{user}}, {{time}} · [hinspringen]({{link}})",
+      "highestNoLink": "Höchste Zahl: **{{number}}** von {{user}}, {{time}}",
       "runs_one": "Bisher {{count}} Runde",
       "runs_other": "Bisher {{count}} Runden"
     },
