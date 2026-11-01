@@ -4,7 +4,6 @@ import {
   AttachmentBuilder,
   ButtonBuilder,
   ButtonStyle,
-  ContainerBuilder,
   Guild,
   MediaGalleryBuilder,
   MessageFlags,
@@ -20,7 +19,6 @@ import { getLevelFromXP, getTopUsersByXP, getTopWeeklyUsersByXP, getTotalUsersWi
 import { drawAvatar, truncateText } from 'utility/canvas';
 import { formatCompactNumber } from 'utility/duration';
 import type { Translate } from 'utility/i18next';
-import { ThemeColors } from 'utility/theme';
 
 const ITEMS_PER_PAGE = 5;
 
@@ -299,11 +297,12 @@ export async function buildLeaderboard({
   const userCount = weekly ? await getTotalWeeklyUsersWithXP(guild.id) : await getTotalUsersWithXP(guild.id);
   const totalPages = Math.max(1, Math.ceil(userCount / ITEMS_PER_PAGE));
   const title = t(weekly ? 'leveling.leaderboard.titleWeekly' : 'leveling.leaderboard.title', { guild: guild.name });
-  const container = new ContainerBuilder().setAccentColor(ThemeColors.info).addTextDisplayComponents(new TextDisplayBuilder().setContent(title));
+  // Shown without a container around it, the image already has its own cards
+  const heading = new TextDisplayBuilder().setContent(title);
 
   if (userCount === 0) {
-    container.addTextDisplayComponents(new TextDisplayBuilder().setContent(t('leveling.leaderboard.none')));
-    return { components: [container], flags: [MessageFlags.IsComponentsV2], allowedMentions: { parse: [] } };
+    const none = new TextDisplayBuilder().setContent(t('leveling.leaderboard.none'));
+    return { components: [heading, none], flags: [MessageFlags.IsComponentsV2], allowedMentions: { parse: [] } };
   }
 
   const pageData = weekly
@@ -340,11 +339,8 @@ export async function buildLeaderboard({
   const controls = buildControls(page, totalPages, sortOrder, t);
 
   if (text) {
-    container
-      .addTextDisplayComponents(new TextDisplayBuilder().setContent(lines.join('\n')))
-      .addActionRowComponents(controls[0])
-      .addActionRowComponents(controls[1]);
-    return { components: [container], flags: [MessageFlags.IsComponentsV2], allowedMentions: { parse: [] } };
+    const list = new TextDisplayBuilder().setContent(lines.join('\n'));
+    return { components: [heading, list, ...controls], flags: [MessageFlags.IsComponentsV2], allowedMentions: { parse: [] } };
   }
 
   // Fetch avatars in parallel via in-memory LRU cache
@@ -359,17 +355,12 @@ export async function buildLeaderboard({
   const imageBuffer = renderLeaderboardCanvas(entries, isTopPodiumView, t);
 
   // The image's description is read out by screen readers, as the leaderboard itself is only pixels
-  container
-    .addMediaGalleryComponents(
-      new MediaGalleryBuilder().addItems((item) =>
-        item.setURL('attachment://leaderboard.png').setDescription(`${title.replace(/^#+\s*/, '')}: ${lines.join('; ')}`.slice(0, 1024)),
-      ),
-    )
-    .addActionRowComponents(controls[0])
-    .addActionRowComponents(controls[1]);
+  const image = new MediaGalleryBuilder().addItems((item) =>
+    item.setURL('attachment://leaderboard.png').setDescription(`${title.replace(/^#+\s*/, '')}: ${lines.join('; ')}`.slice(0, 1024)),
+  );
 
   return {
-    components: [container],
+    components: [heading, image, ...controls],
     files: [new AttachmentBuilder(imageBuffer, { name: 'leaderboard.png' })],
     flags: [MessageFlags.IsComponentsV2],
     allowedMentions: { parse: [] },
