@@ -262,76 +262,68 @@
     }
   },
   "birthday": {
-    "none": "You do not have a birthday set yet! Use the setup command to set your birthday.",
+    "none": "You haven't set your birthday yet. Set it with `/birthday setup`.",
     "announcement": {
-      "message": "🎉 Happy Birthday to {{user}}! 🎂🎈",
-      "withAge": "🎉 Happy Birthday to {{user}}! They turned {{age}} years old today! 🎂🎈"
+      "message": "🎉 Happy birthday, {{user}}! 🎂🎈",
+      "withAge": "🎉 Happy birthday, {{user}}! {{age}} today! 🎂🎈"
     },
-    "announce": {
-      "none": "The birthday announcements are not set up in this server yet.\nPlease use the setup command for the initial configuration.",
-      "already": "The birthday configuration is already set up in this server.\nPlease use the edit command to change the settings or reset the settings to start over.",
-      "setup": {
-        "invalidChannel": "The channel you provided is not valid. Please provide a valid channel.",
-        "success": "Successfully set up the birthday announcements!\nBirthdays will from now on be announced in {{channel}}."
+    "settings": {
+      "title": "### 🎂 Birthday Settings",
+      "enabled": {
+        "label": "Birthdays",
+        "description": "Announce birthdays and give out the birthday role."
       },
-      "edit": {
-        "none": "You did not provide any changes! Please provide at least one option to edit.",
-        "invalidChannel": "The channel you provided is not valid. Please provide a valid channel.",
-        "success": "Successfully updated the birthday announcement channel to {{channel}}!",
-        "channelRemoved": "Birthday announcements will no longer be sent.",
-        "channelUpdated": "Birthday announcements will now be made in {{channel}}.",
-        "roleRemoved": "Birthday role will no longer be assigned.",
-        "roleUpdated": "Birthday role has been updated to {{role}}!"
+      "channel": {
+        "label": "Announcement Channel",
+        "description": "Where birthdays get announced. Members choose themselves whether theirs is announced here."
       },
-      "info": {
-        "title": "### Birthday Announcements",
-        "state": "Status: {{state}}",
-        "channel": "Channel: {{channel}}",
-        "noChannel": "Channel: Not set",
-        "role": "Birthday Role: {{role}}",
-        "noRole": "Birthday Role: Not set"
-      },
-      "toggle": {
-        "success": "Birthday announcements have been set to: **{{state}}**"
-      },
-      "reset": {
-        "success": "The birthday announcement configuration has been reset to default settings! Birthday announcements are now disabled and no channel or role is set."
+      "role": {
+        "label": "Birthday Role",
+        "description": "Members get this role for their birthday, and it goes away the day after."
       }
     },
+    "resetConfiguration": {
+      "confirm": "### ⚠️ Reset the birthday settings?\nThis resets the channel, role and everything else. Everyone's birthdays are kept.",
+      "confirmButton": "Reset",
+      "cancelButton": "Cancel",
+      "cancelled": "Nothing was reset.",
+      "nothing": "There's nothing to reset, birthdays haven't been set up here yet.",
+      "success": "The birthday settings are reset. Use `/birthday-config settings` to set them up again."
+    },
     "setup": {
-      "already": "A birthday is already set! Use edit to change it or reset to delete it.",
-      "invalidTimezone": "The timezone you provided is not valid. Please provide a valid IANA timezone string (e.g. 'America/New_York').",
-      "invalidDate": "The date you provided is not valid. Please provide a valid date in the format YYYY-MM-DD (e.g. '2000-01-01').",
-      "error": "An error occurred while setting your birthday. Please try again later.",
-      "success": "Your birthday has been set successfully!"
+      "already": "You already set your birthday. Change it with `/birthday edit`, or delete it with `/birthday reset`.",
+      "invalidTimezone": "That's not a timezone I know. Pick one from the list, like `Europe/Berlin`.",
+      "invalidDate": "That's not a date I can read. Use the format YYYY-MM-DD, like `2000-01-31`.",
+      "error": "Something went wrong saving your birthday. Try again in a bit.",
+      "success": "Your birthday is saved! 🎂"
     },
     "edit": {
-      "none": "You did not provide any changes! Please provide at least one option to edit.",
-      "error": "An error occurred while editing your birthday configuration. Please try again later.",
-      "success": "Your birthday configuration has been updated successfully!"
+      "none": "You didn't change anything. Pick at least one option to change.",
+      "error": "Something went wrong saving that. Try again in a bit.",
+      "success": "Your birthday settings are updated!"
     },
     "announceInGuild": {
-      "all": "Your birthday is set to be announced in all guilds where a channel is set. You cannot manage specific guilds.",
-      "noneLabel": "No guilds",
-      "noneDescription": "Select this to announce your birthday in no guilds.",
-      "selectPlaceholder": "Select guilds to announce your birthday in",
-      "selectDescription": "Select the guilds where you want your birthday to be announced. Your birthday will only be announced in guilds that have a birthday announcement channel set up.",
-      "error": "An error occurred while updating your birthday announcement guilds. Please try again later.",
-      "selectFilter": "This select menu is not for you!",
-      "success": "Your birthday announcement guilds have been updated successfully!"
+      "all": "Your birthday gets announced in every server that has birthdays set up, so there's nothing to pick here.",
+      "noneLabel": "No servers",
+      "noneDescription": "Pick this if your birthday shouldn't be announced anywhere.",
+      "selectPlaceholder": "Pick the servers to announce your birthday in",
+      "selectDescription": "Pick the servers where your birthday should be announced. It only shows up in servers that have birthday announcements set up.",
+      "error": "Something went wrong saving that. Try again in a bit.",
+      "selectFilter": "This menu isn't for you!",
+      "success": "Got it, your birthday servers are updated!"
     },
     "info": {
-      "title": "### Your Birthday Configuration",
+      "title": "### 🎂 Your Birthday",
       "date": "Birthday: {{date}}",
       "timezone": "Timezone: {{timezone}}",
-      "showAge": "Show Age: {{state}}",
-      "announceInGuilds": "Announce in Guilds: {{state}}",
-      "announceInSpecificGuilds": "Announce in Specific Guilds:\n{{guilds}}",
-      "announceInSpecificGuildsNone": "Announce in Specific Guilds: None",
+      "showAge": "Show age: {{state}}",
+      "announceInGuilds": "Announce in all servers: {{state}}",
+      "announceInSpecificGuilds": "Announce in these servers:\n{{guilds}}",
+      "announceInSpecificGuildsNone": "Announce in these servers: none",
       "guildEntry": "- {{guild}}"
     },
     "reset": {
-      "success": "Your birthday configuration has been reset successfully!"
+      "success": "Your birthday is deleted."
     }
   },
   "leveling": {

@@ -466,5 +466,70 @@
       "disabled": "Dieses Rollenmenü ist gerade ausgeschaltet.",
       "cantAssign": "Ich kann {{role}} gerade nicht vergeben. Ein Admin sollte schauen, ob meine Rolle darüber ist."
     }
+  },
+  "birthday": {
+    "none": "Du hast deinen Geburtstag noch nicht eingetragen. Trag ihn mit `/birthday setup` ein.",
+    "announcement": {
+      "message": "🎉 Alles Gute zum Geburtstag, {{user}}! 🎂🎈",
+      "withAge": "🎉 Alles Gute zum {{age}}. Geburtstag, {{user}}! 🎂🎈"
+    },
+    "settings": {
+      "title": "### 🎂 Geburtstags-Einstellungen",
+      "enabled": {
+        "label": "Geburtstage",
+        "description": "Geburtstage ankündigen und die Geburtstagsrolle vergeben."
+      },
+      "channel": {
+        "label": "Ankündigungskanal",
+        "description": "Wo Geburtstage angekündigt werden. Mitglieder entscheiden selbst, ob ihrer hier angekündigt wird."
+      },
+      "role": {
+        "label": "Geburtstagsrolle",
+        "description": "Mitglieder bekommen diese Rolle an ihrem Geburtstag, und am Tag danach ist sie wieder weg."
+      }
+    },
+    "resetConfiguration": {
+      "confirm": "### ⚠️ Geburtstags-Einstellungen zurücksetzen?\nDas setzt den Kanal, die Rolle und alles andere zurück. Die Geburtstage aller bleiben gespeichert.",
+      "confirmButton": "Zurücksetzen",
+      "cancelButton": "Abbrechen",
+      "cancelled": "Es wurde nichts zurückgesetzt.",
+      "nothing": "Hier gibt es nichts zurückzusetzen, Geburtstage wurden noch nicht eingerichtet.",
+      "success": "Die Geburtstags-Einstellungen sind zurückgesetzt. Mit `/birthday-config settings` kannst du sie neu einrichten."
+    },
+    "setup": {
+      "already": "Du hast deinen Geburtstag schon eingetragen. Ändere ihn mit `/birthday edit` oder lösch ihn mit `/birthday reset`.",
+      "invalidTimezone": "Die Zeitzone kenne ich nicht. Wähl eine aus der Liste, zum Beispiel `Europe/Berlin`.",
+      "invalidDate": "Das Datum kann ich nicht lesen. Nimm das Format JJJJ-MM-TT, zum Beispiel `2000-01-31`.",
+      "error": "Beim Speichern deines Geburtstags ist was schiefgelaufen. Versuch es gleich nochmal.",
+      "success": "Dein Geburtstag ist gespeichert! 🎂"
+    },
+    "edit": {
+      "none": "Du hast nichts geändert. Wähl mindestens eine Option aus.",
+      "error": "Beim Speichern ist was schiefgelaufen. Versuch es gleich nochmal.",
+      "success": "Deine Geburtstags-Einstellungen sind aktualisiert!"
+    },
+    "announceInGuild": {
+      "all": "Dein Geburtstag wird auf jedem Server angekündigt, der Geburtstage eingerichtet hat, hier gibt es also nichts auszuwählen.",
+      "noneLabel": "Keine Server",
+      "noneDescription": "Wähl das, wenn dein Geburtstag nirgends angekündigt werden soll.",
+      "selectPlaceholder": "Wähl die Server, auf denen dein Geburtstag angekündigt wird",
+      "selectDescription": "Wähl die Server, auf denen dein Geburtstag angekündigt werden soll. Er taucht nur auf Servern auf, die Geburtstagsankündigungen eingerichtet haben.",
+      "error": "Beim Speichern ist was schiefgelaufen. Versuch es gleich nochmal.",
+      "selectFilter": "Das Menü ist nicht für dich!",
+      "success": "Alles klar, deine Geburtstags-Server sind aktualisiert!"
+    },
+    "info": {
+      "title": "### 🎂 Dein Geburtstag",
+      "date": "Geburtstag: {{date}}",
+      "timezone": "Zeitzone: {{timezone}}",
+      "showAge": "Alter anzeigen: {{state}}",
+      "announceInGuilds": "Auf allen Servern ankündigen: {{state}}",
+      "announceInSpecificGuilds": "Auf diesen Servern ankündigen:\n{{guilds}}",
+      "announceInSpecificGuildsNone": "Auf diesen Servern ankündigen: keine",
+      "guildEntry": "- {{guild}}"
+    },
+    "reset": {
+      "success": "Dein Geburtstag ist gelöscht."
+    }
   }
 }

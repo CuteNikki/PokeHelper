@@ -1,6 +1,7 @@
 import { LabelBuilder, MessageFlags, ModalBuilder, TextInputBuilder, TextInputStyle, type AnySelectMenuInteraction, type ButtonInteraction } from 'discord.js';
 import { getTranslate, type Translate } from 'utility/i18next';
 
+import { birthdaySettings } from 'settings/birthday';
 import { countingSettings } from 'settings/counting';
 import { levelingSettings } from 'settings/leveling';
 
@@ -8,7 +9,7 @@ import { createResponse, sendError } from 'utility/response';
 import { parseSettingsCustomId, type SettingsInput, type SettingsModal, type SettingsPanel } from 'utility/settings';
 
 /** Every settings panel, so their buttons and selects can find them by ID. */
-const panels: SettingsPanel[] = [countingSettings, levelingSettings];
+const panels: SettingsPanel[] = [countingSettings, levelingSettings, birthdaySettings];
 
 /** How long a settings popup waits to be submitted, in milliseconds. */
 const MODAL_TIME = 120_000;

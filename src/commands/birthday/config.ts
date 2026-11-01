@@ -10,13 +10,14 @@ import {
   StringSelectMenuBuilder,
   TextDisplayBuilder,
 } from 'discord.js';
-import { t } from 'i18next';
 
 import { Command } from 'classes/base/command';
 
 import { createUserBirthday, deleteUserBirthday, getUserBirthday, updateUserBirthday } from 'database/birthday';
 
+import { getTranslate, type Translate } from 'utility/i18next';
 import { logger } from 'utility/logger';
+import { sendError } from 'utility/response';
 
 export default new Command({
   data: new SlashCommandBuilder()
@@ -77,19 +78,19 @@ export default new Command({
 
     switch (subcommand) {
       case 'setup':
-        await handleSetup(interaction);
+        await handleSetup(interaction, getTranslate(interaction.locale));
         break;
       case 'edit':
-        await handleEdit(interaction);
+        await handleEdit(interaction, getTranslate(interaction.locale));
         break;
       case 'announce-in-guilds':
-        await handleAnnounceInGuilds(interaction);
+        await handleAnnounceInGuilds(interaction, getTranslate(interaction.locale));
         break;
       case 'info':
-        await handleInfo(interaction);
+        await handleInfo(interaction, getTranslate(interaction.locale));
         break;
       case 'reset':
-        await handleReset(interaction);
+        await handleReset(interaction, getTranslate(interaction.locale));
         break;
       default:
         return;
@@ -97,7 +98,7 @@ export default new Command({
   },
 });
 
-async function handleSetup(interaction: ChatInputCommandInteraction) {
+async function handleSetup(interaction: ChatInputCommandInteraction, t: Translate) {
   await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
   const currentConfig = await getUserBirthday(interaction.user.id);
 
@@ -165,7 +166,7 @@ async function handleSetup(interaction: ChatInputCommandInteraction) {
   });
 }
 
-async function handleEdit(interaction: ChatInputCommandInteraction) {
+async function handleEdit(interaction: ChatInputCommandInteraction, t: Translate) {
   await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
   const currentConfig = await getUserBirthday(interaction.user.id);
 
@@ -251,7 +252,7 @@ async function handleEdit(interaction: ChatInputCommandInteraction) {
   return interaction;
 }
 
-async function handleAnnounceInGuilds(interaction: ChatInputCommandInteraction) {
+async function handleAnnounceInGuilds(interaction: ChatInputCommandInteraction, t: Translate) {
   await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
   const currentConfig = await getUserBirthday(interaction.user.id);
 
@@ -305,7 +306,7 @@ async function handleAnnounceInGuilds(interaction: ChatInputCommandInteraction) 
   collector.on('collect', (i) => {
     void (async () => {
       if (i.user.id !== interaction.user.id) {
-        return i.reply({ content: t('birthday.announceInGuild.selectFilter'), flags: MessageFlags.Ephemeral });
+        return sendError(i, getTranslate(i.locale)('birthday.announceInGuild.selectFilter'));
       }
 
       if (i.customId === 'birthday-announce-in-guilds-select' && i.isStringSelectMenu()) {
@@ -380,7 +381,7 @@ async function handleAnnounceInGuilds(interaction: ChatInputCommandInteraction) 
   });
 }
 
-async function handleInfo(interaction: ChatInputCommandInteraction) {
+async function handleInfo(interaction: ChatInputCommandInteraction, t: Translate) {
   await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
   const currentConfig = await getUserBirthday(interaction.user.id);
 
@@ -420,7 +421,7 @@ async function handleInfo(interaction: ChatInputCommandInteraction) {
   });
 }
 
-async function handleReset(interaction: ChatInputCommandInteraction) {
+async function handleReset(interaction: ChatInputCommandInteraction, t: Translate) {
   await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
   const currentConfig = await getUserBirthday(interaction.user.id);
 

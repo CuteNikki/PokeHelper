@@ -7,6 +7,17 @@ export const getGuildBirthdayConfiguration = async (guildId: string) =>
     where: { guildId },
   });
 
+/**
+ * Get a guild's birthday configuration, creating the default one, which has birthdays turned off, if there's none yet.
+ * @param guildId {string} The ID of the guild.
+ */
+export const getOrCreateGuildBirthdayConfiguration = async (guildId: string) =>
+  prisma.guildBirthday.upsert({
+    where: { guildId },
+    update: {},
+    create: { guildId },
+  });
+
 export const createGuildBirthdayConfiguration = async (guildId: string, channelId: string, roleId?: string) =>
   prisma.guildBirthday.create({
     data: { guildId, channelId, roleId },

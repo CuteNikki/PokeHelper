@@ -1,11 +1,12 @@
 import { Client, userMention } from 'discord.js';
-import { t } from 'i18next';
 import cron from 'node-cron';
 
 import { prisma } from 'database/index';
 
 import type { UserBirthday } from 'generated/prisma/client';
+import { getTranslate } from 'utility/i18next';
 import { logger } from 'utility/logger';
+import { createResponse } from 'utility/response';
 
 export function startBirthdayCron(client: Client) {
   cron.schedule('0 * * * *', async () => {
@@ -56,13 +57,15 @@ async function announceBirthday(client: Client, bdayConfig: UserBirthday) {
     if (channel && channel.isTextBased()) {
       const userNow = new Date(new Date().toLocaleString('en-US', { timeZone: bdayConfig.timezone ?? undefined }));
       const age = userNow.getFullYear() - bdayConfig.date.getFullYear();
+      // Everyone in the channel sees it, so it's in the server's language
+      const t = getTranslate(guild.preferredLocale);
+      const content = bdayConfig.showAge
+        ? t('birthday.announcement.withAge', { user: userMention(bdayConfig.userId), age })
+        : t('birthday.announcement.message', { user: userMention(bdayConfig.userId) });
 
       await channel
-        .send({
-          content: bdayConfig.showAge
-            ? t('birthday.announcement.withAge', { user: userMention(bdayConfig.userId), age })
-            : t('birthday.announcement.message', { user: userMention(bdayConfig.userId) }),
-        })
+        // Pings the birthday member, so they see the wishes
+        .send({ ...createResponse(content, 'success'), allowedMentions: { users: [bdayConfig.userId] } })
         .catch((err) => logger.error(err, 'Failed to send birthday announcement:'));
     }
   }
