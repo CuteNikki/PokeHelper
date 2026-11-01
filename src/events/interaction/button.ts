@@ -1,9 +1,10 @@
-import { Collection, Colors, ContainerBuilder, Events, MessageFlags, PermissionsBitField, TextDisplayBuilder, time, TimestampStyles } from 'discord.js';
+import { Collection, Events, PermissionsBitField, time, TimestampStyles } from 'discord.js';
 import { t } from 'i18next';
 
 import { Event } from 'classes/base/event';
 
 import { logger } from 'utility/logger';
+import { sendError } from 'utility/response';
 
 export default new Event({
   name: Events.InteractionCreate,
@@ -36,9 +37,10 @@ export default new Event({
     if (button.options.isAuthorOnly) {
       if (
         (interaction.message.interactionMetadata && interaction.message.interactionMetadata.user.id !== interaction.user.id) ||
-        (interaction.message.reference && interaction.user.id !== (await interaction.message.fetchReference())?.author.id)
+        // The referenced message may have been deleted, in which case nobody counts as the author
+        (interaction.message.reference && interaction.user.id !== (await interaction.message.fetchReference().catch(() => null))?.author.id)
       ) {
-        return interaction.reply({ content: t('system.button.authorOnly'), flags: [MessageFlags.Ephemeral] });
+        return sendError(interaction, t('system.button.authorOnly'));
       }
     }
 
@@ -49,10 +51,10 @@ export default new Event({
       const memberPermissions = interaction.member.permissions as PermissionsBitField;
 
       if (!memberPermissions.has(button.options.permissions)) {
-        return interaction.reply({
-          content: t('system.button.permissions', { permissions: button.options.permissions.map((perm) => t(`permission.${perm}`)).join(', ') }),
-          flags: [MessageFlags.Ephemeral],
-        });
+        return sendError(
+          interaction,
+          t('system.button.permissions', { permissions: button.options.permissions.map((perm) => t(`permission.${perm}`)).join(', ') }),
+        );
       }
     }
 
@@ -77,19 +79,8 @@ export default new Event({
         if (now < expirationTime) {
           const expirationTimestamp = Math.round(expirationTime / 1_000); // Convert to seconds for discords timestamp format
 
-          return interaction.reply({
-            // Using a relative time format for the cooldown message, will show like "in 5 seconds"
-            components: [
-              new ContainerBuilder().setAccentColor(Colors.Red).addTextDisplayComponents(
-                new TextDisplayBuilder().setContent(
-                  t('system.cooldown.message', {
-                    remaining: time(expirationTimestamp, TimestampStyles.RelativeTime),
-                  }),
-                ),
-              ),
-            ],
-            flags: [MessageFlags.Ephemeral, MessageFlags.IsComponentsV2],
-          });
+          // Using a relative time format for the cooldown message, will show like "in 5 seconds"
+          return sendError(interaction, t('system.cooldown.message', { remaining: time(expirationTimestamp, TimestampStyles.RelativeTime) }));
         }
       }
 
@@ -106,24 +97,8 @@ export default new Event({
       await button.options.execute(interaction);
     } catch (error) {
       logger.error(error, t('system.button.error'));
-
-      if (interaction.replied || interaction.deferred) {
-        // If the interaction has already been replied to or deferred, follow up with an error message
-        await interaction.followUp({
-          components: [
-            new ContainerBuilder().setAccentColor(Colors.Red).addTextDisplayComponents(new TextDisplayBuilder().setContent(t('system.button.error'))),
-          ],
-          flags: [MessageFlags.Ephemeral, MessageFlags.IsComponentsV2],
-        });
-      } else {
-        // If the interaction has not been replied to, reply with an error message
-        await interaction.reply({
-          components: [
-            new ContainerBuilder().setAccentColor(Colors.Red).addTextDisplayComponents(new TextDisplayBuilder().setContent(t('system.button.error'))),
-          ],
-          flags: [MessageFlags.Ephemeral, MessageFlags.IsComponentsV2],
-        });
-      }
+      // Picks reply, editReply or followUp depending on how far the button got, and never throws itself
+      await sendError(interaction, t('system.button.error'));
     }
   },
 });

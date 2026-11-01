@@ -179,7 +179,19 @@
     },
     "event": {
       "invalid": "Invalid event found in file {{file}}. Skipping registration.",
-      "loaded": "Successfully loaded {{count}} events. ({{duration}}ms)"
+      "loaded": "Successfully loaded {{count}} events. ({{duration}}ms)",
+      "error": "An error occurred while handling the {{event}} event in {{file}}"
+    },
+    "client": {
+      "error": "The Discord client emitted an error",
+      "warn": "The Discord client emitted a warning: {{message}}"
+    },
+    "process": {
+      "unhandledRejection": "Unhandled promise rejection",
+      "uncaughtException": "Uncaught exception, shutting down"
+    },
+    "response": {
+      "failed": "Failed to respond to interaction {{id}} from user {{user}}"
     },
     "cron": {
       "leveling": "Weekly leveling reset cron started",

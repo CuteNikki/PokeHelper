@@ -3,16 +3,11 @@ import {
   channelMention,
   ChannelType,
   ChatInputCommandInteraction,
-  Colors,
-  ContainerBuilder,
   InteractionContextType,
   MessageFlags,
   PermissionFlagsBits,
   roleMention,
   SlashCommandBuilder,
-  TextDisplayBuilder,
-  type InteractionEditReplyOptions,
-  type InteractionReplyOptions,
 } from 'discord.js';
 import { t } from 'i18next';
 
@@ -27,11 +22,7 @@ import {
 import type { GuildBirthday } from 'generated/prisma/client';
 
 import { logger } from 'utility/logger';
-
-const createResponse = (content: string, color: number): InteractionEditReplyOptions & InteractionReplyOptions => ({
-  components: [new ContainerBuilder().setAccentColor(color).addTextDisplayComponents(new TextDisplayBuilder().setContent(content))],
-  flags: [MessageFlags.IsComponentsV2],
-});
+import { createResponse } from 'utility/response';
 
 export default new Command({
   data: new SlashCommandBuilder()
@@ -81,11 +72,11 @@ export default new Command({
     const currentConfig = await getGuildBirthdayConfiguration(interaction.guildId);
 
     if (!currentConfig && subcommand !== 'setup') {
-      return interaction.editReply(createResponse(t('birthday.announce.none'), Colors.Yellow));
+      return interaction.editReply(createResponse(t('birthday.announce.none'), 'warning'));
     }
 
     if (currentConfig && subcommand === 'setup') {
-      return interaction.editReply(createResponse(t('birthday.announce.already'), Colors.Yellow));
+      return interaction.editReply(createResponse(t('birthday.announce.already'), 'warning'));
     }
 
     switch (subcommand) {
@@ -115,12 +106,12 @@ async function handleSetup(interaction: ChatInputCommandInteraction<'cached'>) {
   const role = interaction.options.getRole('role', false);
 
   if (!channel.isTextBased()) {
-    return interaction.editReply(createResponse(t('birthday.announce.setup.invalidChannel'), Colors.Red));
+    return interaction.editReply(createResponse(t('birthday.announce.setup.invalidChannel'), 'error'));
   }
 
   await createGuildBirthdayConfiguration(interaction.guildId, channel.id, role?.id);
 
-  return interaction.editReply(createResponse(t('birthday.announce.setup.success', { channel: channel.toString() }), Colors.Green));
+  return interaction.editReply(createResponse(t('birthday.announce.setup.success', { channel: channel.toString() }), 'success'));
 }
 
 async function handleEdit(
@@ -135,11 +126,11 @@ async function handleEdit(
   const isRemovingRole = options.role === 'remove';
 
   if (!channel && !role && !isRemovingChannel && !isRemovingRole) {
-    return interaction.editReply(createResponse(t('birthday.announce.edit.none'), Colors.Yellow));
+    return interaction.editReply(createResponse(t('birthday.announce.edit.none'), 'warning'));
   }
 
   if (channel && !channel.isTextBased()) {
-    return interaction.editReply(createResponse(t('birthday.announce.edit.invalidChannel'), Colors.Red));
+    return interaction.editReply(createResponse(t('birthday.announce.edit.invalidChannel'), 'error'));
   }
 
   const updates: { channelId?: string | null; roleId?: string | null } = {};
@@ -157,7 +148,7 @@ async function handleEdit(
   }
 
   if (Object.keys(updates).length === 0) {
-    return interaction.editReply(createResponse(t('birthday.announce.edit.none'), Colors.Yellow));
+    return interaction.editReply(createResponse(t('birthday.announce.edit.none'), 'warning'));
   }
 
   await updateGuildBirthdayConfiguration(interaction.guildId, updates);
@@ -180,7 +171,7 @@ async function handleEdit(
     }
   }
 
-  return interaction.editReply(createResponse(responseTextParts.join('\n'), Colors.Green));
+  return interaction.editReply(createResponse(responseTextParts.join('\n'), 'success'));
 }
 
 async function handleInfo(interaction: ChatInputCommandInteraction<'cached'>, currentConfig: GuildBirthday) {
@@ -194,7 +185,7 @@ async function handleInfo(interaction: ChatInputCommandInteraction<'cached'>, cu
           : t('birthday.announce.info.noChannel'),
         currentConfig.roleId ? t('birthday.announce.info.role', { role: roleMention(currentConfig.roleId) }) : t('birthday.announce.info.noRole'),
       ].join('\n'),
-      Colors.Blue,
+      'info',
     ),
   );
 }
@@ -204,14 +195,11 @@ async function handleToggle(interaction: ChatInputCommandInteraction<'cached'>, 
   await updateGuildBirthdayConfiguration(interaction.guildId, { enabled: newStatus });
 
   return interaction.editReply(
-    createResponse(
-      t(`birthday.announce.toggle.success`, { state: newStatus ? t('state.enabled') : t('state.disabled') }),
-      newStatus ? Colors.Green : Colors.Red,
-    ),
+    createResponse(t(`birthday.announce.toggle.success`, { state: newStatus ? t('state.enabled') : t('state.disabled') }), newStatus ? 'success' : 'error'),
   );
 }
 
 async function handleReset(interaction: ChatInputCommandInteraction<'cached'>) {
   await deleteGuildBirthdayConfiguration(interaction.guildId);
-  return interaction.editReply(createResponse(t('birthday.announce.reset.success'), Colors.Green));
+  return interaction.editReply(createResponse(t('birthday.announce.reset.success'), 'success'));
 }

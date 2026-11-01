@@ -1,4 +1,4 @@
-import { Collection, Colors, ContainerBuilder, Events, MessageFlags, TextDisplayBuilder, time, TimestampStyles } from 'discord.js';
+import { Collection, Events, time, TimestampStyles } from 'discord.js';
 import { t } from 'i18next';
 
 import { Event } from 'classes/base/event';
@@ -7,6 +7,7 @@ import { getGuildOrCreate } from 'database/guild';
 import { getUserData } from 'database/user';
 
 import { logger } from 'utility/logger';
+import { sendError } from 'utility/response';
 
 export default new Event({
   name: Events.InteractionCreate,
@@ -20,14 +21,6 @@ export default new Event({
     if (!command) {
       logger.warn(t('system.command.notFound', { command: interaction.commandName }));
       return;
-    }
-
-    // Ensure the user is in the database
-    await getUserData(interaction.user.id);
-
-    // Ensure the guild is in the database
-    if (interaction.inGuild()) {
-      await getGuildOrCreate(interaction.guildId);
     }
 
     // Handling cooldowns for the command
@@ -49,19 +42,8 @@ export default new Event({
         if (now < expirationTime) {
           const expirationTimestamp = Math.round(expirationTime / 1_000); // Convert to seconds for discords timestamp format
 
-          return interaction.reply({
-            components: [
-              new ContainerBuilder().setAccentColor(Colors.Red).addTextDisplayComponents(
-                new TextDisplayBuilder().setContent(
-                  // Using a relative time format for the cooldown message, will show like "in 5 seconds"
-                  t('system.cooldown.message', {
-                    remaining: time(expirationTimestamp, TimestampStyles.RelativeTime),
-                  }),
-                ),
-              ),
-            ],
-            flags: [MessageFlags.Ephemeral, MessageFlags.IsComponentsV2],
-          });
+          // Using a relative time format for the cooldown message, will show like "in 5 seconds"
+          return sendError(interaction, t('system.cooldown.message', { remaining: time(expirationTimestamp, TimestampStyles.RelativeTime) }));
         }
       }
 
@@ -73,31 +55,17 @@ export default new Event({
 
     // Trying to execute the command
     try {
+      // Ensure the user and guild are in the database, inside the try so a database outage gets an error reply too
+      await getUserData(interaction.user.id);
+      if (interaction.inGuild()) {
+        await getGuildOrCreate(interaction.guildId);
+      }
+
       await command.options.execute(interaction);
     } catch (error) {
       logger.error(error, t('system.command.error', { command: interaction.commandName }));
-
-      // If the interaction has already been replied to or deferred, follow up with an error message
-      if (interaction.replied || interaction.deferred) {
-        await interaction.followUp({
-          components: [
-            new ContainerBuilder()
-              .setAccentColor(Colors.Red)
-              .addTextDisplayComponents(new TextDisplayBuilder().setContent(t('system.command.error', { command: interaction.commandName }))),
-          ],
-          flags: [MessageFlags.Ephemeral, MessageFlags.IsComponentsV2],
-        });
-      } else {
-        // If the interaction has not been replied to, reply with an error message
-        await interaction.reply({
-          components: [
-            new ContainerBuilder()
-              .setAccentColor(Colors.Red)
-              .addTextDisplayComponents(new TextDisplayBuilder().setContent(t('system.command.error', { command: interaction.commandName }))),
-          ],
-          flags: [MessageFlags.Ephemeral, MessageFlags.IsComponentsV2],
-        });
-      }
+      // Picks reply, editReply or followUp depending on how far the command got, and never throws itself
+      await sendError(interaction, t('system.command.error', { command: interaction.commandName }));
     }
   },
 });

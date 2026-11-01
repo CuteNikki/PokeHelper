@@ -24,6 +24,15 @@ const client = new ExtendedClient({
 });
 
 await initI18Next();
+
+// Last line of defense: anything not caught elsewhere is logged here instead of going unnoticed
+process.on('unhandledRejection', (reason) => logger.error(reason, t('system.process.unhandledRejection')));
+process.on('uncaughtException', (error) => {
+  // The process is in an unknown state after an uncaught exception, so exit and let the container restart it
+  logger.fatal(error, t('system.process.uncaughtException'));
+  process.exit(1);
+});
+
 await Promise.all([
   measure(t('system.database.loaded'), () => prisma.$connect()),
   loadEvents(client).then(({ files, tableData, duration }) =>

@@ -26,9 +26,12 @@ export async function loadEvents(client: ExtendedClient) {
       if (isValidEvent(event)) {
         // Register the event with the client
         // Use 'once' or 'on' based on the event options
-        client[event.options.once ? 'once' : 'on'](event.options.name, (...args: ClientEvents[typeof event.options.name]) =>
-          event.options.execute(client, ...args),
-        );
+        // Errors thrown by the handler are logged with the event and file, instead of becoming unhandled rejections
+        client[event.options.once ? 'once' : 'on'](event.options.name, (...args: ClientEvents[typeof event.options.name]) => {
+          Promise.resolve()
+            .then(() => event.options.execute(client, ...args))
+            .catch((error: unknown) => logger.error(error, t('system.event.error', { event: event.options.name, file: filePath })));
+        });
 
         tableData.push({ file: filePath.split('/').slice(-2).join('/'), name: event.options.name, valid: true });
       } else {
