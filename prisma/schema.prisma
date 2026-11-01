@@ -39,6 +39,9 @@ model UserBirthday {
 model Guild {
   guildId String @id
 
+  // State
+  leftAt DateTime? // when the bot was removed from the guild, after which its data is deleted unless the bot is added back
+
   // Configuration
   counting          GuildCounting?     @relation("GuildCounting")
   birthday          GuildBirthday?     @relation("GuildBirthday")
