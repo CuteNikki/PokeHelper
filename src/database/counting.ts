@@ -1,6 +1,7 @@
 import { prisma } from 'database/index';
 
 import type { GuildCounting } from 'generated/prisma/client';
+import type { CountingState } from 'utility/counting';
 
 /**
  * Get the counting configuration for a guild.
@@ -12,14 +13,21 @@ export const getCounting = async (guildId: string) =>
   });
 
 /**
+ * Get the counting configurations of all guilds.
+ */
+export const getAllCountings = async () => prisma.guildCounting.findMany();
+
+/**
  * Create a new counting configuration for a guild.
  * @param guildId {string} The ID of the guild to create the counting configuration for.
- * @param channelId {string} The ID of the channel where counting will take place.
- * @param resetOnFail {boolean} Whether to reset the count if the counting fails. Defaults to false.
+ * @param data.channelId {string} The ID of the channel where counting will take place.
+ * @param data.resetOnFail {boolean} Whether to reset the count if the counting fails.
+ * @param data.allowMath {boolean} Whether numbers can be sent as math expressions.
+ * @param data.lastCheckedMessageId {string} The message ID to start checking after, so older messages in the channel are left alone.
  */
-export const createCounting = async (guildId: string, channelId: string, resetOnFail: boolean = false) =>
+export const createCounting = async (guildId: string, data: Pick<GuildCounting, 'channelId' | 'resetOnFail' | 'allowMath' | 'lastCheckedMessageId'>) =>
   prisma.guildCounting.create({
-    data: { guildId, channelId, resetOnFail },
+    data: { guildId, ...data },
   });
 
 /**
@@ -43,45 +51,16 @@ export const resetCounting = async (guildId: string) =>
   });
 
 /**
- * Reset the current counting number for a guild without deleting the configuration.
- * @param guildId {string} The ID of the guild to reset the current counting number for.
+ * Save the counting state, but only if no other message was checked since it was read.
+ * @param guildId {string} The ID of the guild to save the counting state for.
+ * @param previousCheckedMessageId {string | null} The last checked message ID when the state was read.
+ * @param state {CountingState} The new counting state.
+ * @returns {Promise<boolean>} Whether the state was saved. False means it changed in between and the message should be checked again.
  */
-export const resetCountingCount = async (guildId: string) =>
-  prisma.guildCounting.update({
-    where: { guildId },
-    data: { lastNumber: 0, lastNumberAt: null, lastNumberByUserId: null, lastNumberMessageId: null },
+export const saveCountingState = async (guildId: string, previousCheckedMessageId: string | null, state: CountingState) => {
+  const { count } = await prisma.guildCounting.updateMany({
+    where: { guildId, lastCheckedMessageId: previousCheckedMessageId },
+    data: state,
   });
-
-/**
- * Increment the current counting number for a guild.
- * @param guildId {string} The ID of the guild to increment the counting number for.
- * @param userId {string} The ID of the user who is incrementing the count.
- * @param messageId {string} The ID of the message that triggered the increment.
- */
-export const incrementCountingCount = async (guildId: string, userId: string, messageId: string) => {
-  const currentCounting = await getCounting(guildId);
-
-  if (!currentCounting) {
-    throw new Error(`Counting configuration not found for guild ID: ${guildId}`);
-  }
-
-  const newCount = currentCounting.lastNumber + 1;
-  const highestNumber = currentCounting.highestNumber || 0;
-  const isHigherNumber = newCount > highestNumber;
-  const now = new Date();
-
-  return await prisma.guildCounting.update({
-    where: { guildId },
-    data: {
-      lastNumber: newCount,
-      lastNumberAt: now,
-      lastNumberByUserId: userId,
-      lastNumberMessageId: messageId,
-      // Update highest number if the new count is higher
-      highestNumber: Math.max(highestNumber, newCount),
-      highestNumberAt: isHigherNumber ? now : currentCounting.highestNumberAt,
-      highestNumberByUserId: isHigherNumber ? userId : currentCounting.highestNumberByUserId,
-      highestNumberMessageId: isHigherNumber ? messageId : currentCounting.highestNumberMessageId,
-    },
-  });
+  return count > 0;
 };

@@ -3,13 +3,11 @@ import {
   channelMention,
   ChannelType,
   ChatInputCommandInteraction,
-  Colors,
-  ContainerBuilder,
   InteractionContextType,
   MessageFlags,
   PermissionFlagsBits,
   SlashCommandBuilder,
-  TextDisplayBuilder,
+  SnowflakeUtil,
   time,
   TimestampStyles,
   userMention,
@@ -19,6 +17,9 @@ import { t } from 'i18next';
 import { Command } from 'classes/base/command';
 
 import { createCounting, getCounting, resetCounting, updateCounting } from 'database/counting';
+
+import { runCountingTask } from 'utility/countingGame';
+import { createResponse } from 'utility/response';
 
 export default new Command({
   data: new SlashCommandBuilder()
@@ -34,7 +35,8 @@ export default new Command({
         .addChannelOption((option) =>
           option.setName('channel').setDescription('The channel that should be used for counting').addChannelTypes(ChannelType.GuildText).setRequired(true),
         )
-        .addBooleanOption((option) => option.setName('reset').setDescription('Reset the current number if a wrong number was sent').setRequired(false)),
+        .addBooleanOption((option) => option.setName('reset').setDescription('Reset the current number if a wrong number was sent').setRequired(false))
+        .addBooleanOption((option) => option.setName('math').setDescription('Allow numbers to be sent as math, like 1+1 for 2').setRequired(false)),
     )
     .addSubcommand((cmd) =>
       cmd
@@ -43,7 +45,8 @@ export default new Command({
         .addChannelOption((option) =>
           option.setName('channel').setDescription('The channel that should be used for counting').addChannelTypes(ChannelType.GuildText).setRequired(false),
         )
-        .addBooleanOption((option) => option.setName('reset').setDescription('Reset the current number if a wrong number was sent').setRequired(false)),
+        .addBooleanOption((option) => option.setName('reset').setDescription('Reset the current number if a wrong number was sent').setRequired(false))
+        .addBooleanOption((option) => option.setName('math').setDescription('Allow numbers to be sent as math, like 1+1 for 2').setRequired(false)),
     )
     .addSubcommand((cmd) => cmd.setName('info').setDescription('Get information about the counting game'))
     .addSubcommand((cmd) => cmd.setName('reset').setDescription('Reset the counting game')),
@@ -78,29 +81,23 @@ export default new Command({
  */
 async function handleSetup(interaction: ChatInputCommandInteraction<'cached'>): Promise<unknown> {
   await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
-  const currentCounting = await getCounting(interaction.guildId);
-
-  if (currentCounting) {
-    return interaction.editReply({
-      components: [
-        new ContainerBuilder().setAccentColor(Colors.Red).addTextDisplayComponents(new TextDisplayBuilder().setContent(t('counting.setup.already'))),
-      ],
-      flags: [MessageFlags.IsComponentsV2],
-    });
-  }
 
   const channel = interaction.options.getChannel('channel', true, [ChannelType.GuildText]);
   const resetOnFail = interaction.options.getBoolean('reset') ?? false;
+  const allowMath = interaction.options.getBoolean('math') ?? false;
 
-  await createCounting(interaction.guildId, channel.id, resetOnFail);
-  return interaction.editReply({
-    components: [
-      new ContainerBuilder()
-        .setAccentColor(Colors.Green)
-        .addTextDisplayComponents(new TextDisplayBuilder().setContent(t('counting.setup.success', { channel: channelMention(channel.id) }))),
-    ],
-    flags: [MessageFlags.IsComponentsV2],
+  const created = await runCountingTask(interaction.guildId, async () => {
+    if (await getCounting(interaction.guildId)) return false;
+    // Start checking from now, so the messages already in the channel are left alone
+    await createCounting(interaction.guildId, { channelId: channel.id, resetOnFail, allowMath, lastCheckedMessageId: SnowflakeUtil.generate().toString() });
+    return true;
   });
+
+  if (!created) {
+    return interaction.editReply(createResponse(t('counting.setup.already'), 'error'));
+  }
+
+  return interaction.editReply(createResponse(t('counting.setup.success', { channel: channelMention(channel.id) }), 'success'));
 }
 
 /**
@@ -110,35 +107,36 @@ async function handleSetup(interaction: ChatInputCommandInteraction<'cached'>): 
  */
 async function handleEdit(interaction: ChatInputCommandInteraction<'cached'>): Promise<unknown> {
   await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
-  const currentCounting = await getCounting(interaction.guildId);
-
-  if (!currentCounting) {
-    return interaction.editReply({
-      components: [new ContainerBuilder().setAccentColor(Colors.Red).addTextDisplayComponents(new TextDisplayBuilder().setContent(t('counting.none')))],
-      flags: [MessageFlags.IsComponentsV2],
-    });
-  }
 
   const channel = interaction.options.getChannel('channel', false, [ChannelType.GuildText]);
   const resetOnFail = interaction.options.getBoolean('reset');
+  const allowMath = interaction.options.getBoolean('math');
 
   // getBoolean returns null, not undefined, when the option wasn't given
-  if (!channel && resetOnFail === null) {
-    return interaction.editReply({
-      components: [new ContainerBuilder().setAccentColor(Colors.Red).addTextDisplayComponents(new TextDisplayBuilder().setContent(t('counting.edit.none')))],
-      flags: [MessageFlags.IsComponentsV2],
-    });
+  if (!channel && resetOnFail === null && allowMath === null) {
+    return interaction.editReply(createResponse(t('counting.edit.none'), 'error'));
   }
 
-  await updateCounting(interaction.guildId, {
-    channelId: channel?.id ?? currentCounting.channelId,
-    resetOnFail: resetOnFail ?? currentCounting.resetOnFail,
+  const updated = await runCountingTask(interaction.guildId, async () => {
+    const currentCounting = await getCounting(interaction.guildId);
+    if (!currentCounting) return false;
+
+    const channelChanged = channel !== null && channel.id !== currentCounting.channelId;
+    await updateCounting(interaction.guildId, {
+      ...(channel && { channelId: channel.id }),
+      ...(resetOnFail !== null && { resetOnFail }),
+      ...(allowMath !== null && { allowMath }),
+      // In a new channel, start checking from now, so the messages already there are left alone
+      ...(channelChanged && { lastCheckedMessageId: SnowflakeUtil.generate().toString() }),
+    });
+    return true;
   });
 
-  return interaction.editReply({
-    components: [new ContainerBuilder().setAccentColor(Colors.Gold).addTextDisplayComponents(new TextDisplayBuilder().setContent(t('counting.edit.success')))],
-    flags: [MessageFlags.IsComponentsV2],
-  });
+  if (!updated) {
+    return interaction.editReply(createResponse(t('counting.none'), 'error'));
+  }
+
+  return interaction.editReply(createResponse(t('counting.edit.success'), 'warning'));
 }
 
 /**
@@ -150,62 +148,52 @@ async function handleInfo(interaction: ChatInputCommandInteraction<'cached'>): P
   const currentCounting = await getCounting(interaction.guildId);
 
   if (!currentCounting) {
-    return interaction.reply({
-      components: [new ContainerBuilder().setAccentColor(Colors.Red).addTextDisplayComponents(new TextDisplayBuilder().setContent(t('counting.none')))],
-      flags: [MessageFlags.IsComponentsV2, MessageFlags.Ephemeral],
-    });
+    return interaction.reply({ ...createResponse(t('counting.none'), 'error'), flags: [MessageFlags.IsComponentsV2, MessageFlags.Ephemeral] });
   }
 
-  return interaction.reply({
-    components: [
-      new ContainerBuilder().setAccentColor(Colors.Blue).addTextDisplayComponents(
-        new TextDisplayBuilder().setContent(
-          [
-            t('counting.info.title'),
-            '',
-            t('counting.info.channel', { channel: channelMention(currentCounting.channelId) }),
-            t('counting.info.resetOnFail', { state: currentCounting.resetOnFail ? t('state.enabled') : t('state.disabled') }),
-            '',
-            t('counting.info.lastNumber', { number: currentCounting.lastNumber ?? 0 }),
-            currentCounting.lastNumberByUserId
-              ? t('counting.info.lastCounter', {
-                  user: userMention(currentCounting.lastNumberByUserId),
-                })
-              : t('counting.info.noLastCounter'),
-            currentCounting.lastNumberAt
-              ? t('counting.info.lastCountedAt', {
-                  time: time(Math.floor(currentCounting.lastNumberAt.getTime() / 1000), TimestampStyles.ShortDateTime),
-                })
-              : t('counting.info.noLastCountedAt'),
-            currentCounting.lastNumberMessageId
-              ? t('counting.info.lastMessage', {
-                  link: `https://discord.com/channels/${interaction.guildId}/${currentCounting.channelId}/${currentCounting.lastNumberMessageId}`,
-                })
-              : t('counting.info.noLastMessage'),
-            '',
-            t('counting.info.highestNumber', { number: currentCounting.highestNumber ?? 0 }),
-            currentCounting.highestNumberByUserId
-              ? t('counting.info.highestCounter', {
-                  user: userMention(currentCounting.highestNumberByUserId),
-                })
-              : t('counting.info.noHighestCounter'),
-            currentCounting.highestNumberAt
-              ? t('counting.info.highestCountedAt', {
-                  time: time(Math.floor(currentCounting.highestNumberAt.getTime() / 1000), TimestampStyles.ShortDateTime),
-                })
-              : t('counting.info.noHighestCountedAt'),
-            currentCounting.highestNumberMessageId
-              ? t('counting.info.highestMessage', {
-                  link: `https://discord.com/channels/${interaction.guildId}/${currentCounting.channelId}/${currentCounting.highestNumberMessageId}`,
-                })
-              : t('counting.info.noHighestMessage'),
-          ].join('\n'),
-        ),
-      ),
-    ],
-    allowedMentions: { parse: [] },
-    flags: [MessageFlags.IsComponentsV2],
-  });
+  const content = [
+    t('counting.info.title'),
+    '',
+    t('counting.info.channel', { channel: channelMention(currentCounting.channelId) }),
+    t('counting.info.resetOnFail', { state: currentCounting.resetOnFail ? t('state.enabled') : t('state.disabled') }),
+    t('counting.info.allowMath', { state: currentCounting.allowMath ? t('state.enabled') : t('state.disabled') }),
+    '',
+    t('counting.info.lastNumber', { number: currentCounting.lastNumber ?? 0 }),
+    currentCounting.lastNumberByUserId
+      ? t('counting.info.lastCounter', {
+          user: userMention(currentCounting.lastNumberByUserId),
+        })
+      : t('counting.info.noLastCounter'),
+    currentCounting.lastNumberAt
+      ? t('counting.info.lastCountedAt', {
+          time: time(Math.floor(currentCounting.lastNumberAt.getTime() / 1000), TimestampStyles.ShortDateTime),
+        })
+      : t('counting.info.noLastCountedAt'),
+    currentCounting.lastNumberMessageId
+      ? t('counting.info.lastMessage', {
+          link: `https://discord.com/channels/${interaction.guildId}/${currentCounting.channelId}/${currentCounting.lastNumberMessageId}`,
+        })
+      : t('counting.info.noLastMessage'),
+    '',
+    t('counting.info.highestNumber', { number: currentCounting.highestNumber ?? 0 }),
+    currentCounting.highestNumberByUserId
+      ? t('counting.info.highestCounter', {
+          user: userMention(currentCounting.highestNumberByUserId),
+        })
+      : t('counting.info.noHighestCounter'),
+    currentCounting.highestNumberAt
+      ? t('counting.info.highestCountedAt', {
+          time: time(Math.floor(currentCounting.highestNumberAt.getTime() / 1000), TimestampStyles.ShortDateTime),
+        })
+      : t('counting.info.noHighestCountedAt'),
+    currentCounting.highestNumberMessageId
+      ? t('counting.info.highestMessage', {
+          link: `https://discord.com/channels/${interaction.guildId}/${currentCounting.channelId}/${currentCounting.highestNumberMessageId}`,
+        })
+      : t('counting.info.noHighestMessage'),
+  ].join('\n');
+
+  return interaction.reply({ ...createResponse(content, 'info'), allowedMentions: { parse: [] } });
 }
 
 /**
@@ -215,23 +203,16 @@ async function handleInfo(interaction: ChatInputCommandInteraction<'cached'>): P
  */
 async function handleReset(interaction: ChatInputCommandInteraction<'cached'>): Promise<unknown> {
   await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
-  const currentCounting = await getCounting(interaction.guildId);
 
-  if (!currentCounting) {
-    return interaction.editReply({
-      components: [new ContainerBuilder().setAccentColor(Colors.Red).addTextDisplayComponents(new TextDisplayBuilder().setContent(t('counting.none')))],
-      flags: [MessageFlags.IsComponentsV2],
-    });
+  const deleted = await runCountingTask(interaction.guildId, async () => {
+    if (!(await getCounting(interaction.guildId))) return false;
+    await resetCounting(interaction.guildId);
+    return true;
+  });
+
+  if (!deleted) {
+    return interaction.editReply(createResponse(t('counting.none'), 'error'));
   }
 
-  await resetCounting(interaction.guildId);
-
-  return interaction.editReply({
-    components: [
-      new ContainerBuilder()
-        .setAccentColor(Colors.Gold)
-        .addTextDisplayComponents(new TextDisplayBuilder().setContent(t('counting.resetConfiguration.success'))),
-    ],
-    flags: [MessageFlags.IsComponentsV2],
-  });
+  return interaction.editReply(createResponse(t('counting.resetConfiguration.success'), 'warning'));
 }

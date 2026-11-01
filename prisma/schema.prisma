@@ -75,13 +75,15 @@ model GuildCounting {
 
   // Configuration
   resetOnFail Boolean @default(false)
+  allowMath   Boolean @default(false)
   channelId   String
 
   // State
-  lastNumber          Int       @default(0) @map("currentNumber")
-  lastNumberAt        DateTime? @map("currentNumberAt")
-  lastNumberMessageId String?   @map("currentNumberMessageId")
-  lastNumberByUserId  String?   @map("currentNumberByUserId")
+  lastCheckedMessageId String? // last message in the channel that was checked, valid or not. Syncing after downtime continues from here
+  lastNumber           Int       @default(0) @map("currentNumber")
+  lastNumberAt         DateTime? @map("currentNumberAt")
+  lastNumberMessageId  String?   @map("currentNumberMessageId")
+  lastNumberByUserId   String?   @map("currentNumberByUserId")
 
   // History
   highestNumber          Int       @default(0)
