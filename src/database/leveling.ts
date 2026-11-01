@@ -25,11 +25,8 @@ export const updateGuildLevelingConfiguration = async (guildId: string, query: P
     include: { rewards: true, multipliers: true },
   });
 
-export const deleteGuildLevelingConfiguration = async (guildId: string) =>
-  prisma.guildLeveling.delete({
-    where: { guildId },
-    include: { rewards: true, multipliers: true },
-  });
+// Rewards and multipliers go along through the database. Nothing to delete, like when reset twice, is fine
+export const deleteGuildLevelingConfiguration = async (guildId: string) => prisma.guildLeveling.deleteMany({ where: { guildId } });
 
 export const addIgnoredChannel = async (guildId: string, channelId: string) =>
   prisma.guildLeveling.upsert({

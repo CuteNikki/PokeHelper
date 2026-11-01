@@ -188,7 +188,6 @@
       "title": "Go to page",
       "label": "Page",
       "placeholder": "1 to {{maxPages}}",
-      "timeout": "You didn't enter a page, try again.",
       "invalid": "That's not a page. Enter a number from 1 to {{maxPages}}."
     },
     "sort": {
@@ -311,7 +310,6 @@
       "selectPlaceholder": "Pick the servers to announce your birthday in",
       "selectDescription": "Pick the servers where your birthday should be announced. It only shows up in servers that have birthday announcements set up.",
       "error": "Something went wrong saving that. Try again in a bit.",
-      "selectFilter": "This menu isn't for you!",
       "success": "Got it, your birthday servers are updated!"
     },
     "info": {

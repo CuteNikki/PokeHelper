@@ -1,5 +1,4 @@
 import {
-  ActionRowBuilder,
   ApplicationIntegrationType,
   ChatInputCommandInteraction,
   Colors,
@@ -7,7 +6,6 @@ import {
   InteractionContextType,
   MessageFlags,
   SlashCommandBuilder,
-  StringSelectMenuBuilder,
   TextDisplayBuilder,
 } from 'discord.js';
 
@@ -16,8 +14,8 @@ import { Command } from 'classes/base/command';
 import { createUserBirthday, deleteUserBirthday, getUserBirthday, updateUserBirthday } from 'database/birthday';
 
 import { getTranslate, type Translate } from 'utility/i18next';
+import { buildAnnounceInGuildsPicker } from 'utility/birthdayGuilds';
 import { logger } from 'utility/logger';
-import { sendError } from 'utility/response';
 
 export default new Command({
   data: new SlashCommandBuilder()
@@ -265,120 +263,7 @@ async function handleAnnounceInGuilds(interaction: ChatInputCommandInteraction, 
     });
   }
 
-  const mutualGuilds = interaction.client.guilds.cache.filter((g) => g.members.cache.has(interaction.user.id));
-
-  // Add a placeholder option to allow deselecting all guilds
-  const guildOptions = [
-    {
-      label: t('birthday.announceInGuild.noneLabel'),
-      value: 'none',
-      default: currentConfig?.announceInGuildIds.length === 0,
-      description: t('birthday.announceInGuild.noneDescription'),
-    },
-    ...mutualGuilds
-      .map((g) => ({
-        label: g.name,
-        value: g.id,
-        default: currentConfig?.announceInGuildIds.includes(g.id) ?? false,
-      }))
-      .slice(0, 24),
-  ];
-
-  const message = await interaction.editReply({
-    components: [
-      new ContainerBuilder()
-        .setAccentColor(Colors.Yellow)
-        .addTextDisplayComponents(new TextDisplayBuilder().setContent(t('birthday.announceInGuild.selectDescription')))
-        .addActionRowComponents(
-          new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
-            new StringSelectMenuBuilder()
-              .setCustomId('birthday-announce-in-guilds-select')
-              .setPlaceholder(t('birthday.announceInGuild.selectPlaceholder'))
-              .setOptions(guildOptions),
-          ),
-        ),
-    ],
-    flags: [MessageFlags.IsComponentsV2],
-  });
-
-  const collector = message.createMessageComponentCollector({ time: 5 * 60 * 1000 });
-
-  collector.on('collect', (i) => {
-    void (async () => {
-      if (i.user.id !== interaction.user.id) {
-        return sendError(i, getTranslate(i.locale)('birthday.announceInGuild.selectFilter'));
-      }
-
-      if (i.customId === 'birthday-announce-in-guilds-select' && i.isStringSelectMenu()) {
-        let selectedGuildIds = i.values;
-
-        // If placeholder is selected, treat as empty selection
-        if (selectedGuildIds.includes('none')) {
-          selectedGuildIds = [];
-        }
-
-        try {
-          await updateUserBirthday(interaction.user.id, { announceInGuildIds: selectedGuildIds });
-        } catch (error) {
-          logger.error(error, 'Error updating announceInGuildIds:');
-          return i.update({
-            components: [
-              new ContainerBuilder()
-                .setAccentColor(Colors.Red)
-                .addTextDisplayComponents(new TextDisplayBuilder().setContent(t('birthday.announceInGuild.error'))),
-            ],
-            flags: [MessageFlags.IsComponentsV2],
-          });
-        }
-
-        return i.update({
-          components: [
-            new ContainerBuilder()
-              .setAccentColor(Colors.Green)
-              .addTextDisplayComponents(new TextDisplayBuilder().setContent(t('birthday.announceInGuild.success')))
-              .addActionRowComponents(
-                new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
-                  new StringSelectMenuBuilder()
-                    .setCustomId('birthday-announce-in-guilds-select')
-                    .setPlaceholder(t('birthday.announceInGuild.selectPlaceholder'))
-                    .setOptions(
-                      guildOptions.map((option) => ({
-                        ...option,
-                        default: selectedGuildIds.includes(option.value),
-                      })),
-                    ),
-                ),
-              ),
-          ],
-          flags: [MessageFlags.IsComponentsV2],
-        });
-      }
-    })();
-  });
-
-  collector.on('end', () => {
-    void (async () => {
-      if (message.editable) {
-        await message.edit({
-          components: [
-            new ContainerBuilder()
-              .setAccentColor(Colors.Yellow)
-              .addTextDisplayComponents(new TextDisplayBuilder().setContent(t('birthday.announceInGuild.selectDescription')))
-              .addActionRowComponents(
-                new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
-                  new StringSelectMenuBuilder()
-                    .setCustomId('birthday-announce-in-guilds-select')
-                    .setPlaceholder(t('birthday.announceInGuild.selectPlaceholder'))
-                    .setOptions(guildOptions)
-                    .setDisabled(true),
-                ),
-              ),
-          ],
-          flags: [MessageFlags.IsComponentsV2],
-        });
-      }
-    })();
-  });
+  return interaction.editReply(buildAnnounceInGuildsPicker(interaction.client, interaction.user.id, currentConfig?.announceInGuildIds ?? [], t));
 }
 
 async function handleInfo(interaction: ChatInputCommandInteraction, t: Translate) {

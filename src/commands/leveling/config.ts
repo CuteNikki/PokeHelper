@@ -9,11 +9,11 @@ import {
 
 import { Command } from 'classes/base/command';
 
-import { deleteGuildLevelingConfiguration, getGuildLevelingConfiguration } from 'database/leveling';
+import { getGuildLevelingConfiguration } from 'database/leveling';
 
 import { levelingSettings } from 'settings/leveling';
 
-import { confirmAction } from 'utility/confirm';
+import { buildConfirmation } from 'utility/confirm';
 import { getTranslate } from 'utility/i18next';
 import { createResponse, sendResponse } from 'utility/response';
 
@@ -63,14 +63,12 @@ async function handleReset(interaction: ChatInputCommandInteraction<'cached'>): 
     return interaction.editReply(createResponse(t('leveling.resetConfiguration.nothing'), 'info'));
   }
 
-  const confirmed = await confirmAction(interaction, {
-    question: t('leveling.resetConfiguration.confirm'),
-    confirm: t('leveling.resetConfiguration.confirmButton'),
-    cancel: t('leveling.resetConfiguration.cancelButton'),
-    cancelled: t('leveling.resetConfiguration.cancelled'),
-  });
-  if (!confirmed) return;
-
-  await deleteGuildLevelingConfiguration(interaction.guildId);
-  return interaction.editReply(createResponse(t('leveling.resetConfiguration.success'), 'warning'));
+  // The confirm button resets, whenever it's clicked
+  return interaction.editReply(
+    buildConfirmation('leveling-reset', {
+      question: t('leveling.resetConfiguration.confirm'),
+      confirm: t('leveling.resetConfiguration.confirmButton'),
+      cancel: t('leveling.resetConfiguration.cancelButton'),
+    }),
+  );
 }

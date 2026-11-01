@@ -12,11 +12,11 @@ import {
 
 import { Command } from 'classes/base/command';
 
-import { createCounting, getCounting, resetCounting } from 'database/counting';
+import { createCounting, getCounting } from 'database/counting';
 
 import { COUNTING_CHANNEL_PERMISSIONS, countingSettings } from 'settings/counting';
 
-import { confirmAction } from 'utility/confirm';
+import { buildConfirmation } from 'utility/confirm';
 import { runCountingTask } from 'utility/countingGame';
 import { getTranslate } from 'utility/i18next';
 import { createResponse, sendResponse } from 'utility/response';
@@ -119,17 +119,12 @@ async function handleReset(interaction: ChatInputCommandInteraction<'cached'>): 
     return interaction.editReply(createResponse(t('counting.none'), 'error'));
   }
 
-  const confirmed = await confirmAction(interaction, {
-    question: t('counting.resetConfiguration.confirm'),
-    confirm: t('counting.resetConfiguration.confirmButton'),
-    cancel: t('counting.resetConfiguration.cancelButton'),
-    cancelled: t('counting.resetConfiguration.cancelled'),
-  });
-  if (!confirmed) return;
-
-  await runCountingTask(interaction.guildId, async () => {
-    if (await getCounting(interaction.guildId)) await resetCounting(interaction.guildId);
-  });
-
-  return interaction.editReply(createResponse(t('counting.resetConfiguration.success'), 'warning'));
+  // The confirm button resets, whenever it's clicked
+  return interaction.editReply(
+    buildConfirmation('counting-reset', {
+      question: t('counting.resetConfiguration.confirm'),
+      confirm: t('counting.resetConfiguration.confirmButton'),
+      cancel: t('counting.resetConfiguration.cancelButton'),
+    }),
+  );
 }

@@ -29,10 +29,8 @@ export const updateGuildBirthdayConfiguration = async (guildId: string, query: P
     data: query,
   });
 
-export const deleteGuildBirthdayConfiguration = async (guildId: string) =>
-  prisma.guildBirthday.delete({
-    where: { guildId },
-  });
+// Nothing to delete, like when reset twice, is fine
+export const deleteGuildBirthdayConfiguration = async (guildId: string) => prisma.guildBirthday.deleteMany({ where: { guildId } });
 
 export const getUserBirthday = async (userId: string) =>
   prisma.userBirthday.findUnique({

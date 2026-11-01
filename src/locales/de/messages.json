@@ -387,7 +387,6 @@
       "title": "Zu Seite springen",
       "label": "Seite",
       "placeholder": "1 bis {{maxPages}}",
-      "timeout": "Du hast keine Seite eingegeben, versuch es nochmal.",
       "invalid": "Das ist keine gültige Seite. Gib eine Zahl von 1 bis {{maxPages}} ein."
     },
     "sort": {
@@ -538,7 +537,6 @@
       "selectPlaceholder": "Wähl die Server, auf denen dein Geburtstag angekündigt wird",
       "selectDescription": "Wähl die Server, auf denen dein Geburtstag angekündigt werden soll. Er taucht nur auf Servern auf, die Geburtstagsankündigungen eingerichtet haben.",
       "error": "Beim Speichern ist was schiefgelaufen. Versuch es gleich nochmal.",
-      "selectFilter": "Das Menü ist nicht für dich!",
       "success": "Alles klar, deine Geburtstags-Server sind aktualisiert!"
     },
     "info": {

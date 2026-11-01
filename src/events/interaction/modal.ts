@@ -5,6 +5,7 @@ import { Event } from 'classes/base/event';
 import { handleSettingsModal } from 'settings/index';
 
 import { getTranslate } from 'utility/i18next';
+import { handleLeaderboardPageModal, LEADERBOARD_PAGE_MODAL_PREFIX } from 'utility/leaderboardPageModal';
 import { logger } from 'utility/logger';
 import { sendError } from 'utility/response';
 import { SETTINGS_CUSTOM_ID_PREFIX } from 'utility/settings';
@@ -21,6 +22,7 @@ export default new Event({
 
     try {
       if (interaction.customId.startsWith(SETTINGS_CUSTOM_ID_PREFIX)) await handleSettingsModal(interaction);
+      else if (interaction.customId.startsWith(LEADERBOARD_PAGE_MODAL_PREFIX)) await handleLeaderboardPageModal(interaction);
     } catch (error) {
       logger.error(error, `Failed to handle the popup ${interaction.customId}`);
       await sendError(interaction, getTranslate(interaction.locale)('system.button.error'));

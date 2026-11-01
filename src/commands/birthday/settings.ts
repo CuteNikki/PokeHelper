@@ -9,11 +9,11 @@ import {
 
 import { Command } from 'classes/base/command';
 
-import { deleteGuildBirthdayConfiguration, getGuildBirthdayConfiguration } from 'database/birthday';
+import { getGuildBirthdayConfiguration } from 'database/birthday';
 
 import { birthdaySettings } from 'settings/birthday';
 
-import { confirmAction } from 'utility/confirm';
+import { buildConfirmation } from 'utility/confirm';
 import { getTranslate } from 'utility/i18next';
 import { createResponse, sendResponse } from 'utility/response';
 
@@ -63,14 +63,12 @@ async function handleReset(interaction: ChatInputCommandInteraction<'cached'>): 
     return interaction.editReply(createResponse(t('birthday.resetConfiguration.nothing'), 'info'));
   }
 
-  const confirmed = await confirmAction(interaction, {
-    question: t('birthday.resetConfiguration.confirm'),
-    confirm: t('birthday.resetConfiguration.confirmButton'),
-    cancel: t('birthday.resetConfiguration.cancelButton'),
-    cancelled: t('birthday.resetConfiguration.cancelled'),
-  });
-  if (!confirmed) return;
-
-  await deleteGuildBirthdayConfiguration(interaction.guildId);
-  return interaction.editReply(createResponse(t('birthday.resetConfiguration.success'), 'warning'));
+  // The confirm button resets, whenever it's clicked
+  return interaction.editReply(
+    buildConfirmation('birthday-reset', {
+      question: t('birthday.resetConfiguration.confirm'),
+      confirm: t('birthday.resetConfiguration.confirmButton'),
+      cancel: t('birthday.resetConfiguration.cancelButton'),
+    }),
+  );
 }
