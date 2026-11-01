@@ -38,3 +38,5 @@ generated/prisma
 
 # Pino log
 pino.log
+# npm lockfile, this project uses Bun
+package-lock.json
