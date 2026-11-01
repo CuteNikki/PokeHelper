@@ -1,86 +1,159 @@
 # Poke Helper
 
-_A Pokémon Themed Discord Bot_
+_A Pokémon themed Discord bot_
 
-Welcome to **Poke Helper**! This project is the foundation for a Discord bot designed for a Pokémon-themed server. While we're just getting started, our goal is to provide a suite of utilities and fun features to enhance your Pokémon community experience.
+**Poke Helper** is a Discord bot made for a Pokémon community server. It runs the server's counting game, levels, birthdays and reaction roles, in English and German.
 
-## ✨ Planned Features
+## ✨ Features
 
-- Minigames (counting and more)
+### 🔢 Counting
+
+- Count up together in a channel, one number per person in a row
+- Optional math, so `6*7` counts as 42
+- Lives: set how many wrong numbers a run survives, and optionally get lives back at milestones
+- Milestone reactions, records, recent runs and a leaderboard of who counted the most
+- Catches up after downtime: numbers sent while the bot was offline still count
+- Deleted numbers are reposted, so nobody can quietly break the count
+
+### 📈 Leveling
+
+- XP for chatting, with rank cards and a leaderboard as images, or as text for screen readers
+- A weekly leaderboard, with a role for the weekly winner
+- Level-up rewards, given out retroactively to members who already reached the level
+- XP multipliers for roles and channels
+- Ignore or allow only specific channels and roles
+
+### 🎂 Birthdays
+
+- Members set their birthday once, with their own timezone, and pick the servers it gets announced in
+- Announcements and a birthday role for the day
+- February 29 birthdays are celebrated on February 28 in other years
+- Birthdays missed while the bot was offline are announced once it's back
+
+### 🎭 Reaction Roles
+
+- Menus where members pick their own roles, re-sendable to other channels, and can be turned off without deleting them
+
+### ⚙️ And more
+
+- Interactive settings panels instead of a long list of config commands
+- English and German, following each member's Discord language
+- Data of a server is deleted 30 days after the bot leaves it
+
+## 💬 Commands
+
+| Command            | What it does                                           |
+| ------------------ | ------------------------------------------------------ |
+| `/counting`        | Current run, records, leaderboard, user stats and runs |
+| `/rank`            | Your rank card or someone else's                       |
+| `/leaderboard`     | The server's level leaderboard, all time or weekly     |
+| `/birthday`        | Set, edit, show or remove your birthday                |
+| `/botinfo`         | Bot status, host stats and versions                    |
+| `/counting-config` | Set up the counting game and change its settings       |
+| `/leveling-config` | Change leveling settings, rewards and multipliers      |
+| `/birthday-config` | Set the birthday channel and role                      |
+| `/reaction-role`   | Create, re-send, toggle and delete reaction role menus |
+| `/dev`             | Reload and register commands, only in the dev server   |
+
+The config commands need the **Manage Server** permission.
 
 ## 🛠️ Tech Stack
 
-- [Bun](https://bun.sh) — Fast all-in-one JavaScript runtime
-- [TypeScript](https://www.typescriptlang.org/) — Type safety and modern JS features
-- [Discord.js](https://discord.js.org/) — For Discord API integration
-- [Prisma](https://www.prisma.io/) — Type-safe ORM for database access
-- [PostgreSQL](https://www.postgresql.org/) — Reliable open-source relational database
+- [Bun](https://bun.sh): fast all-in-one JavaScript runtime
+- [TypeScript](https://www.typescriptlang.org/): type safety and modern JS features
+- [discord.js](https://discord.js.org/): Discord API integration
+- [Prisma](https://www.prisma.io/) with [PostgreSQL](https://www.postgresql.org/): type-safe database access
+- [i18next](https://www.i18next.com/): translations
+- [@napi-rs/canvas](https://github.com/Brooooooklyn/canvas): rank card and leaderboard images
 
 ## 🚀 Getting Started
 
-**1. Install dependencies:**
+### 1. Create the bot
+
+[Create a Discord application](https://discord.com/developers/applications) and enable the privileged **Message Content** intent.
+
+When inviting the bot, give it these permissions: View Channels, Send Messages, Attach Files, Add Reactions, Read Message History and Manage Roles. For role rewards, the bot's role has to be above the roles it gives out.
+
+### 2. Install dependencies
 
 ```bash
 bun install
 ```
 
-**2. Set up the Environment:**
+### 3. Set up the database
 
-When [creating your Discord Bot Application](https://discord.com/developers/applications), make sure to enable the privileged intents `Message Content`.
-
-Creating the database:
-
-```
-postgres=# CREATE DATABASE "mydb";
-postgres=# CREATE USER "myuser" WITH ENCRYPTED PASSWORD "mypass";
-postgres=# GRANT ALL PRIVILEGES ON DATABASE "mydb" TO "myuser";
-
-These might be needed if issues still occur:
-
-postgres=# \c "mydb";
-mydb=# GRANT USAGE ON SCHEMA public TO "myuser";
-mydb=# GRANT CREATE ON SCHEMA public TO "myuser";
-mydb=# GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO "myuser";
-mydb=# GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO "myuser";
+```sql
+CREATE DATABASE "mydb";
+CREATE USER "myuser" WITH ENCRYPTED PASSWORD 'mypass';
+GRANT ALL PRIVILEGES ON DATABASE "mydb" TO "myuser";
 ```
 
-If your postgresql instance is running locally, your `DATABASE_URL` will look like this:
+<details>
+<summary>Still getting permission errors?</summary>
 
+```sql
+\c "mydb"
+GRANT USAGE ON SCHEMA public TO "myuser";
+GRANT CREATE ON SCHEMA public TO "myuser";
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO "myuser";
+GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO "myuser";
 ```
-postgresql://myuser:mypass@localhost:5432/mydb
-```
 
-Now fill in the `.env` file. There is an example file in this project.
+</details>
 
-Create or update tables in your database:
+### 4. Fill in the environment
+
+Copy `.env.example` to `.env` and fill it in:
+
+| Variable        | Description                                                              |
+| --------------- | ------------------------------------------------------------------------ |
+| `DISCORD_TOKEN` | The bot token                                                            |
+| `DISCORD_ID`    | The application ID                                                       |
+| `DEV_GUILD_ID`  | Server where `/dev` is registered, only visible there                    |
+| `DATABASE_URL`  | Like `postgresql://myuser:mypass@localhost:5432/mydb` for a local server |
+
+### 5. Create the tables
 
 ```bash
-bunx prisma migrate dev
-```
-
-Generate the Prisma client based on the schema, enabling type-safe database access in the project:
-
-```bash
+bunx prisma migrate deploy
 bunx prisma generate
 ```
 
-**3. Register commands:**
+When changing `prisma/schema.prisma` yourself, use `bunx prisma migrate dev` instead to create a new migration.
+
+### 6. Register the commands and start
 
 ```bash
 bun run register
-```
-
-**4. Run the bot:**
-
-```bash
 bun run dev
 ```
 
+After that, `/dev reload` and `/dev register` pick up changes without restarting.
+
+### 🐳 Docker
+
+The `docker-compose.yml` expects PostgreSQL in an external Docker network called `postgres_default`. With `.env` filled in:
+
+```bash
+docker compose up -d --build
+docker compose exec pokehelper bunx prisma migrate deploy
+```
+
+## 🧑‍💻 Development
+
+| Script             | What it does            |
+| ------------------ | ----------------------- |
+| `bun run dev`      | Start the bot           |
+| `bun run register` | Register slash commands |
+| `bun test`         | Run the tests           |
+| `bun run lint`     | Lint with ESLint        |
+| `bun run format`   | Format with Prettier    |
+
+Translations live in `src/locales/<language>/messages.json`. English is the source; missing German texts fall back to it.
+
 ## 🤝 Contributing
 
-We're in the early stages! Any contributions, issues and feature requests are welcome.
-
-If you'd like to contribute ideas, code, or feedback, feel free to [open an issue](https://github.com/CuteNikki/poke-helper/issues) or [pull request](https://github.com/CuteNikki/poke-helper/pulls).
+Contributions, issues and feature requests are welcome. Feel free to [open an issue](https://github.com/CuteNikki/poke-helper/issues) or a [pull request](https://github.com/CuteNikki/poke-helper/pulls).
 
 ## ⭐ Show your Support
 
