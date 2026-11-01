@@ -24,12 +24,18 @@ import type { ResponsePayload } from 'utility/response';
 import { createResponse } from 'utility/response';
 import { ThemeColors } from 'utility/theme';
 
-/** Custom IDs of settings components are `settings:<panel>:<page>:<setting>[:<argument>]`. */
+/**
+ * Custom IDs of settings components are `settings:<panel>:<page>:<setting>:<argument>:<shown>`.
+ * The argument says which entry a button belongs to or what a select does, and `-` when there's none.
+ * Buttons carry the value they showed, so a click on a panel that's out of date can be detected.
+ */
 export const SETTINGS_CUSTOM_ID_PREFIX = 'settings:';
 /** The page of panels without categories. */
 const SINGLE_PAGE = '_';
 /** The key of the select that switches between categories. */
 const PAGE_KEY = '_page';
+/** Placeholder in custom IDs for a missing argument or shown value. */
+const NONE = '-';
 /** Discord shows at most 25 options in a select. */
 const MAX_SELECT_OPTIONS = 25;
 
@@ -64,7 +70,12 @@ export type ChannelSetting<C> = BaseSetting<C, string | null> & {
   botPermissions?: PermissionsString[];
 };
 /** A role, picked with a role select. Without `required`, the selection can be cleared. */
-export type RoleSetting<C> = BaseSetting<C, string | null> & { type: 'role'; required?: boolean };
+export type RoleSetting<C> = BaseSetting<C, string | null> & {
+  type: 'role';
+  required?: boolean;
+  /** Whether the bot has to be able to give the role to members, which refuses roles it can't and warns about saved ones. */
+  assignable?: boolean;
+};
 /** Several channels, picked at once with a channel select. */
 export type ChannelsSetting<C> = BaseSetting<C, string[]> & { type: 'channels'; channelTypes: ChannelType[]; max: number };
 /** Several roles, picked at once with a role select. */
@@ -91,6 +102,8 @@ export interface EntriesSetting<C> {
   target: 'channel' | 'role';
   /** The channel types that can be added, for channel entries. */
   channelTypes?: ChannelType[];
+  /** Whether the bot has to be able to give the roles to members, for role entries. */
+  assignable?: boolean;
   /** The most entries there can be. With presets, keep it at 10 at most, as a message can only have 40 components. */
   max: number;
   /** The values the button of an entry cycles through. */
@@ -142,18 +155,71 @@ export interface SettingsModal {
   label: string;
   placeholder?: string;
   value?: string;
-  /** Save what was typed. Returns an error to show, or null when it was saved. */
-  submit: (input: string) => Promise<string | null>;
+  /** Check what was typed. Returns an error to show, or how to save it. */
+  submit: (input: string) => { error: string } | { save: () => Promise<unknown> };
 }
 
-/** What should happen after a settings component was used. */
+/**
+ * What should happen after a settings component was used. Working this out doesn't save anything yet,
+ * so the handler can show a popup first when one is needed, as a popup has to be the first answer to an interaction.
+ */
 export interface SettingsResult {
   /** The page to show. */
   page: string;
   /** A popup to show, for values that have to be typed. */
   modal?: SettingsModal;
-  /** Why the change wasn't saved, to show the user. */
+  /** Why the change can't be made, to show the user. */
   error?: string;
+  /** Saves the change. Run after the interaction was deferred, as saving can take a moment. */
+  save?: () => Promise<unknown>;
+  /** The button showed a value that has changed since, so nothing is saved and the panel is refreshed instead. */
+  outdated?: boolean;
+}
+
+/** What was used: a button, or a select with its selected values. */
+export type SettingsInput = { type: 'button' } | { type: 'select'; values: string[] };
+
+/** A settings panel with its configuration type hidden, so panels of different features can be kept together. */
+export interface SettingsPanel {
+  id: string;
+  permissions: PermissionsString[];
+  /**
+   * Render the panel with the guild's current settings. The guild is needed to check that saved channels and roles still exist.
+   * @param page The category to show. Defaults to the first.
+   */
+  render: (guild: Guild, page?: string) => Promise<ResponsePayload>;
+  /** Work out what a button or select of the panel should do. */
+  handle: (guild: Guild, id: ParsedSettingsCustomId, input: SettingsInput) => Promise<SettingsResult>;
+}
+
+export interface ParsedSettingsCustomId {
+  panelId: string;
+  page: string;
+  key: string;
+  /** Which entry a button belongs to, or what a select does, for entries settings. */
+  argument?: string;
+  /** The value a button showed. */
+  shown?: string;
+}
+
+const customId = (panelId: string, page: string, key: string, argument?: string, shown?: string) =>
+  `${SETTINGS_CUSTOM_ID_PREFIX}${panelId}:${page}:${key}:${argument ?? NONE}:${shown ?? NONE}`;
+
+/**
+ * Parse the custom ID of a settings component.
+ * @returns The panel, page and setting it belongs to, or null if it isn't a settings custom ID.
+ */
+export function parseSettingsCustomId(id: string): ParsedSettingsCustomId | null {
+  if (!id.startsWith(SETTINGS_CUSTOM_ID_PREFIX)) return null;
+  const [panelId, page, key, argument, shown] = id.slice(SETTINGS_CUSTOM_ID_PREFIX.length).split(':');
+  if (!panelId || !page || !key) return null;
+  return {
+    panelId,
+    page,
+    key,
+    argument: argument && argument !== NONE ? argument : undefined,
+    shown: shown && shown !== NONE ? shown : undefined,
+  };
 }
 
 /**
@@ -171,41 +237,19 @@ export function missingBotPermissions(guild: Guild, channelId: string, permissio
 
 export const formatPermissions = (permissions: PermissionsString[]) => permissions.map((permission) => t(`permission.${permission}`)).join(', ');
 
-/** What was used: a button, or a select with its selected values. */
-export type SettingsInput = { type: 'button' } | { type: 'select'; values: string[] };
-
-/** A settings panel with its configuration type hidden, so panels of different features can be kept together. */
-export interface SettingsPanel {
-  id: string;
-  permissions: PermissionsString[];
-  /**
-   * Render the panel with the guild's current settings. The guild is needed to check that saved channels and roles still exist.
-   * @param page The category to show. Defaults to the first.
-   */
-  render: (guild: Guild, page?: string) => Promise<ResponsePayload>;
-  /** Handle a button or select of the panel. */
-  handle: (guild: Guild, id: ParsedSettingsCustomId, input: SettingsInput) => Promise<SettingsResult>;
-}
-
-export interface ParsedSettingsCustomId {
-  panelId: string;
-  page: string;
-  key: string;
-  /** Which entry a button belongs to, or what a select does, for entries settings. */
-  argument?: string;
-}
-
-const customId = (panelId: string, page: string, key: string, argument?: string) =>
-  `${SETTINGS_CUSTOM_ID_PREFIX}${panelId}:${page}:${key}${argument ? `:${argument}` : ''}`;
-
 /**
- * Parse the custom ID of a settings component.
- * @returns The panel, page and setting it belongs to, or null if it isn't a settings custom ID.
+ * Why the bot can't give a role to members, or null if it can.
+ * Unknown when the bot's member or the role isn't cached, in which case null is returned.
  */
-export function parseSettingsCustomId(id: string): ParsedSettingsCustomId | null {
-  if (!id.startsWith(SETTINGS_CUSTOM_ID_PREFIX)) return null;
-  const [panelId, page, key, argument] = id.slice(SETTINGS_CUSTOM_ID_PREFIX.length).split(':');
-  return panelId && page && key ? { panelId, page, key, argument } : null;
+export function unassignableReason(guild: Guild, roleId: string): string | null {
+  const role = guild.roles.cache.get(roleId);
+  const me = guild.members?.me;
+  if (!role || !me) return null;
+  if (role.id === guild.id) return t('settings.role.everyone');
+  if (role.managed) return t('settings.role.managed');
+  if (!me.permissions.has('ManageRoles')) return t('settings.role.noManageRoles');
+  if (role.position >= me.roles.highest.position) return t('settings.role.tooHigh');
+  return null;
 }
 
 /** How a value is shown as a default, or in a choice button. */
@@ -243,15 +287,13 @@ function targetName(guild: Guild, target: 'channel' | 'role', id: string): strin
 
 /** Add one setting to the panel. */
 function addSetting<C>(container: ContainerBuilder, guild: Guild, panelId: string, page: string, setting: Setting<C>, config: C) {
-  const id = customId(panelId, page, setting.key);
-
   switch (setting.type) {
     case 'boolean': {
       const value = setting.get(config);
       container.addSectionComponents(
         new SectionBuilder().addTextDisplayComponents(new TextDisplayBuilder().setContent(describe(setting))).setButtonAccessory(
           new ButtonBuilder()
-            .setCustomId(id)
+            .setCustomId(customId(panelId, page, setting.key, undefined, value ? '1' : '0'))
             .setLabel(formatValue(setting, value))
             .setEmoji(value ? '✅' : '✖️')
             .setStyle(value ? ButtonStyle.Success : ButtonStyle.Secondary),
@@ -262,9 +304,13 @@ function addSetting<C>(container: ContainerBuilder, guild: Guild, panelId: strin
     case 'choice': {
       const value = setting.get(config);
       container.addSectionComponents(
-        new SectionBuilder()
-          .addTextDisplayComponents(new TextDisplayBuilder().setContent(describe(setting)))
-          .setButtonAccessory(new ButtonBuilder().setCustomId(id).setLabel(formatValue(setting, value)).setEmoji('🔁').setStyle(ButtonStyle.Primary)),
+        new SectionBuilder().addTextDisplayComponents(new TextDisplayBuilder().setContent(describe(setting))).setButtonAccessory(
+          new ButtonBuilder()
+            .setCustomId(customId(panelId, page, setting.key, undefined, value))
+            .setLabel(formatValue(setting, value))
+            .setEmoji('🔁')
+            .setStyle(ButtonStyle.Primary),
+        ),
       );
       return;
     }
@@ -274,7 +320,7 @@ function addSetting<C>(container: ContainerBuilder, guild: Guild, panelId: strin
       // Only preselect channels that still exist, so a deleted one doesn't break the panel that's needed to replace it
       const existing = saved.filter((value) => guild.channels.cache.has(value));
       const select = new ChannelSelectMenuBuilder()
-        .setCustomId(id)
+        .setCustomId(customId(panelId, page, setting.key))
         .setChannelTypes(setting.channelTypes)
         .setPlaceholder(t(setting.type === 'channel' ? 'settings.channel.placeholder' : 'settings.channels.placeholder'))
         .setMinValues(setting.type === 'channel' && setting.required ? 1 : 0)
@@ -295,12 +341,15 @@ function addSetting<C>(container: ContainerBuilder, guild: Guild, panelId: strin
       // Only preselect roles that still exist, like with channels
       const existing = saved.filter((value) => guild.roles.cache.has(value));
       const select = new RoleSelectMenuBuilder()
-        .setCustomId(id)
+        .setCustomId(customId(panelId, page, setting.key))
         .setPlaceholder(t(setting.type === 'role' ? 'settings.role.placeholder' : 'settings.roles.placeholder'))
         .setMinValues(setting.type === 'role' && setting.required ? 1 : 0)
         .setMaxValues(setting.type === 'role' ? 1 : Math.min(setting.max, MAX_SELECT_OPTIONS));
       if (existing.length > 0) select.setDefaultRoles(existing);
       const warning = existing.length < saved.length ? [`⚠️ ${t(setting.type === 'role' ? 'settings.role.missing' : 'settings.roles.missing')}`] : [];
+      // The role or the bot's own roles can change after the role was picked
+      const reason = setting.type === 'role' && setting.assignable && existing[0] ? unassignableReason(guild, existing[0]) : null;
+      if (reason) warning.push(`⚠️ ${t('settings.role.cantAssign', { reason })}`);
       container
         .addTextDisplayComponents(new TextDisplayBuilder().setContent(describe(setting, warning)))
         .addActionRowComponents(new ActionRowBuilder<RoleSelectMenuBuilder>().addComponents(select));
@@ -312,6 +361,13 @@ function addSetting<C>(container: ContainerBuilder, guild: Guild, panelId: strin
   }
 }
 
+/** A warning for an entry whose channel or role was deleted, or whose role the bot can't give. */
+function entryWarning<C>(guild: Guild, setting: EntriesSetting<C>, targetId: string): string {
+  if (!exists(guild, setting.target, targetId)) return ` ⚠️ ${t('settings.entries.missing')}`;
+  const reason = setting.target === 'role' && setting.assignable ? unassignableReason(guild, targetId) : null;
+  return reason ? ` ⚠️ ${reason}` : '';
+}
+
 function addEntries<C>(container: ContainerBuilder, guild: Guild, panelId: string, page: string, setting: EntriesSetting<C>, config: C) {
   const entries = setting.get(config);
   const count = t('settings.entries.count', { count: entries.length, max: setting.max });
@@ -319,13 +375,14 @@ function addEntries<C>(container: ContainerBuilder, guild: Guild, panelId: strin
   if (setting.presets) {
     container.addTextDisplayComponents(new TextDisplayBuilder().setContent(describe(setting, [`-# ${count}`])));
     for (const entry of entries) {
-      const missing = exists(guild, setting.target, entry.targetId) ? '' : ` ⚠️ ${t('settings.entries.missing')}`;
       container.addSectionComponents(
         new SectionBuilder()
-          .addTextDisplayComponents(new TextDisplayBuilder().setContent(`${mention(setting.target, entry.targetId)}${missing}`))
+          .addTextDisplayComponents(
+            new TextDisplayBuilder().setContent(`${mention(setting.target, entry.targetId)}${entryWarning(guild, setting, entry.targetId)}`),
+          )
           .setButtonAccessory(
             new ButtonBuilder()
-              .setCustomId(customId(panelId, page, setting.key, entry.targetId))
+              .setCustomId(customId(panelId, page, setting.key, entry.targetId, String(entry.value)))
               .setLabel(setting.formatValue(entry.value))
               .setStyle(ButtonStyle.Primary),
           ),
@@ -335,7 +392,9 @@ function addEntries<C>(container: ContainerBuilder, guild: Guild, panelId: strin
     const format = setting.formatEntry ?? ((target: string, value: string) => `${target}: ${value}`);
     const list =
       entries.length > 0
-        ? entries.map((entry) => `- ${format(mention(setting.target, entry.targetId), setting.formatValue(entry.value))}`)
+        ? entries.map(
+            (entry) => `- ${format(mention(setting.target, entry.targetId), setting.formatValue(entry.value))}${entryWarning(guild, setting, entry.targetId)}`,
+          )
         : [t('settings.none')];
     container.addTextDisplayComponents(new TextDisplayBuilder().setContent(describe(setting, [`-# ${count}`, ...list])));
   }
@@ -373,17 +432,16 @@ function addEntries<C>(container: ContainerBuilder, guild: Guild, panelId: strin
 }
 
 /** The popup asking for the value of an entry. */
-function entryModal<C>(guild: Guild, guildId: string, setting: EntriesSetting<C>, targetId: string, current?: number): SettingsModal {
+function entryModal<C>(guild: Guild, setting: EntriesSetting<C>, targetId: string, current?: number): SettingsModal {
   return {
     title: t('settings.entries.modalTitle', { target: targetName(guild, setting.target, targetId) }).slice(0, 45),
     label: setting.input.label(),
     placeholder: setting.input.placeholder?.(),
     value: current === undefined ? undefined : String(current),
-    async submit(input) {
+    submit(input) {
       const value = setting.input.parse(input.trim());
-      if (value === null) return setting.input.invalid();
-      await setting.set(guildId, targetId, value);
-      return null;
+      if (value === null) return { error: setting.input.invalid() };
+      return { save: () => setting.set(guild.id, targetId, value) };
     },
   };
 }
@@ -450,75 +508,84 @@ export function createSettingsPanel<C>(definition: SettingsPanelDefinition<C>): 
       if (!setting || !config) return { page };
 
       switch (setting.type) {
-        case 'boolean':
-          await setting.set(guild.id, !setting.get(config));
-          break;
+        case 'boolean': {
+          const value = setting.get(config);
+          if (id.shown !== (value ? '1' : '0')) return { page, outdated: true };
+          return { page, save: () => setting.set(guild.id, !value) };
+        }
         case 'choice': {
-          const index = setting.options.findIndex((option) => option.value === setting.get(config));
+          const value = setting.get(config);
+          if (id.shown !== value) return { page, outdated: true };
+          const index = setting.options.findIndex((option) => option.value === value);
           const next = setting.options[(index + 1) % setting.options.length];
-          if (next) await setting.set(guild.id, next.value);
-          break;
+          return next ? { page, save: () => setting.set(guild.id, next.value) } : { page };
         }
         case 'channel':
         case 'role': {
           const value = input.type === 'select' ? (input.values[0] ?? null) : null;
-          if (setting.type === 'channel' && value !== null) {
+          // Discord enforces the minimum, but don't rely on it for required settings
+          if (value === null && setting.required) return { page };
+
+          if (value !== null && setting.type === 'channel') {
             const missing = missingBotPermissions(guild, value, setting.botPermissions);
             if (missing.length > 0) {
               return { page, error: t('settings.channel.botPermissionsRefused', { channel: channelMention(value), permissions: formatPermissions(missing) }) };
             }
           }
-          // Discord enforces the minimum, but don't rely on it for required settings
-          if (value !== null || !setting.required) await setting.set(guild.id, value);
-          break;
+          if (value !== null && setting.type === 'role' && setting.assignable) {
+            const reason = unassignableReason(guild, value);
+            if (reason) return { page, error: t('settings.role.refused', { role: roleMention(value), reason }) };
+          }
+          return { page, save: () => setting.set(guild.id, value) };
         }
         case 'channels':
-        case 'roles':
-          if (input.type === 'select') await setting.set(guild.id, input.values.slice(0, setting.max));
-          break;
+        case 'roles': {
+          if (input.type !== 'select') return { page };
+          const values = input.values.slice(0, setting.max);
+          return { page, save: () => setting.set(guild.id, values) };
+        }
         case 'entries':
-          return { page, modal: await handleEntries(guild, setting, config, id.argument, input) };
+          return { page, ...handleEntries(guild, setting, config, id, input) };
       }
-
-      return { page };
     },
   };
 }
 
-/** Handle a button or select of an entries setting. Returns a popup when a value has to be typed. */
-async function handleEntries<C>(
-  guild: Guild,
-  setting: EntriesSetting<C>,
-  config: C,
-  argument: string | undefined,
-  input: SettingsInput,
-): Promise<SettingsModal | undefined> {
+/** Work out what a button or select of an entries setting should do. */
+function handleEntries<C>(guild: Guild, setting: EntriesSetting<C>, config: C, id: ParsedSettingsCustomId, input: SettingsInput): Omit<SettingsResult, 'page'> {
   const entries = setting.get(config);
 
-  if (argument === 'remove') {
-    if (input.type === 'select' && input.values[0]) await setting.set(guild.id, input.values[0], null);
-    return;
+  if (id.argument === 'remove') {
+    const targetId = input.type === 'select' ? input.values[0] : undefined;
+    return targetId ? { save: () => setting.set(guild.id, targetId, null) } : {};
   }
 
-  if (argument === 'add') {
+  if (id.argument === 'add') {
     const targetId = input.type === 'select' ? input.values[0] : undefined;
-    if (!targetId) return;
+    if (!targetId) return {};
     const existing = entries.find((entry) => entry.targetId === targetId);
+    if (!existing && entries.length >= setting.max) return {};
+
+    if (!existing && setting.target === 'role' && setting.assignable) {
+      const reason = unassignableReason(guild, targetId);
+      if (reason) return { error: t('settings.role.refused', { role: roleMention(targetId), reason }) };
+    }
 
     // Without presets, the value is always typed, also to change it for an existing entry
-    if (!setting.presets) {
-      if (!existing && entries.length >= setting.max) return;
-      return entryModal(guild, guild.id, setting, targetId, existing?.value);
-    }
-    if (!existing && entries.length < setting.max) await setting.set(guild.id, targetId, setting.defaultValue ?? setting.presets[0] ?? 1);
-    return;
+    if (!setting.presets) return { modal: entryModal(guild, setting, targetId, existing?.value) };
+    if (existing) return {};
+    const value = setting.defaultValue ?? setting.presets[0] ?? 1;
+    return { save: () => setting.set(guild.id, targetId, value) };
   }
 
   // A button of an entry: move to the next preset, and after the last one ask for a custom value
-  const entry = entries.find((candidate) => candidate.targetId === argument);
-  if (!entry || !setting.presets) return;
+  const entry = entries.find((candidate) => candidate.targetId === id.argument);
+  if (!entry || !setting.presets) return { outdated: true };
+  if (id.shown !== String(entry.value)) return { outdated: true };
+
   const index = setting.presets.indexOf(entry.value);
-  if (index === setting.presets.length - 1) return entryModal(guild, guild.id, setting, entry.targetId, entry.value);
+  if (index === setting.presets.length - 1) return { modal: entryModal(guild, setting, entry.targetId, entry.value) };
   // A custom value starts over at the first preset
-  await setting.set(guild.id, entry.targetId, setting.presets[index + 1] ?? setting.presets[0]!);
+  const next = setting.presets[index + 1] ?? setting.presets[0]!;
+  return { save: () => setting.set(guild.id, entry.targetId, next) };
 }

@@ -1,9 +1,9 @@
-import { LabelBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, type AnySelectMenuInteraction, type ButtonInteraction } from 'discord.js';
+import { LabelBuilder, MessageFlags, ModalBuilder, TextInputBuilder, TextInputStyle, type AnySelectMenuInteraction, type ButtonInteraction } from 'discord.js';
 import { t } from 'i18next';
 
 import { countingSettings } from 'settings/counting';
 
-import { sendError } from 'utility/response';
+import { createResponse, sendError } from 'utility/response';
 import { parseSettingsCustomId, type SettingsInput, type SettingsModal, type SettingsPanel } from 'utility/settings';
 
 /** Every settings panel, so their buttons and selects can find them by ID. */
@@ -35,9 +35,19 @@ export async function handleSettingsInteraction(interaction: ButtonInteraction |
   const result = await panel.handle(interaction.guild, id, input);
 
   if (result.error) return sendError(interaction, result.error);
+  // A popup has to be the first answer, so it's shown before anything is saved
   if (result.modal) return handleModal(interaction, panel, result.page, result.modal);
 
-  await interaction.update(await panel.render(interaction.guild, result.page));
+  if (result.outdated) {
+    await interaction.update(await panel.render(interaction.guild, result.page));
+    await interaction.followUp({ ...createResponse(t('settings.outdated'), 'warning'), flags: [MessageFlags.IsComponentsV2, MessageFlags.Ephemeral] });
+    return;
+  }
+
+  // Saving can wait behind other changes, like counting catching up, so defer to not run out of time to answer
+  await interaction.deferUpdate();
+  await result.save?.();
+  await interaction.editReply(await panel.render(interaction.guild, result.page));
 }
 
 /** Show a popup asking for a value, save what's submitted, and update the panel. */
@@ -63,8 +73,10 @@ async function handleModal(
   // Closing the popup isn't sent to the bot, so there's nothing to answer if it times out
   if (!submit?.isFromMessage()) return;
 
-  const error = await modal.submit(submit.fields.getTextInputValue(MODAL_INPUT_ID));
-  if (error) return sendError(submit, error);
+  const result = modal.submit(submit.fields.getTextInputValue(MODAL_INPUT_ID));
+  if ('error' in result) return sendError(submit, result.error);
 
-  await submit.update(await panel.render(interaction.guild, page));
+  await submit.deferUpdate();
+  await result.save();
+  await submit.editReply(await panel.render(interaction.guild, page));
 }

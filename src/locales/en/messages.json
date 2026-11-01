@@ -71,7 +71,13 @@
     },
     "role": {
       "placeholder": "Select a role",
-      "missing": "The saved role no longer exists, please select a new one."
+      "missing": "The saved role no longer exists, please select a new one.",
+      "everyone": "@everyone can't be given to members",
+      "managed": "it's managed by an integration, like a bot or booster role",
+      "noManageRoles": "I'm missing the Manage Roles permission",
+      "tooHigh": "it's not below my highest role",
+      "cantAssign": "I can't give this role to members: {{reason}}.",
+      "refused": "I can't use {{role}}, as I can't give it to members: {{reason}}. Pick another role, or move my role above it in the server settings."
     },
     "channels": {
       "placeholder": "Select channels",
@@ -90,7 +96,8 @@
       "remove": "Remove one",
       "modalTitle": "Settings for {{target}}"
     },
-    "unknown": "Unknown ({{id}})"
+    "unknown": "Unknown ({{id}})",
+    "outdated": "That setting was changed by someone else since this panel was opened, so nothing was changed. The panel now shows the current settings."
   },
   "state": {
     "enabled": "enabled",

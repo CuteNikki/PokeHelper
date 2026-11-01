@@ -2,7 +2,7 @@ import { beforeAll, describe, expect, test } from 'bun:test';
 import { ChannelType, Collection, ComponentType, SelectMenuDefaultValueType, type APIContainerComponent, type Guild } from 'discord.js';
 
 import { initI18Next } from 'utility/i18next';
-import { createSettingsPanel, parseSettingsCustomId, type Entry, type SettingsInput } from 'utility/settings';
+import { createSettingsPanel, parseSettingsCustomId, type Entry, type SettingsInput, type SettingsModal } from 'utility/settings';
 
 // The panel renders labels like On and Off through i18next
 beforeAll(() => initI18Next());
@@ -88,6 +88,16 @@ function createTestPanel(initial: Config | null) {
         set: (_, roleId) => patch({ roleId }),
       },
       {
+        type: 'role',
+        key: 'assignableRole',
+        category: 'general',
+        assignable: true,
+        label: () => 'Assignable role',
+        description: () => '',
+        get: (c) => c.roleId,
+        set: (_, roleId) => patch({ roleId }),
+      },
+      {
         type: 'channels',
         key: 'ignored',
         category: 'lists',
@@ -118,6 +128,7 @@ function createTestPanel(initial: Config | null) {
         key: 'rewards',
         category: 'lists',
         target: 'role',
+        assignable: true,
         max: 20,
         formatValue: (value) => `Level ${value}`,
         input: { label: () => 'Level', parse: parseNumber, invalid: () => 'Not a level' },
@@ -132,18 +143,23 @@ function createTestPanel(initial: Config | null) {
   return { panel, getConfig: () => config! };
 }
 
-/** Just enough of a guild for the panel to check which channels and roles exist, and which permissions the bot has in the channels. */
-const fakeGuild = ({ channelIds = [] as string[], roleIds = [] as string[], botMissing = [] as string[] } = {}) =>
-  ({
+/**
+ * Just enough of a guild for the panel to check which channels and roles exist, which permissions the bot has,
+ * and which roles it can give. The bot's highest role is at position 10, and roles are at position 1 unless they're `highRoles`.
+ */
+const fakeGuild = ({ channelIds = [] as string[], roleIds = [] as string[], botMissing = [] as string[], highRoles = [] as string[] } = {}) => {
+  const has = (permission: string) => !botMissing.includes(permission);
+  return {
     id: 'guild',
-    members: { me: {} },
+    members: { me: { permissions: { has }, roles: { highest: { position: 10 } } } },
     channels: {
-      cache: new Collection(
-        channelIds.map((id) => [id, { name: `channel-${id}`, permissionsFor: () => ({ has: (permission: string) => !botMissing.includes(permission) }) }]),
-      ),
+      cache: new Collection(channelIds.map((id) => [id, { name: `channel-${id}`, permissionsFor: () => ({ has }) }])),
     },
-    roles: { cache: new Collection(roleIds.map((id) => [id, { name: `role-${id}` }])) },
-  }) as unknown as Guild;
+    roles: {
+      cache: new Collection(roleIds.map((id) => [id, { id, name: `role-${id}`, managed: false, position: highRoles.includes(id) ? 20 : 1 }])),
+    },
+  } as unknown as Guild;
+};
 
 /** Render to JSON, which is where discord.js validates the components. */
 async function renderJson(panel: ReturnType<typeof createTestPanel>['panel'], page?: string, guild = fakeGuild()) {
@@ -151,9 +167,20 @@ async function renderJson(panel: ReturnType<typeof createTestPanel>['panel'], pa
   return (payload.components ?? []).map((component) => ('toJSON' in component ? component.toJSON() : component)) as APIContainerComponent[];
 }
 
-/** Use a component of the panel, like Discord would when it's clicked or selected. */
-const use = (panel: ReturnType<typeof createTestPanel>['panel'], customId: string, input: SettingsInput = { type: 'button' }) =>
-  panel.handle(fakeGuild(), parseSettingsCustomId(customId)!, input);
+/** Use a component of the panel and save the change, like the settings handler does when it's clicked or selected. */
+async function use(panel: ReturnType<typeof createTestPanel>['panel'], customId: string, input: SettingsInput = { type: 'button' }, guild = fakeGuild()) {
+  const result = await panel.handle(guild, parseSettingsCustomId(customId)!, input);
+  await result.save?.();
+  return result;
+}
+
+/** Submit a popup, saving the value if it's valid. Returns the error, or null when it was saved. */
+async function submit(modal: SettingsModal, input: string) {
+  const result = modal.submit(input);
+  if ('error' in result) return result.error;
+  await result.save();
+  return null;
+}
 
 /** Count every component, nested ones included, as Discord allows at most 40 per message. */
 function countComponents(component: unknown): number {
@@ -210,11 +237,11 @@ describe('settings panel', () => {
     const { panel } = createTestPanel({ ...baseConfig, roleId: '456' });
 
     const [existing] = await renderJson(panel, 'general', fakeGuild({ channelIds: ['123'], roleIds: ['456'] }));
-    expect(defaultValuesOf(existing!, 'settings:test:general:channel')).toEqual([{ id: '123', type: SelectMenuDefaultValueType.Channel }]);
-    expect(defaultValuesOf(existing!, 'settings:test:general:role')).toEqual([{ id: '456', type: SelectMenuDefaultValueType.Role }]);
+    expect(defaultValuesOf(existing!, 'settings:test:general:channel:-:-')).toEqual([{ id: '123', type: SelectMenuDefaultValueType.Channel }]);
+    expect(defaultValuesOf(existing!, 'settings:test:general:role:-:-')).toEqual([{ id: '456', type: SelectMenuDefaultValueType.Role }]);
 
     const [deleted] = await renderJson(panel, 'general', fakeGuild());
-    expect(defaultValuesOf(deleted!, 'settings:test:general:channel')).toEqual([]);
+    expect(defaultValuesOf(deleted!, 'settings:test:general:channel:-:-')).toEqual([]);
     expect(JSON.stringify(deleted)).toContain('The saved channel no longer exists');
   });
 
@@ -226,9 +253,9 @@ describe('settings panel', () => {
   test('buttons toggle booleans and cycle choices', async () => {
     const { panel, getConfig } = createTestPanel(baseConfig);
 
-    await use(panel, 'settings:test:general:enabled');
+    await use(panel, 'settings:test:general:enabled:-:0');
     expect(getConfig().enabled).toBe(true);
-    await use(panel, 'settings:test:general:mode');
+    await use(panel, 'settings:test:general:mode:-:image');
     expect(getConfig().mode).toBe('text');
   });
 
@@ -261,17 +288,17 @@ describe('settings panel', () => {
     test('the button cycles the presets, then asks for a custom value', async () => {
       const { panel, getConfig } = createTestPanel({ ...baseConfig, multipliers: [{ targetId: '5', value: 2 }] });
 
-      expect((await use(panel, 'settings:test:multipliers:multipliers:5')).modal).toBeUndefined();
+      expect((await use(panel, 'settings:test:multipliers:multipliers:5:2')).modal).toBeUndefined();
       expect(getConfig().multipliers[0]!.value).toBe(3);
 
-      const { modal } = await use(panel, 'settings:test:multipliers:multipliers:5');
+      const { modal } = await use(panel, 'settings:test:multipliers:multipliers:5:3');
       expect(modal?.value).toBe('3');
-      expect(await modal!.submit('abc')).toBe('Not a number');
-      expect(await modal!.submit('1.25')).toBeNull();
+      expect(await submit(modal!, 'abc')).toBe('Not a number');
+      expect(await submit(modal!, '1.25')).toBeNull();
       expect(getConfig().multipliers[0]!.value).toBe(1.25);
 
       // A custom value starts over at the first preset
-      await use(panel, 'settings:test:multipliers:multipliers:5');
+      await use(panel, 'settings:test:multipliers:multipliers:5:1.25');
       expect(getConfig().multipliers[0]!.value).toBe(1.5);
     });
 
@@ -298,26 +325,58 @@ describe('settings panel', () => {
 
       const { modal } = await use(panel, 'settings:test:lists:rewards:add', { type: 'select', values: ['6'] });
       expect(modal?.value).toBeUndefined();
-      await modal!.submit('10');
+      await submit(modal!, '10');
       expect(getConfig().rewards).toEqual([{ targetId: '6', value: 10 }]);
 
       const edit = await use(panel, 'settings:test:lists:rewards:add', { type: 'select', values: ['6'] });
       expect(edit.modal?.value).toBe('10');
-      await edit.modal!.submit('15');
+      await submit(edit.modal!, '15');
       expect(getConfig().rewards).toEqual([{ targetId: '6', value: 15 }]);
     });
   });
 
   test('custom IDs round trip', () => {
-    expect(parseSettingsCustomId('settings:counting:_:allowMath')).toEqual({ panelId: 'counting', page: '_', key: 'allowMath', argument: undefined });
-    expect(parseSettingsCustomId('settings:leveling:lists:multipliers:123')).toEqual({
+    expect(parseSettingsCustomId('settings:counting:_:allowMath:-:1')).toEqual({
+      panelId: 'counting',
+      page: '_',
+      key: 'allowMath',
+      argument: undefined,
+      shown: '1',
+    });
+    expect(parseSettingsCustomId('settings:leveling:lists:multipliers:123:1.5')).toEqual({
       panelId: 'leveling',
       page: 'lists',
       key: 'multipliers',
       argument: '123',
+      shown: '1.5',
     });
     expect(parseSettingsCustomId('lb_next')).toBeNull();
     expect(parseSettingsCustomId('settings:counting:_')).toBeNull();
+  });
+});
+
+describe('panels left open', () => {
+  test('a button that showed an outdated value changes nothing', async () => {
+    const { panel, getConfig } = createTestPanel({ ...baseConfig, enabled: true });
+
+    // The panel showed Off, but someone else turned it on since
+    const result = await use(panel, 'settings:test:general:enabled:-:0');
+    expect(result.outdated).toBe(true);
+    expect(getConfig().enabled).toBe(true);
+  });
+
+  test('the same goes for choices and entries', async () => {
+    const { panel, getConfig } = createTestPanel({ ...baseConfig, mode: 'text', multipliers: [{ targetId: '5', value: 3 }] });
+
+    expect((await use(panel, 'settings:test:general:mode:-:image')).outdated).toBe(true);
+    expect(getConfig().mode).toBe('text');
+    expect((await use(panel, 'settings:test:multipliers:multipliers:5:2')).outdated).toBe(true);
+    expect(getConfig().multipliers[0]!.value).toBe(3);
+  });
+
+  test('an entry that was removed meanwhile changes nothing', async () => {
+    const { panel } = createTestPanel(baseConfig);
+    expect((await use(panel, 'settings:test:multipliers:multipliers:5:2')).outdated).toBe(true);
   });
 });
 
@@ -326,7 +385,7 @@ describe('bot permissions in channels', () => {
     const { panel, getConfig } = createTestPanel(baseConfig);
     const guild = fakeGuild({ channelIds: ['999'], botMissing: ['SendMessages'] });
 
-    const result = await panel.handle(guild, parseSettingsCustomId('settings:test:general:channel')!, { type: 'select', values: ['999'] });
+    const result = await use(panel, 'settings:test:general:channel:-:-', { type: 'select', values: ['999'] }, guild);
     expect(result.error).toContain('Send Messages');
     expect(getConfig().channelId).toBe('123');
   });
@@ -335,7 +394,7 @@ describe('bot permissions in channels', () => {
     const { panel, getConfig } = createTestPanel(baseConfig);
     const guild = fakeGuild({ channelIds: ['999'] });
 
-    const result = await panel.handle(guild, parseSettingsCustomId('settings:test:general:channel')!, { type: 'select', values: ['999'] });
+    const result = await use(panel, 'settings:test:general:channel:-:-', { type: 'select', values: ['999'] }, guild);
     expect(result.error).toBeUndefined();
     expect(getConfig().channelId).toBe('999');
   });
@@ -345,5 +404,48 @@ describe('bot permissions in channels', () => {
     const [container] = await renderJson(panel, 'general', fakeGuild({ channelIds: ['123'], botMissing: ['ViewChannel'] }));
 
     expect(JSON.stringify(container)).toContain("I'm missing permissions in this channel: View Channel");
+  });
+});
+
+describe('roles the bot has to give', () => {
+  test('roles the bot cannot give are refused, for role settings and entries', async () => {
+    const { panel, getConfig } = createTestPanel(baseConfig);
+    const guild = fakeGuild({ roleIds: ['50'], highRoles: ['50'] });
+
+    const role = await use(panel, 'settings:test:general:assignableRole:-:-', { type: 'select', values: ['50'] }, guild);
+    expect(role.error).toContain('not below my highest role');
+    expect(getConfig().roleId).toBeNull();
+
+    const reward = await use(panel, 'settings:test:lists:rewards:add:-', { type: 'select', values: ['50'] }, guild);
+    expect(reward.error).toContain('not below my highest role');
+    expect(reward.modal).toBeUndefined();
+  });
+
+  test('@everyone and roles without Manage Roles are refused too', async () => {
+    const { panel } = createTestPanel(baseConfig);
+
+    const everyone = await use(panel, 'settings:test:general:assignableRole:-:-', { type: 'select', values: ['guild'] }, fakeGuild({ roleIds: ['guild'] }));
+    expect(everyone.error).toContain('@everyone');
+
+    const noPermission = await use(
+      panel,
+      'settings:test:general:assignableRole:-:-',
+      { type: 'select', values: ['7'] },
+      fakeGuild({ roleIds: ['7'], botMissing: ['ManageRoles'] }),
+    );
+    expect(noPermission.error).toContain('Manage Roles');
+  });
+
+  test('a role the bot can give is saved', async () => {
+    const { panel, getConfig } = createTestPanel(baseConfig);
+    await use(panel, 'settings:test:general:assignableRole:-:-', { type: 'select', values: ['7'] }, fakeGuild({ roleIds: ['7'] }));
+    expect(getConfig().roleId).toBe('7');
+  });
+
+  test('a saved role the bot can no longer give gets a warning', async () => {
+    const { panel } = createTestPanel({ ...baseConfig, roleId: '50', rewards: [{ targetId: '50', value: 5 }] });
+
+    expect(JSON.stringify(await renderJson(panel, 'general', fakeGuild({ roleIds: ['50'], highRoles: ['50'] })))).toContain("I can't give this role");
+    expect(JSON.stringify(await renderJson(panel, 'lists', fakeGuild({ roleIds: ['50'], highRoles: ['50'] })))).toContain('not below my highest role');
   });
 });
