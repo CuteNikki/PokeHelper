@@ -15,15 +15,17 @@ export function buildLeaderboardPageModal(view: LeaderboardView, t: Translate) {
     .setCustomId(leaderboardPageModalId(view))
     .setTitle(t('pagination.modal.title'))
     .addLabelComponents(
-      new LabelBuilder().setLabel(t('pagination.modal.label')).setTextInputComponent(
-        new TextInputBuilder()
-          .setCustomId(PAGE_INPUT_ID)
-          .setStyle(TextInputStyle.Short)
-          .setValue(view.page.toString())
-          .setMaxLength(MAX_PAGE_LENGTH)
-          .setMinLength(1)
-          .setRequired(true),
-      ),
+      new LabelBuilder()
+        .setLabel(t('pagination.modal.label'))
+        .setTextInputComponent(
+          new TextInputBuilder()
+            .setCustomId(PAGE_INPUT_ID)
+            .setStyle(TextInputStyle.Short)
+            .setValue(view.page.toString())
+            .setMaxLength(MAX_PAGE_LENGTH)
+            .setMinLength(1)
+            .setRequired(true),
+        ),
     );
 }
 

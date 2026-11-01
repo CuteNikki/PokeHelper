@@ -82,7 +82,8 @@ export function getRoleMenuSettings(menuId: string): SettingsPanel {
       return menu?.guildId === guildId ? menu : null;
     },
     notConfigured: (t) => t('roleMenu.notFound'),
-    header: (menu, guild, t) => `**${roleMenuName(menu, guild, t)}**\n${status(menu, guild, t)}`,
+    // Role menus are server settings, so there's always a server
+    header: (menu, { guild }, t) => (guild ? `**${roleMenuName(menu, guild, t)}**\n${status(menu, guild, t)}` : null),
     footer: (menu, t) => [
       new ButtonBuilder()
         .setCustomId(`${ROLE_MENU_CUSTOM_ID.repost}${menu.id}`)
@@ -97,7 +98,9 @@ export function getRoleMenuSettings(menuId: string): SettingsPanel {
         .setStyle(ButtonStyle.Danger),
       new ButtonBuilder().setCustomId(ROLE_MENU_CUSTOM_ID.list).setLabel(t('roleMenu.settings.back')).setStyle(ButtonStyle.Secondary),
     ],
-    onSaved: (guild) => syncRoleMenuMessage(guild, menuId),
+    onSaved: async ({ guild }) => {
+      if (guild) await syncRoleMenuMessage(guild, menuId);
+    },
     settings: [
       {
         type: 'textEntries',
@@ -163,8 +166,8 @@ export function getRoleMenuSettings(menuId: string): SettingsPanel {
         label: (t) => t('roleMenu.settings.channel.label'),
         description: (t) => t('roleMenu.settings.channel.description'),
         get: (menu) => menu.channelId,
-        set: async (_guildId, channelId, guild) => {
-          if (channelId) await moveRoleMenu(guild, menuId, channelId);
+        set: async (_guildId, channelId, { guild }) => {
+          if (channelId && guild) await moveRoleMenu(guild, menuId, channelId);
         },
       },
       {

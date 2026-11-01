@@ -16,7 +16,7 @@ import { levelingSettings } from 'settings/leveling';
 import { getRoleMenuSettings, ROLE_MENU_PANEL_PREFIX } from 'settings/roleMenu';
 
 import { createResponse, sendError } from 'utility/response';
-import { parseSettingsCustomId, type SettingsInput, type SettingsModal, type SettingsPanel } from 'utility/settings';
+import { parseSettingsCustomId, settingsContext, type SettingsInput, type SettingsModal, type SettingsPanel } from 'utility/settings';
 
 /** Every settings panel, so their buttons and selects can find them by ID. Role menus each have their own, found by their ID. */
 const panels: SettingsPanel[] = [countingSettings, levelingSettings, birthdaySettings];
@@ -28,32 +28,30 @@ const DEFAULT_INPUT_LENGTH = 20;
 export const getSettingsPanel = (id: string) =>
   id.startsWith(ROLE_MENU_PANEL_PREFIX) ? getRoleMenuSettings(id.slice(ROLE_MENU_PANEL_PREFIX.length)) : panels.find((panel) => panel.id === id);
 
-/** Whether someone may change the settings of a panel. Checked on every use, as permissions may have changed since the panel was opened. */
-async function checkPermissions(
-  interaction: ButtonInteraction<'cached'> | AnySelectMenuInteraction<'cached'> | ModalSubmitInteraction<'cached'>,
-  panel: SettingsPanel,
-  t: Translate,
-) {
+type PanelInteraction = ButtonInteraction | AnySelectMenuInteraction | ModalSubmitInteraction;
+
+/**
+ * Whether someone may change the settings of a panel. Checked on every use, as permissions may have changed since the panel was opened.
+ * Server settings need a server and the panel's permissions there. Personal settings are always someone's own, so anyone can use them anywhere.
+ */
+async function checkPermissions(interaction: PanelInteraction, panel: SettingsPanel, t: Translate) {
+  if (panel.scope === 'user') return true;
+  if (!interaction.inCachedGuild()) return false;
   if (interaction.memberPermissions.has(panel.permissions)) return true;
   await sendError(interaction, t('system.button.permissions', { permissions: panel.permissions.map((perm) => t(`permission.${perm}`)).join(', ') }));
   return false;
 }
 
 /** Save a change, run the panel's follow-up work, like updating a posted role menu, and show the updated panel. */
-async function saveAndRender(
-  interaction: ButtonInteraction<'cached'> | AnySelectMenuInteraction<'cached'> | ModalSubmitInteraction<'cached'>,
-  panel: SettingsPanel,
-  page: string,
-  save: (() => Promise<unknown>) | undefined,
-  t: Translate,
-) {
+async function saveAndRender(interaction: PanelInteraction, panel: SettingsPanel, page: string, save: (() => Promise<unknown>) | undefined, t: Translate) {
   // Saving can wait behind other changes, like counting catching up, so defer to not run out of time to answer
   await interaction.deferUpdate();
+  const context = settingsContext(interaction);
   if (save) {
     await save();
-    await panel.onSaved?.(interaction.guild);
+    await panel.onSaved?.(context);
   }
-  await interaction.editReply(await panel.render(interaction.guild, t, page));
+  await interaction.editReply(await panel.render(context, t, page));
 }
 
 /**
@@ -61,7 +59,6 @@ async function saveAndRender(
  * and show the updated panel.
  */
 export async function handleSettingsInteraction(interaction: ButtonInteraction | AnySelectMenuInteraction) {
-  if (!interaction.inCachedGuild()) return;
   // Settings panels are only seen by the person using them, so they're in their language
   const t = getTranslate(interaction.locale);
 
@@ -71,14 +68,14 @@ export async function handleSettingsInteraction(interaction: ButtonInteraction |
   if (!(await checkPermissions(interaction, panel, t))) return;
 
   const input: SettingsInput = interaction.isAnySelectMenu() ? { type: 'select', values: interaction.values } : { type: 'button' };
-  const result = await panel.handle(interaction.guild, id, input, t, interaction.member);
+  const result = await panel.handle(settingsContext(interaction), id, input, t);
 
   if (result.error) return sendError(interaction, result.error);
   // A popup has to be the first answer, so it's shown before anything is saved
   if (result.modal) return interaction.showModal(buildModal(result.modal));
 
   if (result.outdated) {
-    await interaction.update(await panel.render(interaction.guild, t, result.page));
+    await interaction.update(await panel.render(settingsContext(interaction), t, result.page));
     await interaction.followUp({ ...createResponse(t('settings.outdated'), 'warning'), flags: [MessageFlags.IsComponentsV2, MessageFlags.Ephemeral] });
     return;
   }
@@ -91,7 +88,7 @@ export async function handleSettingsInteraction(interaction: ButtonInteraction |
  * even across restarts.
  */
 export async function handleSettingsModal(interaction: ModalSubmitInteraction) {
-  if (!interaction.inCachedGuild() || !interaction.isFromMessage()) return;
+  if (!interaction.isFromMessage()) return;
   const t = getTranslate(interaction.locale);
 
   const id = parseSettingsCustomId(interaction.customId);
@@ -99,7 +96,7 @@ export async function handleSettingsModal(interaction: ModalSubmitInteraction) {
   if (!id || !panel) return sendError(interaction, t('system.outdated'));
   if (!(await checkPermissions(interaction, panel, t))) return;
 
-  const result = await panel.submitModal(interaction.guild, id, interaction.fields.getTextInputValue(MODAL_INPUT_ID), t, interaction.member);
+  const result = await panel.submitModal(settingsContext(interaction), id, interaction.fields.getTextInputValue(MODAL_INPUT_ID), t);
   if (result.error) return sendError(interaction, result.error);
   await saveAndRender(interaction, panel, result.page, result.save, t);
 }

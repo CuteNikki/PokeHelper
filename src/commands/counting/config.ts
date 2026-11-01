@@ -20,7 +20,7 @@ import { buildConfirmation } from 'utility/confirm';
 import { runCountingTask } from 'utility/countingGame';
 import { getTranslate } from 'utility/i18next';
 import { createResponse, sendResponse } from 'utility/response';
-import { formatPermissions, missingBotPermissions } from 'utility/settings';
+import { formatPermissions, missingBotPermissions, settingsContext } from 'utility/settings';
 
 export default new Command({
   data: new SlashCommandBuilder()
@@ -92,7 +92,7 @@ async function handleSetup(interaction: ChatInputCommandInteraction<'cached'>): 
 
   // Show the settings right away, so the rest can be configured without another command
   const success = createResponse(t('counting.setup.success', { channel: channelMention(channel.id) }), 'success');
-  const settings = await countingSettings.render(interaction.guild, t);
+  const settings = await countingSettings.render(settingsContext(interaction), t);
   return interaction.editReply({ ...settings, components: [...(success.components ?? []), ...(settings.components ?? [])] });
 }
 
@@ -103,7 +103,7 @@ async function handleSetup(interaction: ChatInputCommandInteraction<'cached'>): 
  */
 async function handleSettings(interaction: ChatInputCommandInteraction<'cached'>): Promise<unknown> {
   const t = getTranslate(interaction.locale);
-  return sendResponse(interaction, await countingSettings.render(interaction.guild, t), { ephemeral: true });
+  return sendResponse(interaction, await countingSettings.render(settingsContext(interaction), t), { ephemeral: true });
 }
 
 /**

@@ -9,6 +9,7 @@ import { getRoleMenuSettings, renderRoleMenuList, ROLE_MENU_CUSTOM_ID, roleMenuN
 import { getTranslate } from 'utility/i18next';
 import { createResponse, sendError } from 'utility/response';
 import { deleteRoleMenu, syncRoleMenuMessage } from 'utility/roleMenu';
+import { settingsContext } from 'utility/settings';
 import { ThemeColors } from 'utility/theme';
 
 /** The buttons that act on one menu, followed by its ID. */
@@ -42,7 +43,7 @@ export default new Button({
         // Posting can take a moment, as the old message is deleted first
         await interaction.deferUpdate();
         await syncRoleMenuMessage(interaction.guild, menu.id, true);
-        return interaction.editReply(await getRoleMenuSettings(menu.id).render(interaction.guild, t));
+        return interaction.editReply(await getRoleMenuSettings(menu.id).render(settingsContext(interaction), t));
       }
 
       case ROLE_MENU_CUSTOM_ID.delete:
@@ -77,7 +78,7 @@ export default new Button({
       }
 
       case ROLE_MENU_CUSTOM_ID.back:
-        return interaction.update(await getRoleMenuSettings(menu.id).render(interaction.guild, t));
+        return interaction.update(await getRoleMenuSettings(menu.id).render(settingsContext(interaction), t));
     }
   },
 });

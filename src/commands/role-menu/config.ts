@@ -18,7 +18,7 @@ import { getRoleMenuSettings, MAX_NAME_LENGTH, renderRoleMenuList, roleMenuName 
 import { getTranslate } from 'utility/i18next';
 import { createResponse, sendResponse } from 'utility/response';
 import { MAX_ROLE_MENUS, ROLE_MENU_CHANNEL_PERMISSIONS } from 'utility/roleMenu';
-import { formatPermissions, missingBotPermissions } from 'utility/settings';
+import { formatPermissions, missingBotPermissions, settingsContext } from 'utility/settings';
 
 /** Discord shows at most 25 autocomplete choices. */
 const MAX_CHOICES = 25;
@@ -102,7 +102,7 @@ async function handleCreate(interaction: ChatInputCommandInteraction<'cached'>):
   }
 
   const menu = await createRoleMenu(interaction.guildId, channel.id, interaction.options.getString('name', true).trim());
-  return sendResponse(interaction, await getRoleMenuSettings(menu.id).render(interaction.guild, t), { ephemeral: true });
+  return sendResponse(interaction, await getRoleMenuSettings(menu.id).render(settingsContext(interaction), t), { ephemeral: true });
 }
 
 /** Show the settings of a menu, or the list of all menus to pick one from. */
@@ -117,5 +117,5 @@ async function handleSettings(interaction: ChatInputCommandInteraction<'cached'>
   if (menu?.guildId !== interaction.guildId) {
     return sendResponse(interaction, createResponse(t('roleMenu.notFound'), 'error'), { ephemeral: true });
   }
-  return sendResponse(interaction, await getRoleMenuSettings(menu.id).render(interaction.guild, t), { ephemeral: true });
+  return sendResponse(interaction, await getRoleMenuSettings(menu.id).render(settingsContext(interaction), t), { ephemeral: true });
 }

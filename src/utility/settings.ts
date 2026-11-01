@@ -15,6 +15,8 @@ import {
   StringSelectMenuOptionBuilder,
   TextDisplayBuilder,
   type ChannelType,
+  type BaseInteraction,
+  type Client,
   type Guild,
   type GuildMember,
   type PermissionsString,
@@ -45,6 +47,16 @@ const MAX_SELECT_OPTIONS = 25;
 /** How much of a text setting is shown in the panel. */
 const TEXT_PREVIEW_LENGTH = 300;
 
+/** Who uses a panel, and where. */
+export interface SettingsContext {
+  client: Client;
+  /** The server the panel is used in, null in DMs. Server panels are only used in servers. */
+  guild: Guild | null;
+  userId: string;
+  /** Who uses it in a server, who can only pick roles below their own highest role for settings that give them out. */
+  member?: GuildMember;
+}
+
 interface BaseSetting<C, V> {
   /** Identifies the setting within its panel, used in the custom ID. */
   key: string;
@@ -56,8 +68,14 @@ interface BaseSetting<C, V> {
   defaultValue?: V;
   /** Read the current value from the configuration. */
   get: (config: C) => V;
-  /** Save a new value. The guild is there for settings that change more than the database, like moving a posted message. */
-  set: (guildId: string, value: V, guild: Guild) => Promise<unknown>;
+  /**
+   * Save a new value.
+   * @param scopeId The server's ID for server settings, the user's for personal ones.
+   * @param context For settings that change more than the database, like moving a posted message.
+   */
+  set: (scopeId: string, value: V, context: SettingsContext) => Promise<unknown>;
+  /** Whether the setting is hidden right now, like one that only matters once another is turned on. */
+  hidden?: (config: C) => boolean;
 }
 
 /** A boolean, toggled with a button. */
@@ -95,6 +113,21 @@ export type TextSetting<C> = Omit<BaseSetting<C, string | null>, 'defaultValue'>
   placeholder?: (t: Translate) => string;
   /** The text used while none is set, shown in the popup to start from. */
   defaultText?: (t: Translate) => string;
+  /** How the text is shown in the panel, like a date in the user's language. */
+  formatValue?: (value: string, t: Translate) => string;
+  /** Check what was typed. Returns why it isn't valid, or null if it is. */
+  validate?: (text: string, t: Translate) => string | null;
+  /** Whether it has to be filled in, as there's no default to go back to. */
+  required?: boolean;
+};
+/** Several of a list of options that can change, like the servers someone shares with the bot, picked at once with a select. */
+export type MultiChoiceSetting<C> = BaseSetting<C, string[]> & {
+  type: 'multiChoice';
+  /** The options to pick from, at most 25. */
+  options: (config: C, context: SettingsContext, t: Translate) => { value: string; label: string }[];
+  placeholder: (t: Translate) => string;
+  /** Shown in place of the select when there's nothing to pick. */
+  noOptions: (t: Translate) => string;
 };
 
 /** A channel or role with a value, like a multiplier, the level a reward role is given at, or the emoji of a role. */
@@ -144,6 +177,7 @@ interface EntriesSettingBase<C, V extends number | string> {
   get(config: C): Entry<V>[];
   /** Save the value of an entry, or remove it with null. */
   set(guildId: string, targetId: string, value: V | null): Promise<unknown>;
+  hidden?(config: C): boolean;
   /** Runs after an entry was saved, for follow-up work like giving a new reward role to everyone who already qualifies. */
   onSaved?(guild: Guild, targetId: string, value: V | null): void;
 }
@@ -159,6 +193,7 @@ export type Setting<C> =
   | ChannelsSetting<C>
   | RolesSetting<C>
   | TextSetting<C>
+  | MultiChoiceSetting<C>
   | EntriesSetting<C, number>
   | EntriesSetting<C, string>;
 
@@ -182,16 +217,21 @@ export interface SettingsPanelDefinition<C> {
   permissions: PermissionsString[];
   /** Pages the settings are split into, switched with a select. Without categories, all settings are on one page. */
   categories?: SettingsCategory[];
-  /** Load the configuration, or null if the feature isn't set up in the guild. */
-  load: (guildId: string) => Promise<C | null>;
+  /** Whose settings these are: a server's, which is the default, or the user's own, which can also be used in DMs. */
+  scope?: 'guild' | 'user';
+  /**
+   * Load the configuration, or null if the feature isn't set up.
+   * @param scopeId The server's ID for server settings, the user's for personal ones.
+   */
+  load: (scopeId: string, context: SettingsContext) => Promise<C | null>;
   /** Shown instead of the settings when the feature isn't set up. */
   notConfigured: (t: Translate) => string;
   /** Text shown under the title, like where a role menu is posted. */
-  header?: (config: C, guild: Guild, t: Translate) => string | null;
+  header?: (config: C, context: SettingsContext, t: Translate) => string | null;
   /** Buttons shown under the settings, for actions that aren't settings, like deleting a role menu. */
   footer?: (config: C, t: Translate) => ButtonBuilder[];
   /** Runs after any setting was saved, before the panel is shown again, like to update a posted role menu. */
-  onSaved?: (guild: Guild) => Promise<unknown>;
+  onSaved?: (context: SettingsContext) => Promise<unknown>;
   settings: Setting<C>[];
 }
 
@@ -236,24 +276,37 @@ export type SettingsInput = { type: 'button' } | { type: 'select'; values: strin
 /** A settings panel with its configuration type hidden, so panels of different features can be kept together. */
 export interface SettingsPanel {
   id: string;
+  /** Whose settings these are, a server's or the user's own. */
+  scope: 'guild' | 'user';
+  /** Needed to change server settings. Personal ones need none. */
   permissions: PermissionsString[];
   /**
-   * Render the panel with the guild's current settings. The guild is needed to check that saved channels and roles still exist.
+   * Render the panel with the current settings. For server settings, the server is needed to check that saved channels and roles still exist.
    * @param page The category to show. Defaults to the first.
    */
-  render: (guild: Guild, t: Translate, page?: string) => Promise<ResponsePayload>;
+  render: (context: SettingsContext, t: Translate, page?: string) => Promise<ResponsePayload>;
   /** Work out what a button or select of the panel should do. */
-  handle: (guild: Guild, id: ParsedSettingsCustomId, input: SettingsInput, t: Translate, member?: GuildMember) => Promise<SettingsResult>;
+  handle: (context: SettingsContext, id: ParsedSettingsCustomId, input: SettingsInput, t: Translate) => Promise<SettingsResult>;
   /** Work out what a submitted popup should do, with what was typed into it. */
-  submitModal: (
-    guild: Guild,
-    id: ParsedSettingsCustomId,
-    input: string,
-    t: Translate,
-    member?: GuildMember,
-  ) => Promise<Omit<SettingsResult, 'modal' | 'outdated'>>;
+  submitModal: (context: SettingsContext, id: ParsedSettingsCustomId, input: string, t: Translate) => Promise<Omit<SettingsResult, 'modal' | 'outdated'>>;
   /** Runs after any setting was saved. */
-  onSaved?: (guild: Guild) => Promise<unknown>;
+  onSaved?: (context: SettingsContext) => Promise<unknown>;
+}
+
+/** The context of a panel used through an interaction, like a command or a click on the panel. */
+export function settingsContext(interaction: BaseInteraction): SettingsContext {
+  return {
+    client: interaction.client,
+    guild: interaction.guild,
+    userId: interaction.user.id,
+    member: interaction.inCachedGuild() ? interaction.member : undefined,
+  };
+}
+
+/** The server of a server panel. Server panels are only used in servers, so not having one is a bug. */
+function requireGuild(context: SettingsContext): Guild {
+  if (!context.guild) throw new Error('Server settings were used outside a server');
+  return context.guild;
 }
 
 export interface ParsedSettingsCustomId {
@@ -336,6 +389,7 @@ function formatValue<C>(setting: Exclude<Setting<C>, { type: 'entries' | 'textEn
       return typeof value === 'string' ? roleMention(value) : t('settings.none');
     case 'channels':
     case 'roles':
+    case 'multiChoice':
       return Array.isArray(value) && value.length > 0 ? value.join(', ') : t('settings.none');
   }
 }
@@ -358,7 +412,7 @@ function targetName(guild: Guild, target: 'channel' | 'role', id: string, t: Tra
 }
 
 /** Add one setting to the panel. */
-function addSetting<C>(container: ContainerBuilder, guild: Guild, panelId: string, page: string, setting: Setting<C>, config: C, t: Translate) {
+function addSetting<C>(container: ContainerBuilder, context: SettingsContext, panelId: string, page: string, setting: Setting<C>, config: C, t: Translate) {
   switch (setting.type) {
     case 'boolean': {
       const value = setting.get(config);
@@ -388,6 +442,7 @@ function addSetting<C>(container: ContainerBuilder, guild: Guild, panelId: strin
     }
     case 'channel':
     case 'channels': {
+      const guild = requireGuild(context);
       const saved = setting.type === 'channel' ? [setting.get(config)].filter((value) => value !== null) : setting.get(config);
       // Only preselect channels that still exist, so a deleted one doesn't break the panel that's needed to replace it
       const existing = saved.filter((value) => guild.channels.cache.has(value));
@@ -409,6 +464,7 @@ function addSetting<C>(container: ContainerBuilder, guild: Guild, panelId: strin
     }
     case 'role':
     case 'roles': {
+      const guild = requireGuild(context);
       const saved = setting.type === 'role' ? [setting.get(config)].filter((value) => value !== null) : setting.get(config);
       // Only preselect roles that still exist, like with channels
       const existing = saved.filter((value) => guild.roles.cache.has(value));
@@ -429,7 +485,8 @@ function addSetting<C>(container: ContainerBuilder, guild: Guild, panelId: strin
     }
     case 'text': {
       const value = setting.get(config);
-      const shown = value ?? setting.defaultText?.(t) ?? null;
+      const text = value ?? setting.defaultText?.(t) ?? null;
+      const shown = text !== null && setting.formatValue ? setting.formatValue(text, t) : text;
       // Quoted, so the text stands apart from the setting's description, and cut short so long texts don't take over the panel
       const preview = shown === null ? t('settings.none') : quote(shown.length > TEXT_PREVIEW_LENGTH ? `${shown.slice(0, TEXT_PREVIEW_LENGTH)}…` : shown);
       const extra = [value === null && setting.defaultText ? `-# ${t('settings.text.usingDefault')}` : null, preview].filter((line) => line !== null);
@@ -444,9 +501,33 @@ function addSetting<C>(container: ContainerBuilder, guild: Guild, panelId: strin
       );
       return;
     }
+    case 'multiChoice': {
+      const options = setting.options(config, context, t).slice(0, MAX_SELECT_OPTIONS);
+      if (options.length === 0) {
+        container.addTextDisplayComponents(new TextDisplayBuilder().setContent(describe(setting, t, [setting.noOptions(t)])));
+        return;
+      }
+      const saved = setting.get(config);
+      container.addTextDisplayComponents(new TextDisplayBuilder().setContent(describe(setting, t))).addActionRowComponents(
+        new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
+          new StringSelectMenuBuilder()
+            .setCustomId(customId(panelId, page, setting.key))
+            .setPlaceholder(setting.placeholder(t))
+            // Nothing picked clears it
+            .setMinValues(0)
+            .setMaxValues(options.length)
+            .addOptions(
+              options.map((option) =>
+                new StringSelectMenuOptionBuilder().setLabel(option.label.slice(0, 100)).setValue(option.value).setDefault(saved.includes(option.value)),
+              ),
+            ),
+        ),
+      );
+      return;
+    }
     case 'entries':
     case 'textEntries':
-      addEntries(container, guild, panelId, page, setting, config, t);
+      addEntries(container, requireGuild(context), panelId, page, setting, config, t);
       return;
   }
 }
@@ -560,7 +641,14 @@ function entryModal<C>(
 }
 
 /** The popup asking for a text. */
-function textModal<C>(guild: Guild, setting: TextSetting<C>, id: ParsedSettingsCustomId, t: Translate, current: string | null): SettingsModal {
+function textModal<C>(
+  context: SettingsContext,
+  scopeId: string,
+  setting: TextSetting<C>,
+  id: ParsedSettingsCustomId,
+  t: Translate,
+  current: string | null,
+): SettingsModal {
   return {
     customId: customId(id.panelId, id.page, setting.key, undefined, MODAL_MARK),
     title: setting.label(t).slice(0, 45),
@@ -569,11 +657,13 @@ function textModal<C>(guild: Guild, setting: TextSetting<C>, id: ParsedSettingsC
     value: current ?? setting.defaultText?.(t),
     maxLength: setting.maxLength,
     paragraph: setting.paragraph,
-    optional: true,
+    optional: !setting.required,
     submit(input) {
-      // Left empty, or the same as the default, it keeps following the default, like when that's translated
       const text = input.trim();
-      return { save: () => setting.set(guild.id, text && text !== setting.defaultText?.(t) ? text : null, guild) };
+      const invalid = text ? setting.validate?.(text, t) : null;
+      if (invalid) return { error: invalid };
+      // Left empty, or the same as the default, it keeps following the default, like when that's translated
+      return { save: () => setting.set(scopeId, text && text !== setting.defaultText?.(t) ? text : null, context) };
     },
   };
 }
@@ -592,19 +682,25 @@ export function createSettingsPanel<C>(definition: SettingsPanelDefinition<C>): 
     return definition.categories.some((category) => category.id === page) ? page! : definition.categories[0]!.id;
   };
 
+  const scope = definition.scope ?? 'guild';
+  // Whose settings are loaded and saved: the server's, or the user's own
+  const scopeIdOf = (context: SettingsContext) => (scope === 'user' ? context.userId : requireGuild(context).id);
+  const isShown = (setting: Setting<C>, config: C) => !setting.hidden?.(config);
+
   return {
     id: definition.id,
+    scope,
     permissions: definition.permissions,
 
-    async render(guild, t, requestedPage) {
-      const config = await definition.load(guild.id);
+    async render(context, t, requestedPage) {
+      const config = await definition.load(scopeIdOf(context), context);
       if (!config) return createResponse(definition.notConfigured(t), 'error');
 
       const page = resolvePage(requestedPage);
       const container = new ContainerBuilder()
         .setAccentColor(ThemeColors.info)
         .addTextDisplayComponents(new TextDisplayBuilder().setContent(definition.title(t)));
-      const header = definition.header?.(config, guild, t);
+      const header = definition.header?.(config, context, t);
       if (header) container.addTextDisplayComponents(new TextDisplayBuilder().setContent(header));
 
       if (definition.categories?.length) {
@@ -624,10 +720,10 @@ export function createSettingsPanel<C>(definition: SettingsPanelDefinition<C>): 
       }
       container.addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Small));
 
-      const settings = definition.settings.filter((setting) => page === SINGLE_PAGE || setting.category === page);
+      const settings = definition.settings.filter((setting) => (page === SINGLE_PAGE || setting.category === page) && isShown(setting, config));
       settings.forEach((setting, index) => {
         if (index > 0) container.addSeparatorComponents(new SeparatorBuilder().setDivider(false).setSpacing(SeparatorSpacingSize.Small));
-        addSetting(container, guild, definition.id, page, setting, config, t);
+        addSetting(container, context, definition.id, page, setting, config, t);
       });
 
       const footer = definition.footer?.(config, t) ?? [];
@@ -640,29 +736,33 @@ export function createSettingsPanel<C>(definition: SettingsPanelDefinition<C>): 
       return { components: [container], flags: [MessageFlags.IsComponentsV2] };
     },
 
-    async handle(guild, id, input, t, member) {
+    async handle(context, id, input, t) {
       const page = resolvePage(id.page);
       if (id.key === PAGE_KEY) return { page: resolvePage(input.type === 'select' ? input.values[0] : undefined) };
 
+      const scopeId = scopeIdOf(context);
       const setting = findSetting(id.key);
-      const config = await definition.load(guild.id);
+      const config = await definition.load(scopeId, context);
       if (!setting || !config) return { page };
+      // A hidden setting can still be clicked on a panel that's out of date
+      if (!isShown(setting, config)) return { page, outdated: true };
 
       switch (setting.type) {
         case 'boolean': {
           const value = setting.get(config);
           if (id.shown !== (value ? '1' : '0')) return { page, outdated: true };
-          return { page, save: () => setting.set(guild.id, !value, guild) };
+          return { page, save: () => setting.set(scopeId, !value, context) };
         }
         case 'choice': {
           const value = setting.get(config);
           if (id.shown !== value) return { page, outdated: true };
           const index = setting.options.findIndex((option) => option.value === value);
           const next = setting.options[(index + 1) % setting.options.length];
-          return next ? { page, save: () => setting.set(guild.id, next.value, guild) } : { page };
+          return next ? { page, save: () => setting.set(scopeId, next.value, context) } : { page };
         }
         case 'channel':
         case 'role': {
+          const guild = requireGuild(context);
           const value = input.type === 'select' ? (input.values[0] ?? null) : null;
           // Discord enforces the minimum, but don't rely on it for required settings
           if (value === null && setting.required) return { page };
@@ -677,36 +777,44 @@ export function createSettingsPanel<C>(definition: SettingsPanelDefinition<C>): 
             }
           }
           if (value !== null && setting.type === 'role' && setting.assignable) {
-            const refusal = roleRefusal(guild, value, member, t);
+            const refusal = roleRefusal(guild, value, context.member, t);
             if (refusal) return { page, error: refusal };
           }
-          return { page, save: () => setting.set(guild.id, value, guild) };
+          return { page, save: () => setting.set(scopeId, value, context) };
         }
         case 'channels':
         case 'roles': {
           if (input.type !== 'select') return { page };
           const values = input.values.slice(0, setting.max);
-          return { page, save: () => setting.set(guild.id, values, guild) };
+          return { page, save: () => setting.set(scopeId, values, context) };
+        }
+        case 'multiChoice': {
+          if (input.type !== 'select') return { page };
+          // Only options there are can be saved, as the select may be out of date
+          const options = new Set(setting.options(config, context, t).map((option) => option.value));
+          const values = input.values.filter((value) => options.has(value));
+          return { page, save: () => setting.set(scopeId, values, context) };
         }
         case 'text':
-          return { page, modal: textModal(guild, setting, id, t, setting.get(config)) };
+          return { page, modal: textModal(context, scopeId, setting, id, t, setting.get(config)) };
         case 'entries':
         case 'textEntries':
-          return { page, ...handleEntries(guild, setting, config, id, input, t, member) };
+          return { page, ...handleEntries(requireGuild(context), setting, config, id, input, t, context.member) };
       }
     },
 
-    async submitModal(guild, id, input, t, member) {
+    async submitModal(context, id, input, t) {
       const page = resolvePage(id.page);
+      const scopeId = scopeIdOf(context);
       const setting = findSetting(id.key);
-      const config = await definition.load(guild.id);
-      if (!setting || !config) return { page };
+      const config = await definition.load(scopeId, context);
+      if (!setting || !config || !isShown(setting, config)) return { page };
 
       const modal =
         setting.type === 'text'
-          ? textModal(guild, setting, id, t, setting.get(config))
+          ? textModal(context, scopeId, setting, id, t, setting.get(config))
           : (setting.type === 'entries' || setting.type === 'textEntries') && id.argument
-            ? entryModal(guild, setting, id, id.argument, t)
+            ? entryModal(requireGuild(context), setting, id, id.argument, t)
             : null;
       if (!modal) return { page };
 
@@ -715,7 +823,7 @@ export function createSettingsPanel<C>(definition: SettingsPanelDefinition<C>): 
         const entries = setting.get(config);
         const isNew = !entries.some((entry) => entry.targetId === id.argument);
         if (isNew && entries.length >= setting.max) return { page, error: t('settings.entries.full', { max: setting.max }) };
-        const refusal = isNew && setting.target === 'role' && setting.assignable ? roleRefusal(guild, id.argument, member, t) : null;
+        const refusal = isNew && setting.target === 'role' && setting.assignable ? roleRefusal(requireGuild(context), id.argument, context.member, t) : null;
         if (refusal) return { page, error: refusal };
       }
 

@@ -1,8 +1,17 @@
 import { beforeAll, describe, expect, test } from 'bun:test';
-import { ChannelType, Collection, ComponentType, SelectMenuDefaultValueType, type APIContainerComponent, type Guild, type GuildMember } from 'discord.js';
+import {
+  ChannelType,
+  Collection,
+  ComponentType,
+  SelectMenuDefaultValueType,
+  type APIContainerComponent,
+  type Client,
+  type Guild,
+  type GuildMember,
+} from 'discord.js';
 
 import { getTranslate, initI18Next } from 'utility/i18next';
-import { createSettingsPanel, parseSettingsCustomId, type Entry, type SettingsInput, type SettingsModal } from 'utility/settings';
+import { createSettingsPanel, parseSettingsCustomId, type Entry, type SettingsContext, type SettingsInput, type SettingsModal } from 'utility/settings';
 
 // The panel renders labels like On and Off through i18next
 beforeAll(() => initI18Next());
@@ -213,15 +222,18 @@ const fakeGuild = ({
   } as unknown as Guild;
 };
 
+/** A panel used in the fake server, by a member if given. */
+const inGuild = (guild: Guild, member?: GuildMember): SettingsContext => ({ client: {} as Client, guild, userId: member?.id ?? 'user', member });
+
 /** Render to JSON, which is where discord.js validates the components. */
 async function renderJson(panel: ReturnType<typeof createTestPanel>['panel'], page?: string, guild = fakeGuild()) {
-  const payload = await panel.render(guild, getTranslate('en'), page);
+  const payload = await panel.render(inGuild(guild), getTranslate('en'), page);
   return (payload.components ?? []).map((component) => ('toJSON' in component ? component.toJSON() : component)) as APIContainerComponent[];
 }
 
 /** Use a component of the panel and save the change, like the settings handler does when it's clicked or selected. */
 async function use(panel: ReturnType<typeof createTestPanel>['panel'], customId: string, input: SettingsInput = { type: 'button' }, guild = fakeGuild()) {
-  const result = await panel.handle(guild, parseSettingsCustomId(customId)!, input, getTranslate('en'));
+  const result = await panel.handle(inGuild(guild), parseSettingsCustomId(customId)!, input, getTranslate('en'));
   await result.save?.();
   return result;
 }
@@ -432,12 +444,12 @@ describe('settings panel', () => {
 
       // A new panel, like after a restart, knows what the popup was for from its custom ID alone
       const { panel, getConfig } = createTestPanel(baseConfig);
-      const result = await panel.submitModal(fakeGuild(), parseSettingsCustomId(modal!.customId)!, '12', t);
+      const result = await panel.submitModal(inGuild(fakeGuild()), parseSettingsCustomId(modal!.customId)!, '12', t);
       await result.save?.();
       expect(getConfig().rewards).toEqual([{ targetId: '6', value: 12 }]);
 
       const text = await use(panel, 'settings:test:text:title');
-      await (await panel.submitModal(fakeGuild(), parseSettingsCustomId(text.modal!.customId)!, 'Later', t)).save?.();
+      await (await panel.submitModal(inGuild(fakeGuild()), parseSettingsCustomId(text.modal!.customId)!, 'Later', t)).save?.();
       expect(getConfig().title).toBe('Later');
     });
 
@@ -445,7 +457,7 @@ describe('settings panel', () => {
       const { panel, getConfig } = createTestPanel(baseConfig);
       const { modal } = await use(panel, 'settings:test:lists:rewards:add', { type: 'select', values: ['6'] });
 
-      const result = await panel.submitModal(fakeGuild(), parseSettingsCustomId(modal!.customId)!, 'abc', getTranslate('en'));
+      const result = await panel.submitModal(inGuild(fakeGuild()), parseSettingsCustomId(modal!.customId)!, 'abc', getTranslate('en'));
       expect(result.error).toBe('Not a level');
       expect(result.save).toBeUndefined();
       expect(getConfig().rewards).toEqual([]);
@@ -571,7 +583,12 @@ describe('roles the bot has to give', () => {
       const { panel, getConfig } = createTestPanel(baseConfig);
       const guild = fakeGuild({ roleIds: ['7'] });
       const pick = (who: GuildMember) =>
-        panel.handle(guild, parseSettingsCustomId('settings:test:general:assignableRole:-:-')!, { type: 'select', values: ['7'] }, getTranslate('en'), who);
+        panel.handle(
+          inGuild(guild, who),
+          parseSettingsCustomId('settings:test:general:assignableRole:-:-')!,
+          { type: 'select', values: ['7'] },
+          getTranslate('en'),
+        );
 
       expect((await pick(member(guild, 'someone', 1))).error).toContain('below your own highest role');
       expect((await pick(member(guild, 'someone', 2))).error).toBeUndefined();
@@ -585,7 +602,7 @@ describe('roles the bot has to give', () => {
       const guild = fakeGuild({ roleIds: ['7'] });
       const id = parseSettingsCustomId('settings:test:lists:rewards:7:modal')!;
 
-      const result = await panel.submitModal(guild, id, '5', getTranslate('en'), member(guild, 'someone', 1));
+      const result = await panel.submitModal(inGuild(guild, member(guild, 'someone', 1)), id, '5', getTranslate('en'));
       expect(result.error).toContain('below your own highest role');
       expect(getConfig().rewards).toEqual([]);
     });
@@ -602,5 +619,111 @@ describe('roles the bot has to give', () => {
 
     expect(JSON.stringify(await renderJson(panel, 'general', fakeGuild({ roleIds: ['50'], highRoles: ['50'] })))).toContain("I can't give this role");
     expect(JSON.stringify(await renderJson(panel, 'lists', fakeGuild({ roleIds: ['50'], highRoles: ['50'] })))).toContain('not below my highest role');
+  });
+});
+
+describe('personal panels', () => {
+  interface Profile {
+    name: string | null;
+    public: boolean;
+    servers: string[];
+  }
+
+  /** A personal panel over in-memory profiles, by user. */
+  function createProfilePanel(profiles: Record<string, Profile>) {
+    const patch = (userId: string, changes: Partial<Profile>) => {
+      profiles[userId] = { ...(profiles[userId] ?? { name: null, public: false, servers: [] }), ...changes };
+      return Promise.resolve();
+    };
+    return createSettingsPanel<Profile>({
+      id: 'profile',
+      scope: 'user',
+      title: () => 'Profile',
+      permissions: [],
+      load: (userId) => Promise.resolve(profiles[userId] ?? { name: null, public: false, servers: [] }),
+      notConfigured: () => 'Not set up',
+      settings: [
+        {
+          type: 'text',
+          key: 'name',
+          maxLength: 20,
+          required: true,
+          validate: (text) => (/^[a-z]+$/.test(text) ? null : 'Only letters'),
+          formatValue: (value) => value.toUpperCase(),
+          label: () => 'Name',
+          description: () => '',
+          get: (profile) => profile.name,
+          set: (userId, name) => patch(userId, { name }),
+        },
+        {
+          type: 'boolean',
+          key: 'public',
+          hidden: (profile) => profile.name === null,
+          label: () => 'Public',
+          description: () => '',
+          get: (profile) => profile.public,
+          set: (userId, value) => patch(userId, { public: value }),
+        },
+        {
+          type: 'multiChoice',
+          key: 'servers',
+          hidden: (profile) => !profile.public,
+          options: () => [
+            { value: 'a', label: 'Server A' },
+            { value: 'b', label: 'Server B' },
+          ],
+          placeholder: () => 'Pick servers',
+          noOptions: () => 'No servers',
+          label: () => 'Servers',
+          description: () => '',
+          get: (profile) => profile.servers,
+          set: (userId, servers) => patch(userId, { servers }),
+        },
+      ],
+    });
+  }
+
+  const t = getTranslate('en');
+  /** Used by a user in DMs, where there's no server. */
+  const inDms = (userId: string): SettingsContext => ({ client: {} as Client, guild: null, userId });
+  const render = async (panel: ReturnType<typeof createProfilePanel>, userId: string) => JSON.stringify(await panel.render(inDms(userId), t));
+
+  test('are saved for whoever uses them, also in DMs, and show settings once they matter', async () => {
+    const profiles: Record<string, Profile> = {};
+    const panel = createProfilePanel(profiles);
+    expect(await render(panel, 'ann')).not.toContain('Public');
+
+    const { modal } = await panel.handle(inDms('ann'), parseSettingsCustomId('settings:profile:_:name')!, { type: 'button' }, t);
+    expect(modal?.optional).toBe(false);
+    expect(modal!.submit('Ann 1')).toEqual({ error: 'Only letters' });
+    const result = await panel.submitModal(inDms('ann'), parseSettingsCustomId(modal!.customId)!, 'ann', t);
+    await result.save?.();
+
+    expect(profiles).toEqual({ ann: { name: 'ann', public: false, servers: [] } });
+    const shown = await render(panel, 'ann');
+    expect(shown).toContain('> ANN');
+    expect(shown).toContain('Public');
+    expect(shown).not.toContain('Pick servers');
+  });
+
+  test('hidden settings change nothing when clicked on an older panel', async () => {
+    const profiles: Record<string, Profile> = {};
+    const panel = createProfilePanel(profiles);
+    const result = await panel.handle(inDms('bo'), parseSettingsCustomId('settings:profile:_:public:-:0')!, { type: 'button' }, t);
+    expect(result.outdated).toBe(true);
+    expect(profiles).toEqual({});
+  });
+
+  test('multi selects save only options there are, and can be cleared', async () => {
+    const profiles: Record<string, Profile> = { cy: { name: 'cy', public: true, servers: ['a'] } };
+    const panel = createProfilePanel(profiles);
+    expect(await render(panel, 'cy')).toContain('Pick servers');
+
+    const pick = async (values: string[]) =>
+      (await panel.handle(inDms('cy'), parseSettingsCustomId('settings:profile:_:servers')!, { type: 'select', values }, t)).save?.();
+    await pick(['a', 'b', 'gone']);
+    expect(profiles.cy!.servers).toEqual(['a', 'b']);
+    await pick([]);
+    expect(profiles.cy!.servers).toEqual([]);
   });
 });

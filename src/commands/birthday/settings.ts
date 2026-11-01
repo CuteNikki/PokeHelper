@@ -16,6 +16,7 @@ import { birthdaySettings } from 'settings/birthday';
 import { buildConfirmation } from 'utility/confirm';
 import { getTranslate } from 'utility/i18next';
 import { createResponse, sendResponse } from 'utility/response';
+import { settingsContext } from 'utility/settings';
 
 export default new Command({
   data: new SlashCommandBuilder()
@@ -47,7 +48,7 @@ async function handleSettings(interaction: ChatInputCommandInteraction<'cached'>
   const t = getTranslate(interaction.locale);
   // Loading the panel can create the configuration, so defer in case that takes a moment
   await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
-  return sendResponse(interaction, await birthdaySettings.render(interaction.guild, t));
+  return sendResponse(interaction, await birthdaySettings.render(settingsContext(interaction), t));
 }
 
 /**

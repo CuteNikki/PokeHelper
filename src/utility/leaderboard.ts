@@ -237,7 +237,8 @@ export function renderLeaderboardCanvas(entries: LeaderboardEntry[], isTopPodium
 
 /** The page buttons and the sort select, which stay the same in image and text mode. Each leads to the view it shows. */
 function buildControls(view: LeaderboardView, totalPages: number, t: Translate) {
-  const button = (action: LeaderboardAction, page: number) => new ButtonBuilder().setCustomId(leaderboardCustomId(action, { ...view, page })).setStyle(ButtonStyle.Secondary);
+  const button = (action: LeaderboardAction, page: number) =>
+    new ButtonBuilder().setCustomId(leaderboardCustomId(action, { ...view, page })).setStyle(ButtonStyle.Secondary);
 
   const rowPageButtons = new ActionRowBuilder<ButtonBuilder>().addComponents(
     button('first', 1)
