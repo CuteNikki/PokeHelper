@@ -156,8 +156,8 @@
     "tied": "Tied"
   },
   "choice": {
-    "single": "Single Choice",
-    "multiple": "Multiple Choice"
+    "single": "Just one",
+    "multiple": "As many as they like"
   },
   "pagination": {
     "first": {
@@ -537,68 +537,71 @@
     }
   },
   "reactionRole": {
-    "none": "No reaction role menus are configured for this server.",
-    "notFound": "Could not find that reaction role menu.",
-    "subcommand": "### Unknown subcommand\nPlease select a valid subcommand for managing reaction role menus.",
+    "none": "There are no role menus here yet. Create one with `/reaction-role setup`.",
+    "notFound": "Couldn't find that role menu.",
     "toggle": {
-      "all": "All reaction role menus have been {{state}}",
-      "single": "The reaction role menu {{id}} has been {{state}}.",
-      "function": "The message will function as a reaction role menu.",
-      "noFunction": "The message will no longer function as a reaction role menu, but it will not be deleted."
+      "all": "All role menus are {{state}} now.",
+      "single": "The role menu `{{id}}` is {{state}} now.",
+      "function": "Its buttons give out roles again.",
+      "noFunction": "Its message stays, but the buttons don't give out roles until you turn it back on."
     },
     "delete": {
-      "success": "The reaction role menu has been deleted. The message will no longer function, but it will not be deleted."
+      "success": "The role menu is deleted. Its message stays, but the buttons don't do anything anymore, so you can delete it too."
     },
     "resend": {
-      "channel": "Could not find or access the target channel. Please check the channel and my permissions.",
-      "failed": "Failed to resend the reaction role menu message. Please make sure I have permission to send messages in {{channel}}.",
-      "success": "The reaction role menu message has been resent to {{channel}} successfully."
+      "channel": "I can't find or see that channel. Check the channel and my permissions.",
+      "failed": "I couldn't post the menu in {{channel}}. Make sure I can send messages there.",
+      "success": "The role menu is posted in {{channel}} again."
     },
     "message": {
-      "title": "Role Menu",
-      "description": "Click the buttons below to claim your roles!",
-      "item": "{{emoji}} - {{role}}"
+      "title": "### 🎭 Pick your roles",
+      "description": "Click a button to get its role, and click it again to remove it.",
+      "item": "{{emoji}} {{role}}"
     },
     "setup": {
-      "timeout": "⏱️ *This interaction has timed out. Please run the command again to start over.*",
-      "maximum": "You have reached the maximum number of reaction role menus ({{total}}).\nPlease delete an existing menu before creating a new one.",
-      "complete": "### Setup Complete\nThe reaction role menu has successfully been created in {{channel}} and saved!",
-      "invalidChannel": "Could not find or access the target channel. Please check the channel and my permissions.",
-      "save": "Deploy Menu",
-      "rolePlaceholder": "Select a role to add to the reaction role menu",
-      "channelPlaceholder": "Select a channel to post the reaction role menu in",
-      "requiredPlaceholder": "Select required roles (Optional)",
-      "skipRequired": "Skip / No Requirements",
-      "step6": "### Step 6: Confirm Setup\n\nReview the details of your reaction role menu below. If everything looks good, click the **Deploy Menu** button to post it in the target channel and save it.\n\n{{details}}",
-      "step5": "### Step 5: Emoji Pairing ({{current}}/{{total}})\n\nPlease react to **this message** with the emoji you want to pair with the role {{role}}.",
-      "step4": "### Step 4: Menu Roles\n\nSelect the roles you want users to be able to claim from the reaction role menu.\nYou can select a total of {{total}} different roles.",
-      "step3": "### Step 3: Target Channel\n\nSelect the channel where you want the reaction role menu to be posted by the bot.",
-      "step2": "### Step 2: Required Roles\n\nSelect any roles that users must have to be able to claim roles from the reaction role menu.\nYou can select a total of {{total}} different roles.\nThis step is optional, you can skip it if you don't want any requirements.",
-      "step1": "### Step 1: Selection Mode\n\nShould this reaction menu allow users to select only one role, or multiple roles at once?"
+      "timeout": "⏱️ *This setup timed out. Run the command again to start over.*",
+      "maximum": "This server already has {{total}} role menus, the most there can be. Delete one before creating a new one.",
+      "complete": "### ✅ All done!\nThe role menu is posted in {{channel}}.",
+      "invalidChannel": "I can't find or see that channel anymore. Check the channel and my permissions.",
+      "save": "Post menu",
+      "rolePlaceholder": "Pick the roles for the menu",
+      "channelPlaceholder": "Pick the channel for the menu",
+      "requiredPlaceholder": "Pick the required roles (optional)",
+      "skipRequired": "Skip, no requirements",
+      "cantAssign": "I can't give out some of these roles:\n{{roles}}\nPick other roles, or move my role above them in the server settings.",
+      "roleProblem": "- {{role}}: {{reason}}",
+      "step1": "### Step 1: Mode\nCan members pick just one role from this menu, or as many as they like?",
+      "step2": "### Step 2: Required Roles\nShould members need a role to use this menu? You can pick up to {{total}}, or skip this if anyone can use it.",
+      "step3": "### Step 3: Channel\nWhere should the menu be posted?",
+      "step4": "### Step 4: Roles\nWhich roles can members pick from the menu? You can pick up to {{total}}.",
+      "step5": "### Step 5: Emoji ({{current}}/{{total}})\nReact to **this message** with the emoji for {{role}}.",
+      "step6": "### Step 6: Check & Post\nHere's your menu. If it all looks good, click **Post menu**.\n\n{{details}}"
     },
     "info": {
-      "timeout": "⏱️ *This interaction has timed out. Please run the command again to inspect other menus.*",
+      "timeout": "⏱️ *This timed out. Run the command again to look at other menus.*",
       "selectItem": "Menu in {{channel}} | {{roles}}/{{total}} roles | ID: {{id}}",
-      "selectPlaceholder": "Select a menu to view details",
-      "overview": "### Reaction Role Menus\nThere are currently **{{count}}/{{total}}** menus configured for this server.\n\n*Select a menu from the dropdown below to view details.*",
-      "deleteMenu": "Delete Menu",
-      "title": "### Reaction Role Menu Details\nMenu ID: `{{id}}`",
+      "selectPlaceholder": "Pick a menu to see its details",
+      "overview": "### 🎭 Role Menus\nThis server has **{{count}}/{{total}}** role menus.\n\n*Pick one below to see its details.*",
+      "deleteMenu": "Delete menu",
+      "title": "### 🎭 Role Menu\nID: `{{id}}`",
       "status": "Status: {{state}}",
       "channel": "Channel: {{channel}}",
       "messageId": "Message ID: {{id}}",
       "choice": "Mode: {{choice}}",
-      "required": "Required Roles ({{count}}/{{total}}): {{roles}}",
-      "noRequired": "Required Roles (0/{{total}}): None",
+      "required": "Required roles ({{count}}/{{total}}): {{roles}}",
+      "noRequired": "Required roles (0/{{total}}): none",
       "roles": "Roles ({{count}}/{{total}}): {{roles}}",
-      "noRoles": "Roles (0/{{total}}): None",
-      "roleItem": "{{emoji}} - {{role}}"
+      "noRoles": "Roles (0/{{total}}): none",
+      "roleItem": "{{emoji}} {{role}}"
     },
     "select": {
-      "requirements": "You do not meet the requirements to select a role from this menu!",
-      "removed": "You have been removed from the {{role}} role.",
-      "assigned": "You have been assigned the {{role}} role.",
-      "swapped": "You have been switched from {{removed, list}} to {{assigned}}.",
-      "error": "An error occured while assigning the role!\nPlease make sure I have the appropriate permissions, the bot role is placed higher than the roles in this menu and try again."
+      "requirements": "You don't have the role you need to use this menu.",
+      "removed": "Took away the {{role}} role.",
+      "assigned": "You got the {{role}} role!",
+      "swapped": "Switched you from {{removed}} to {{assigned}}.",
+      "error": "Something went wrong giving you that role. An admin should check that my role is above the roles in this menu.",
+      "disabled": "This role menu is turned off right now.",
+      "cantAssign": "I can't give out {{role}} right now. An admin should check that my role is above it."
     }
   },
   "dev": {

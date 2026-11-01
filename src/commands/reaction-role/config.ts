@@ -7,10 +7,8 @@ import {
   ChannelSelectMenuBuilder,
   ChannelType,
   ChatInputCommandInteraction,
-  Colors,
   ComponentType,
   ContainerBuilder,
-  EmbedBuilder,
   InteractionContextType,
   MessageFlags,
   PermissionFlagsBits,
@@ -23,6 +21,7 @@ import {
   TextDisplayBuilder,
   type InteractionEditReplyOptions,
   type InteractionReplyOptions,
+  type PermissionsString,
 } from 'discord.js';
 
 import { Command } from 'classes/base/command';
@@ -34,10 +33,14 @@ import {
   getReactionRoleMenuConfiguration,
   updateReactionRoleMenuConfiguration,
 } from 'database/reaction-role';
-import { t } from 'i18next';
 
+import { getTranslate, type Translate } from 'utility/i18next';
 import { logger } from 'utility/logger';
+import { buildRoleMenuMessage } from 'utility/reactionRoleMenu';
 import { createResponse, logFailure, sendError, sendResponse } from 'utility/response';
+import { canGiveRole } from 'utility/roles';
+import { formatPermissions, missingBotPermissions, unassignableReason } from 'utility/settings';
+import { ThemeColors } from 'utility/theme';
 
 interface SetupState {
   step: 'MODE' | 'REQUIRED_ROLES' | 'CHANNEL' | 'MENU_ROLES' | 'EMOJI_PAIRING' | 'CONFIRM';
@@ -49,9 +52,13 @@ interface SetupState {
   roles: { emoji: string; roleId: string }[];
 }
 
+type Menu = Awaited<ReturnType<typeof getAllReactionRoleMenusForGuild>>[number];
+
 const MAX_MENUS_PER_GUILD = 20;
 const MAX_ROLES_PER_MENU = 20;
 const CHANNEL_NAME_LIMIT = 20;
+/** What the bot needs in the channel a menu is posted in. */
+const MENU_CHANNEL_PERMISSIONS: PermissionsString[] = ['ViewChannel', 'SendMessages'];
 
 export default new Command({
   data: new SlashCommandBuilder()
@@ -111,25 +118,12 @@ export default new Command({
   async autocomplete(interaction) {
     if (!interaction.inCachedGuild()) return;
 
+    const t = getTranslate(interaction.locale);
     const focusedOption = interaction.options.getFocused(true);
 
     if (focusedOption.name === 'menu-id') {
       const menus = await getAllReactionRoleMenusForGuild(interaction.guildId);
-      const choices = menus.map((menu) => {
-        const channelName = interaction.guild?.channels.cache.get(menu.channelId)?.name || '???';
-        const displayChannelName = channelName.length > CHANNEL_NAME_LIMIT ? `${channelName.slice(0, CHANNEL_NAME_LIMIT)}...` : channelName;
-
-        return {
-          name: t('reactionRole.info.selectItem', {
-            channel: displayChannelName,
-            roles: menu.roles.length,
-            total: MAX_MENUS_PER_GUILD,
-            id: menu.id,
-          }),
-
-          value: menu.id,
-        };
-      });
+      const choices = menus.map((menu) => ({ name: menuLabel(interaction.guild.channels.cache.get(menu.channelId)?.name, menu, t), value: menu.id }));
 
       const filtered = choices.filter((choice) => choice.name.toLowerCase().includes(focusedOption.value.toLowerCase()));
       await interaction.respond(filtered.slice(0, 25));
@@ -141,37 +135,36 @@ export default new Command({
       return;
     }
 
-    const subcommand = interaction.options.getSubcommand();
+    const t = getTranslate(interaction.locale);
 
-    switch (subcommand) {
+    switch (interaction.options.getSubcommand()) {
       case 'setup':
-        await handleSetup(interaction);
-        break;
+        return handleSetup(interaction, t);
       case 'info':
-        await handleInfo(interaction);
-        break;
+        return handleInfo(interaction, t);
       case 're-send':
-        await handleResend(interaction);
-        break;
+        return handleResend(interaction, t);
       case 'toggle':
-        await handleToggle(interaction);
-        break;
+        return handleToggle(interaction, t);
       case 'delete':
-        await handleDelete(interaction);
-        break;
-      default:
-        await interaction.reply({
-          components: [
-            new ContainerBuilder().setAccentColor(Colors.Red).addTextDisplayComponents(new TextDisplayBuilder().setContent(t('reactionRole.subcommand'))),
-          ],
-          flags: [MessageFlags.IsComponentsV2, MessageFlags.Ephemeral],
-        });
-        break;
+        return handleDelete(interaction, t);
     }
   },
 });
 
-export async function handleSetup(interaction: ChatInputCommandInteraction<'cached'>) {
+/** How a menu is listed in the autocomplete and the info select, like `Menu in roles | 4/20 roles | ID: …`. */
+function menuLabel(channelName: string | undefined, menu: Menu, t: Translate) {
+  const name = channelName ?? '???';
+  return t('reactionRole.info.selectItem', {
+    channel: name.length > CHANNEL_NAME_LIMIT ? `${name.slice(0, CHANNEL_NAME_LIMIT)}...` : name,
+    roles: menu.roles.length,
+    total: MAX_ROLES_PER_MENU,
+    id: menu.id,
+  });
+}
+
+export async function handleSetup(interaction: ChatInputCommandInteraction<'cached'>, t: Translate) {
+  // Public, as the emoji are picked by reacting to this message, which ephemeral messages don't allow
   await interaction.deferReply();
 
   const state: SetupState = {
@@ -187,14 +180,11 @@ export async function handleSetup(interaction: ChatInputCommandInteraction<'cach
   const existingMenus = await getAllReactionRoleMenusForGuild(interaction.guildId);
 
   if (existingMenus.length >= MAX_MENUS_PER_GUILD) {
-    return interaction.editReply({
-      content: t('reactionRole.setup.maximum', { total: MAX_MENUS_PER_GUILD }),
-      components: [],
-    });
+    return interaction.editReply(createResponse(t('reactionRole.setup.maximum', { total: MAX_MENUS_PER_GUILD }), 'error'));
   }
 
   function generateReactionRoleView(): InteractionReplyOptions & InteractionEditReplyOptions {
-    const container = new ContainerBuilder().setAccentColor(Colors.Blurple);
+    const container = new ContainerBuilder().setAccentColor(ThemeColors.info);
     const components: (ContainerBuilder | ActionRowBuilder)[] = [container];
 
     switch (state.step) {
@@ -264,7 +254,7 @@ export async function handleSetup(interaction: ChatInputCommandInteraction<'cach
       }
 
       case 'CONFIRM':
-        container.setAccentColor(Colors.Green).addTextDisplayComponents(
+        container.setAccentColor(ThemeColors.success).addTextDisplayComponents(
           new TextDisplayBuilder().setContent(
             t('reactionRole.setup.step6', {
               details: [
@@ -296,7 +286,8 @@ export async function handleSetup(interaction: ChatInputCommandInteraction<'cach
         break;
     }
 
-    return { components: components.map((component) => component.toJSON()), flags: [MessageFlags.IsComponentsV2] };
+    // Roles are mentioned in the steps, which mustn't ping everyone who has them
+    return { components: components.map((component) => component.toJSON()), flags: [MessageFlags.IsComponentsV2], allowedMentions: { parse: [] } };
   }
   const message = await interaction.editReply(generateReactionRoleView());
 
@@ -316,7 +307,7 @@ export async function handleSetup(interaction: ChatInputCommandInteraction<'cach
     void (async () => {
       // The setup message is public, so only the user who started the setup may use it
       if (componentInteraction.user.id !== interaction.user.id) {
-        await sendError(componentInteraction, t('system.button.authorOnly'));
+        await sendError(componentInteraction, getTranslate(componentInteraction.locale)('system.button.authorOnly'));
         return;
       }
 
@@ -338,33 +329,15 @@ export async function handleSetup(interaction: ChatInputCommandInteraction<'cach
           isSaving = true;
           await componentInteraction.deferUpdate();
 
-          const targetChannel = await interaction.guild?.channels.fetch(state.channelId!).catch(() => null);
+          const targetChannel = await interaction.guild.channels.fetch(state.channelId!).catch(() => null);
           if (!targetChannel || !targetChannel.isTextBased()) {
-            await componentInteraction.followUp({ content: t('reactionRole.setup.invalidChannel'), flags: [MessageFlags.Ephemeral] });
+            await sendError(componentInteraction, t('reactionRole.setup.invalidChannel'));
             isSaving = false;
             return;
           }
 
-          const embed = new EmbedBuilder()
-            .setTitle(t('reactionRole.message.title'))
-            .setDescription(
-              `${t('reactionRole.message.description')}\n\n${state.roles.map((r) => t('reactionRole.message.item', { emoji: r.emoji, role: roleMention(r.roleId) })).join('\n')}`,
-            )
-            .setColor(Colors.Blurple);
-
-          const buttonRows: ActionRowBuilder<ButtonBuilder>[] = [];
-
-          for (let i = 0; i < state.roles.length; i += 5) {
-            const row = new ActionRowBuilder<ButtonBuilder>();
-            const chunk = state.roles.slice(i, i + 5);
-
-            for (const role of chunk) {
-              row.addComponents(new ButtonBuilder().setCustomId(`rr_sel_${role.roleId}`).setEmoji(role.emoji).setStyle(ButtonStyle.Secondary));
-            }
-            buttonRows.push(row);
-          }
-
-          const sentMessage = await targetChannel.send({ embeds: [embed], components: buttonRows });
+          // Posted for everyone, so in the server's language
+          const sentMessage = await targetChannel.send(buildRoleMenuMessage(state.roles, getTranslate(interaction.guild.preferredLocale)));
 
           await createReactionRoleMenuConfiguration(
             interaction.guildId,
@@ -375,11 +348,7 @@ export async function handleSetup(interaction: ChatInputCommandInteraction<'cach
             state.requiredRoleIds,
           );
 
-          const successContainer = new ContainerBuilder()
-            .setAccentColor(Colors.Green)
-            .addTextDisplayComponents(new TextDisplayBuilder().setContent(t('reactionRole.setup.complete', { channel: channelMention(state.channelId!) })));
-
-          await interaction.editReply({ components: [successContainer] });
+          await interaction.editReply(createResponse(t('reactionRole.setup.complete', { channel: channelMention(state.channelId!) }), 'success'));
           componentCollector.stop('COMPLETED');
           reactionCollector.stop('COMPLETED');
         }
@@ -393,12 +362,34 @@ export async function handleSetup(interaction: ChatInputCommandInteraction<'cach
         }
 
         if (componentInteraction.customId === 'setup_channel') {
-          state.channelId = componentInteraction.values[0] ?? null;
+          const channelId = componentInteraction.values[0];
+          // The select shows the channels the user can see, which may include ones the bot can't post in
+          const missing = channelId ? missingBotPermissions(interaction.guild, channelId, MENU_CHANNEL_PERMISSIONS) : [];
+          if (channelId && missing.length > 0) {
+            await sendError(
+              componentInteraction,
+              t('settings.channel.botPermissionsRefused', { channel: channelMention(channelId), permissions: formatPermissions(missing, t) }),
+            );
+            return;
+          }
+
+          state.channelId = channelId ?? null;
           state.step = 'MENU_ROLES';
           await componentInteraction.update(generateReactionRoleView());
         }
 
         if (componentInteraction.customId === 'setup_menu_roles' && componentInteraction.isRoleSelectMenu()) {
+          // Roles the bot can't give would make their buttons fail, so they're refused right away
+          const problems = componentInteraction.roles
+            .filter((role) => !canGiveRole(interaction.guild, role.id))
+            .map((role) =>
+              t('reactionRole.setup.roleProblem', { role: roleMention(role.id), reason: unassignableReason(interaction.guild, role.id, t) ?? '' }),
+            );
+          if (problems.length > 0) {
+            await sendError(componentInteraction, t('reactionRole.setup.cantAssign', { roles: problems.join('\n') }));
+            return;
+          }
+
           state.menuRoleIds = componentInteraction.roles.sort((a, b) => a.position - b.position).map((role) => role.id);
           state.pairingIndex = 0;
           state.step = 'EMOJI_PAIRING';
@@ -406,8 +397,8 @@ export async function handleSetup(interaction: ChatInputCommandInteraction<'cach
         }
       }
     })().catch(async (error: unknown) => {
-      logger.error(error, t('system.button.error'));
-      await sendError(componentInteraction, t('system.button.error'));
+      logger.error(error, 'Failed to handle the reaction role setup');
+      await sendError(componentInteraction, getTranslate(componentInteraction.locale)('system.button.error'));
     });
   });
 
@@ -440,21 +431,21 @@ export async function handleSetup(interaction: ChatInputCommandInteraction<'cach
   });
 }
 
-async function handleInfo(interaction: ChatInputCommandInteraction<'cached'>) {
+async function handleInfo(interaction: ChatInputCommandInteraction<'cached'>, t: Translate) {
   await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
 
   const providedMenuId = interaction.options.getString('menu-id');
   const menus = await getAllReactionRoleMenusForGuild(interaction.guildId);
 
   if (menus.length === 0) {
-    return interaction.editReply(t('reactionRole.none'));
+    return interaction.editReply(createResponse(t('reactionRole.none'), 'info'));
   }
 
-  const generateMenuDetails = (menu: (typeof menus)[0]) => {
+  const generateMenuDetails = (menu: Menu) => {
     const isEnabled = menu.enabled ?? true;
 
     return new ContainerBuilder()
-      .setAccentColor(Colors.Blurple)
+      .setAccentColor(ThemeColors.info)
       .addTextDisplayComponents(new TextDisplayBuilder().setContent(t('reactionRole.info.title', { id: menu.id })))
       .addSectionComponents(
         new SectionBuilder()
@@ -489,7 +480,7 @@ async function handleInfo(interaction: ChatInputCommandInteraction<'cached'>) {
   if (providedMenuId) {
     const targetMenu = menus.find((m) => m.id === providedMenuId);
     if (!targetMenu) {
-      return interaction.editReply(t('reactionRole.notFound'));
+      return interaction.editReply(createResponse(t('reactionRole.notFound'), 'error'));
     }
     return interaction.editReply({
       components: [generateMenuDetails(targetMenu).toJSON()],
@@ -497,7 +488,7 @@ async function handleInfo(interaction: ChatInputCommandInteraction<'cached'>) {
     });
   }
 
-  const overviewContainer = new ContainerBuilder().setAccentColor(Colors.Blurple).addTextDisplayComponents(
+  const overviewContainer = new ContainerBuilder().setAccentColor(ThemeColors.info).addTextDisplayComponents(
     new TextDisplayBuilder().setContent(
       t('reactionRole.info.overview', {
         count: menus.length,
@@ -512,21 +503,7 @@ async function handleInfo(interaction: ChatInputCommandInteraction<'cached'>) {
     .setCustomId('info_menu_select')
     .setPlaceholder(t('reactionRole.info.selectPlaceholder'))
     .addOptions(
-      menus.map((m) => {
-        const channelName = interaction.guild?.channels.cache.get(m.channelId)?.name || '???';
-        const displayChannelName = channelName.length > CHANNEL_NAME_LIMIT ? `${channelName.slice(0, CHANNEL_NAME_LIMIT)}...` : channelName;
-
-        return new StringSelectMenuOptionBuilder()
-          .setLabel(
-            t('reactionRole.info.selectItem', {
-              channel: displayChannelName,
-              roles: m.roles.length,
-              total: MAX_ROLES_PER_MENU,
-              id: m.id,
-            }),
-          )
-          .setValue(m.id);
-      }),
+      menus.map((m) => new StringSelectMenuOptionBuilder().setLabel(menuLabel(interaction.guild.channels.cache.get(m.channelId)?.name, m, t)).setValue(m.id)),
     );
 
   const actionRow = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(selectMenu);
@@ -574,7 +551,7 @@ async function handleInfo(interaction: ChatInputCommandInteraction<'cached'>) {
   });
 }
 
-async function handleResend(interaction: ChatInputCommandInteraction<'cached'>) {
+async function handleResend(interaction: ChatInputCommandInteraction<'cached'>, t: Translate) {
   await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
 
   const menuId = interaction.options.getString('menu-id', true);
@@ -582,62 +559,40 @@ async function handleResend(interaction: ChatInputCommandInteraction<'cached'>) 
 
   const menu = await getReactionRoleMenuConfiguration(menuId);
   if (!menu) {
-    return interaction.editReply({ content: t('reactionRole.notFound') });
+    return interaction.editReply(createResponse(t('reactionRole.notFound'), 'error'));
   }
 
   const targetChannelId = targetChannelOption ? targetChannelOption.id : menu.channelId;
-  const targetChannel = await interaction.guild?.channels.fetch(targetChannelId).catch(() => null);
+  const targetChannel = await interaction.guild.channels.fetch(targetChannelId).catch(() => null);
   if (!targetChannel || !targetChannel.isTextBased()) {
-    return interaction.editReply({ content: t('reactionRole.resend.channel') });
+    return interaction.editReply(createResponse(t('reactionRole.resend.channel'), 'error'));
   }
 
-  const embed = new EmbedBuilder()
-    .setTitle(t('reactionRole.message.title'))
-    .setDescription(
-      `${t('reactionRole.message.description')}\n\n${menu.roles.map((r) => t('reactionRole.message.item', { emoji: r.emoji, role: roleMention(r.roleId) })).join('\n')}`,
-    )
-    .setColor(Colors.Blurple);
-
-  const buttonRows: ActionRowBuilder<ButtonBuilder>[] = [];
-  for (let i = 0; i < menu.roles.length; i += 5) {
-    const row = new ActionRowBuilder<ButtonBuilder>();
-    const chunk = menu.roles.slice(i, i + 5);
-    for (const role of chunk) {
-      row.addComponents(new ButtonBuilder().setCustomId(`rr_sel_${role.roleId}`).setEmoji(role.emoji).setStyle(ButtonStyle.Secondary));
-    }
-    buttonRows.push(row);
+  // Posted for everyone, so in the server's language
+  const sentMessage = await targetChannel.send(buildRoleMenuMessage(menu.roles, getTranslate(interaction.guild.preferredLocale))).catch(() => null);
+  if (!sentMessage) {
+    return interaction.editReply(createResponse(t('reactionRole.resend.failed', { channel: channelMention(targetChannel.id) }), 'error'));
   }
-
-  const sentMessage = await targetChannel.send({ embeds: [embed], components: buttonRows }).catch(() => {
-    return interaction.editReply({ content: t('reactionRole.resend.failed', { channel: channelMention(targetChannel.id) }) });
-  });
-  if (!sentMessage) return;
 
   await updateReactionRoleMenuConfiguration(menuId, { channelId: targetChannel.id, messageId: sentMessage.id });
-  await interaction.editReply({
-    content: t('reactionRole.resend.success', { channel: channelMention(targetChannel.id) }),
-  });
+  await interaction.editReply(createResponse(t('reactionRole.resend.success', { channel: channelMention(targetChannel.id) }), 'success'));
 }
 
-async function handleDelete(interaction: ChatInputCommandInteraction<'cached'>) {
+async function handleDelete(interaction: ChatInputCommandInteraction<'cached'>, t: Translate) {
   await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
 
   const menuId = interaction.options.getString('menu-id', true);
-
   const menu = await getReactionRoleMenuConfiguration(menuId);
 
   if (!menu) {
-    return interaction.editReply({ content: t('reactionRole.notFound') });
+    return interaction.editReply(createResponse(t('reactionRole.notFound'), 'error'));
   }
 
   await deleteReactionRoleMenuConfiguration(menuId);
-
-  await interaction.editReply({
-    content: t('reactionRole.delete.success'),
-  });
+  await interaction.editReply(createResponse(t('reactionRole.delete.success'), 'warning'));
 }
 
-async function handleToggle(interaction: ChatInputCommandInteraction<'cached'>) {
+async function handleToggle(interaction: ChatInputCommandInteraction<'cached'>, t: Translate) {
   await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
 
   const menuId = interaction.options.getString('menu-id', false);
@@ -647,7 +602,7 @@ async function handleToggle(interaction: ChatInputCommandInteraction<'cached'>) 
     const menus = await getAllReactionRoleMenusForGuild(interaction.guildId);
 
     if (menus.length === 0) {
-      return interaction.editReply({ content: t('reactionRole.none') });
+      return interaction.editReply(createResponse(t('reactionRole.none'), 'info'));
     }
 
     await Promise.all(
@@ -657,25 +612,21 @@ async function handleToggle(interaction: ChatInputCommandInteraction<'cached'>) 
       }),
     );
 
-    return interaction.editReply({
-      content: t('reactionRole.toggle.all', {
-        state: enabledOption !== null ? (enabledOption ? t('state.enabled') : t('state.disabled')) : t('state.toggled'),
-      }),
-    });
+    const state = enabledOption !== null ? (enabledOption ? t('state.enabled') : t('state.disabled')) : t('state.toggled');
+    return interaction.editReply(createResponse(t('reactionRole.toggle.all', { state }), 'success'));
   }
 
   const menu = await getReactionRoleMenuConfiguration(menuId);
   if (!menu) {
-    return interaction.editReply({ content: t('reactionRole.notFound') });
+    return interaction.editReply(createResponse(t('reactionRole.notFound'), 'error'));
   }
 
   const newState = enabledOption !== null ? enabledOption : !menu.enabled;
   await updateReactionRoleMenuConfiguration(menuId, { enabled: newState });
 
-  await interaction.editReply({
-    content:
-      t('reactionRole.toggle.single', { state: newState ? t('state.enabled') : t('state.disabled') }) +
-      '\n' +
-      t(`reactionRole.toggle.${newState ? 'function' : 'noFunction'}`),
-  });
+  const content = [
+    t('reactionRole.toggle.single', { id: menu.id, state: newState ? t('state.enabled') : t('state.disabled') }),
+    t(newState ? 'reactionRole.toggle.function' : 'reactionRole.toggle.noFunction'),
+  ].join('\n');
+  await interaction.editReply(createResponse(content, 'success'));
 }

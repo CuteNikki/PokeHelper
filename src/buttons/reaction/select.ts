@@ -1,11 +1,13 @@
 import { MessageFlags, roleMention } from 'discord.js';
-import { t } from 'i18next';
 
 import { Button } from 'classes/base/button';
 
 import { getReactionRoleMenuConfigurationByMessageId } from 'database/reaction-role';
 
+import { getTranslate } from 'utility/i18next';
 import { logger } from 'utility/logger';
+import { createResponse } from 'utility/response';
+import { canGiveRole } from 'utility/roles';
 
 export default new Button({
   customId: 'rr_sel',
@@ -16,25 +18,30 @@ export default new Button({
       return;
     }
 
+    const t = getTranslate(interaction.locale);
     await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
+    // Role mentions in the replies mustn't ping everyone who has the role
+    const reply = (content: string, kind: 'success' | 'error') => interaction.editReply({ ...createResponse(content, kind), allowedMentions: { parse: [] } });
 
     const roleId = interaction.customId.split('_')[2];
-    if (!roleId) {
-      return interaction.editReply({ content: t('reactionRole.notFound') });
+    const menu = roleId ? await getReactionRoleMenuConfigurationByMessageId(interaction.message.id) : null;
+    const menuRoleIds = menu?.roles.map((r) => r.roleId) ?? [];
+    if (!roleId || !menu || !menuRoleIds.includes(roleId)) {
+      return reply(t('reactionRole.notFound'), 'error');
     }
 
-    const menu = await getReactionRoleMenuConfigurationByMessageId(interaction.message.id);
-    if (!menu) {
-      return interaction.editReply({ content: t('reactionRole.notFound') });
-    }
-
-    const menuRoleIds = menu.roles.map((r) => r.roleId);
-    if (!menuRoleIds.includes(roleId)) {
-      return interaction.editReply({ content: t('reactionRole.notFound') });
+    // Turning a menu off keeps its message, but its buttons stop giving roles
+    if (!menu.enabled) {
+      return reply(t('reactionRole.select.disabled'), 'error');
     }
 
     if (menu.requiredRoleIds.length > 0 && !interaction.member.roles.cache.some((r) => menu.requiredRoleIds.includes(r.id))) {
-      return interaction.editReply({ content: t('reactionRole.select.requirements') });
+      return reply(t('reactionRole.select.requirements'), 'error');
+    }
+
+    // The role or the bot's own roles may have changed since the menu was set up
+    if (!canGiveRole(interaction.guild, roleId)) {
+      return reply(t('reactionRole.select.cantAssign', { role: roleMention(roleId) }), 'error');
     }
 
     const alreadyHasRole = interaction.member.roles.cache.has(roleId);
@@ -42,10 +49,7 @@ export default new Button({
     try {
       if (alreadyHasRole) {
         await interaction.member.roles.remove(roleId);
-        return interaction.editReply({
-          content: t('reactionRole.select.removed', { role: roleMention(roleId) }),
-          allowedMentions: { roles: [] },
-        });
+        return reply(t('reactionRole.select.removed', { role: roleMention(roleId) }), 'success');
       }
 
       if (menu.singleChoice) {
@@ -54,26 +58,21 @@ export default new Button({
         if (existingMenuRoles.size > 0) {
           await interaction.member.roles.remove(existingMenuRoles);
           await interaction.member.roles.add(roleId);
-          return interaction.editReply({
-            content: t('reactionRole.select.swapped', {
-              removed: existingMenuRoles.map((r) => roleMention(r.id)),
+          return reply(
+            t('reactionRole.select.swapped', {
+              removed: existingMenuRoles.map((r) => roleMention(r.id)).join(', '),
               assigned: roleMention(roleId),
             }),
-            allowedMentions: { roles: [] },
-          });
+            'success',
+          );
         }
       }
 
       await interaction.member.roles.add(roleId);
-      return interaction.editReply({
-        content: t('reactionRole.select.assigned', { role: roleMention(roleId) }),
-        allowedMentions: { roles: [] },
-      });
+      return reply(t('reactionRole.select.assigned', { role: roleMention(roleId) }), 'success');
     } catch (error) {
-      logger.error(error);
-      return interaction.editReply({
-        content: t('reactionRole.select.error'),
-      });
+      logger.error(error, `Failed to update reaction role ${roleId} for ${interaction.user.id} in guild ${interaction.guildId}`);
+      return reply(t('reactionRole.select.error'), 'error');
     }
   },
 });
