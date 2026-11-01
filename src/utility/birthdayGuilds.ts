@@ -18,7 +18,8 @@ const MAX_GUILDS = 24;
  */
 export function buildAnnounceInGuildsPicker(client: Client, userId: string, selected: string[], t: Translate, saved = false): ResponsePayload {
   const guilds = client.guilds.cache
-    .filter((guild) => guild.members.cache.has(userId))
+    // Members are only cached once seen since the bot started, so the servers already picked are listed either way
+    .filter((guild) => guild.members.cache.has(userId) || selected.includes(guild.id))
     .first(MAX_GUILDS)
     .map((guild) => ({ label: guild.name.slice(0, 100), value: guild.id, default: selected.includes(guild.id) }));
 
@@ -55,5 +56,13 @@ export function buildAnnounceInGuildsPicker(client: Client, userId: string, sele
   };
 }
 
-/** The servers picked in the select, where picking no servers wins over any others picked with it. */
-export const pickedGuilds = (values: string[]) => (values.includes(NO_GUILDS) ? [] : values);
+/**
+ * The servers to save from the select, where picking no servers wins over any others picked with it.
+ * Saved servers that weren't in the select, like one the bot can't see right now, are kept, as they couldn't be unpicked.
+ * @param shown The servers the select listed.
+ * @param saved The servers saved before.
+ */
+export function pickedGuilds(values: string[], shown: string[], saved: string[]): string[] {
+  const picked = values.includes(NO_GUILDS) ? [] : values;
+  return [...new Set([...saved.filter((guildId) => !shown.includes(guildId)), ...picked])];
+}

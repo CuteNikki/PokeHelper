@@ -2,7 +2,7 @@ import { ContainerBuilder, MessageFlags, TextDisplayBuilder } from 'discord.js';
 
 import { SelectMenu } from 'classes/base/select';
 
-import { updateUserBirthday } from 'database/birthday';
+import { getUserBirthday, updateUserBirthday } from 'database/birthday';
 
 import { ANNOUNCE_IN_GUILDS_SELECT_ID, buildAnnounceInGuildsPicker, pickedGuilds } from 'utility/birthdayGuilds';
 import { getTranslate } from 'utility/i18next';
@@ -17,7 +17,9 @@ export default new SelectMenu({
   async execute(interaction) {
     if (!interaction.isStringSelectMenu()) return;
     const t = getTranslate(interaction.locale);
-    const selected = pickedGuilds(interaction.values);
+    const shown = interaction.component.options.map((option) => option.value);
+    const saved = (await getUserBirthday(interaction.user.id))?.announceInGuildIds ?? [];
+    const selected = pickedGuilds(interaction.values, shown, saved);
 
     try {
       await updateUserBirthday(interaction.user.id, { announceInGuildIds: selected });

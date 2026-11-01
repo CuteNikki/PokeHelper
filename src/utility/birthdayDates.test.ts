@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 
-import { ageInYear, getBirthdayActions, getLocalTime, isBirthdayOn } from 'utility/birthdayDates';
+import { ageInYear, getBirthdayActions, getLocalTime, isBirthdayOn, parseBirthday, resolveTimezone } from 'utility/birthdayDates';
 
 const birthday = (date: string) => new Date(`${date}T00:00:00Z`);
 const nothingDone = { roleYear: null, announcedYear: null, roleActive: false };
@@ -65,5 +65,31 @@ describe('getBirthdayActions', () => {
 
   test('a birthday that passed while the bot was offline is not announced late', () => {
     expect(getBirthdayActions(july14, nothingDone, new Date('2026-07-15T12:00:00Z'))).toMatchObject({ giveRole: false, announce: false });
+  });
+});
+
+describe('parseBirthday', () => {
+  const now = new Date('2026-11-03T12:00:00Z');
+
+  test('takes real dates, with or without leading zeros', () => {
+    expect(parseBirthday('2000-05-01', now)).toEqual(birthday('2000-05-01'));
+    expect(parseBirthday('2000-5-1', now)).toEqual(birthday('2000-05-01'));
+    expect(parseBirthday('2004-02-29', now)).toEqual(birthday('2004-02-29'));
+  });
+
+  test("refuses dates that don't exist instead of rolling them over", () => {
+    for (const input of ['2000-02-31', '2001-02-29', '2000-13-01', '2000-00-10', '2000-04-31']) expect(parseBirthday(input, now)).toBeNull();
+  });
+
+  test('refuses short years, years before 1900 and dates in the future', () => {
+    for (const input of ['95-05-01', '1026-05-01', '2027-01-01', '2026-11-04', 'May 1', '']) expect(parseBirthday(input, now)).toBeNull();
+  });
+});
+
+describe('resolveTimezone', () => {
+  test('finds timezones whatever their case, and keeps how they are written', () => {
+    expect(resolveTimezone('europe/berlin')).toBe('Europe/Berlin');
+    expect(resolveTimezone(' America/New_York ')).toBe('America/New_York');
+    expect(resolveTimezone('Mars/Olympus')).toBeNull();
   });
 });

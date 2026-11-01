@@ -12,6 +12,7 @@ import { Command } from 'classes/base/command';
 
 import { createUserBirthday, deleteUserBirthday, getUserBirthday, updateUserBirthday } from 'database/birthday';
 
+import { parseBirthday, resolveTimezone } from 'utility/birthdayDates';
 import { buildAnnounceInGuildsPicker } from 'utility/birthdayGuilds';
 import { getTranslate, type Translate } from 'utility/i18next';
 import { logger } from 'utility/logger';
@@ -110,15 +111,11 @@ async function handleSetup(interaction: ChatInputCommandInteraction, t: Translat
   }
 
   const dateInput = interaction.options.getString('date', true);
-  const timezoneInput = interaction.options.getString('timezone', true).toLowerCase();
+  const timezone = resolveTimezone(interaction.options.getString('timezone', true));
   const showAge = interaction.options.getBoolean('show-age', true);
   const announceInGuildsByDefault = interaction.options.getBoolean('announce-in-guilds-by-default', false) ?? true;
 
-  if (
-    !Intl.supportedValuesOf('timeZone')
-      .map((v) => v.toLowerCase())
-      .includes(timezoneInput)
-  ) {
+  if (!timezone) {
     return interaction.editReply({
       components: [
         new ContainerBuilder()
@@ -130,17 +127,8 @@ async function handleSetup(interaction: ChatInputCommandInteraction, t: Translat
   }
 
   try {
-    const date = (() => {
-      const dateParts = dateInput.split('-').map((part) => parseInt(part, 10));
-
-      if (typeof dateParts[0] === 'undefined' || typeof dateParts[1] === 'undefined' || typeof dateParts[2] === 'undefined') {
-        return new Date(NaN);
-      }
-
-      return new Date(Date.UTC(dateParts[0], dateParts[1] - 1, dateParts[2], 0, 0, 0));
-    })();
-
-    if (isNaN(date.getTime())) {
+    const date = parseBirthday(dateInput, new Date());
+    if (!date) {
       return interaction.editReply({
         components: [
           new ContainerBuilder()
@@ -151,7 +139,7 @@ async function handleSetup(interaction: ChatInputCommandInteraction, t: Translat
       });
     }
 
-    await createUserBirthday(interaction.user.id, date, timezoneInput, showAge, announceInGuildsByDefault);
+    await createUserBirthday(interaction.user.id, date, timezone, showAge, announceInGuildsByDefault);
   } catch (error) {
     logger.error(error, 'Error creating birthday configuration:');
     return interaction.editReply({
@@ -182,7 +170,7 @@ async function handleEdit(interaction: ChatInputCommandInteraction, t: Translate
   }
 
   const dateInput = interaction.options.getString('date', false);
-  const timezoneInput = interaction.options.getString('timezone', false)?.toLowerCase();
+  const timezoneInput = interaction.options.getString('timezone', false);
   const showAge = interaction.options.getBoolean('show-age', false);
   const announceInGuildsByDefault = interaction.options.getBoolean('announce-in-guilds-by-default', false);
 
@@ -195,56 +183,32 @@ async function handleEdit(interaction: ChatInputCommandInteraction, t: Translate
     });
   }
 
-  if (timezoneInput) {
-    if (
-      !Intl.supportedValuesOf('timeZone')
-        .map((v) => v.toLowerCase())
-        .includes(timezoneInput)
-    ) {
-      return interaction.editReply({
-        components: [
-          new ContainerBuilder()
-            .setAccentColor(ThemeColors.error)
-            .addTextDisplayComponents(new TextDisplayBuilder().setContent(t('birthday.setup.invalidTimezone'))),
-        ],
-        flags: [MessageFlags.IsComponentsV2],
-      });
-    }
+  const timezone = timezoneInput ? resolveTimezone(timezoneInput) : null;
+  if (timezoneInput && !timezone) {
+    return interaction.editReply({
+      components: [
+        new ContainerBuilder()
+          .setAccentColor(ThemeColors.error)
+          .addTextDisplayComponents(new TextDisplayBuilder().setContent(t('birthday.setup.invalidTimezone'))),
+      ],
+      flags: [MessageFlags.IsComponentsV2],
+    });
   }
 
-  let date: Date | undefined;
-  if (dateInput) {
-    const dateParts = dateInput.split('-').map((part) => parseInt(part, 10));
-
-    if (typeof dateParts[0] === 'undefined' || typeof dateParts[1] === 'undefined' || typeof dateParts[2] === 'undefined') {
-      return interaction.editReply({
-        components: [
-          new ContainerBuilder()
-            .setAccentColor(ThemeColors.error)
-            .addTextDisplayComponents(new TextDisplayBuilder().setContent(t('birthday.setup.invalidDate'))),
-        ],
-        flags: [MessageFlags.IsComponentsV2],
-      });
-    }
-
-    date = new Date(Date.UTC(dateParts[0], dateParts[1] - 1, dateParts[2], 0, 0, 0));
-
-    if (isNaN(date.getTime())) {
-      return interaction.editReply({
-        components: [
-          new ContainerBuilder()
-            .setAccentColor(ThemeColors.error)
-            .addTextDisplayComponents(new TextDisplayBuilder().setContent(t('birthday.setup.invalidDate'))),
-        ],
-        flags: [MessageFlags.IsComponentsV2],
-      });
-    }
+  const date = dateInput ? parseBirthday(dateInput, new Date()) : null;
+  if (dateInput && !date) {
+    return interaction.editReply({
+      components: [
+        new ContainerBuilder().setAccentColor(ThemeColors.error).addTextDisplayComponents(new TextDisplayBuilder().setContent(t('birthday.setup.invalidDate'))),
+      ],
+      flags: [MessageFlags.IsComponentsV2],
+    });
   }
 
   try {
     await updateUserBirthday(interaction.user.id, {
       date: date ?? currentConfig.date,
-      timezone: timezoneInput ?? currentConfig.timezone,
+      timezone: timezone ?? currentConfig.timezone,
       showAge: showAge ?? currentConfig.showAge,
       announceInGuildsByDefault: announceInGuildsByDefault ?? currentConfig.announceInGuildsByDefault,
     });
@@ -305,22 +269,26 @@ async function handleInfo(interaction: ChatInputCommandInteraction, t: Translate
 
   return interaction.editReply({
     components: [
-      new ContainerBuilder()
-        .setAccentColor(ThemeColors.success)
-        .addTextDisplayComponents(
-          new TextDisplayBuilder().setContent(
-            [
-              t('birthday.info.title'),
-              t('birthday.info.date', { date: currentConfig.date.toLocaleDateString('en-US', dateOptions) }),
-              t('birthday.info.timezone', { timezone: currentConfig.timezone }),
-              t('birthday.info.showAge', { showAge: currentConfig.showAge ? t('state.yes') : t('state.no') }),
-              t('birthday.info.announceInGuilds', { announceInGuilds: currentConfig.announceInGuildsByDefault ? t('state.yes') : t('state.no') }),
-              currentConfig.announceInGuildIds.length > 0
-                ? t('birthday.info.announceInSpecificGuilds', { guilds: currentConfig.announceInGuildIds.join(', ') })
-                : t('birthday.info.announceInSpecificGuildsNone'),
-            ].join('\n'),
-          ),
+      new ContainerBuilder().setAccentColor(ThemeColors.success).addTextDisplayComponents(
+        new TextDisplayBuilder().setContent(
+          [
+            t('birthday.info.title'),
+            // The birthday is stored at midnight UTC, so it's shown in UTC to not slip to the day before
+            t('birthday.info.date', { date: currentConfig.date.toLocaleDateString(t('locale'), { ...dateOptions, timeZone: 'UTC' }) }),
+            // Birthdays from before timezones kept their case are stored in lowercase
+            t('birthday.info.timezone', { timezone: currentConfig.timezone ? (resolveTimezone(currentConfig.timezone) ?? currentConfig.timezone) : 'UTC' }),
+            t('birthday.info.showAge', { state: currentConfig.showAge ? t('state.yes') : t('state.no') }),
+            t('birthday.info.announceInGuilds', { state: currentConfig.announceInGuildsByDefault ? t('state.yes') : t('state.no') }),
+            currentConfig.announceInGuildIds.length > 0
+              ? t('birthday.info.announceInSpecificGuilds', {
+                  guilds: currentConfig.announceInGuildIds
+                    .map((guildId) => t('birthday.info.guildEntry', { guild: interaction.client.guilds.cache.get(guildId)?.name ?? guildId }))
+                    .join('\n'),
+                })
+              : t('birthday.info.announceInSpecificGuildsNone'),
+          ].join('\n'),
         ),
+      ),
     ],
     flags: [MessageFlags.IsComponentsV2],
   });

@@ -52,12 +52,26 @@ model Guild {
   birthday          GuildBirthday?     @relation("GuildBirthday")
   leveling          GuildLeveling?     @relation("GuildLeveling")
   reactionRoleMenus ReactionRoleMenu[]
+  birthdayRoles     BirthdayRole[]
   levels            Level[]
   levelsWeekly      WeeklyLevel[]
 
   // Timestamps
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+// A birthday role the bot gave, so exactly that role is taken away again, even if the birthday or the settings changed meanwhile
+model BirthdayRole {
+  guildId String
+  guild   Guild  @relation(fields: [guildId], references: [guildId], onDelete: Cascade)
+  userId  String
+  roleId  String
+
+  // Timestamps
+  createdAt DateTime @default(now())
+
+  @@id([guildId, userId])
 }
 
 model GuildBirthday {

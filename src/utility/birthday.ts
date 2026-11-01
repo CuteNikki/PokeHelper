@@ -38,6 +38,36 @@ export async function runBirthdayJob(client: Client) {
       logger.error(error, `Failed to handle the birthday of ${birthday.userId}`);
     }
   }
+
+  await removeEndedBirthdayRoles(client);
+}
+
+/**
+ * Take away the birthday roles the bot gave for birthdays that are over, and for birthdays that were deleted meanwhile.
+ * The role that was given is taken away, even if the server picked another birthday role since or reset its settings.
+ */
+async function removeEndedBirthdayRoles(client: Client) {
+  const [given, active] = await Promise.all([
+    prisma.birthdayRole.findMany(),
+    prisma.userBirthday.findMany({ where: { roleActive: true }, select: { userId: true } }),
+  ]);
+  const activeUserIds = new Set(active.map((birthday) => birthday.userId));
+
+  for (const role of given) {
+    if (activeUserIds.has(role.userId)) continue;
+    // The server may only be unavailable for a moment, so it's tried again next time
+    const guild = client.guilds.cache.get(role.guildId);
+    if (!guild) continue;
+
+    const member = await guild.members.fetch(role.userId).catch(() => null);
+    if (member?.roles.cache.has(role.roleId)) {
+      // Tried once, as a role the bot can't take away anymore, like one moved above its own, would fail every time
+      await member.roles
+        .remove(role.roleId)
+        .catch((error: unknown) => logger.warn(error, `Failed to take away the birthday role ${role.roleId} of ${role.userId} in guild ${guild.id}`));
+    }
+    await prisma.birthdayRole.delete({ where: { guildId_userId: { guildId: role.guildId, userId: role.userId } } });
+  }
 }
 
 async function announceBirthday(client: Client, birthday: UserBirthday, guildConfigs: GuildBirthday[], year: number) {
@@ -78,7 +108,17 @@ async function updateBirthdayRoles(client: Client, birthday: UserBirthday, guild
 
     const hasRole = member.roles.cache.has(guildConfig.roleId);
     try {
-      if (action === 'add' && !hasRole) await member.roles.add(guildConfig.roleId);
+      if (action === 'add') {
+        if (!hasRole) await member.roles.add(guildConfig.roleId);
+        // Remembered, so this role is taken away when the birthday is over, whatever changes meanwhile
+        const key = { guildId: guild.id, userId: birthday.userId };
+        await prisma.birthdayRole.upsert({
+          where: { guildId_userId: key },
+          create: { ...key, roleId: guildConfig.roleId },
+          update: { roleId: guildConfig.roleId },
+        });
+      }
+      // Also covers roles given before they were remembered
       if (action === 'remove' && hasRole) await member.roles.remove(guildConfig.roleId);
     } catch (error) {
       logger.error(error, `Failed to ${action} the birthday role of ${birthday.userId} in guild ${guild.id}`);

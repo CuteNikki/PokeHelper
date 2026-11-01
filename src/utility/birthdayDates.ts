@@ -76,3 +76,29 @@ export function getBirthdayActions(
     year: local.year,
   };
 }
+
+/** The earliest birth year that's taken, to catch typos like 1026. */
+const EARLIEST_YEAR = 1900;
+
+/**
+ * Parse a birthday typed like `2000-05-01`. Dates that don't exist, like February 31, aren't rolled over into the next month,
+ * and the year has to be written in full and can't be in the future.
+ * @returns The birthday at midnight UTC, or null if it isn't a valid one.
+ */
+export function parseBirthday(input: string, now: Date): Date | null {
+  const match = /^(\d{4})-(\d{1,2})-(\d{1,2})$/.exec(input.trim());
+  if (!match) return null;
+  const [year, month, day] = [Number(match[1]), Number(match[2]), Number(match[3])];
+
+  const date = new Date(Date.UTC(year, month - 1, day));
+  // Date.UTC rolls days and months that don't exist over, like February 31 into March
+  if (date.getUTCFullYear() !== year || date.getUTCMonth() !== month - 1 || date.getUTCDate() !== day) return null;
+  if (year < EARLIEST_YEAR || date.getTime() > now.getTime()) return null;
+  return date;
+}
+
+/** The timezone with the case it's known by, like `Europe/Berlin` for `europe/berlin`, or null if there's no such timezone. */
+export function resolveTimezone(input: string): string | null {
+  const wanted = input.trim().toLowerCase();
+  return Intl.supportedValuesOf('timeZone').find((timezone) => timezone.toLowerCase() === wanted) ?? null;
+}
