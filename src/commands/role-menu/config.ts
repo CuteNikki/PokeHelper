@@ -4,6 +4,7 @@ import {
   ChannelType,
   ChatInputCommandInteraction,
   InteractionContextType,
+  MessageFlags,
   PermissionFlagsBits,
   SlashCommandBuilder,
 } from 'discord.js';
@@ -81,6 +82,8 @@ export default new Command({
 
 /** Create a menu and show its settings, where its roles are added. It's posted once it has a role. */
 async function handleCreate(interaction: ChatInputCommandInteraction<'cached'>): Promise<unknown> {
+  // Creating the menu and showing its panel takes a few database queries
+  await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
   const t = getTranslate(interaction.locale);
   const channel = interaction.options.getChannel('channel', true, [ChannelType.GuildText, ChannelType.GuildAnnouncement]);
 
@@ -104,6 +107,7 @@ async function handleCreate(interaction: ChatInputCommandInteraction<'cached'>):
 
 /** Show the settings of a menu, or the list of all menus to pick one from. */
 async function handleSettings(interaction: ChatInputCommandInteraction<'cached'>): Promise<unknown> {
+  await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
   const t = getTranslate(interaction.locale);
   const menuId = interaction.options.getString('menu');
   if (!menuId) return sendResponse(interaction, await renderRoleMenuList(interaction.guild, t), { ephemeral: true });

@@ -27,10 +27,8 @@ export const deleteRoleMenu = async (id: string) => prisma.reactionRoleMenu.dele
 /** Set the emoji of a role in a menu, adding the role if it isn't in there yet, or remove the role with null. */
 export async function setRoleMenuRole(menuId: string, roleId: string, emoji: string | null) {
   if (emoji === null) return prisma.reactionRole.deleteMany({ where: { menuId, roleId } });
-
-  const existing = await prisma.reactionRole.findFirst({ where: { menuId, roleId } });
-  if (existing) return prisma.reactionRole.update({ where: { id: existing.id }, data: { emoji } });
-  return prisma.reactionRole.create({ data: { menuId, roleId, emoji } });
+  // In one step, so two quick saves can't add the role twice
+  return prisma.reactionRole.upsert({ where: { menuId_roleId: { menuId, roleId } }, create: { menuId, roleId, emoji }, update: { emoji } });
 }
 
 /**

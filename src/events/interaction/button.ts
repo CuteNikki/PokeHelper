@@ -30,8 +30,9 @@ export default new Event({
       }
     }
 
+    // Every button and select is handled by its custom ID, so one without a handler is from an older version of the bot
     if (!button) {
-      return;
+      return sendError(interaction, translate('system.outdated'));
     }
 
     /**

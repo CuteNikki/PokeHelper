@@ -23,6 +23,7 @@ export default new Event({
     try {
       if (interaction.customId.startsWith(SETTINGS_CUSTOM_ID_PREFIX)) await handleSettingsModal(interaction);
       else if (interaction.customId.startsWith(LEADERBOARD_PAGE_MODAL_PREFIX)) await handleLeaderboardPageModal(interaction);
+      else await sendError(interaction, getTranslate(interaction.locale)('system.outdated'));
     } catch (error) {
       logger.error(error, `Failed to handle the popup ${interaction.customId}`);
       await sendError(interaction, getTranslate(interaction.locale)('system.button.error'));

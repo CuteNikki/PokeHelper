@@ -181,7 +181,8 @@
       "error": "Bei {{command}} ist was schiefgelaufen.",
       "outdated": "Diesen Befehl gibt's nicht mehr oder er hat sich geändert. Die neue Version taucht auf, sobald die Befehle des Bots aktualisiert sind.",
       "devOnly": "Dieser Befehl ist nur für die Entwickler des Bots."
-    }
+    },
+    "outdated": "Das geht nicht mehr, weil es von einer älteren Version ist. Nutz den Befehl nochmal, um ein neues zu bekommen."
   },
   "counting": {
     "noConsecutive": "Du kannst nicht zweimal hintereinander zählen! Lass erst jemand anderen dran.",

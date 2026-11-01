@@ -67,7 +67,7 @@ export async function handleSettingsInteraction(interaction: ButtonInteraction |
 
   const id = parseSettingsCustomId(interaction.customId);
   const panel = id && getSettingsPanel(id.panelId);
-  if (!id || !panel) return;
+  if (!id || !panel) return sendError(interaction, t('system.outdated'));
   if (!(await checkPermissions(interaction, panel, t))) return;
 
   const input: SettingsInput = interaction.isAnySelectMenu() ? { type: 'select', values: interaction.values } : { type: 'button' };
@@ -96,7 +96,7 @@ export async function handleSettingsModal(interaction: ModalSubmitInteraction) {
 
   const id = parseSettingsCustomId(interaction.customId);
   const panel = id && getSettingsPanel(id.panelId);
-  if (!id || !panel) return;
+  if (!id || !panel) return sendError(interaction, t('system.outdated'));
   if (!(await checkPermissions(interaction, panel, t))) return;
 
   const result = await panel.submitModal(interaction.guild, id, interaction.fields.getTextInputValue(MODAL_INPUT_ID), t, interaction.member);

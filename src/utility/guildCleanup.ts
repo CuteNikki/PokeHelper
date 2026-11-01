@@ -31,7 +31,8 @@ export async function deleteLeftGuilds() {
 
 /** Catch up on guilds left while offline, then delete the data of guilds left long enough ago, now and once a day. */
 export async function startGuildCleanup(client: Client<true>) {
-  await reconcileGuilds(client);
-  await deleteLeftGuilds();
+  // Set up first, so a failure right at startup, like the database not being ready yet, doesn't stop it for good
   setInterval(() => void deleteLeftGuilds().catch(logFailure('Failed to delete the data of guilds the bot left')), DAY);
+  await reconcileGuilds(client).catch(logFailure('Failed to catch up on guilds joined or left while offline'));
+  await deleteLeftGuilds().catch(logFailure('Failed to delete the data of guilds the bot left'));
 }

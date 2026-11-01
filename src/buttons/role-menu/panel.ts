@@ -7,7 +7,7 @@ import { getRoleMenu } from 'database/roleMenu';
 import { getRoleMenuSettings, renderRoleMenuList, ROLE_MENU_CUSTOM_ID, roleMenuName } from 'settings/roleMenu';
 
 import { getTranslate } from 'utility/i18next';
-import { createResponse } from 'utility/response';
+import { createResponse, sendError } from 'utility/response';
 import { deleteRoleMenu, syncRoleMenuMessage } from 'utility/roleMenu';
 import { ThemeColors } from 'utility/theme';
 
@@ -33,7 +33,7 @@ export default new Button({
     }
 
     const action = MENU_ACTIONS.find((prefix) => customId.startsWith(prefix));
-    if (!action) return;
+    if (!action) return sendError(interaction, t('system.outdated'));
     const menu = await getRoleMenu(customId.slice(action.length));
     if (menu?.guildId !== interaction.guildId) return interaction.update(createResponse(t('roleMenu.notFound'), 'error'));
 

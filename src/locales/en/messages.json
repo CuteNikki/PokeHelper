@@ -264,7 +264,8 @@
     },
     "fonts": {
       "loaded": "Fonts loaded"
-    }
+    },
+    "outdated": "This doesn't work anymore, as it's from an older version. Run the command again to get a new one."
   },
   "birthday": {
     "none": "You haven't set your birthday yet. Set it with `/birthday setup`.",

@@ -16,7 +16,7 @@ export default new Button({
 
     const parsed = parseConfirmation(interaction.customId);
     const confirmation = parsed && confirmations[parsed.action];
-    if (!parsed || !confirmation) return;
+    if (!parsed || !confirmation) return sendError(interaction, t('system.outdated'));
 
     // Checked again here, as permissions may have changed since the question was asked
     if (!interaction.memberPermissions.has(confirmation.permissions)) {

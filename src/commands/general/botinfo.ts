@@ -40,6 +40,8 @@ export default new Command({
   data: new SlashCommandBuilder().setName('botinfo').setDescription('Displays current status, host metrics, and statistics.'),
 
   async execute(interaction) {
+    // Pinging the database and fetching the application can take a moment
+    await interaction.deferReply();
     const t = getTranslate(interaction.locale);
     const format = (value: number) => value.toLocaleString(t('locale'));
 
@@ -120,6 +122,6 @@ export default new Command({
     }
 
     // The developer is mentioned, but shouldn't be pinged whenever someone checks the bot's status
-    await interaction.reply({ components: [container], flags: [MessageFlags.IsComponentsV2], allowedMentions: { parse: [] } });
+    await interaction.editReply({ components: [container], flags: [MessageFlags.IsComponentsV2], allowedMentions: { parse: [] } });
   },
 });

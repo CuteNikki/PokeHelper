@@ -225,6 +225,7 @@ model ReactionRole {
   updatedAt DateTime @updatedAt
 
   // Indexes
+  @@unique([menuId, roleId])
   @@index([menuId])
 }
 
