@@ -728,8 +728,9 @@ export function createSettingsPanel<C>(definition: SettingsPanelDefinition<C>): 
 
       const footer = definition.footer?.(config, t) ?? [];
       if (footer.length > 0) {
+        // More space than between settings, so the buttons don't look squished against a select right above them
         container
-          .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Small))
+          .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large))
           .addActionRowComponents(new ActionRowBuilder<ButtonBuilder>().addComponents(footer));
       }
 
