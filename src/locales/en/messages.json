@@ -54,6 +54,12 @@
     "PinMessages": "Pin Messages",
     "BypassSlowmode": "Bypass Slowmode"
   },
+  "duration": {
+    "days": "{{count}}d",
+    "hours": "{{count}}h",
+    "minutes": "{{count}}m",
+    "lessThanMinute": "<1m"
+  },
   "settings": {
     "default": "Default: {{value}}",
     "none": "None",
@@ -418,30 +424,60 @@
       "allowMath": {
         "label": "Math",
         "description": "Allow numbers to be sent as math, like `1+1`, `2*3`, `2^3` or `3!`."
+      },
+      "milestoneReactions": {
+        "label": "Milestone Reactions",
+        "description": "React with 🎉 when a milestone is counted, like 100, 250, 500 or 1000."
       }
     },
     "info": {
-      "title": "### Counting Game Configuration",
-      "channel": "Channel: {{channel}}",
-      "resetOnFail": "Reset on Fail: {{state}}",
-      "allowMath": "Math: {{state}}",
-      "lastNumber": "Last Number: {{number}}",
-      "lastCounter": "Last Counter: {{user}}",
-      "noLastCounter": "Last Counter: None",
-      "lastCountedAt": "Last Counted At: {{time}}",
-      "noLastCountedAt": "Last Counted At: None",
-      "lastMessage": "Last Message: [jump to message]({{link}})",
-      "noLastMessage": "Last Message: None",
-      "highestNumber": "Highest Number: {{number}}",
-      "highestCounter": "Highest Counter: {{user}}",
-      "noHighestCounter": "Highest Counter: None",
-      "highestCountedAt": "Highest Counted At: {{time}}",
-      "noHighestCountedAt": "Highest Counted At: None",
-      "highestMessage": "Highest Message: [jump to message]({{link}})",
-      "noHighestMessage": "Highest Message: None"
+      "title": "### 🔢 Counting",
+      "overview": "Counting in {{channel}} · Next number: **{{next}}**",
+      "currentRun": "**Current run #{{run}}**",
+      "started": "Started {{time}} ({{relative}})",
+      "startedUnknown": "Started before stats were tracked",
+      "notStarted": "Nobody has counted yet. Send `1` in {{channel}} to start!",
+      "progress": "**{{number}}** numbers counted",
+      "pacePerDay": "about **{{pace}}** per day",
+      "pacePerHour": "about **{{pace}}** per hour",
+      "milestones": "Milestones: {{milestones}}",
+      "milestoneAfter": "**{{number}}** in {{duration}}",
+      "milestoneOn": "**{{number}}** on {{time}}",
+      "lastCounted": "Last counted by {{user}} {{relative}} · [jump]({{link}})",
+      "records": "**Records**",
+      "highest": "Highest number: **{{number}}** by {{user}}, {{time}} · [jump]({{link}})",
+      "runs_one": "{{count}} run so far",
+      "runs_other": "{{count}} runs so far"
+    },
+    "leaderboard": {
+      "title": "### 🏆 Top Counters",
+      "entry": "**{{position}}.** {{user}} · **{{counted}}** counted · {{accuracy}}% accurate",
+      "empty": "Nobody has counted yet."
+    },
+    "user": {
+      "title": "### 🔢 Counting Stats for {{user}}",
+      "rank": "Rank: **#{{rank}}**",
+      "counted": "Counted: **{{counted}}**",
+      "mistakes": "Mistakes: **{{mistakes}}**",
+      "accuracy": "Accuracy: **{{accuracy}}%**",
+      "lastCounted": "Last counted: {{relative}}",
+      "none": "{{user}} hasn't counted yet."
+    },
+    "runs": {
+      "title": "### 📜 Recent Runs",
+      "ongoing": "**#{{run}}** · ongoing · at **{{number}}** · {{started}}",
+      "finished": "**#{{run}}** · reached **{{number}}** · broken by {{user}} {{relative}}",
+      "lasted": " · lasted {{duration}}",
+      "started": "started {{relative}}",
+      "startedUnknown": "started before stats were tracked",
+      "empty": "No runs yet. Send `1` in the counting channel to start the first one!"
     },
     "resetConfiguration": {
-      "success": "The counting game configuration has been reset to default settings!"
+      "confirm": "### ⚠️ Remove the counting game?\nThis removes the counting game in this server **with all its stats**: runs, counted numbers and everyone's counts. This can't be undone.",
+      "confirmButton": "Remove everything",
+      "cancelButton": "Cancel",
+      "cancelled": "Nothing was removed.",
+      "success": "The counting game and its stats have been removed. Use the setup command to start a new one."
     }
   },
   "reactionRole": {

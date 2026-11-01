@@ -1,16 +1,19 @@
 import {
+  ActionRowBuilder,
   ApplicationIntegrationType,
+  ButtonBuilder,
+  ButtonStyle,
   channelMention,
   ChannelType,
   ChatInputCommandInteraction,
+  ComponentType,
+  ContainerBuilder,
   InteractionContextType,
   MessageFlags,
   PermissionFlagsBits,
   SlashCommandBuilder,
   SnowflakeUtil,
-  time,
-  TimestampStyles,
-  userMention,
+  TextDisplayBuilder,
 } from 'discord.js';
 import { t } from 'i18next';
 
@@ -22,14 +25,18 @@ import { countingSettings } from 'settings/counting';
 
 import { runCountingTask } from 'utility/countingGame';
 import { createResponse, sendResponse } from 'utility/response';
+import { ThemeColors } from 'utility/theme';
+
+/** How long the reset confirmation waits for an answer, in milliseconds. */
+const RESET_CONFIRM_TIME = 30_000;
 
 export default new Command({
   data: new SlashCommandBuilder()
     .setContexts(InteractionContextType.Guild)
     .setIntegrationTypes(ApplicationIntegrationType.GuildInstall)
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageChannels)
-    .setName('counting')
-    .setDescription('A fun counting game for your community!')
+    .setName('counting-config')
+    .setDescription('Set up and configure the counting game')
     .addSubcommand((cmd) =>
       cmd
         .setName('setup')
@@ -39,28 +46,17 @@ export default new Command({
         ),
     )
     .addSubcommand((cmd) => cmd.setName('settings').setDescription('Change the counting game settings'))
-    .addSubcommand((cmd) => cmd.setName('info').setDescription('Get information about the counting game'))
-    .addSubcommand((cmd) => cmd.setName('reset').setDescription('Reset the counting game')),
+    .addSubcommand((cmd) => cmd.setName('reset').setDescription('Remove the counting game and all its stats')),
   async execute(interaction) {
     if (!interaction.inCachedGuild()) return;
 
-    const subcommand = interaction.options.getSubcommand();
-
-    switch (subcommand) {
+    switch (interaction.options.getSubcommand()) {
       case 'setup':
-        await handleSetup(interaction);
-        break;
+        return handleSetup(interaction);
       case 'settings':
-        await handleSettings(interaction);
-        break;
-      case 'info':
-        await handleInfo(interaction);
-        break;
+        return handleSettings(interaction);
       case 'reset':
-        await handleReset(interaction);
-        break;
-      default:
-        return;
+        return handleReset(interaction);
     }
   },
 });
@@ -107,79 +103,49 @@ async function handleSettings(interaction: ChatInputCommandInteraction<'cached'>
 }
 
 /**
- * Handle the info subcommand for the counting game.
+ * Handle the reset subcommand for the counting game, which removes it with all its stats after a confirmation.
  * @param interaction {ChatInputCommandInteraction<CacheType>} The interaction object for the command.
- * @returns {Promise<unknown>} A promise that resolves when the info is retrieved.
- */
-async function handleInfo(interaction: ChatInputCommandInteraction<'cached'>): Promise<unknown> {
-  const currentCounting = await getCounting(interaction.guildId);
-
-  if (!currentCounting) {
-    return interaction.reply({ ...createResponse(t('counting.none'), 'error'), flags: [MessageFlags.IsComponentsV2, MessageFlags.Ephemeral] });
-  }
-
-  const content = [
-    t('counting.info.title'),
-    '',
-    t('counting.info.channel', { channel: channelMention(currentCounting.channelId) }),
-    t('counting.info.resetOnFail', { state: currentCounting.resetOnFail ? t('state.enabled') : t('state.disabled') }),
-    t('counting.info.allowMath', { state: currentCounting.allowMath ? t('state.enabled') : t('state.disabled') }),
-    '',
-    t('counting.info.lastNumber', { number: currentCounting.lastNumber ?? 0 }),
-    currentCounting.lastNumberByUserId
-      ? t('counting.info.lastCounter', {
-          user: userMention(currentCounting.lastNumberByUserId),
-        })
-      : t('counting.info.noLastCounter'),
-    currentCounting.lastNumberAt
-      ? t('counting.info.lastCountedAt', {
-          time: time(Math.floor(currentCounting.lastNumberAt.getTime() / 1000), TimestampStyles.ShortDateTime),
-        })
-      : t('counting.info.noLastCountedAt'),
-    currentCounting.lastNumberMessageId
-      ? t('counting.info.lastMessage', {
-          link: `https://discord.com/channels/${interaction.guildId}/${currentCounting.channelId}/${currentCounting.lastNumberMessageId}`,
-        })
-      : t('counting.info.noLastMessage'),
-    '',
-    t('counting.info.highestNumber', { number: currentCounting.highestNumber ?? 0 }),
-    currentCounting.highestNumberByUserId
-      ? t('counting.info.highestCounter', {
-          user: userMention(currentCounting.highestNumberByUserId),
-        })
-      : t('counting.info.noHighestCounter'),
-    currentCounting.highestNumberAt
-      ? t('counting.info.highestCountedAt', {
-          time: time(Math.floor(currentCounting.highestNumberAt.getTime() / 1000), TimestampStyles.ShortDateTime),
-        })
-      : t('counting.info.noHighestCountedAt'),
-    currentCounting.highestNumberMessageId
-      ? t('counting.info.highestMessage', {
-          link: `https://discord.com/channels/${interaction.guildId}/${currentCounting.channelId}/${currentCounting.highestNumberMessageId}`,
-        })
-      : t('counting.info.noHighestMessage'),
-  ].join('\n');
-
-  return interaction.reply({ ...createResponse(content, 'info'), allowedMentions: { parse: [] } });
-}
-
-/**
- * Handle the reset subcommand for the counting game.
- * @param interaction {ChatInputCommandInteraction<CacheType>} The interaction object for the command.
- * @returns {Promise<unknown>} A promise that resolves when the reset is complete.
+ * @returns {Promise<unknown>} A promise that resolves when the reset is complete or cancelled.
  */
 async function handleReset(interaction: ChatInputCommandInteraction<'cached'>): Promise<unknown> {
   await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
 
-  const deleted = await runCountingTask(interaction.guildId, async () => {
-    if (!(await getCounting(interaction.guildId))) return false;
-    await resetCounting(interaction.guildId);
-    return true;
-  });
-
-  if (!deleted) {
+  if (!(await getCounting(interaction.guildId))) {
     return interaction.editReply(createResponse(t('counting.none'), 'error'));
   }
+
+  // Custom IDs include the interaction ID, so they can't be confused with another reset confirmation
+  const confirmId = `counting_reset_confirm_${interaction.id}`;
+  const cancelId = `counting_reset_cancel_${interaction.id}`;
+  const confirmation = await interaction.editReply({
+    components: [
+      new ContainerBuilder()
+        .setAccentColor(ThemeColors.warning)
+        .addTextDisplayComponents(new TextDisplayBuilder().setContent(t('counting.resetConfiguration.confirm')))
+        .addActionRowComponents(
+          new ActionRowBuilder<ButtonBuilder>().addComponents(
+            new ButtonBuilder().setCustomId(confirmId).setLabel(t('counting.resetConfiguration.confirmButton')).setStyle(ButtonStyle.Danger),
+            new ButtonBuilder().setCustomId(cancelId).setLabel(t('counting.resetConfiguration.cancelButton')).setStyle(ButtonStyle.Secondary),
+          ),
+        ),
+    ],
+    flags: [MessageFlags.IsComponentsV2],
+  });
+
+  const choice = await confirmation
+    .awaitMessageComponent({ componentType: ComponentType.Button, time: RESET_CONFIRM_TIME, filter: (i) => i.user.id === interaction.user.id })
+    .catch(() => null);
+
+  if (choice?.customId !== confirmId) {
+    const cancelled = createResponse(t('counting.resetConfiguration.cancelled'), 'info');
+    // Cancel pressed: answer that button. No answer in time: there's no button to answer, so edit the reply
+    return choice ? choice.update(cancelled) : interaction.editReply(cancelled);
+  }
+
+  await choice.deferUpdate();
+  await runCountingTask(interaction.guildId, async () => {
+    if (await getCounting(interaction.guildId)) await resetCounting(interaction.guildId);
+  });
 
   return interaction.editReply(createResponse(t('counting.resetConfiguration.success'), 'warning'));
 }

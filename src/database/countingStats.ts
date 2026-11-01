@@ -34,16 +34,6 @@ export const getRecentRuns = async (guildId: string, take: number) => {
 };
 
 /**
- * Get the run that got furthest among the runs that ended.
- * @param guildId {string} The ID of the guild.
- */
-export const getBestFinishedRun = async (guildId: string) =>
-  prisma.countingRun.findFirst({
-    where: { guildId, endedAt: { not: null } },
-    orderBy: [{ finalNumber: 'desc' }, { id: 'asc' }],
-  });
-
-/**
  * Get when each of the given numbers was counted in a run.
  * @param runId {number} The ID of the run.
  * @param numbers {number[]} The numbers to look up, like milestones.
@@ -78,3 +68,9 @@ export const getCountingUser = async (guildId: string, userId: string) => {
   const ahead = await prisma.countingUser.count({ where: { guildId, counted: { gt: user.counted } } });
   return { ...user, rank: ahead + 1 };
 };
+
+/**
+ * Get how many runs a guild's counting game had, including the ongoing one.
+ * @param guildId {string} The ID of the guild.
+ */
+export const getRunCount = async (guildId: string) => prisma.countingRun.count({ where: { guildId } });

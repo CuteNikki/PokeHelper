@@ -51,5 +51,14 @@ export const countingSettings = createSettingsPanel<GuildCounting>({
       get: (config) => config.allowMath,
       set: (guildId, allowMath) => update(guildId, { allowMath }),
     },
+    {
+      type: 'boolean',
+      key: 'milestoneReactions',
+      defaultValue: false,
+      label: () => t('counting.settings.milestoneReactions.label'),
+      description: () => t('counting.settings.milestoneReactions.description'),
+      get: (config) => config.milestoneReactions,
+      set: (guildId, milestoneReactions) => update(guildId, { milestoneReactions }),
+    },
   ],
 });
