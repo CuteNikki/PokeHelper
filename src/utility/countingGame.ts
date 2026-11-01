@@ -14,6 +14,7 @@ import { getAllCountings, getCounting, saveCountingProgress, updateCounting } fr
 
 import type { GuildCounting } from 'generated/prisma/client';
 import {
+  formatLives,
   isAtOrBefore,
   isMilestone,
   processCount,
@@ -32,6 +33,8 @@ import { createResponse, logFailure } from 'utility/response';
 const SYNC_MESSAGE_LIMIT = 1000;
 /** How long warnings stay before they're deleted along with the invalid message, in milliseconds. */
 const WARNING_DURATION = 3_000;
+/** How long the message about a lost life stays, in milliseconds. */
+const LIFE_LOST_DURATION = 6_000;
 
 /** Everything that reads or changes a guild's counting game runs through here, one task at a time per guild. */
 const queue = new KeyedQueue();
@@ -76,30 +79,46 @@ export async function handleCountingMessage(client: Client, message: Message<tru
     if (counting.milestoneReactions && isMilestone(processed.state.lastNumber)) {
       await message.react('🎉').catch(logFailure('Failed to react to counting milestone'));
     }
+    if (processed.lifeGained) {
+      await message.react('❤️').catch(logFailure('Failed to react to regenerated counting life'));
+    }
     return;
   }
 
   if (processed.outcome === 'reset') {
+    // With more than one life, say that they ran out, as the count didn't reset on the first mistake
+    const content =
+      counting.maxLives !== null && counting.maxLives > 1
+        ? t('counting.outOfLives', { number: counting.lastNumber, lives: formatLives(counting.maxLives, counting.maxLives) })
+        : t('counting.reset', { number: counting.lastNumber });
     await message
-      .reply({ ...createResponse(t('counting.reset', { number: counting.lastNumber }), 'error'), allowedMentions: { repliedUser: false } })
+      .reply({ ...createResponse(content, 'error'), allowedMentions: { repliedUser: false } })
       .catch(logFailure('Failed to send counting reset message'));
     return;
   }
 
+  let content: string;
+  if (processed.outcome === 'lifeLost' && counting.maxLives !== null) {
+    const livesLeft = processed.state.livesLeft;
+    content = t('counting.lifeLost', { number: counting.lastNumber, lives: formatLives(livesLeft, counting.maxLives), count: livesLeft });
+  } else if (processed.check?.result === 'consecutive') {
+    content = t('counting.noConsecutive');
+  } else {
+    content = t('counting.wrongNumber', { number: counting.lastNumber });
+  }
+
   const warning = await message
-    .reply({
-      ...createResponse(
-        processed.check?.result === 'consecutive' ? t('counting.noConsecutive') : t('counting.wrongNumber', { number: counting.lastNumber }),
-        'error',
-      ),
-      allowedMentions: { repliedUser: false },
-    })
+    .reply({ ...createResponse(content, 'error'), allowedMentions: { repliedUser: false } })
     .catch(logFailure('Failed to send counting warning'));
 
-  setTimeout(() => {
-    void deleteMessage(message);
-    if (warning) void deleteMessage(warning);
-  }, WARNING_DURATION);
+  // Losing a life is worth reading, so it stays a bit longer
+  setTimeout(
+    () => {
+      void deleteMessage(message);
+      if (warning) void deleteMessage(warning);
+    },
+    processed.outcome === 'lifeLost' ? LIFE_LOST_DURATION : WARNING_DURATION,
+  );
 }
 
 async function saveProgress(counting: GuildCounting, state: CountingState, events: CountingEvent[]) {
@@ -196,8 +215,11 @@ async function syncCounting(client: Client, counting: GuildCounting): Promise<Gu
       '',
       ...(counted > 0 ? [t('counting.sync.counted', { count: counted })] : []),
       ...(invalid.length > 0 ? [t('counting.sync.removed', { count: invalid.length })] : []),
+      ...(replay.livesLost > 0 ? [t('counting.sync.livesLost', { count: replay.livesLost })] : []),
+      ...(replay.livesGained > 0 ? [t('counting.sync.livesGained', { count: replay.livesGained })] : []),
       ...resets.map((reset) => t('counting.sync.reset', { number: reset.number, user: userMention(reset.userId) })),
       t('counting.sync.next', { number: state.lastNumber + 1 }),
+      ...(counting.maxLives !== null && counting.maxLives > 1 ? [t('counting.sync.lives', { lives: formatLives(state.livesLeft, counting.maxLives) })] : []),
     ];
     await channel
       .send({ ...createResponse(lines.join('\n'), 'warning'), allowedMentions: { parse: [] } })

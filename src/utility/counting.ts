@@ -5,6 +5,7 @@ import { parseCount } from 'utility/countingParse';
 /** The part of the counting configuration that changes while counting. */
 export type CountingState = Pick<
   GuildCounting,
+  | 'livesLeft'
   | 'lastCheckedMessageId'
   | 'lastNumber'
   | 'lastNumberAt'
@@ -59,10 +60,11 @@ export function applyCount(state: CountingState, number: number, message: CountM
   };
 }
 
-/** The state after a wrong number reset the game. The highest number is kept. */
-export function applyReset(state: CountingState, message: CountMessage): CountingState {
+/** The state after a wrong number reset the game. The highest number is kept, and the new run starts with all lives. */
+export function applyReset(state: CountingState, message: CountMessage, maxLives: number | null): CountingState {
   return {
     ...state,
+    livesLeft: maxLives ?? 0,
     lastCheckedMessageId: message.id,
     lastNumber: 0,
     lastNumberAt: null,
@@ -87,13 +89,16 @@ export interface ProcessedCount {
   state: CountingState;
   /**
    * - valid: the next number was counted
-   * - reset: a wrong number reset the game
+   * - lifeLost: a wrong number cost a life, and the message should be deleted
+   * - reset: a wrong number cost the last life and reset the game
    * - invalid: the message broke the rules and should be deleted
    * - skipped: a bot message, which is ignored
    */
-  outcome: 'valid' | 'reset' | 'invalid' | 'skipped';
+  outcome: 'valid' | 'lifeLost' | 'reset' | 'invalid' | 'skipped';
   /** The result of the check, or null for skipped messages. */
   check: CountCheck | null;
+  /** Whether counting a milestone gave back a life. */
+  lifeGained: boolean;
   events: CountingEvent[];
 }
 
@@ -103,33 +108,47 @@ export interface ProcessedCount {
  */
 export function processCount(
   state: CountingState,
-  counting: Pick<GuildCounting, 'allowMath' | 'resetOnFail'>,
+  counting: Pick<GuildCounting, 'allowMath' | 'maxLives' | 'regenerateLives'>,
   message: CountMessage & { isBot?: boolean },
 ): ProcessedCount {
-  if (message.isBot) return { state: applyChecked(state, message), outcome: 'skipped', check: null, events: [] };
+  if (message.isBot) return { state: applyChecked(state, message), outcome: 'skipped', check: null, lifeGained: false, events: [] };
 
   const check = checkCount({ ...state, allowMath: counting.allowMath }, message);
 
   if (check.result === 'valid') {
+    // With regeneration on, milestones give back a life, up to the maximum
+    const lifeGained = counting.regenerateLives && counting.maxLives !== null && state.livesLeft < counting.maxLives && isMilestone(check.number);
+    const counted = applyCount(state, check.number, message);
+
     return {
-      state: applyCount(state, check.number, message),
+      state: lifeGained ? { ...counted, livesLeft: state.livesLeft + 1 } : counted,
       outcome: 'valid',
       check,
+      lifeGained,
       events: [{ type: 'count', number: check.number, userId: message.authorId, messageId: message.id, at: message.createdAt }],
     };
   }
 
   const mistake: CountingEvent = { type: 'mistake', userId: message.authorId };
 
-  // Counting twice in a row never resets, it's only removed
-  if (check.result === 'wrong' && counting.resetOnFail) {
-    // Before anything was counted there's no run to end
-    const events: CountingEvent[] =
-      state.lastNumber > 0 ? [mistake, { type: 'reset', number: state.lastNumber, userId: message.authorId, at: message.createdAt }] : [mistake];
-    return { state: applyReset(state, message), outcome: 'reset', check, events };
+  // Counting twice in a row never costs a life, and with unlimited lives wrong numbers are only removed.
+  // Before anything was counted there's nothing to lose either
+  if (check.result === 'consecutive' || counting.maxLives === null || state.lastNumber === 0) {
+    return { state: applyChecked(state, message), outcome: 'invalid', check, lifeGained: false, events: [mistake] };
   }
 
-  return { state: applyChecked(state, message), outcome: 'invalid', check, events: [mistake] };
+  if (state.livesLeft > 1) {
+    return { state: { ...applyChecked(state, message), livesLeft: state.livesLeft - 1 }, outcome: 'lifeLost', check, lifeGained: false, events: [mistake] };
+  }
+
+  // That was the last life, which ends the run
+  return {
+    state: applyReset(state, message, counting.maxLives),
+    outcome: 'reset',
+    check,
+    lifeGained: false,
+    events: [mistake, { type: 'reset', number: state.lastNumber, userId: message.authorId, at: message.createdAt }],
+  };
 }
 
 export interface ReplayResult {
@@ -138,6 +157,10 @@ export interface ReplayResult {
   counted: number;
   /** Messages that broke the rules without resetting the game, which should be deleted. */
   invalidIds: string[];
+  /** How many lives were lost, not counting the last life of a run that was reset. */
+  livesLost: number;
+  /** How many lives milestones gave back. */
+  livesGained: number;
   /** The resets that happened, with the number that was reached and who sent the wrong number. */
   resets: { number: number; userId: string }[];
   /** Everything to record for the stats, in order. */
@@ -150,10 +173,10 @@ export interface ReplayResult {
  */
 export function replayCounts(
   state: CountingState,
-  counting: Pick<GuildCounting, 'allowMath' | 'resetOnFail'>,
+  counting: Pick<GuildCounting, 'allowMath' | 'maxLives' | 'regenerateLives'>,
   messages: (CountMessage & { isBot: boolean })[],
 ): ReplayResult {
-  const result: ReplayResult = { state, counted: 0, invalidIds: [], resets: [], events: [] };
+  const result: ReplayResult = { state, counted: 0, invalidIds: [], livesLost: 0, livesGained: 0, resets: [], events: [] };
 
   for (const message of messages) {
     const processed = processCount(result.state, counting, message);
@@ -161,7 +184,10 @@ export function replayCounts(
     result.events.push(...processed.events);
 
     if (processed.outcome === 'valid') result.counted++;
-    if (processed.outcome === 'invalid') result.invalidIds.push(message.id);
+    if (processed.lifeGained) result.livesGained++;
+    if (processed.outcome === 'lifeLost') result.livesLost++;
+    // Messages that cost a life are deleted too, like when live
+    if (processed.outcome === 'invalid' || processed.outcome === 'lifeLost') result.invalidIds.push(message.id);
     for (const event of processed.events) {
       if (event.type === 'reset') result.resets.push({ number: event.number, userId: event.userId });
     }
@@ -169,6 +195,9 @@ export function replayCounts(
 
   return result;
 }
+
+/** Show lives as hearts, like ❤️❤️🖤 for 2 of 3 lives left. */
+export const formatLives = (livesLeft: number, maxLives: number) => '❤️'.repeat(Math.max(0, livesLeft)) + '🖤'.repeat(Math.max(0, maxLives - livesLeft));
 
 /** The first milestone, after which they go 250, 500, 1000, 2500, 5000 and so on. */
 const FIRST_MILESTONE = 100;
@@ -190,6 +219,7 @@ export const isMilestone = (number: number) => getMilestones(number).at(-1) === 
 /** Pick the counting state out of a full configuration. */
 export function toCountingState(counting: GuildCounting): CountingState {
   return {
+    livesLeft: counting.livesLeft,
     lastCheckedMessageId: counting.lastCheckedMessageId,
     lastNumber: counting.lastNumber,
     lastNumberAt: counting.lastNumberAt,

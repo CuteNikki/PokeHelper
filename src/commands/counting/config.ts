@@ -76,7 +76,9 @@ async function handleSetup(interaction: ChatInputCommandInteraction<'cached'>): 
     // Start checking from now, so the messages already in the channel are left alone
     await createCounting(interaction.guildId, {
       channelId: channel.id,
-      resetOnFail: false,
+      maxLives: null,
+      livesLeft: 0,
+      regenerateLives: false,
       allowMath: false,
       lastCheckedMessageId: SnowflakeUtil.generate().toString(),
     });

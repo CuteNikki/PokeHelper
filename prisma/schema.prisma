@@ -74,12 +74,14 @@ model GuildCounting {
   Guild   Guild  @relation("GuildCounting", fields: [guildId], references: [guildId], onDelete: Cascade)
 
   // Configuration
-  resetOnFail        Boolean @default(false)
+  maxLives           Int? // lives per run, null for unlimited where wrong numbers are only removed. 1 resets on the first wrong number
+  regenerateLives    Boolean @default(false) // whether milestones give back a life
   allowMath          Boolean @default(false)
   milestoneReactions Boolean @default(false)
   channelId          String
 
   // State
+  livesLeft            Int       @default(0) // lives left in the current run, when maxLives is set
   lastCheckedMessageId String? // last message in the channel that was checked, valid or not. Syncing after downtime continues from here
   lastNumber           Int       @default(0) @map("currentNumber")
   lastNumberAt         DateTime? @map("currentNumberAt")

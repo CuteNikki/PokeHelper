@@ -7,6 +7,9 @@ import type { GuildCounting } from 'generated/prisma/client';
 import { runCountingTask } from 'utility/countingGame';
 import { createSettingsPanel } from 'utility/settings';
 
+/** The value of the lives setting for unlimited lives, which is stored as null. */
+const UNLIMITED = 'unlimited';
+
 /** Change counting settings through the queue, so they can't change while a message is being checked. */
 const update = (guildId: string, query: Partial<GuildCounting>) => runCountingTask(guildId, () => updateCounting(guildId, query));
 
@@ -34,13 +37,32 @@ export const countingSettings = createSettingsPanel<GuildCounting>({
         }),
     },
     {
+      type: 'choice',
+      key: 'lives',
+      defaultValue: UNLIMITED,
+      options: [
+        { value: UNLIMITED, label: () => t('counting.settings.lives.unlimited') },
+        { value: '1', label: () => t('counting.settings.lives.one') },
+        { value: '3', label: () => t('counting.settings.lives.count', { count: 3 }) },
+        { value: '5', label: () => t('counting.settings.lives.count', { count: 5 }) },
+      ],
+      label: () => t('counting.settings.lives.label'),
+      description: () => t('counting.settings.lives.description'),
+      get: (config) => (config.maxLives === null ? UNLIMITED : String(config.maxLives)),
+      set: (guildId, value) => {
+        const maxLives = value === UNLIMITED ? null : Number(value);
+        // Starting over with the new number of lives, rather than keeping a count that may not fit
+        return update(guildId, { maxLives, livesLeft: maxLives ?? 0 });
+      },
+    },
+    {
       type: 'boolean',
-      key: 'resetOnFail',
+      key: 'regenerateLives',
       defaultValue: false,
-      label: () => t('counting.settings.resetOnFail.label'),
-      description: () => t('counting.settings.resetOnFail.description'),
-      get: (config) => config.resetOnFail,
-      set: (guildId, resetOnFail) => update(guildId, { resetOnFail }),
+      label: () => t('counting.settings.regenerateLives.label'),
+      description: () => t('counting.settings.regenerateLives.description'),
+      get: (config) => config.regenerateLives,
+      set: (guildId, regenerateLives) => update(guildId, { regenerateLives }),
     },
     {
       type: 'boolean',

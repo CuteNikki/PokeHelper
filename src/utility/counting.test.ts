@@ -1,8 +1,19 @@
 import { describe, expect, test } from 'bun:test';
 
-import { applyCount, checkCount, getMilestones, isMilestone, processCount, replayCounts, type CountingState, type CountMessage } from 'utility/counting';
+import {
+  applyCount,
+  checkCount,
+  formatLives,
+  getMilestones,
+  isMilestone,
+  processCount,
+  replayCounts,
+  type CountingState,
+  type CountMessage,
+} from 'utility/counting';
 
 const emptyState: CountingState = {
+  livesLeft: 0,
   lastCheckedMessageId: null,
   lastNumber: 0,
   lastNumberAt: null,
@@ -61,7 +72,7 @@ describe('applyCount', () => {
 describe('replayCounts', () => {
   test('counts valid messages and marks invalid ones for deletion', () => {
     const messages = [message('alice', '1'), message('bob', '2'), message('bob', '3'), message('carol', 'oops'), message('carol', '3 nice')];
-    const result = replayCounts(emptyState, { allowMath: false, resetOnFail: false }, messages);
+    const result = replayCounts(emptyState, { allowMath: false, maxLives: null, regenerateLives: false }, messages);
 
     expect(result.counted).toBe(3);
     expect(result.invalidIds).toEqual([messages[2]!.id, messages[3]!.id]);
@@ -74,7 +85,7 @@ describe('replayCounts', () => {
 
   test('with reset on fail, a wrong number resets and counting continues from 1', () => {
     const messages = [message('alice', '1'), message('bob', '2'), message('carol', '7'), message('alice', '1'), message('bob', '2')];
-    const result = replayCounts(emptyState, { allowMath: false, resetOnFail: true }, messages);
+    const result = replayCounts(emptyState, { allowMath: false, maxLives: 1, regenerateLives: false }, messages);
 
     expect(result.resets).toEqual([{ number: 2, userId: 'carol' }]);
     expect(result.invalidIds).toEqual([]);
@@ -84,7 +95,7 @@ describe('replayCounts', () => {
 
   test('counting twice in a row is removed even with reset on fail, like when live', () => {
     const messages = [message('alice', '1'), message('alice', '2')];
-    const result = replayCounts(emptyState, { allowMath: false, resetOnFail: true }, messages);
+    const result = replayCounts(emptyState, { allowMath: false, maxLives: 1, regenerateLives: false }, messages);
 
     expect(result.resets).toEqual([]);
     expect(result.invalidIds).toEqual([messages[1]!.id]);
@@ -93,7 +104,7 @@ describe('replayCounts', () => {
 
   test('bot messages are skipped but still marked as checked', () => {
     const messages = [message('alice', '1'), message('bot', 'Caught up on counting', true)];
-    const result = replayCounts(emptyState, { allowMath: false, resetOnFail: false }, messages);
+    const result = replayCounts(emptyState, { allowMath: false, maxLives: null, regenerateLives: false }, messages);
 
     expect(result.invalidIds).toEqual([]);
     expect(result.state.lastNumber).toBe(1);
@@ -102,14 +113,14 @@ describe('replayCounts', () => {
 
   test('continues from the saved state', () => {
     const state = { ...emptyState, lastNumber: 41, lastNumberByUserId: 'alice' };
-    const result = replayCounts(state, { allowMath: true, resetOnFail: false }, [message('bob', '6*7')]);
+    const result = replayCounts(state, { allowMath: true, maxLives: null, regenerateLives: false }, [message('bob', '6*7')]);
 
     expect(result.state.lastNumber).toBe(42);
   });
 });
 
 describe('processCount', () => {
-  const rules = { allowMath: false, resetOnFail: false };
+  const rules = { allowMath: false, maxLives: null, regenerateLives: false };
 
   test('a valid count records the count', () => {
     const msg = message('alice', '1');
@@ -128,7 +139,7 @@ describe('processCount', () => {
 
   test('with reset on fail, a wrong number is a mistake that ends the run', () => {
     const state = { ...emptyState, lastNumber: 3, lastNumberByUserId: 'alice' };
-    const result = processCount(state, { ...rules, resetOnFail: true }, message('bob', '9'));
+    const result = processCount(state, { ...rules, maxLives: 1 }, message('bob', '9'));
 
     expect(result.outcome).toBe('reset');
     expect(result.events).toMatchObject([
@@ -137,10 +148,11 @@ describe('processCount', () => {
     ]);
   });
 
-  test('a wrong number before anything was counted has no run to end', () => {
-    const result = processCount(emptyState, { ...rules, resetOnFail: true }, message('bob', '9'));
+  test('a wrong number before anything was counted costs no life, as there is nothing to lose', () => {
+    const result = processCount({ ...emptyState, livesLeft: 1 }, { ...rules, maxLives: 1 }, message('bob', '9'));
 
-    expect(result.outcome).toBe('reset');
+    expect(result.outcome).toBe('invalid');
+    expect(result.state.livesLeft).toBe(1);
     expect(result.events).toEqual([{ type: 'mistake', userId: 'bob' }]);
   });
 
@@ -164,5 +176,58 @@ describe('milestones', () => {
     [1500, false],
   ])('%p is a milestone: %p', (number, expected) => {
     expect(isMilestone(number)).toBe(expected);
+  });
+});
+
+describe('lives', () => {
+  const rules = { allowMath: false, maxLives: 3, regenerateLives: false };
+  const counted = (lastNumber: number, livesLeft: number) => ({ ...emptyState, lastNumber, lastNumberByUserId: 'alice', livesLeft });
+
+  test('a wrong number costs a life and keeps the count', () => {
+    const result = processCount(counted(10, 3), rules, message('bob', '99'));
+
+    expect(result.outcome).toBe('lifeLost');
+    expect(result.state.livesLeft).toBe(2);
+    expect(result.state.lastNumber).toBe(10);
+    expect(result.events).toEqual([{ type: 'mistake', userId: 'bob' }]);
+  });
+
+  test('losing the last life resets, and the next run starts with all lives', () => {
+    const result = processCount(counted(10, 1), rules, message('bob', '99'));
+
+    expect(result.outcome).toBe('reset');
+    expect(result.state.lastNumber).toBe(0);
+    expect(result.state.livesLeft).toBe(3);
+    expect(result.events).toMatchObject([{ type: 'mistake' }, { type: 'reset', number: 10, userId: 'bob' }]);
+  });
+
+  test('counting twice in a row costs no life', () => {
+    const result = processCount(counted(10, 3), rules, message('alice', '11'));
+
+    expect(result.outcome).toBe('invalid');
+    expect(result.state.livesLeft).toBe(3);
+  });
+
+  test('milestones give back a life only with regeneration on, and never above the maximum', () => {
+    expect(processCount(counted(99, 1), rules, message('bob', '100'))).toMatchObject({ lifeGained: false, state: { livesLeft: 1 } });
+
+    const regenerating = { ...rules, regenerateLives: true };
+    expect(processCount(counted(99, 1), regenerating, message('bob', '100'))).toMatchObject({ lifeGained: true, state: { livesLeft: 2 } });
+    expect(processCount(counted(99, 3), regenerating, message('bob', '100'))).toMatchObject({ lifeGained: false, state: { livesLeft: 3 } });
+    expect(processCount(counted(100, 1), regenerating, message('bob', '101'))).toMatchObject({ lifeGained: false, state: { livesLeft: 1 } });
+  });
+
+  test('catching up deletes the messages that cost a life and counts the lives lost', () => {
+    const messages = [message('bob', '11'), message('carol', '99'), message('alice', '12')];
+    const result = replayCounts(counted(10, 3), rules, messages);
+
+    expect(result.livesLost).toBe(1);
+    expect(result.invalidIds).toEqual([messages[1]!.id]);
+    expect(result.state).toMatchObject({ lastNumber: 12, livesLeft: 2 });
+  });
+
+  test('hearts show the lives left', () => {
+    expect(formatLives(2, 3)).toBe('❤️❤️🖤');
+    expect(formatLives(0, 3)).toBe('🖤🖤🖤');
   });
 });

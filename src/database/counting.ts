@@ -21,11 +21,16 @@ export const getAllCountings = async () => prisma.guildCounting.findMany();
  * Create a new counting configuration for a guild.
  * @param guildId {string} The ID of the guild to create the counting configuration for.
  * @param data.channelId {string} The ID of the channel where counting will take place.
- * @param data.resetOnFail {boolean} Whether to reset the count if the counting fails.
+ * @param data.maxLives {number | null} Lives per run, or null for unlimited.
+ * @param data.livesLeft {number} Lives the first run starts with.
+ * @param data.regenerateLives {boolean} Whether milestones give back a life.
  * @param data.allowMath {boolean} Whether numbers can be sent as math expressions.
  * @param data.lastCheckedMessageId {string} The message ID to start checking after, so older messages in the channel are left alone.
  */
-export const createCounting = async (guildId: string, data: Pick<GuildCounting, 'channelId' | 'resetOnFail' | 'allowMath' | 'lastCheckedMessageId'>) =>
+export const createCounting = async (
+  guildId: string,
+  data: Pick<GuildCounting, 'channelId' | 'maxLives' | 'livesLeft' | 'regenerateLives' | 'allowMath' | 'lastCheckedMessageId'>,
+) =>
   prisma.guildCounting.create({
     data: { guildId, ...data },
   });

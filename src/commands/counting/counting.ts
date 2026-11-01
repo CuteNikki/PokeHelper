@@ -17,7 +17,7 @@ import { getCounting } from 'database/counting';
 import { getCountingUser, getCurrentRun, getEntriesForNumbers, getRecentRuns, getRunCount, getRunNumber, getTopCounters } from 'database/countingStats';
 
 import type { CountingRun, GuildCounting } from 'generated/prisma/client';
-import { getMilestones } from 'utility/counting';
+import { formatLives, getMilestones } from 'utility/counting';
 import { formatDuration, formatNumber } from 'utility/duration';
 import { createResponse, sendError, sendResponse } from 'utility/response';
 
@@ -120,6 +120,8 @@ async function describeCurrentRun(counting: GuildCounting, run: CountingRun): Pr
     lines.push(t('counting.info.startedUnknown'));
   }
   lines.push(progress.join(' · '));
+  // With a single life there's nothing to show, the next mistake simply resets
+  if (counting.maxLives !== null && counting.maxLives > 1) lines.push(t('counting.info.lives', { lives: formatLives(counting.livesLeft, counting.maxLives) }));
 
   // Only milestones counted since tracking started have an entry
   const entries = await getEntriesForNumbers(run.id, getMilestones(counting.lastNumber).slice(-SHOWN_MILESTONES));
