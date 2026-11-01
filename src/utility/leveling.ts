@@ -1,8 +1,8 @@
 import { Client, Colors, ContainerBuilder, MessageFlags, TextDisplayBuilder, userMention } from 'discord.js';
-import { t } from 'i18next';
 
 import { getActiveLevelingConfigs, getLevelFromXP, getTopWeeklyUsersByXP, processWeeklyResetTransaction } from 'database/leveling';
 
+import { getTranslate } from 'utility/i18next';
 import { logger } from 'utility/logger';
 
 export const startWeeklyCron = (client: Client) => {
@@ -18,6 +18,8 @@ export const startWeeklyCron = (client: Client) => {
 
         const guild = await client.guilds.fetch(guildId).catch(() => null);
         if (!guild) continue;
+        // Everyone in the channel sees the announcement, so it's in the server's language
+        const t = getTranslate(guild.preferredLocale);
 
         if (roleId && config.weeklyLastWinner) {
           const prevWinner = await guild.members.fetch(config.weeklyLastWinner).catch(() => null);
@@ -50,19 +52,23 @@ export const startWeeklyCron = (client: Client) => {
               await levelUpChannel
                 .send({
                   components: [
-                    new ContainerBuilder()
-                      .setAccentColor(Colors.Gold)
-                      .addTextDisplayComponents(
-                        new TextDisplayBuilder().setContent(t('leveling.weeklyReset.message', { winner: userMention(newWinnerId), xp: topUser.xp }) + '\n' + topUsers.map((entry, index) => {
-                          const position = index + 1;
-                          return t('leveling.leaderboard.entry', {
-                            user: userMention(entry.userId),
-                            level: getLevelFromXP(entry.xp),
-                            xp: entry.xp,
-                            position,
-                          });
-                        }).join('\n')),
+                    new ContainerBuilder().setAccentColor(Colors.Gold).addTextDisplayComponents(
+                      new TextDisplayBuilder().setContent(
+                        t('leveling.weeklyReset.message', { winner: userMention(newWinnerId), xp: topUser.xp }) +
+                          '\n' +
+                          topUsers
+                            .map((entry, index) => {
+                              const position = index + 1;
+                              return t('leveling.leaderboard.entry', {
+                                user: userMention(entry.userId),
+                                level: getLevelFromXP(entry.xp),
+                                xp: entry.xp,
+                                position,
+                              });
+                            })
+                            .join('\n'),
                       ),
+                    ),
                   ],
                   flags: [MessageFlags.IsComponentsV2],
                   allowedMentions: { users: [] },

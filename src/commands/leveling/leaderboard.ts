@@ -1,11 +1,12 @@
 import { ApplicationIntegrationType, InteractionContextType, SlashCommandBuilder } from 'discord.js';
-import { t } from 'i18next';
 
 import { Command } from 'classes/base/command';
 
 import { getGuildLevelingConfiguration } from 'database/leveling';
 import { buildLeaderboard } from 'utility/leaderboard';
 import { saveLeaderboardState } from 'utility/leaderboardState';
+import { getTranslate } from 'utility/i18next';
+import { sendError } from 'utility/response';
 
 export default new Command({
   data: new SlashCommandBuilder()
@@ -24,7 +25,7 @@ export default new Command({
 
     const levelingConfig = await getGuildLevelingConfiguration(interaction.guildId);
     if (!levelingConfig || !levelingConfig.enabled) {
-      return interaction.editReply({ content: t('leveling.disabled') });
+      return sendError(interaction, getTranslate(interaction.locale)('leveling.disabled'));
     }
 
     await buildLeaderboard({

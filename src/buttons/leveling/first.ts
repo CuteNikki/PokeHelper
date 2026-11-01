@@ -1,12 +1,11 @@
-import { MessageFlags } from 'discord.js';
-import { t } from 'i18next';
-
 import { Button } from 'classes/base/button';
 
 import { getGuildLevelingConfiguration } from 'database/leveling';
 
 import { buildLeaderboard } from 'utility/leaderboard';
 import { getLeaderboardState, saveLeaderboardState } from 'utility/leaderboardState';
+import { getTranslate } from 'utility/i18next';
+import { sendError } from 'utility/response';
 
 export default new Button({
   customId: 'lb_first',
@@ -17,7 +16,7 @@ export default new Button({
     await interaction.deferUpdate();
 
     const levelingConfig = await getGuildLevelingConfiguration(interaction.guildId);
-    if (!levelingConfig || !levelingConfig.enabled) return interaction.followUp({ content: t('leveling.disabled'), flags: MessageFlags.Ephemeral });
+    if (!levelingConfig || !levelingConfig.enabled) return sendError(interaction, getTranslate(interaction.locale)('leveling.disabled'));
 
     const state = await getLeaderboardState(interaction.message.id);
     const newState = {

@@ -14,6 +14,9 @@ import {
   getXPForLevel,
 } from 'database/leveling';
 
+import { getTranslate } from 'utility/i18next';
+import { sendError } from 'utility/response';
+
 interface RankColors {
   cardBg: string;
   trackBg: string;
@@ -77,7 +80,7 @@ export default new Command({
 
     const levelingConfig = await getGuildLevelingConfiguration(interaction.guildId);
     if (!levelingConfig || !levelingConfig.enabled) {
-      return interaction.editReply({ content: t('leveling.disabled') });
+      return sendError(interaction, getTranslate(interaction.locale)('leveling.disabled'));
     }
 
     // Data Fetching

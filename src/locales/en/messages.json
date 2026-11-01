@@ -181,11 +181,11 @@
       "icon": "⏭️"
     },
     "modal": {
-      "title": "Enter Custom Page",
-      "label": "Page Number",
-      "placeholder": "Enter the page number you want to go to (1-{{maxPages}})",
-      "timeout": "You did not submit a page number in time!",
-      "invalid": "Invalid page number entered. Please enter a number between 1 and {{maxPages}}."
+      "title": "Go to page",
+      "label": "Page",
+      "placeholder": "1 to {{maxPages}}",
+      "timeout": "You didn't enter a page, try again.",
+      "invalid": "That's not a page. Enter a number from 1 to {{maxPages}}."
     },
     "sort": {
       "ascending": "Ascending",
@@ -341,7 +341,7 @@
       "rewards_other": "You got the {{roles}} roles for it."
     },
     "weeklyReset": {
-      "message": "### Weekly XP Reset\nAll weekly XP has been reset to 0 and the weekly leaderboard has been cleared.\nCongratulations to {{winner}} for topping the weekly XP leaderboard with {{xp}} XP!\n\nHere are the top weekly XP earners for the past week:"
+      "message": "### 🏆 New week, new chances!\nWeekly XP is back to 0. {{winner}} earned the most last week with **{{xp}}** XP, congrats!\n\nLast week's top chatters:"
     },
     "disabled": "Leveling isn't turned on here. Turn it on with `/leveling-config settings`.",
     "rank": {
@@ -356,7 +356,7 @@
       "none": "No users have gained XP in this server yet!",
       "title": "### {{guild}} - Leaderboard 🏆",
       "titleWeekly": "### {{guild}} - Weekly Leaderboard 🏆",
-      "entry": "{{position}}. {{xp}} XP (Level {{level}}) - {{user}}"
+      "entry": "{{position}}. {{user}} · {{xp}} XP (level {{level}})"
     },
     "settings": {
       "title": "### ⚙️ Leveling Settings",

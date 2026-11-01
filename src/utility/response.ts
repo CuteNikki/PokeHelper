@@ -39,11 +39,15 @@ export async function sendResponse(
   // A combined bitfield, as an array literal here would widen to MessageFlags[] which the reply options reject
   const flags = MessageFlags.IsComponentsV2 | (ephemeral ? MessageFlags.Ephemeral : 0);
 
+  // deferUpdate on a button, select or popup means "I'll edit the message it's on", so editReply would replace that message,
+  // like a leaderboard, with the response. Only deferReply sets `ephemeral`, which tells the two apart
+  const deferredUpdate = interaction.deferred && interaction.ephemeral === null && (interaction.isMessageComponent() || interaction.isModalSubmit());
+
   try {
-    if (interaction.deferred && !interaction.replied) {
+    if (interaction.deferred && !interaction.replied && !deferredUpdate) {
       return await interaction.editReply(payload);
     }
-    if (interaction.replied) {
+    if (interaction.replied || interaction.deferred) {
       return await interaction.followUp({ ...payload, flags });
     }
     const response = await interaction.reply({ ...payload, flags, withResponse: true });

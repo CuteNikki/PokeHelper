@@ -353,6 +353,21 @@
       "cancelled": "Es wurde nichts zurückgesetzt.",
       "nothing": "Hier gibt es nichts zurückzusetzen, Leveling wurde noch nicht eingerichtet.",
       "success": "Leveling ist zurückgesetzt. Mit `/leveling-config settings` kannst du es neu einrichten."
+    },
+    "weeklyReset": {
+      "message": "### 🏆 Neue Woche, neues Glück!\nDie Wochen-XP sind wieder bei 0. {{winner}} hat letzte Woche mit **{{xp}}** XP am meisten gesammelt, Glückwunsch!\n\nDie Top-Schreiber der letzten Woche:"
+    },
+    "leaderboard": {
+      "entry": "{{position}}. {{user}} · {{xp}} XP (Level {{level}})"
+    }
+  },
+  "pagination": {
+    "modal": {
+      "title": "Zu Seite springen",
+      "label": "Seite",
+      "placeholder": "1 bis {{maxPages}}",
+      "timeout": "Du hast keine Seite eingegeben, versuch es nochmal.",
+      "invalid": "Das ist keine gültige Seite. Gib eine Zahl von 1 bis {{maxPages}} ein."
     }
   }
 }
