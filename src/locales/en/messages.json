@@ -574,12 +574,16 @@
       "title": "### 🔄 Reloaded",
       "line": "**{{target}}**: {{count}} loaded in {{duration}}ms",
       "locales": "**locales**: text reloaded in {{duration}}ms",
-      "note": "-# Only the files in commands, buttons, selects and events themselves are reloaded. Changes to shared code, like in utility, database or settings, still need a restart. New command names, descriptions or options need `/dev register` too."
+      "needsRestart": "⚠️ These files changed since the bot started, and a reload doesn't pick them up. Use `/dev restart` for them:\n{{files}}",
+      "registerHint": "-# New command names, descriptions or options need `/dev register` too."
     },
     "register": {
       "success": "Registered **{{count}}** commands globally.",
       "dev": "Registered **{{count}}** developer commands in the developer server.",
       "devSkipped": "Developer commands weren't registered, as `DEV_GUILD_ID` isn't set."
+    },
+    "restart": {
+      "message": "### 🔁 Restarting\nBack in a few seconds. Counting and scheduled jobs catch up on what happens meanwhile.\n-# This relies on something starting the bot again, like Docker. Without that, it stays off."
     }
   },
   "botinfo": {

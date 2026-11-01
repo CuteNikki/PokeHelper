@@ -1,3 +1,6 @@
+import { stat } from 'node:fs/promises';
+
+import { Glob } from 'bun';
 import i18next from 'i18next';
 
 import type { ExtendedClient } from 'classes/base/client';
@@ -61,4 +64,24 @@ export async function reload(client: ExtendedClient, targets: readonly ReloadTar
   }
 
   return results;
+}
+
+/** The folders whose files are imported again when reloading. Text is reloaded too, so locales count as well. */
+const RELOADABLE_FOLDERS = ['src/commands/', 'src/buttons/', 'src/selects/', 'src/events/', 'src/locales/'];
+
+/**
+ * The source files changed since the bot started that a reload doesn't pick up, like in utility or settings, so a restart is needed.
+ * Tests aren't part of the bot, so they're left out.
+ */
+export async function changedSinceStart(): Promise<string[]> {
+  // When the process started, so no start time has to be kept
+  const startedAt = performance.timeOrigin;
+  const changed: string[] = [];
+  for await (const path of new Glob('src/**/*.ts').scan('.')) {
+    // Windows paths use backslashes
+    const file = path.replaceAll('\\', '/');
+    if (file.endsWith('.test.ts') || RELOADABLE_FOLDERS.some((folder) => file.startsWith(folder))) continue;
+    if ((await stat(file)).mtimeMs > startedAt) changed.push(file);
+  }
+  return changed.sort();
 }
