@@ -54,6 +54,16 @@
     "PinMessages": "Pin Messages",
     "BypassSlowmode": "Bypass Slowmode"
   },
+  "settings": {
+    "default": "Default: {{value}}",
+    "none": "None",
+    "channel": {
+      "placeholder": "Select a channel"
+    },
+    "role": {
+      "placeholder": "Select a role"
+    }
+  },
   "state": {
     "enabled": "enabled",
     "disabled": "disabled",
@@ -386,12 +396,23 @@
       "next": "The next number is **{{number}}**."
     },
     "setup": {
-      "already": "A counting game is already set up in this server. Please use the edit command to modify the existing counting game, or reset the current game if you want to start over.",
-      "success": "The counting game has been set up in {{channel}}. To start counting, simply send a message with the number `1` in the counting channel. Happy counting!"
+      "already": "A counting game is already set up in this server. Please use the settings command to change it, or reset the current game if you want to start over.",
+      "success": "The counting game has been set up in {{channel}}. To start counting, simply send a message with the number `1` in the counting channel. Happy counting!\nYou can change the settings below, or any time later with the settings command."
     },
-    "edit": {
-      "none": "You must provide at least one option to edit the counting game configuration!",
-      "success": "The counting game configuration has been updated successfully! Use the info command to view the current settings."
+    "settings": {
+      "title": "### ⚙️ Counting Settings",
+      "channel": {
+        "label": "Channel",
+        "description": "The channel where the counting happens. Messages already in a new channel are left alone."
+      },
+      "resetOnFail": {
+        "label": "Reset on Fail",
+        "description": "Reset the count to 0 when a wrong number is sent, instead of removing the message."
+      },
+      "allowMath": {
+        "label": "Math",
+        "description": "Allow numbers to be sent as math, like `1+1`, `2*3`, `2^3` or `3!`."
+      }
     },
     "info": {
       "title": "### Counting Game Configuration",

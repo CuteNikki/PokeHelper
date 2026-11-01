@@ -16,10 +16,12 @@ import { t } from 'i18next';
 
 import { Command } from 'classes/base/command';
 
-import { createCounting, getCounting, resetCounting, updateCounting } from 'database/counting';
+import { createCounting, getCounting, resetCounting } from 'database/counting';
+
+import { countingSettings } from 'settings/counting';
 
 import { runCountingTask } from 'utility/countingGame';
-import { createResponse } from 'utility/response';
+import { createResponse, sendResponse } from 'utility/response';
 
 export default new Command({
   data: new SlashCommandBuilder()
@@ -34,20 +36,9 @@ export default new Command({
         .setDescription('Set up the counting game')
         .addChannelOption((option) =>
           option.setName('channel').setDescription('The channel that should be used for counting').addChannelTypes(ChannelType.GuildText).setRequired(true),
-        )
-        .addBooleanOption((option) => option.setName('reset').setDescription('Reset the current number if a wrong number was sent').setRequired(false))
-        .addBooleanOption((option) => option.setName('math').setDescription('Allow numbers to be sent as math, like 1+1 for 2').setRequired(false)),
+        ),
     )
-    .addSubcommand((cmd) =>
-      cmd
-        .setName('edit')
-        .setDescription('Edit the counting game configuration')
-        .addChannelOption((option) =>
-          option.setName('channel').setDescription('The channel that should be used for counting').addChannelTypes(ChannelType.GuildText).setRequired(false),
-        )
-        .addBooleanOption((option) => option.setName('reset').setDescription('Reset the current number if a wrong number was sent').setRequired(false))
-        .addBooleanOption((option) => option.setName('math').setDescription('Allow numbers to be sent as math, like 1+1 for 2').setRequired(false)),
-    )
+    .addSubcommand((cmd) => cmd.setName('settings').setDescription('Change the counting game settings'))
     .addSubcommand((cmd) => cmd.setName('info').setDescription('Get information about the counting game'))
     .addSubcommand((cmd) => cmd.setName('reset').setDescription('Reset the counting game')),
   async execute(interaction) {
@@ -59,8 +50,8 @@ export default new Command({
       case 'setup':
         await handleSetup(interaction);
         break;
-      case 'edit':
-        await handleEdit(interaction);
+      case 'settings':
+        await handleSettings(interaction);
         break;
       case 'info':
         await handleInfo(interaction);
@@ -83,13 +74,16 @@ async function handleSetup(interaction: ChatInputCommandInteraction<'cached'>): 
   await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
 
   const channel = interaction.options.getChannel('channel', true, [ChannelType.GuildText]);
-  const resetOnFail = interaction.options.getBoolean('reset') ?? false;
-  const allowMath = interaction.options.getBoolean('math') ?? false;
 
   const created = await runCountingTask(interaction.guildId, async () => {
     if (await getCounting(interaction.guildId)) return false;
     // Start checking from now, so the messages already in the channel are left alone
-    await createCounting(interaction.guildId, { channelId: channel.id, resetOnFail, allowMath, lastCheckedMessageId: SnowflakeUtil.generate().toString() });
+    await createCounting(interaction.guildId, {
+      channelId: channel.id,
+      resetOnFail: false,
+      allowMath: false,
+      lastCheckedMessageId: SnowflakeUtil.generate().toString(),
+    });
     return true;
   });
 
@@ -97,46 +91,19 @@ async function handleSetup(interaction: ChatInputCommandInteraction<'cached'>): 
     return interaction.editReply(createResponse(t('counting.setup.already'), 'error'));
   }
 
-  return interaction.editReply(createResponse(t('counting.setup.success', { channel: channelMention(channel.id) }), 'success'));
+  // Show the settings right away, so the rest can be configured without another command
+  const success = createResponse(t('counting.setup.success', { channel: channelMention(channel.id) }), 'success');
+  const settings = await countingSettings.render(interaction.guildId);
+  return interaction.editReply({ ...settings, components: [...(success.components ?? []), ...(settings.components ?? [])] });
 }
 
 /**
- * Handle the edit subcommand for the counting game.
+ * Handle the settings subcommand for the counting game, which shows the interactive settings panel.
  * @param interaction {ChatInputCommandInteraction<CacheType>} The interaction object for the command.
- * @returns {Promise<unknown>} A promise that resolves when the edit is complete.
+ * @returns {Promise<unknown>} A promise that resolves when the panel is shown.
  */
-async function handleEdit(interaction: ChatInputCommandInteraction<'cached'>): Promise<unknown> {
-  await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
-
-  const channel = interaction.options.getChannel('channel', false, [ChannelType.GuildText]);
-  const resetOnFail = interaction.options.getBoolean('reset');
-  const allowMath = interaction.options.getBoolean('math');
-
-  // getBoolean returns null, not undefined, when the option wasn't given
-  if (!channel && resetOnFail === null && allowMath === null) {
-    return interaction.editReply(createResponse(t('counting.edit.none'), 'error'));
-  }
-
-  const updated = await runCountingTask(interaction.guildId, async () => {
-    const currentCounting = await getCounting(interaction.guildId);
-    if (!currentCounting) return false;
-
-    const channelChanged = channel !== null && channel.id !== currentCounting.channelId;
-    await updateCounting(interaction.guildId, {
-      ...(channel && { channelId: channel.id }),
-      ...(resetOnFail !== null && { resetOnFail }),
-      ...(allowMath !== null && { allowMath }),
-      // In a new channel, start checking from now, so the messages already there are left alone
-      ...(channelChanged && { lastCheckedMessageId: SnowflakeUtil.generate().toString() }),
-    });
-    return true;
-  });
-
-  if (!updated) {
-    return interaction.editReply(createResponse(t('counting.none'), 'error'));
-  }
-
-  return interaction.editReply(createResponse(t('counting.edit.success'), 'warning'));
+async function handleSettings(interaction: ChatInputCommandInteraction<'cached'>): Promise<unknown> {
+  return sendResponse(interaction, await countingSettings.render(interaction.guildId), { ephemeral: true });
 }
 
 /**
