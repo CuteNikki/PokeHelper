@@ -9,6 +9,6 @@ export default new Button({
   includesCustomId: true,
   cooldown: 1,
   async execute(interaction) {
-    await handleSettingsInteraction(interaction, (panel, guildId, key) => panel.press(guildId, key));
+    await handleSettingsInteraction(interaction);
   },
 });

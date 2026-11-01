@@ -65,12 +65,32 @@
     "none": "None",
     "channel": {
       "placeholder": "Select a channel",
-      "missing": "The saved channel no longer exists, please select a new one."
+      "missing": "The saved channel no longer exists, please select a new one.",
+      "botPermissions": "I'm missing permissions in this channel: {{permissions}}",
+      "botPermissionsRefused": "I can't use {{channel}}, as I'm missing these permissions there: {{permissions}}. Give me those, or pick another channel."
     },
     "role": {
       "placeholder": "Select a role",
       "missing": "The saved role no longer exists, please select a new one."
-    }
+    },
+    "channels": {
+      "placeholder": "Select channels",
+      "missing": "Some saved channels no longer exist and will be removed the next time this is changed."
+    },
+    "roles": {
+      "placeholder": "Select roles",
+      "missing": "Some saved roles no longer exist and will be removed the next time this is changed."
+    },
+    "entries": {
+      "count": "{{count}}/{{max}}",
+      "missing": "no longer exists",
+      "addChannel": "Add a channel",
+      "addRole": "Add a role",
+      "addOrEditRole": "Add a role, or pick one to change it",
+      "remove": "Remove one",
+      "modalTitle": "Settings for {{target}}"
+    },
+    "unknown": "Unknown ({{id}})"
   },
   "state": {
     "enabled": "enabled",

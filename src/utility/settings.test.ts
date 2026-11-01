@@ -2,7 +2,7 @@ import { beforeAll, describe, expect, test } from 'bun:test';
 import { ChannelType, Collection, ComponentType, SelectMenuDefaultValueType, type APIContainerComponent, type Guild } from 'discord.js';
 
 import { initI18Next } from 'utility/i18next';
-import { createSettingsPanel, parseSettingsCustomId } from 'utility/settings';
+import { createSettingsPanel, parseSettingsCustomId, type Entry, type SettingsInput } from 'utility/settings';
 
 // The panel renders labels like On and Off through i18next
 beforeAll(() => initI18Next());
@@ -12,73 +12,154 @@ interface Config {
   mode: string;
   channelId: string | null;
   roleId: string | null;
+  ignoredChannels: string[];
+  multipliers: Entry[];
+  rewards: Entry[];
 }
 
-/** A panel over an in-memory configuration, with every setting type. */
+const baseConfig: Config = { enabled: false, mode: 'image', channelId: '123', roleId: null, ignoredChannels: [], multipliers: [], rewards: [] };
+
+/** A panel over an in-memory configuration, with every setting type, split over two categories. */
 function createTestPanel(initial: Config | null) {
   let config = initial;
-  const set = (patch: Partial<Config>) => {
-    config = { ...config!, ...patch };
+  const patch = (changes: Partial<Config>) => {
+    config = { ...config!, ...changes };
     return Promise.resolve();
   };
+  const setEntry = (list: 'multipliers' | 'rewards', targetId: string, value: number | null) => {
+    const others = config![list].filter((entry) => entry.targetId !== targetId);
+    return patch({ [list]: value === null ? others : [...others, { targetId, value }] });
+  };
+  const parseNumber = (input: string) => (/^\d+(\.\d+)?$/.test(input) ? Number(input) : null);
 
   const panel = createSettingsPanel<Config>({
     id: 'test',
     title: () => 'Test settings',
     permissions: ['ManageGuild'],
+    categories: [
+      { id: 'general', label: () => 'General' },
+      { id: 'lists', label: () => 'Lists' },
+      { id: 'multipliers', label: () => 'Multipliers' },
+    ],
     load: () => Promise.resolve(config),
     notConfigured: () => 'Not set up',
     settings: [
       {
         type: 'boolean',
         key: 'enabled',
-        defaultValue: false,
+        category: 'general',
         label: () => 'Enabled',
-        description: () => 'On or off',
+        description: () => '',
         get: (c) => c.enabled,
-        set: (_, enabled) => set({ enabled }),
+        set: (_, enabled) => patch({ enabled }),
       },
       {
         type: 'choice',
         key: 'mode',
+        category: 'general',
         options: [
           { value: 'image', label: () => 'Image' },
           { value: 'text', label: () => 'Text' },
         ],
         label: () => 'Mode',
-        description: () => 'How it looks',
+        description: () => '',
         get: (c) => c.mode,
-        set: (_, mode) => set({ mode }),
+        set: (_, mode) => patch({ mode }),
       },
       {
         type: 'channel',
         key: 'channel',
+        category: 'general',
         channelTypes: [ChannelType.GuildText],
         required: true,
+        botPermissions: ['ViewChannel', 'SendMessages'],
         label: () => 'Channel',
-        description: () => 'Where',
+        description: () => '',
         get: (c) => c.channelId,
-        set: (_, channelId) => set({ channelId }),
+        set: (_, channelId) => patch({ channelId }),
       },
-      { type: 'role', key: 'role', label: () => 'Role', description: () => 'Who', get: (c) => c.roleId, set: (_, roleId) => set({ roleId }) },
+      {
+        type: 'role',
+        key: 'role',
+        category: 'general',
+        label: () => 'Role',
+        description: () => '',
+        get: (c) => c.roleId,
+        set: (_, roleId) => patch({ roleId }),
+      },
+      {
+        type: 'channels',
+        key: 'ignored',
+        category: 'lists',
+        channelTypes: [ChannelType.GuildText],
+        max: 20,
+        label: () => 'Ignored',
+        description: () => '',
+        get: (c) => c.ignoredChannels,
+        set: (_, ignoredChannels) => patch({ ignoredChannels }),
+      },
+      {
+        type: 'entries',
+        key: 'multipliers',
+        category: 'multipliers',
+        target: 'role',
+        max: 10,
+        presets: [1.5, 2, 3],
+        defaultValue: 2,
+        formatValue: (value) => `${value}x`,
+        input: { label: () => 'Multiplier', parse: parseNumber, invalid: () => 'Not a number' },
+        label: () => 'Multipliers',
+        description: () => '',
+        get: (c) => c.multipliers,
+        set: (_, targetId, value) => setEntry('multipliers', targetId, value),
+      },
+      {
+        type: 'entries',
+        key: 'rewards',
+        category: 'lists',
+        target: 'role',
+        max: 20,
+        formatValue: (value) => `Level ${value}`,
+        input: { label: () => 'Level', parse: parseNumber, invalid: () => 'Not a level' },
+        label: () => 'Rewards',
+        description: () => '',
+        get: (c) => c.rewards,
+        set: (_, targetId, value) => setEntry('rewards', targetId, value),
+      },
     ],
   });
 
-  return { panel, getConfig: () => config };
+  return { panel, getConfig: () => config! };
 }
 
-/** Just enough of a guild for the panel to check which channels and roles exist. */
-const fakeGuild = ({ channelIds = [] as string[], roleIds = [] as string[] } = {}) =>
+/** Just enough of a guild for the panel to check which channels and roles exist, and which permissions the bot has in the channels. */
+const fakeGuild = ({ channelIds = [] as string[], roleIds = [] as string[], botMissing = [] as string[] } = {}) =>
   ({
     id: 'guild',
-    channels: { cache: new Collection(channelIds.map((id) => [id, {}])) },
-    roles: { cache: new Collection(roleIds.map((id) => [id, {}])) },
+    members: { me: {} },
+    channels: {
+      cache: new Collection(
+        channelIds.map((id) => [id, { name: `channel-${id}`, permissionsFor: () => ({ has: (permission: string) => !botMissing.includes(permission) }) }]),
+      ),
+    },
+    roles: { cache: new Collection(roleIds.map((id) => [id, { name: `role-${id}` }])) },
   }) as unknown as Guild;
 
 /** Render to JSON, which is where discord.js validates the components. */
-async function renderJson(panel: ReturnType<typeof createTestPanel>['panel'], guild = fakeGuild()) {
-  const payload = await panel.render(guild);
+async function renderJson(panel: ReturnType<typeof createTestPanel>['panel'], page?: string, guild = fakeGuild()) {
+  const payload = await panel.render(guild, page);
   return (payload.components ?? []).map((component) => ('toJSON' in component ? component.toJSON() : component)) as APIContainerComponent[];
+}
+
+/** Use a component of the panel, like Discord would when it's clicked or selected. */
+const use = (panel: ReturnType<typeof createTestPanel>['panel'], customId: string, input: SettingsInput = { type: 'button' }) =>
+  panel.handle(fakeGuild(), parseSettingsCustomId(customId)!, input);
+
+/** Count every component, nested ones included, as Discord allows at most 40 per message. */
+function countComponents(component: unknown): number {
+  if (!component || typeof component !== 'object') return 0;
+  const { components, accessory } = component as { components?: unknown[]; accessory?: unknown };
+  return 1 + (components ?? []).reduce<number>((sum, child) => sum + countComponents(child), 0) + countComponents(accessory);
 }
 
 /** The default values of the select with the given custom ID. */
@@ -92,72 +173,177 @@ function defaultValuesOf(container: APIContainerComponent, id: string) {
 }
 
 describe('settings panel', () => {
-  test('renders valid components for every setting type', async () => {
-    const { panel } = createTestPanel({ enabled: true, mode: 'image', channelId: '123', roleId: null });
-    const [container] = await renderJson(panel);
+  test('renders valid components on every page', async () => {
+    const { panel } = createTestPanel({
+      ...baseConfig,
+      ignoredChannels: ['1'],
+      multipliers: [{ targetId: '5', value: 2 }],
+      rewards: [{ targetId: '6', value: 10 }],
+    });
 
-    expect(container?.type).toBe(ComponentType.Container);
-    const types = container!.components.map((component) => component.type);
-    expect(types.filter((type) => type === ComponentType.Section)).toHaveLength(2);
-    expect(types.filter((type) => type === ComponentType.ActionRow)).toHaveLength(2);
+    const [general] = await renderJson(panel, 'general');
+    expect(general!.components.filter((component) => component.type === ComponentType.Section)).toHaveLength(2);
+
+    const [lists] = await renderJson(panel, 'lists');
+    expect(JSON.stringify(lists)).toContain('Level 10');
   });
 
-  test('preselects saved channels and roles that still exist', async () => {
-    const { panel } = createTestPanel({ enabled: true, mode: 'image', channelId: '123', roleId: '456' });
-    const [container] = await renderJson(panel, fakeGuild({ channelIds: ['123'], roleIds: ['456'] }));
+  test('switching categories shows the chosen page, and unknown pages fall back to the first', async () => {
+    const { panel } = createTestPanel(baseConfig);
 
-    expect(defaultValuesOf(container!, 'settings:test:channel')).toEqual([{ id: '123', type: SelectMenuDefaultValueType.Channel }]);
-    expect(defaultValuesOf(container!, 'settings:test:role')).toEqual([{ id: '456', type: SelectMenuDefaultValueType.Role }]);
-    expect(JSON.stringify(container)).not.toContain('⚠️');
+    expect(await use(panel, 'settings:test:general:_page', { type: 'select', values: ['lists'] })).toEqual({ page: 'lists' });
+    expect(JSON.stringify(await renderJson(panel, 'nope'))).toContain('settings:test:general:enabled');
   });
 
-  test('does not preselect deleted channels and roles, and warns about them instead', async () => {
-    const { panel } = createTestPanel({ enabled: true, mode: 'image', channelId: '123', roleId: '456' });
-    const [container] = await renderJson(panel, fakeGuild());
+  test('a full page stays within the 40 components a message can have', async () => {
+    const full = Array.from({ length: 10 }, (_, i) => ({ targetId: String(i), value: 2 }));
+    const rewards = Array.from({ length: 20 }, (_, i) => ({ targetId: String(100 + i), value: i }));
+    const { panel } = createTestPanel({ ...baseConfig, ignoredChannels: ['1', '2'], multipliers: full, rewards });
 
-    expect(defaultValuesOf(container!, 'settings:test:channel')).toEqual([]);
-    expect(defaultValuesOf(container!, 'settings:test:role')).toEqual([]);
-    const text = JSON.stringify(container);
-    expect(text).toContain('The saved channel no longer exists');
-    expect(text).toContain('The saved role no longer exists');
+    for (const page of ['general', 'lists', 'multipliers']) {
+      const components = await renderJson(panel, page);
+      expect(components.reduce((sum, component) => sum + countComponents(component), 0)).toBeLessThanOrEqual(40);
+    }
+  });
+
+  test('preselects saved channels and roles that still exist, and warns about deleted ones', async () => {
+    const { panel } = createTestPanel({ ...baseConfig, roleId: '456' });
+
+    const [existing] = await renderJson(panel, 'general', fakeGuild({ channelIds: ['123'], roleIds: ['456'] }));
+    expect(defaultValuesOf(existing!, 'settings:test:general:channel')).toEqual([{ id: '123', type: SelectMenuDefaultValueType.Channel }]);
+    expect(defaultValuesOf(existing!, 'settings:test:general:role')).toEqual([{ id: '456', type: SelectMenuDefaultValueType.Role }]);
+
+    const [deleted] = await renderJson(panel, 'general', fakeGuild());
+    expect(defaultValuesOf(deleted!, 'settings:test:general:channel')).toEqual([]);
+    expect(JSON.stringify(deleted)).toContain('The saved channel no longer exists');
   });
 
   test('shows a message instead when the feature is not set up', async () => {
     const { panel } = createTestPanel(null);
-    const [container] = await renderJson(panel);
-
-    expect(JSON.stringify(container)).toContain('Not set up');
+    expect(JSON.stringify(await renderJson(panel))).toContain('Not set up');
   });
 
-  test('pressing toggles booleans and cycles choices', async () => {
-    const { panel, getConfig } = createTestPanel({ enabled: false, mode: 'image', channelId: '123', roleId: null });
+  test('buttons toggle booleans and cycle choices', async () => {
+    const { panel, getConfig } = createTestPanel(baseConfig);
 
-    await panel.press('guild', 'enabled');
-    expect(getConfig()?.enabled).toBe(true);
-    await panel.press('guild', 'enabled');
-    expect(getConfig()?.enabled).toBe(false);
-
-    await panel.press('guild', 'mode');
-    expect(getConfig()?.mode).toBe('text');
-    await panel.press('guild', 'mode');
-    expect(getConfig()?.mode).toBe('image');
+    await use(panel, 'settings:test:general:enabled');
+    expect(getConfig().enabled).toBe(true);
+    await use(panel, 'settings:test:general:mode');
+    expect(getConfig().mode).toBe('text');
   });
 
-  test('selecting sets channels and roles, and only optional ones can be cleared', async () => {
-    const { panel, getConfig } = createTestPanel({ enabled: false, mode: 'image', channelId: '123', roleId: '456' });
+  test('selects set channels and roles, and only optional ones can be cleared', async () => {
+    const { panel, getConfig } = createTestPanel({ ...baseConfig, roleId: '456' });
 
-    await panel.select('guild', 'channel', ['789']);
-    expect(getConfig()?.channelId).toBe('789');
-    await panel.select('guild', 'channel', []);
-    expect(getConfig()?.channelId).toBe('789');
+    await use(panel, 'settings:test:general:channel', { type: 'select', values: [] });
+    expect(getConfig().channelId).toBe('123');
+    await use(panel, 'settings:test:general:role', { type: 'select', values: [] });
+    expect(getConfig().roleId).toBeNull();
+  });
 
-    await panel.select('guild', 'role', []);
-    expect(getConfig()?.roleId).toBeNull();
+  test('multi selects save every selected channel', async () => {
+    const { panel, getConfig } = createTestPanel(baseConfig);
+
+    await use(panel, 'settings:test:lists:ignored', { type: 'select', values: ['1', '2'] });
+    expect(getConfig().ignoredChannels).toEqual(['1', '2']);
+  });
+
+  describe('entries with presets', () => {
+    test('adding starts at the default value, and adding again changes nothing', async () => {
+      const { panel, getConfig } = createTestPanel(baseConfig);
+
+      await use(panel, 'settings:test:multipliers:multipliers:add', { type: 'select', values: ['5'] });
+      expect(getConfig().multipliers).toEqual([{ targetId: '5', value: 2 }]);
+      await use(panel, 'settings:test:multipliers:multipliers:add', { type: 'select', values: ['5'] });
+      expect(getConfig().multipliers).toHaveLength(1);
+    });
+
+    test('the button cycles the presets, then asks for a custom value', async () => {
+      const { panel, getConfig } = createTestPanel({ ...baseConfig, multipliers: [{ targetId: '5', value: 2 }] });
+
+      expect((await use(panel, 'settings:test:multipliers:multipliers:5')).modal).toBeUndefined();
+      expect(getConfig().multipliers[0]!.value).toBe(3);
+
+      const { modal } = await use(panel, 'settings:test:multipliers:multipliers:5');
+      expect(modal?.value).toBe('3');
+      expect(await modal!.submit('abc')).toBe('Not a number');
+      expect(await modal!.submit('1.25')).toBeNull();
+      expect(getConfig().multipliers[0]!.value).toBe(1.25);
+
+      // A custom value starts over at the first preset
+      await use(panel, 'settings:test:multipliers:multipliers:5');
+      expect(getConfig().multipliers[0]!.value).toBe(1.5);
+    });
+
+    test('removing takes the entry out', async () => {
+      const { panel, getConfig } = createTestPanel({ ...baseConfig, multipliers: [{ targetId: '5', value: 2 }] });
+
+      await use(panel, 'settings:test:multipliers:multipliers:remove', { type: 'select', values: ['5'] });
+      expect(getConfig().multipliers).toEqual([]);
+    });
+
+    test('no more can be added once the list is full', async () => {
+      const full = Array.from({ length: 10 }, (_, i) => ({ targetId: String(i), value: 2 }));
+      const { panel, getConfig } = createTestPanel({ ...baseConfig, multipliers: full });
+
+      await use(panel, 'settings:test:multipliers:multipliers:add', { type: 'select', values: ['99'] });
+      expect(getConfig().multipliers).toHaveLength(10);
+      expect(JSON.stringify(await renderJson(panel, 'multipliers'))).not.toContain('settings:test:multipliers:multipliers:add');
+    });
+  });
+
+  describe('entries without presets', () => {
+    test('adding asks for the value, and picking an existing entry changes it', async () => {
+      const { panel, getConfig } = createTestPanel(baseConfig);
+
+      const { modal } = await use(panel, 'settings:test:lists:rewards:add', { type: 'select', values: ['6'] });
+      expect(modal?.value).toBeUndefined();
+      await modal!.submit('10');
+      expect(getConfig().rewards).toEqual([{ targetId: '6', value: 10 }]);
+
+      const edit = await use(panel, 'settings:test:lists:rewards:add', { type: 'select', values: ['6'] });
+      expect(edit.modal?.value).toBe('10');
+      await edit.modal!.submit('15');
+      expect(getConfig().rewards).toEqual([{ targetId: '6', value: 15 }]);
+    });
   });
 
   test('custom IDs round trip', () => {
-    expect(parseSettingsCustomId('settings:counting:allowMath')).toEqual({ panelId: 'counting', key: 'allowMath' });
+    expect(parseSettingsCustomId('settings:counting:_:allowMath')).toEqual({ panelId: 'counting', page: '_', key: 'allowMath', argument: undefined });
+    expect(parseSettingsCustomId('settings:leveling:lists:multipliers:123')).toEqual({
+      panelId: 'leveling',
+      page: 'lists',
+      key: 'multipliers',
+      argument: '123',
+    });
     expect(parseSettingsCustomId('lb_next')).toBeNull();
-    expect(parseSettingsCustomId('settings:counting')).toBeNull();
+    expect(parseSettingsCustomId('settings:counting:_')).toBeNull();
+  });
+});
+
+describe('bot permissions in channels', () => {
+  test('a channel where the bot is missing permissions is refused and not saved', async () => {
+    const { panel, getConfig } = createTestPanel(baseConfig);
+    const guild = fakeGuild({ channelIds: ['999'], botMissing: ['SendMessages'] });
+
+    const result = await panel.handle(guild, parseSettingsCustomId('settings:test:general:channel')!, { type: 'select', values: ['999'] });
+    expect(result.error).toContain('Send Messages');
+    expect(getConfig().channelId).toBe('123');
+  });
+
+  test('a channel where the bot has the permissions is saved', async () => {
+    const { panel, getConfig } = createTestPanel(baseConfig);
+    const guild = fakeGuild({ channelIds: ['999'] });
+
+    const result = await panel.handle(guild, parseSettingsCustomId('settings:test:general:channel')!, { type: 'select', values: ['999'] });
+    expect(result.error).toBeUndefined();
+    expect(getConfig().channelId).toBe('999');
+  });
+
+  test('a saved channel that lost permissions gets a warning', async () => {
+    const { panel } = createTestPanel(baseConfig);
+    const [container] = await renderJson(panel, 'general', fakeGuild({ channelIds: ['123'], botMissing: ['ViewChannel'] }));
+
+    expect(JSON.stringify(container)).toContain("I'm missing permissions in this channel: View Channel");
   });
 });

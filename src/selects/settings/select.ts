@@ -9,6 +9,6 @@ export default new SelectMenu({
   includesCustomId: true,
   cooldown: 1,
   async execute(interaction) {
-    await handleSettingsInteraction(interaction, (panel, guildId, key) => panel.select(guildId, key, interaction.values));
+    await handleSettingsInteraction(interaction);
   },
 });

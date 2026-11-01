@@ -1,4 +1,4 @@
-import { ChannelType, SnowflakeUtil } from 'discord.js';
+import { ChannelType, SnowflakeUtil, type PermissionsString } from 'discord.js';
 import { t } from 'i18next';
 
 import { getCounting, updateCounting } from 'database/counting';
@@ -6,6 +6,9 @@ import { getCounting, updateCounting } from 'database/counting';
 import type { GuildCounting } from 'generated/prisma/client';
 import { runCountingTask } from 'utility/countingGame';
 import { createSettingsPanel } from 'utility/settings';
+
+/** What the bot needs in the counting channel: read the numbers and catch up on them, reply, delete wrong numbers and react to milestones. */
+export const COUNTING_CHANNEL_PERMISSIONS: PermissionsString[] = ['ViewChannel', 'ReadMessageHistory', 'SendMessages', 'ManageMessages', 'AddReactions'];
 
 /** The value of the lives setting for unlimited lives, which is stored as null. */
 const UNLIMITED = 'unlimited';
@@ -25,6 +28,7 @@ export const countingSettings = createSettingsPanel<GuildCounting>({
       key: 'channel',
       channelTypes: [ChannelType.GuildText],
       required: true,
+      botPermissions: COUNTING_CHANNEL_PERMISSIONS,
       label: () => t('counting.settings.channel.label'),
       description: () => t('counting.settings.channel.description'),
       get: (config) => config.channelId,

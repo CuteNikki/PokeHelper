@@ -21,10 +21,11 @@ import { Command } from 'classes/base/command';
 
 import { createCounting, getCounting, resetCounting } from 'database/counting';
 
-import { countingSettings } from 'settings/counting';
+import { COUNTING_CHANNEL_PERMISSIONS, countingSettings } from 'settings/counting';
 
 import { runCountingTask } from 'utility/countingGame';
 import { createResponse, sendResponse } from 'utility/response';
+import { formatPermissions, missingBotPermissions } from 'utility/settings';
 import { ThemeColors } from 'utility/theme';
 
 /** How long the reset confirmation waits for an answer, in milliseconds. */
@@ -70,6 +71,14 @@ async function handleSetup(interaction: ChatInputCommandInteraction<'cached'>): 
   await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
 
   const channel = interaction.options.getChannel('channel', true, [ChannelType.GuildText]);
+
+  // The option lists the channels the user can see, which may include ones the bot can't use
+  const missing = missingBotPermissions(interaction.guild, channel.id, COUNTING_CHANNEL_PERMISSIONS);
+  if (missing.length > 0) {
+    return interaction.editReply(
+      createResponse(t('settings.channel.botPermissionsRefused', { channel: channelMention(channel.id), permissions: formatPermissions(missing) }), 'error'),
+    );
+  }
 
   const created = await runCountingTask(interaction.guildId, async () => {
     if (await getCounting(interaction.guildId)) return false;
