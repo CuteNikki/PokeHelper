@@ -74,10 +74,13 @@
       "missing": "Die Rolle gibt's nicht mehr, wähl eine neue aus.",
       "everyone": "@everyone kann man nicht vergeben",
       "managed": "sie wird von einer Integration verwaltet, wie eine Bot- oder Booster-Rolle",
+      "dangerous": "sie hat Moderations- oder Admin-Berechtigungen, die man nicht einfach so vergeben sollte",
       "noManageRoles": "mir fehlt die Berechtigung „Rollen verwalten“",
       "tooHigh": "sie ist nicht unter meiner höchsten Rolle",
       "cantAssign": "Ich kann diese Rolle nicht vergeben: {{reason}}.",
-      "refused": "Ich kann {{role}} nicht nutzen, weil ich sie nicht vergeben kann: {{reason}}. Nimm eine andere Rolle oder schieb meine Rolle in den Servereinstellungen darüber."
+      "refused": "Ich kann {{role}} nicht nutzen, weil ich sie nicht vergeben kann: {{reason}}. Nimm eine andere Rolle oder schieb meine Rolle in den Servereinstellungen darüber.",
+      "dangerousRefused": "{{role}} vergebe ich nicht, weil sie Moderations- oder Admin-Berechtigungen hat, wie Administrator oder Server verwalten. Wähl eine Rolle ohne die.",
+      "aboveYou": "Du kannst nur Rollen unter deiner höchsten Rolle auswählen, und {{role}} ist das nicht."
     },
     "channels": {
       "placeholder": "Kanäle auswählen",
@@ -94,7 +97,8 @@
       "addRole": "Rolle hinzufügen",
       "addOrEditRole": "Rolle hinzufügen oder eine zum Ändern auswählen",
       "remove": "Eine entfernen",
-      "modalTitle": "Einstellung für {{target}}"
+      "modalTitle": "Einstellung für {{target}}",
+      "full": "Diese Liste ist voll, mehr als {{max}} gehen nicht."
     },
     "unknown": "Unbekannt ({{id}})",
     "outdated": "Jemand anderes hat die Einstellung geändert, seit du das hier geöffnet hast, also hat sich nichts getan. So sieht's jetzt aus.",
@@ -491,7 +495,7 @@
       "swapped": "Du hast jetzt {{assigned}} statt {{removed}}.",
       "error": "Beim Vergeben der Rolle ist was schiefgelaufen. Ein Admin sollte schauen, ob meine Rolle über den Rollen in diesem Menü ist.",
       "disabled": "Dieses Rollenmenü ist gerade ausgeschaltet.",
-      "cantAssign": "Ich kann {{role}} gerade nicht vergeben. Ein Admin sollte schauen, ob meine Rolle darüber ist."
+      "cantAssign": "Ich kann {{role}} gerade nicht vergeben. Ein Admin sollte sich die Einstellungen dieses Menüs anschauen."
     }
   },
   "birthday": {

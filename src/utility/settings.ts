@@ -16,13 +16,14 @@ import {
   TextDisplayBuilder,
   type ChannelType,
   type Guild,
+  type GuildMember,
   type PermissionsString,
 } from 'discord.js';
 import type { Translate } from 'utility/i18next';
 
 import type { ResponsePayload } from 'utility/response';
 import { createResponse } from 'utility/response';
-import { getRoleProblem } from 'utility/roles';
+import { getRoleProblem, isRoleAboveMember } from 'utility/roles';
 import { ThemeColors } from 'utility/theme';
 
 /**
@@ -242,9 +243,15 @@ export interface SettingsPanel {
    */
   render: (guild: Guild, t: Translate, page?: string) => Promise<ResponsePayload>;
   /** Work out what a button or select of the panel should do. */
-  handle: (guild: Guild, id: ParsedSettingsCustomId, input: SettingsInput, t: Translate) => Promise<SettingsResult>;
+  handle: (guild: Guild, id: ParsedSettingsCustomId, input: SettingsInput, t: Translate, member?: GuildMember) => Promise<SettingsResult>;
   /** Work out what a submitted popup should do, with what was typed into it. */
-  submitModal: (guild: Guild, id: ParsedSettingsCustomId, input: string, t: Translate) => Promise<Omit<SettingsResult, 'modal' | 'outdated'>>;
+  submitModal: (
+    guild: Guild,
+    id: ParsedSettingsCustomId,
+    input: string,
+    t: Translate,
+    member?: GuildMember,
+  ) => Promise<Omit<SettingsResult, 'modal' | 'outdated'>>;
   /** Runs after any setting was saved. */
   onSaved?: (guild: Guild) => Promise<unknown>;
 }
@@ -301,6 +308,17 @@ export const formatPermissions = (permissions: PermissionsString[], t: Translate
 export function unassignableReason(guild: Guild, roleId: string, t: Translate): string | null {
   const problem = getRoleProblem(guild, roleId);
   return problem ? t(`settings.role.${problem}`) : null;
+}
+
+/**
+ * Why a role can't be picked for a setting that gives it to members, or null if it can.
+ * @param member Who picks it, who can only pick roles below their own highest role.
+ */
+function roleRefusal(guild: Guild, roleId: string, member: GuildMember | undefined, t: Translate): string | null {
+  if (member && isRoleAboveMember(member, roleId)) return t('settings.role.aboveYou', { role: roleMention(roleId) });
+  if (getRoleProblem(guild, roleId) === 'dangerous') return t('settings.role.dangerousRefused', { role: roleMention(roleId) });
+  const reason = unassignableReason(guild, roleId, t);
+  return reason ? t('settings.role.refused', { role: roleMention(roleId), reason }) : null;
 }
 
 /** How a value is shown as a default, or in a choice button. */
@@ -622,7 +640,7 @@ export function createSettingsPanel<C>(definition: SettingsPanelDefinition<C>): 
       return { components: [container], flags: [MessageFlags.IsComponentsV2] };
     },
 
-    async handle(guild, id, input, t) {
+    async handle(guild, id, input, t, member) {
       const page = resolvePage(id.page);
       if (id.key === PAGE_KEY) return { page: resolvePage(input.type === 'select' ? input.values[0] : undefined) };
 
@@ -659,8 +677,8 @@ export function createSettingsPanel<C>(definition: SettingsPanelDefinition<C>): 
             }
           }
           if (value !== null && setting.type === 'role' && setting.assignable) {
-            const reason = unassignableReason(guild, value, t);
-            if (reason) return { page, error: t('settings.role.refused', { role: roleMention(value), reason }) };
+            const refusal = roleRefusal(guild, value, member, t);
+            if (refusal) return { page, error: refusal };
           }
           return { page, save: () => setting.set(guild.id, value, guild) };
         }
@@ -674,11 +692,11 @@ export function createSettingsPanel<C>(definition: SettingsPanelDefinition<C>): 
           return { page, modal: textModal(guild, setting, id, t, setting.get(config)) };
         case 'entries':
         case 'textEntries':
-          return { page, ...handleEntries(guild, setting, config, id, input, t) };
+          return { page, ...handleEntries(guild, setting, config, id, input, t, member) };
       }
     },
 
-    async submitModal(guild, id, input, t) {
+    async submitModal(guild, id, input, t, member) {
       const page = resolvePage(id.page);
       const setting = findSetting(id.key);
       const config = await definition.load(guild.id);
@@ -691,6 +709,16 @@ export function createSettingsPanel<C>(definition: SettingsPanelDefinition<C>): 
             ? entryModal(guild, setting, id, id.argument, t)
             : null;
       if (!modal) return { page };
+
+      // Checked again, as the role or the list may have changed while the popup was open
+      if ((setting.type === 'entries' || setting.type === 'textEntries') && id.argument) {
+        const entries = setting.get(config);
+        const isNew = !entries.some((entry) => entry.targetId === id.argument);
+        if (isNew && entries.length >= setting.max) return { page, error: t('settings.entries.full', { max: setting.max }) };
+        const refusal = isNew && setting.target === 'role' && setting.assignable ? roleRefusal(guild, id.argument, member, t) : null;
+        if (refusal) return { page, error: refusal };
+      }
+
       const result = modal.submit(input);
       return 'error' in result ? { page, error: result.error } : { page, save: result.save };
     },
@@ -707,6 +735,7 @@ function handleEntries<C>(
   id: ParsedSettingsCustomId,
   input: SettingsInput,
   t: Translate,
+  member: GuildMember | undefined,
 ): Omit<SettingsResult, 'page'> {
   const entries = setting.get(config);
 
@@ -722,8 +751,8 @@ function handleEntries<C>(
     if (!existing && entries.length >= setting.max) return {};
 
     if (!existing && setting.target === 'role' && setting.assignable) {
-      const reason = unassignableReason(guild, targetId, t);
-      if (reason) return { error: t('settings.role.refused', { role: roleMention(targetId), reason }) };
+      const refusal = roleRefusal(guild, targetId, member, t);
+      if (refusal) return { error: refusal };
     }
 
     // Without presets, the value is always typed, also to change it for an existing entry

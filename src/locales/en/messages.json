@@ -74,10 +74,13 @@
       "missing": "That role doesn't exist anymore, pick a new one.",
       "everyone": "@everyone can't be given to members",
       "managed": "it's managed by an integration, like a bot or booster role",
+      "dangerous": "it has moderator or admin permissions, which shouldn't be handed out",
       "noManageRoles": "I'm missing the Manage Roles permission",
       "tooHigh": "it's not below my highest role",
       "cantAssign": "I can't give this role to members: {{reason}}.",
-      "refused": "I can't use {{role}}, as I can't give it to members: {{reason}}. Pick another role, or move my role above it in the server settings."
+      "refused": "I can't use {{role}}, as I can't give it to members: {{reason}}. Pick another role, or move my role above it in the server settings.",
+      "dangerousRefused": "I won't hand out {{role}}, as it has moderator or admin permissions, like Administrator or Manage Server. Pick a role without those.",
+      "aboveYou": "You can only pick roles below your own highest role, and {{role}} isn't."
     },
     "channels": {
       "placeholder": "Select channels",
@@ -94,7 +97,8 @@
       "addRole": "Add a role",
       "addOrEditRole": "Add a role, or pick one to change it",
       "remove": "Remove one",
-      "modalTitle": "Settings for {{target}}"
+      "modalTitle": "Settings for {{target}}",
+      "full": "This list is full, it can have {{max}} at most."
     },
     "unknown": "Unknown ({{id}})",
     "outdated": "Someone else changed that setting since you opened this, so nothing happened. Here's how it looks now.",
@@ -617,7 +621,7 @@
       "swapped": "Switched you from {{removed}} to {{assigned}}.",
       "error": "Something went wrong giving you that role. An admin should check that my role is above the roles in this menu.",
       "disabled": "This role menu is turned off right now.",
-      "cantAssign": "I can't give out {{role}} right now. An admin should check that my role is above it."
+      "cantAssign": "I can't give out {{role}} right now. An admin should check the settings of this menu."
     }
   },
   "dev": {

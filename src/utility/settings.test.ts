@@ -1,5 +1,5 @@
 import { beforeAll, describe, expect, test } from 'bun:test';
-import { ChannelType, Collection, ComponentType, SelectMenuDefaultValueType, type APIContainerComponent, type Guild } from 'discord.js';
+import { ChannelType, Collection, ComponentType, SelectMenuDefaultValueType, type APIContainerComponent, type Guild, type GuildMember } from 'discord.js';
 
 import { getTranslate, initI18Next } from 'utility/i18next';
 import { createSettingsPanel, parseSettingsCustomId, type Entry, type SettingsInput, type SettingsModal } from 'utility/settings';
@@ -187,16 +187,28 @@ function createTestPanel(initial: Config | null) {
  * Just enough of a guild for the panel to check which channels and roles exist, which permissions the bot has,
  * and which roles it can give. The bot's highest role is at position 10, and roles are at position 1 unless they're `highRoles`.
  */
-const fakeGuild = ({ channelIds = [] as string[], roleIds = [] as string[], botMissing = [] as string[], highRoles = [] as string[] } = {}) => {
+const fakeGuild = ({
+  channelIds = [] as string[],
+  roleIds = [] as string[],
+  botMissing = [] as string[],
+  highRoles = [] as string[],
+  dangerousRoles = [] as string[],
+} = {}) => {
   const has = (permission: string) => !botMissing.includes(permission);
   return {
     id: 'guild',
+    ownerId: 'owner',
     members: { me: { permissions: { has }, roles: { highest: { position: 10 } } } },
     channels: {
       cache: new Collection(channelIds.map((id) => [id, { name: `channel-${id}`, permissionsFor: () => ({ has }) }])),
     },
     roles: {
-      cache: new Collection(roleIds.map((id) => [id, { id, name: `role-${id}`, managed: false, position: highRoles.includes(id) ? 20 : 1 }])),
+      cache: new Collection(
+        roleIds.map((id) => [
+          id,
+          { id, name: `role-${id}`, managed: false, position: highRoles.includes(id) ? 20 : 1, permissions: { any: () => dangerousRoles.includes(id) } },
+        ]),
+      ),
     },
   } as unknown as Guild;
 };
@@ -539,6 +551,44 @@ describe('roles the bot has to give', () => {
       fakeGuild({ roleIds: ['7'], botMissing: ['ManageRoles'] }),
     );
     expect(noPermission.error).toContain('Manage Roles');
+  });
+
+  test('roles with moderator or admin permissions are refused, also once they get them', async () => {
+    const { panel, getConfig } = createTestPanel({ ...baseConfig, roleId: '8' });
+    const guild = fakeGuild({ roleIds: ['8', '9'], dangerousRoles: ['8', '9'] });
+
+    const refused = await use(panel, 'settings:test:general:assignableRole:-:-', { type: 'select', values: ['9'] }, guild);
+    expect(refused.error).toContain('moderator or admin permissions');
+    expect(getConfig().roleId).toBe('8');
+    expect(JSON.stringify(await renderJson(panel, 'general', guild))).toContain('moderator or admin permissions');
+  });
+
+  describe('who picks the role', () => {
+    /** A member whose highest role is at the given position. */
+    const member = (guild: Guild, id: string, position: number) => ({ id, guild, roles: { highest: { position } } }) as unknown as GuildMember;
+
+    test('can only pick roles below their own highest role, unless they own the server', async () => {
+      const { panel, getConfig } = createTestPanel(baseConfig);
+      const guild = fakeGuild({ roleIds: ['7'] });
+      const pick = (who: GuildMember) =>
+        panel.handle(guild, parseSettingsCustomId('settings:test:general:assignableRole:-:-')!, { type: 'select', values: ['7'] }, getTranslate('en'), who);
+
+      expect((await pick(member(guild, 'someone', 1))).error).toContain('below your own highest role');
+      expect((await pick(member(guild, 'someone', 2))).error).toBeUndefined();
+      const owner = await pick(member(guild, 'owner', 0));
+      await owner.save?.();
+      expect(getConfig().roleId).toBe('7');
+    });
+
+    test('is checked again when the popup of an entry is submitted', async () => {
+      const { panel, getConfig } = createTestPanel(baseConfig);
+      const guild = fakeGuild({ roleIds: ['7'] });
+      const id = parseSettingsCustomId('settings:test:lists:rewards:7:modal')!;
+
+      const result = await panel.submitModal(guild, id, '5', getTranslate('en'), member(guild, 'someone', 1));
+      expect(result.error).toContain('below your own highest role');
+      expect(getConfig().rewards).toEqual([]);
+    });
   });
 
   test('a role the bot can give is saved', async () => {

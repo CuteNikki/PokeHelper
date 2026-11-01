@@ -71,7 +71,7 @@ export async function handleSettingsInteraction(interaction: ButtonInteraction |
   if (!(await checkPermissions(interaction, panel, t))) return;
 
   const input: SettingsInput = interaction.isAnySelectMenu() ? { type: 'select', values: interaction.values } : { type: 'button' };
-  const result = await panel.handle(interaction.guild, id, input, t);
+  const result = await panel.handle(interaction.guild, id, input, t, interaction.member);
 
   if (result.error) return sendError(interaction, result.error);
   // A popup has to be the first answer, so it's shown before anything is saved
@@ -99,7 +99,7 @@ export async function handleSettingsModal(interaction: ModalSubmitInteraction) {
   if (!id || !panel) return;
   if (!(await checkPermissions(interaction, panel, t))) return;
 
-  const result = await panel.submitModal(interaction.guild, id, interaction.fields.getTextInputValue(MODAL_INPUT_ID), t);
+  const result = await panel.submitModal(interaction.guild, id, interaction.fields.getTextInputValue(MODAL_INPUT_ID), t, interaction.member);
   if (result.error) return sendError(interaction, result.error);
   await saveAndRender(interaction, panel, result.page, result.save, t);
 }
