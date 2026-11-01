@@ -533,37 +533,23 @@
     }
   },
   "botinfo": {
-    "author": "Status von {{username}}",
+    "title": "### Status von {{username}}",
     "na": "k. A.",
     "general": {
-      "title": "⚙️ Allgemein",
-      "developer": "> **Entwickler:** {{developer}}",
-      "created": "> **Erstellt:** {{created}}",
-      "servers": "> **Server:** {{servers}}",
-      "users": "> **Nutzer:** {{users}}"
+      "title": "**⚙️ Allgemein**",
+      "about": "> **Entwickler:** {{developer}} · **Erstellt:** {{created}}",
+      "reach": "> **Server:** {{servers}} · **Nutzer:** {{users}}"
     },
-    "network": {
-      "title": "⚡ Netzwerk",
-      "gateway": "> **Gateway:** {{ping}}",
-      "database": "> **Datenbank:** {{latency}} ms"
-    },
-    "uptime": {
-      "title": "⏱️ Laufzeit",
-      "process": "> **Prozess:** {{time}}",
-      "system": "> **System:** {{time}}"
-    },
-    "memory": {
-      "title": "💾 Arbeitsspeicher",
-      "process": "> **Prozess:** {{mb}} MB",
-      "system": "> **System:** {{used}}/{{total}} GB ({{percent}} %)"
+    "status": {
+      "title": "**📊 Status**",
+      "network": "> **Ping:** {{ping}} ms · **Datenbank:** {{latency}} ms",
+      "uptime": "> **Laufzeit:** {{process}} (Bot) · {{system}} (System)",
+      "memory": "> **Speicher:** {{process}} MB (Bot) · {{used}}/{{total}} GB, {{percent}} % (System)"
     },
     "host": {
-      "title": "🖥️ Host",
-      "cpu": "> **CPU:** {{name}} ({{cores}} Kerne)",
-      "cpuLoad": "> **CPU-Last:** {{percent}} % ({{loadAvg}} Load Average)",
-      "runtime": "> **Laufzeitumgebung:** {{runtime}} auf {{osType}} ({{arch}})",
-      "nodeApi": "> **Node-API:** {{version}}",
-      "discordJs": "> **Discord.JS:** v{{version}}"
+      "title": "**🖥️ Host**",
+      "cpu": "> **CPU:** {{name}} ({{cores}} Kerne) · {{load}} % Last",
+      "runtime": "> **Laufzeitumgebung:** {{runtime}} auf {{os}} · Node {{node}} · discord.js v{{discordJs}}"
     }
   }
 }
