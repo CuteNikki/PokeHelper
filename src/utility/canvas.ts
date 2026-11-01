@@ -36,6 +36,42 @@ export function drawAvatar(ctx: SKRSContext2D, avatarImage: Image | null, x: num
   ctx.restore();
 }
 
+/** Draw a Pokéball: red and white, with the black band and the button. */
+export function drawPokeball(ctx: SKRSContext2D, x: number, y: number, radius: number) {
+  ctx.save();
+  const band = radius * 0.16;
+  const button = radius * 0.34;
+
+  // Top half red, bottom half white
+  ctx.beginPath();
+  ctx.arc(x, y, radius, Math.PI, 0);
+  ctx.fillStyle = '#ee1515';
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(x, y, radius, 0, Math.PI);
+  ctx.fillStyle = '#f0f0f0';
+  ctx.fill();
+
+  // The black band, the outline and the button with its ring
+  ctx.fillStyle = '#222224';
+  ctx.fillRect(x - radius, y - band / 2, radius * 2, band);
+  ctx.lineWidth = Math.max(1, radius * 0.1);
+  ctx.strokeStyle = '#222224';
+  ctx.beginPath();
+  ctx.arc(x, y, radius, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(x, y, button, 0, Math.PI * 2);
+  ctx.fillStyle = '#222224';
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(x, y, button * 0.62, 0, Math.PI * 2);
+  ctx.fillStyle = '#f0f0f0';
+  ctx.fill();
+
+  ctx.restore();
+}
+
 /**
  * The largest font size, at most `maxSize`, at which all the texts fit the width together, for text on one line that must not overlap.
  * @param font Turns a size into a font, like `(size) => \`${size}px "Roboto"\``.

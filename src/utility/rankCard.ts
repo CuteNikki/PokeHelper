@@ -1,6 +1,6 @@
 import { createCanvas, type Image } from '@napi-rs/canvas';
 
-import { drawAvatar, fitFontSize, truncateText } from 'utility/canvas';
+import { drawAvatar, drawPokeball, fitFontSize, truncateText } from 'utility/canvas';
 import { formatCompactNumber } from 'utility/duration';
 import type { Translate } from 'utility/i18next';
 
@@ -28,7 +28,8 @@ const AVATAR_RADIUS = 64;
 const COLORS = {
   cardBg: 'rgba(42, 43, 60, 0.85)',
   trackBg: '#1e1e2e',
-  accent: '#ff0000',
+  // White, so the Pokéball's red stands out instead of clashing with the bar
+  progress: '#ffffff',
   textWhite: '#ffffff',
   textGray: '#a6adc8',
 };
@@ -103,11 +104,14 @@ export function renderRankCard(data: RankCardData, t: Translate): Buffer {
 
   const progress = Math.max(0, Math.min(data.allTime.xpIntoLevel / data.allTime.xpRequired, 1));
   if (progress > 0) {
-    ctx.fillStyle = COLORS.accent;
+    ctx.fillStyle = COLORS.progress;
     ctx.beginPath();
     ctx.roundRect(contentX, barY, Math.max(barH, barW * progress), barH, barH / 2);
     ctx.fill();
   }
+  // A Pokéball at the tip of the bar, rolling along as the level fills up
+  // A Pokéball at the tip of the bar, rolling along as the level fills up
+  drawPokeball(ctx, contentX + Math.max(barH, barW * progress) - barH / 2, barY + barH / 2, 15);
 
   // XP of both levels, shrunk if big numbers would make them overlap
   const levelLabel = t('leveling.rank.level').toUpperCase();
