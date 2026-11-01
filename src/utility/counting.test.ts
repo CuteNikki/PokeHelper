@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 
-import { applyCount, checkCount, replayCounts, type CountingState, type CountMessage } from 'utility/counting';
+import { applyCount, checkCount, getMilestones, isMilestone, processCount, replayCounts, type CountingState, type CountMessage } from 'utility/counting';
 
 const emptyState: CountingState = {
   lastCheckedMessageId: null,
@@ -105,5 +105,64 @@ describe('replayCounts', () => {
     const result = replayCounts(state, { allowMath: true, resetOnFail: false }, [message('bob', '6*7')]);
 
     expect(result.state.lastNumber).toBe(42);
+  });
+});
+
+describe('processCount', () => {
+  const rules = { allowMath: false, resetOnFail: false };
+
+  test('a valid count records the count', () => {
+    const msg = message('alice', '1');
+    const result = processCount(emptyState, rules, msg);
+
+    expect(result.outcome).toBe('valid');
+    expect(result.events).toEqual([{ type: 'count', number: 1, userId: 'alice', messageId: msg.id, at: msg.createdAt }]);
+  });
+
+  test('wrong numbers and counting twice in a row are mistakes', () => {
+    const state = { ...emptyState, lastNumber: 3, lastNumberByUserId: 'alice' };
+
+    expect(processCount(state, rules, message('bob', '9'))).toMatchObject({ outcome: 'invalid', events: [{ type: 'mistake', userId: 'bob' }] });
+    expect(processCount(state, rules, message('alice', '4'))).toMatchObject({ outcome: 'invalid', events: [{ type: 'mistake', userId: 'alice' }] });
+  });
+
+  test('with reset on fail, a wrong number is a mistake that ends the run', () => {
+    const state = { ...emptyState, lastNumber: 3, lastNumberByUserId: 'alice' };
+    const result = processCount(state, { ...rules, resetOnFail: true }, message('bob', '9'));
+
+    expect(result.outcome).toBe('reset');
+    expect(result.events).toMatchObject([
+      { type: 'mistake', userId: 'bob' },
+      { type: 'reset', number: 3, userId: 'bob' },
+    ]);
+  });
+
+  test('a wrong number before anything was counted has no run to end', () => {
+    const result = processCount(emptyState, { ...rules, resetOnFail: true }, message('bob', '9'));
+
+    expect(result.outcome).toBe('reset');
+    expect(result.events).toEqual([{ type: 'mistake', userId: 'bob' }]);
+  });
+
+  test('bot messages are skipped without events', () => {
+    expect(processCount(emptyState, rules, message('bot', 'hi', true))).toMatchObject({ outcome: 'skipped', events: [] });
+  });
+});
+
+describe('milestones', () => {
+  test('go 100, 250, 500, 1000 and so on', () => {
+    expect(getMilestones(99)).toEqual([]);
+    expect(getMilestones(12000)).toEqual([100, 250, 500, 1000, 2500, 5000, 10000]);
+  });
+
+  test.each([
+    [100, true],
+    [250, true],
+    [5000, true],
+    [99, false],
+    [200, false],
+    [1500, false],
+  ])('%p is a milestone: %p', (number, expected) => {
+    expect(isMilestone(number)).toBe(expected);
   });
 });

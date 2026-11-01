@@ -74,9 +74,10 @@ model GuildCounting {
   Guild   Guild  @relation("GuildCounting", fields: [guildId], references: [guildId], onDelete: Cascade)
 
   // Configuration
-  resetOnFail Boolean @default(false)
-  allowMath   Boolean @default(false)
-  channelId   String
+  resetOnFail        Boolean @default(false)
+  allowMath          Boolean @default(false)
+  milestoneReactions Boolean @default(false)
+  channelId          String
 
   // State
   lastCheckedMessageId String? // last message in the channel that was checked, valid or not. Syncing after downtime continues from here
@@ -91,12 +92,68 @@ model GuildCounting {
   highestNumberByUserId  String?
   highestNumberMessageId String?
 
+  // Relations
+  runs  CountingRun[]
+  users CountingUser[]
+
   // Timestamps
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   // Indexes
   @@index([channelId])
+}
+
+// One attempt at counting, from 1 until a wrong number resets it
+model CountingRun {
+  id      Int           @id @default(autoincrement())
+  guildId String
+  game    GuildCounting @relation(fields: [guildId], references: [guildId], onDelete: Cascade)
+
+  // State
+  startedAt     DateTime? // when 1 was counted, null for the run that was ongoing when tracking started
+  endedAt       DateTime? // null while the run is ongoing
+  endedByUserId String? // who sent the wrong number
+  finalNumber   Int       @default(0) // the number reached, set when the run ends
+
+  // Relations
+  entries CountingEntry[]
+
+  // Timestamps
+  createdAt DateTime @default(now())
+
+  // Indexes
+  @@index([guildId, endedAt])
+}
+
+// A number that was counted correctly
+model CountingEntry {
+  id      Int         @id @default(autoincrement())
+  runId   Int
+  run     CountingRun @relation(fields: [runId], references: [id], onDelete: Cascade)
+  guildId String
+
+  number    Int
+  userId    String
+  messageId String
+  countedAt DateTime
+
+  // Indexes
+  @@index([runId, number])
+}
+
+// How a member did at counting in a guild
+model CountingUser {
+  guildId String
+  game    GuildCounting @relation(fields: [guildId], references: [guildId], onDelete: Cascade)
+  userId  String
+
+  counted       Int       @default(0)
+  mistakes      Int       @default(0)
+  lastCountedAt DateTime?
+
+  @@id([guildId, userId])
+  @@index([guildId, counted])
 }
 
 model ReactionRoleMenu {

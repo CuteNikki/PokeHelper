@@ -10,17 +10,16 @@ import {
 } from 'discord.js';
 import { t } from 'i18next';
 
-import { getAllCountings, getCounting, saveCountingState, updateCounting } from 'database/counting';
+import { getAllCountings, getCounting, saveCountingProgress, updateCounting } from 'database/counting';
 
 import type { GuildCounting } from 'generated/prisma/client';
 import {
-  applyChecked,
-  applyCount,
-  applyReset,
-  checkCount,
   isAtOrBefore,
+  isMilestone,
+  processCount,
   replayCounts,
   toCountingState,
+  type CountingEvent,
   type CountingState,
   type CountMessage,
 } from 'utility/counting';
@@ -70,28 +69,29 @@ export async function handleCountingMessage(client: Client, message: Message<tru
   // Catching up may have checked this message already, if it was sent before the catch-up fetched the channel
   if (counting.lastCheckedMessageId && isAtOrBefore(message.id, counting.lastCheckedMessageId)) return;
 
-  const state = toCountingState(counting);
-  const countMessage = toCountMessage(message);
-  const check = checkCount(counting, countMessage);
+  const processed = processCount(toCountingState(counting), counting, toCountMessage(message));
+  if (!(await saveProgress(counting, processed.state, processed.events))) return;
 
-  if (check.result === 'valid') {
-    await saveState(counting, applyCount(state, check.number, countMessage));
+  if (processed.outcome === 'valid') {
+    if (counting.milestoneReactions && isMilestone(processed.state.lastNumber)) {
+      await message.react('🎉').catch(logFailure('Failed to react to counting milestone'));
+    }
     return;
   }
 
-  if (check.result === 'wrong' && counting.resetOnFail) {
-    await saveState(counting, applyReset(state, countMessage));
+  if (processed.outcome === 'reset') {
     await message
       .reply({ ...createResponse(t('counting.reset', { number: counting.lastNumber }), 'error'), allowedMentions: { repliedUser: false } })
       .catch(logFailure('Failed to send counting reset message'));
     return;
   }
 
-  await saveState(counting, applyChecked(state, countMessage));
-
   const warning = await message
     .reply({
-      ...createResponse(check.result === 'consecutive' ? t('counting.noConsecutive') : t('counting.wrongNumber', { number: counting.lastNumber }), 'error'),
+      ...createResponse(
+        processed.check?.result === 'consecutive' ? t('counting.noConsecutive') : t('counting.wrongNumber', { number: counting.lastNumber }),
+        'error',
+      ),
       allowedMentions: { repliedUser: false },
     })
     .catch(logFailure('Failed to send counting warning'));
@@ -102,9 +102,9 @@ export async function handleCountingMessage(client: Client, message: Message<tru
   }, WARNING_DURATION);
 }
 
-async function saveState(counting: GuildCounting, state: CountingState) {
+async function saveProgress(counting: GuildCounting, state: CountingState, events: CountingEvent[]) {
   // Everything for a guild runs through the queue, so this only fails if something bypassed it
-  const saved = await saveCountingState(counting.guildId, counting.lastCheckedMessageId, state);
+  const saved = await saveCountingProgress(counting.guildId, counting.lastCheckedMessageId, state, events);
   if (!saved) logger.warn(`Counting state for guild ${counting.guildId} changed while a message was checked, the check was not saved`);
   return saved;
 }
@@ -186,7 +186,7 @@ async function syncCounting(client: Client, counting: GuildCounting): Promise<Gu
   }
 
   // Without the state saved, nothing was really caught up, so leave the messages alone and continue from what's saved
-  if (!(await saveState(counting, state))) return (await getCounting(counting.guildId)) ?? counting;
+  if (!(await saveProgress(counting, state, replay.events))) return (await getCounting(counting.guildId)) ?? counting;
   await deleteMessages(channel, invalid);
 
   if (invalid.length > 0 || resets.length > 0) {
