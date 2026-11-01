@@ -169,30 +169,24 @@
   },
   "pagination": {
     "first": {
-      "label": "First",
       "icon": "⏮️"
     },
     "previous": {
-      "label": "Previous",
       "icon": "◀️"
     },
     "page": {
-      "label": "{{current}}/{{total}}",
-      "icon": "⏸️"
+      "label": "{{current}}/{{total}}"
     },
     "next": {
-      "label": "Next",
       "icon": "▶️"
     },
     "last": {
-      "label": "Last",
       "icon": "⏭️"
     },
     "modal": {
       "title": "Go to page",
       "label": "Page",
-      "placeholder": "1 to {{maxPages}}",
-      "invalid": "That's not a page. Enter a number from 1 to {{maxPages}}."
+      "invalid": "That's not a page. Enter a whole number, like 2."
     },
     "sort": {
       "ascending": "Ascending",
@@ -248,9 +242,6 @@
     },
     "response": {
       "failed": "Failed to respond to interaction {{id}} from user {{user}}"
-    },
-    "cron": {
-      "leaderboard": "Leaderboard cache cleanup cron started"
     },
     "database": {
       "loaded": "Database connected"

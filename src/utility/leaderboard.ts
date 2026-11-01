@@ -19,12 +19,15 @@ import { getLevelFromXP, getTopUsersByXP, getTopWeeklyUsersByXP, getTotalUsersWi
 import { drawAvatar, truncateText } from 'utility/canvas';
 import { formatCompactNumber } from 'utility/duration';
 import type { Translate } from 'utility/i18next';
+import { clampPage, leaderboardCustomId, type LeaderboardAction, type LeaderboardView } from 'utility/leaderboardView';
 
 const ITEMS_PER_PAGE = 5;
 
-// In-Memory Avatar Cache (15 minute TTL)
+// Avatars of recently shown leaderboards, kept for 15 minutes, as the same pages are often looked at a few times in a row
 const avatarCache = new Map<string, { image: Image; expiresAt: number }>();
 const CACHE_TTL = 1000 * 60 * 15;
+/** The most avatars kept, so the cache can't grow forever. */
+const CACHE_SIZE = 500;
 
 async function getCachedAvatar(url: string | null): Promise<Image | null> {
   if (!url) return null;
@@ -37,7 +40,13 @@ async function getCachedAvatar(url: string | null): Promise<Image | null> {
 
   try {
     const image = await loadImage(url);
+    // Re-added at the end, so the oldest avatars are first in line to go
+    avatarCache.delete(url);
     avatarCache.set(url, { image, expiresAt: now + CACHE_TTL });
+    for (const [key, entry] of avatarCache) {
+      if (avatarCache.size <= CACHE_SIZE && entry.expiresAt > now) break;
+      avatarCache.delete(key);
+    }
     return image;
   } catch {
     return null;
@@ -226,48 +235,39 @@ export function renderLeaderboardCanvas(entries: LeaderboardEntry[], isTopPodium
   return canvas.toBuffer('image/png');
 }
 
-/** The page buttons and the sort select, which stay the same in image and text mode. */
-function buildControls(page: number, totalPages: number, sortOrder: 'asc' | 'desc', t: Translate) {
+/** The page buttons and the sort select, which stay the same in image and text mode. Each leads to the view it shows. */
+function buildControls(view: LeaderboardView, totalPages: number, t: Translate) {
+  const button = (action: LeaderboardAction, page: number) => new ButtonBuilder().setCustomId(leaderboardCustomId(action, { ...view, page })).setStyle(ButtonStyle.Secondary);
+
   const rowPageButtons = new ActionRowBuilder<ButtonBuilder>().addComponents(
-    new ButtonBuilder()
-      .setCustomId('lb_first')
+    button('first', 1)
       .setEmoji(t('pagination.first.icon'))
-      .setStyle(ButtonStyle.Secondary)
-      .setDisabled(page === 1),
-    new ButtonBuilder()
-      .setCustomId('lb_prev')
+      .setDisabled(view.page === 1),
+    button('prev', view.page - 1 || 1)
       .setEmoji(t('pagination.previous.icon'))
-      .setStyle(ButtonStyle.Secondary)
-      .setDisabled(page === 1),
-    new ButtonBuilder()
-      .setCustomId(`lb_custom_${page}_${totalPages}`)
-      .setLabel(t('pagination.page.label', { current: page, total: totalPages }))
-      .setStyle(ButtonStyle.Secondary)
-      .setDisabled(false),
-    new ButtonBuilder()
-      .setCustomId('lb_next')
+      .setDisabled(view.page === 1),
+    button('goto', view.page).setLabel(t('pagination.page.label', { current: view.page, total: totalPages })),
+    button('next', Math.min(view.page + 1, totalPages))
       .setEmoji(t('pagination.next.icon'))
-      .setStyle(ButtonStyle.Secondary)
-      .setDisabled(page === totalPages),
-    new ButtonBuilder()
-      .setCustomId(`lb_last_${totalPages}`)
+      .setDisabled(view.page === totalPages),
+    button('last', totalPages)
       .setEmoji(t('pagination.last.icon'))
-      .setStyle(ButtonStyle.Secondary)
-      .setDisabled(page === totalPages),
+      .setDisabled(view.page === totalPages),
   );
 
+  // Sorting starts over at the first page
   const rowSortOrder = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
-    new StringSelectMenuBuilder().setCustomId(`lb_sort`).addOptions(
+    new StringSelectMenuBuilder().setCustomId(leaderboardCustomId('sort', { ...view, page: 1 })).addOptions(
       new StringSelectMenuOptionBuilder()
         .setLabel(t('pagination.sort.ascending'))
         .setValue('asc')
         .setEmoji('⬆️')
-        .setDefault(sortOrder === 'asc'),
+        .setDefault(view.sortOrder === 'asc'),
       new StringSelectMenuOptionBuilder()
         .setLabel(t('pagination.sort.descending'))
         .setValue('desc')
         .setEmoji('⬇️')
-        .setDefault(sortOrder === 'desc'),
+        .setDefault(view.sortOrder === 'desc'),
     ),
   );
 
@@ -279,23 +279,12 @@ function buildControls(page: number, totalPages: number, sortOrder: 'asc' | 'des
  * @param options.text Whether to show the page as text instead of an image, like for screen readers.
  * @param options.t The translation, for whoever opened or paged the leaderboard.
  */
-export async function buildLeaderboard({
-  page,
-  guild,
-  weekly = false,
-  sortOrder = 'desc',
-  text = false,
-  t,
-}: {
-  page: number;
-  guild: Guild;
-  weekly: boolean;
-  sortOrder?: 'asc' | 'desc';
-  text?: boolean;
-  t: Translate;
-}): Promise<InteractionEditReplyOptions> {
+export async function buildLeaderboard(requested: LeaderboardView, guild: Guild, t: Translate): Promise<InteractionEditReplyOptions> {
+  const { weekly, sortOrder, text } = requested;
   const userCount = weekly ? await getTotalWeeklyUsersWithXP(guild.id) : await getTotalUsersWithXP(guild.id);
   const totalPages = Math.max(1, Math.ceil(userCount / ITEMS_PER_PAGE));
+  // The list may have shrunk since the buttons were made, or a page that doesn't exist was asked for
+  const page = clampPage(requested.page, totalPages);
   const title = t(weekly ? 'leveling.leaderboard.titleWeekly' : 'leveling.leaderboard.title', { guild: guild.name });
   // Shown without a container around it, the image already has its own cards
   const heading = new TextDisplayBuilder().setContent(title);
@@ -336,14 +325,14 @@ export async function buildLeaderboard({
       level: getLevelFromXP(entry.xp).toLocaleString(t('locale')),
     }),
   );
-  const controls = buildControls(page, totalPages, sortOrder, t);
+  const controls = buildControls({ ...requested, page }, totalPages, t);
 
   if (text) {
     const list = new TextDisplayBuilder().setContent(lines.join('\n'));
     return { components: [heading, list, ...controls], flags: [MessageFlags.IsComponentsV2], allowedMentions: { parse: [] } };
   }
 
-  // Fetch avatars in parallel via in-memory LRU cache
+  // Avatars are loaded at the same time, from the cache when they were shown recently
   const entries: LeaderboardEntry[] = await Promise.all(
     entriesData.map(async (entry) => ({
       ...entry,

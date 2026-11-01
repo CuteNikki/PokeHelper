@@ -5,7 +5,8 @@ import { Event } from 'classes/base/event';
 import { handleSettingsModal } from 'settings/index';
 
 import { getTranslate } from 'utility/i18next';
-import { handleLeaderboardPageModal, LEADERBOARD_PAGE_MODAL_PREFIX } from 'utility/leaderboardPageModal';
+import { handleLeaderboardPageModal } from 'utility/leaderboardPageModal';
+import { LEADERBOARD_PAGE_MODAL_PREFIX } from 'utility/leaderboardView';
 import { logger } from 'utility/logger';
 import { sendError } from 'utility/response';
 import { SETTINGS_CUSTOM_ID_PREFIX } from 'utility/settings';

@@ -6,7 +6,6 @@ import { getGuildLevelingConfiguration } from 'database/leveling';
 
 import { getTranslate } from 'utility/i18next';
 import { buildLeaderboard } from 'utility/leaderboard';
-import { saveLeaderboardState } from 'utility/leaderboardState';
 import { sendError } from 'utility/response';
 
 export default new Command({
@@ -26,22 +25,19 @@ export default new Command({
     }
 
     const t = getTranslate(interaction.locale);
-    await interaction.deferReply();
 
+    // Checked before answering, so this only goes to whoever asked instead of everyone
     const levelingConfig = await getGuildLevelingConfiguration(interaction.guildId);
-    if (!levelingConfig || !levelingConfig.enabled) {
-      return sendError(interaction, t('leveling.disabled'));
-    }
+    if (!levelingConfig?.enabled) return sendError(interaction, t('leveling.disabled'));
 
-    const state = {
+    await interaction.deferReply();
+    // The buttons carry this view, so they work however old the message gets
+    const view = {
       page: interaction.options.getInteger('page') || 1,
       sortOrder: 'desc' as const,
       weekly: interaction.options.getBoolean('weekly') || false,
       text: interaction.options.getBoolean('text') || false,
     };
-
-    const message = await interaction.editReply(await buildLeaderboard({ ...state, guild: interaction.guild, t }));
-    // The buttons rebuild the page from this, including whether it's shown as text
-    await saveLeaderboardState({ ...state, messageId: message.id });
+    await interaction.editReply(await buildLeaderboard(view, interaction.guild, t));
   },
 });

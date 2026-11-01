@@ -2,50 +2,42 @@ import { LabelBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, type Moda
 
 import { getTranslate, type Translate } from 'utility/i18next';
 import { buildLeaderboard } from 'utility/leaderboard';
-import { getLeaderboardState, saveLeaderboardState } from 'utility/leaderboardState';
+import { leaderboardPageModalId, parseLeaderboardPageModalId, type LeaderboardView } from 'utility/leaderboardView';
 import { sendError } from 'utility/response';
 
-/** Custom IDs of the popup are this, followed by the number of pages, so it can be handled whenever it's submitted. */
-export const LEADERBOARD_PAGE_MODAL_PREFIX = 'lb_page:';
 const PAGE_INPUT_ID = 'page_input';
+/** Enough for any page number, which is checked against the pages there are once submitted. */
+const MAX_PAGE_LENGTH = 6;
 
-/** The popup asking which page of the leaderboard to go to. */
-export function buildLeaderboardPageModal(currentPage: number, totalPages: number, t: Translate) {
+/** The popup asking which page of the leaderboard to go to, from the view it's opened on. */
+export function buildLeaderboardPageModal(view: LeaderboardView, t: Translate) {
   return new ModalBuilder()
-    .setCustomId(`${LEADERBOARD_PAGE_MODAL_PREFIX}${totalPages}`)
+    .setCustomId(leaderboardPageModalId(view))
     .setTitle(t('pagination.modal.title'))
     .addLabelComponents(
       new LabelBuilder().setLabel(t('pagination.modal.label')).setTextInputComponent(
         new TextInputBuilder()
           .setCustomId(PAGE_INPUT_ID)
           .setStyle(TextInputStyle.Short)
-          .setPlaceholder(t('pagination.modal.placeholder', { maxPages: totalPages }))
-          .setValue(isNaN(currentPage) ? '' : currentPage.toString())
-          .setMaxLength(totalPages.toString().length)
+          .setValue(view.page.toString())
+          .setMaxLength(MAX_PAGE_LENGTH)
           .setMinLength(1)
           .setRequired(true),
       ),
     );
 }
 
-/** Go to the page typed into the popup, on the leaderboard the popup was opened from. */
+/** Go to the page typed into the popup, on the leaderboard it was opened from. A page past the end shows the last one. */
 export async function handleLeaderboardPageModal(interaction: ModalSubmitInteraction) {
   if (!interaction.inCachedGuild() || !interaction.isFromMessage()) return;
   const t = getTranslate(interaction.locale);
 
-  const totalPages = parseInt(interaction.customId.slice(LEADERBOARD_PAGE_MODAL_PREFIX.length), 10) || 1;
-  const requested = parseInt(interaction.fields.getTextInputValue(PAGE_INPUT_ID), 10);
-  if (isNaN(requested)) return sendError(interaction, t('pagination.modal.invalid', { maxPages: totalPages }));
+  const view = parseLeaderboardPageModalId(interaction.customId);
+  if (!view) return sendError(interaction, t('system.outdated'));
+
+  const page = Number(interaction.fields.getTextInputValue(PAGE_INPUT_ID).trim());
+  if (!Number.isInteger(page) || page < 1) return sendError(interaction, t('pagination.modal.invalid'));
 
   await interaction.deferUpdate();
-  const state = await getLeaderboardState(interaction.message.id);
-  const newState = {
-    messageId: interaction.message.id,
-    page: Math.max(1, Math.min(requested, totalPages)),
-    sortOrder: state?.sortOrder ?? 'desc',
-    weekly: state?.weekly ?? false,
-    text: state?.text ?? false,
-  };
-  await saveLeaderboardState(newState);
-  await interaction.editReply(await buildLeaderboard({ ...newState, guild: interaction.guild, t }));
+  await interaction.editReply(await buildLeaderboard({ ...view, page }, interaction.guild, t));
 }

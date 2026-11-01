@@ -391,8 +391,7 @@
     "modal": {
       "title": "Zu Seite springen",
       "label": "Seite",
-      "placeholder": "1 bis {{maxPages}}",
-      "invalid": "Das ist keine gültige Seite. Gib eine Zahl von 1 bis {{maxPages}} ein."
+      "invalid": "Das ist keine Seite. Gib eine ganze Zahl ein, wie 2."
     },
     "sort": {
       "ascending": "Aufsteigend",

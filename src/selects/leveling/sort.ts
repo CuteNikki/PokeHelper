@@ -1,26 +1,29 @@
 import { SelectMenu } from 'classes/base/select';
+
+import { getGuildLevelingConfiguration } from 'database/leveling';
+
 import { getTranslate } from 'utility/i18next';
 import { buildLeaderboard } from 'utility/leaderboard';
-import { getLeaderboardState, saveLeaderboardState } from 'utility/leaderboardState';
+import { LEADERBOARD_CUSTOM_ID_PREFIX, parseLeaderboardCustomId } from 'utility/leaderboardView';
 import { parseSortOrder } from 'utility/pagination';
+import { sendError } from 'utility/response';
 
+/** Sorts the leaderboard. The select carries the rest of the view, so it works however old the message is. */
 export default new SelectMenu({
-  customId: 'lb_sort',
+  customId: `${LEADERBOARD_CUSTOM_ID_PREFIX}sort:`,
   includesCustomId: true,
   isAuthorOnly: true,
   async execute(interaction) {
     if (!interaction.inCachedGuild()) return;
-    await interaction.deferUpdate();
+    const t = getTranslate(interaction.locale);
 
-    const state = await getLeaderboardState(interaction.message.id);
-    const newState = {
-      messageId: interaction.message.id,
-      page: state?.page ?? 1,
-      sortOrder: parseSortOrder(interaction.values[0]),
-      weekly: state?.weekly ?? false,
-      text: state?.text ?? false,
-    };
-    await saveLeaderboardState(newState);
-    await buildLeaderboard({ ...newState, guild: interaction.guild, t: getTranslate(interaction.locale) }).then((response) => interaction.editReply(response));
+    const parsed = parseLeaderboardCustomId(interaction.customId);
+    if (!parsed) return sendError(interaction, t('system.outdated'));
+
+    const levelingConfig = await getGuildLevelingConfiguration(interaction.guildId);
+    if (!levelingConfig?.enabled) return sendError(interaction, t('leveling.disabled'));
+
+    await interaction.deferUpdate();
+    await interaction.editReply(await buildLeaderboard({ ...parsed.view, sortOrder: parseSortOrder(interaction.values[0]) }, interaction.guild, t));
   },
 });

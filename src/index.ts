@@ -12,7 +12,6 @@ import { loadFonts } from 'loading/fonts';
 import { loadSelectMenus } from 'loading/selects';
 
 import { initI18Next } from 'utility/i18next';
-import { startLeaderboardCacheCleanup } from 'utility/leaderboardState';
 import { logger, table } from 'utility/logger';
 import { measure } from 'utility/measure';
 
@@ -46,7 +45,6 @@ await Promise.all([
     logger.info(t('system.selectMenu.loaded', { count, duration: duration.toFixed(2), files: files.length }) + '\n' + table(tableData)),
   ),
   measure(t('system.fonts.loaded'), () => loadFonts()),
-  measure(t('system.cron.leaderboard'), () => startLeaderboardCacheCleanup()),
 ]);
 
 await client.login(process.env.DISCORD_TOKEN);
