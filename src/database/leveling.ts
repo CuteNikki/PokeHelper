@@ -141,12 +141,17 @@ export const getWeeklyUserLevelingData = (guildId: string, userId: string) =>
     where: { guildId_userId: { guildId, userId } },
   });
 
-export const processWeeklyResetTransaction = (guildId: string, newWinnerId: string | null) =>
+/**
+ * Record a weekly reset and start the new week from zero.
+ * @param winnerRole The role the winner got, or null if none was given.
+ */
+export const processWeeklyResetTransaction = (guildId: string, newWinnerId: string | null, winnerRole: string | null) =>
   prisma.$transaction([
     prisma.guildLeveling.update({
       where: { guildId },
       data: {
         weeklyLastWinner: newWinnerId,
+        weeklyWinnerRole: winnerRole,
         weeklyLastResetAt: new Date(),
       },
     }),

@@ -241,6 +241,7 @@ model GuildLeveling {
   weeklyReward      String? // roleId of the weekly reward
   weeklyLastResetAt DateTime?
   weeklyLastWinner  String? // userId of the last weekly winner
+  weeklyWinnerRole  String? // the role the last weekly winner got, which is taken away at the next reset even if the setting changed
   // Filters
   ignoredChannels   String[]              @default([]) // if empty, no channels are ignored otherwise only the specified channels are ignored
   enabledChannels   String[]              @default([]) // if empty, all channels are enabled otherwise only the specified channels are enabled

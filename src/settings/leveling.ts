@@ -85,7 +85,8 @@ export const levelingSettings = createSettingsPanel<LevelingConfig>({
       label: (t) => t('leveling.settings.enabled.label'),
       description: (t) => t('leveling.settings.enabled.description'),
       get: (config) => config.enabled,
-      set: (guildId, enabled) => update(guildId, { enabled }),
+      // Turning it on starts the count of the week, so the first reset is when the next week starts, not right away
+      set: (guildId, enabled) => update(guildId, enabled ? { enabled, weeklyLastResetAt: new Date() } : { enabled }),
     },
     {
       type: 'channel',

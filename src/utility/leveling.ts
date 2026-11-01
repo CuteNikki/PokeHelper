@@ -27,22 +27,33 @@ export async function runWeeklyResetJob(client: Client) {
       const t = getTranslate(guild.preferredLocale);
       const canGiveWeeklyRole = roleId !== null && canGiveRole(guild, roleId);
 
-      if (canGiveWeeklyRole && config.weeklyLastWinner) {
+      // The role the last winner got, which may not be the one set now. Winners from before that was remembered got the one set now
+      const previousRole = config.weeklyWinnerRole ?? roleId;
+      if (previousRole && config.weeklyLastWinner) {
         const prevWinner = await guild.members.fetch(config.weeklyLastWinner).catch(() => null);
-        await prevWinner?.roles.remove(roleId).catch((err: unknown) => logger.error(err, `Failed to remove weekly role from ${config.weeklyLastWinner}:`));
+        if (prevWinner?.roles.cache.has(previousRole)) {
+          await prevWinner.roles
+            .remove(previousRole)
+            .catch((err: unknown) => logger.error(err, `Failed to remove weekly role from ${config.weeklyLastWinner}:`));
+        }
       }
 
       const topUsers = await getTopWeeklyUsersByXP(guildId, 5, 0, 'desc');
       const topUser = topUsers[0]?.xp ? topUsers[0] : undefined;
 
       // Always recorded, also without a winner, so the reset isn't due again until next week
-      await processWeeklyResetTransaction(guildId, topUser?.userId ?? null);
+      const newWinner = topUser && canGiveWeeklyRole ? await guild.members.fetch(topUser.userId).catch(() => null) : null;
+      const gaveRole = newWinner
+        ? await newWinner.roles.add(roleId!).then(
+            () => true,
+            (err: unknown) => {
+              logger.error(err, `Failed to add weekly role to ${topUser!.userId}:`);
+              return false;
+            },
+          )
+        : false;
+      await processWeeklyResetTransaction(guildId, topUser?.userId ?? null, gaveRole ? roleId : null);
       if (!topUser) continue;
-
-      if (canGiveWeeklyRole) {
-        const newWinner = await guild.members.fetch(topUser.userId).catch(() => null);
-        await newWinner?.roles.add(roleId).catch((err: unknown) => logger.error(err, `Failed to add weekly role to ${topUser.userId}:`));
-      }
 
       const channel = config.channelId ? guild.channels.cache.get(config.channelId) : undefined;
       if (!channel?.isSendable()) continue;
