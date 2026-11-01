@@ -36,6 +36,9 @@ import {
 } from 'database/reaction-role';
 import { t } from 'i18next';
 
+import { logger } from 'utility/logger';
+import { createResponse, logFailure, sendError, sendResponse } from 'utility/response';
+
 interface SetupState {
   step: 'MODE' | 'REQUIRED_ROLES' | 'CHANNEL' | 'MENU_ROLES' | 'EMOJI_PAIRING' | 'CONFIRM';
   singleChoice: boolean;
@@ -311,6 +314,12 @@ export async function handleSetup(interaction: ChatInputCommandInteraction<'cach
 
   componentCollector.on('collect', (componentInteraction) => {
     void (async () => {
+      // The setup message is public, so only the user who started the setup may use it
+      if (componentInteraction.user.id !== interaction.user.id) {
+        await sendError(componentInteraction, t('system.button.authorOnly'));
+        return;
+      }
+
       if (componentInteraction.isButton()) {
         if (componentInteraction.customId === 'setup_single' || componentInteraction.customId === 'setup_multi') {
           state.singleChoice = componentInteraction.customId === 'setup_single';
@@ -396,7 +405,10 @@ export async function handleSetup(interaction: ChatInputCommandInteraction<'cach
           await componentInteraction.update(generateReactionRoleView());
         }
       }
-    })().catch(() => null);
+    })().catch(async (error: unknown) => {
+      logger.error(error, t('system.button.error'));
+      await sendError(componentInteraction, t('system.button.error'));
+    });
   });
 
   reactionCollector.on('collect', (reaction) => {
@@ -409,18 +421,21 @@ export async function handleSetup(interaction: ChatInputCommandInteraction<'cach
     state.roles.push({ emoji, roleId });
     state.pairingIndex++;
 
-    void reaction.message.reactions.removeAll().catch(() => null);
+    // Fails without the Manage Messages permission, which only leaves the reaction behind
+    void reaction.message.reactions.removeAll().catch(logFailure('Failed to clear reactions on reaction role setup message'));
 
     if (state.pairingIndex >= state.menuRoleIds.length) {
       state.step = 'CONFIRM';
     }
 
-    void interaction.editReply(generateReactionRoleView()).catch(() => null);
+    void interaction.editReply(generateReactionRoleView()).catch(logFailure('Failed to update reaction role setup message'));
   });
 
   componentCollector.on('end', (_, reason) => {
     if (reason !== 'COMPLETED') {
-      void interaction.editReply({ content: t('reactionRole.setup.timeout'), components: [] }).catch(() => null);
+      reactionCollector.stop(reason);
+      // The setup message uses Components V2, which doesn't allow plain content
+      void interaction.editReply(createResponse(t('reactionRole.setup.timeout'), 'warning')).catch(logFailure('Failed to show reaction role setup timeout'));
     }
   });
 }
@@ -538,13 +553,14 @@ async function handleInfo(interaction: ChatInputCommandInteraction<'cached'>) {
             components: [currentDisplay, actionRow.toJSON()],
             flags: [MessageFlags.IsComponentsV2],
           })
-          .catch(() => null);
+          .catch(logFailure('Failed to update reaction role info message'));
       }
     }
   });
 
   collector.on('end', (_, reason) => {
-    if (reason === 'time') {
+    // The idle limit is shorter than the time limit, so it's usually the one that ends the collector
+    if (reason === 'time' || reason === 'idle') {
       selectMenu.setDisabled(true);
       const disabledRow = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(selectMenu);
       interaction
@@ -552,8 +568,8 @@ async function handleInfo(interaction: ChatInputCommandInteraction<'cached'>) {
           components: [currentDisplay, disabledRow.toJSON()],
           flags: [MessageFlags.IsComponentsV2],
         })
-        .catch(() => null);
-      interaction.followUp({ content: t('reactionRole.info.timeout'), flags: [MessageFlags.Ephemeral] }).catch(() => null);
+        .catch(logFailure('Failed to disable reaction role info menu'));
+      void sendResponse(interaction, createResponse(t('reactionRole.info.timeout'), 'warning'), { ephemeral: true });
     }
   });
 }

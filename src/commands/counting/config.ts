@@ -122,7 +122,8 @@ async function handleEdit(interaction: ChatInputCommandInteraction<'cached'>): P
   const channel = interaction.options.getChannel('channel', false, [ChannelType.GuildText]);
   const resetOnFail = interaction.options.getBoolean('reset');
 
-  if (!channel && resetOnFail === undefined) {
+  // getBoolean returns null, not undefined, when the option wasn't given
+  if (!channel && resetOnFail === null) {
     return interaction.editReply({
       components: [new ContainerBuilder().setAccentColor(Colors.Red).addTextDisplayComponents(new TextDisplayBuilder().setContent(t('counting.edit.none')))],
       flags: [MessageFlags.IsComponentsV2],
