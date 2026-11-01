@@ -1,120 +1,242 @@
 {
   "birthday": {
+    "name": "geburtstag",
     "description": "Verwalte deinen Geburtstag und wo er angekündigt wird",
     "options": {
       "setup": {
+        "name": "einrichten",
         "description": "Trag deinen Geburtstag ein",
         "options": {
-          "date": { "description": "Dein Geburtstag (JJJJ-MM-TT)" },
-          "timezone": { "description": "Deine Zeitzone (z. B. Europe/Berlin). Ohne Angabe wird UTC genommen" },
-          "show-age": { "description": "Ob dein Alter in der Ankündigung steht" },
-          "announce-in-guilds-by-default": { "description": "Ob dein Geburtstag standardmäßig auf Servern angekündigt wird" }
+          "date": {
+            "name": "datum",
+            "description": "Dein Geburtstag (JJJJ-MM-TT)"
+          },
+          "timezone": {
+            "name": "zeitzone",
+            "description": "Deine Zeitzone (z. B. Europe/Berlin). Ohne Angabe wird UTC genommen"
+          },
+          "show-age": {
+            "name": "alter-zeigen",
+            "description": "Ob dein Alter in der Ankündigung steht"
+          },
+          "announce-in-guilds-by-default": {
+            "name": "überall-ankündigen",
+            "description": "Ob dein Geburtstag standardmäßig auf Servern angekündigt wird"
+          }
         }
       },
       "edit": {
+        "name": "bearbeiten",
         "description": "Ändere deine Geburtstagseinstellungen",
         "options": {
-          "date": { "description": "Dein Geburtstag (JJJJ-MM-TT)" },
-          "timezone": { "description": "Deine Zeitzone (z. B. Europe/Berlin). Ohne Angabe wird UTC genommen" },
-          "show-age": { "description": "Ob dein Alter in der Ankündigung steht" },
-          "announce-in-guilds-by-default": { "description": "Ob dein Geburtstag standardmäßig auf ALLEN Servern angekündigt wird" }
+          "date": {
+            "name": "datum",
+            "description": "Dein Geburtstag (JJJJ-MM-TT)"
+          },
+          "timezone": {
+            "name": "zeitzone",
+            "description": "Deine Zeitzone (z. B. Europe/Berlin). Ohne Angabe wird UTC genommen"
+          },
+          "show-age": {
+            "name": "alter-zeigen",
+            "description": "Ob dein Alter in der Ankündigung steht"
+          },
+          "announce-in-guilds-by-default": {
+            "name": "überall-ankündigen",
+            "description": "Ob dein Geburtstag standardmäßig auf ALLEN Servern angekündigt wird"
+          }
         }
       },
-      "announce-in-guilds": { "description": "Wähl die Server aus, auf denen dein Geburtstag angekündigt wird" },
-      "info": { "description": "Zeig, was zu deinem Geburtstag eingetragen ist" },
-      "reset": { "description": "Lösch deinen Geburtstag" }
+      "announce-in-guilds": {
+        "name": "server-auswählen",
+        "description": "Wähl die Server aus, auf denen dein Geburtstag angekündigt wird"
+      },
+      "info": {
+        "name": "info",
+        "description": "Zeig, was zu deinem Geburtstag eingetragen ist"
+      },
+      "reset": {
+        "name": "löschen",
+        "description": "Lösch deinen Geburtstag"
+      }
     }
   },
   "birthday-config": {
+    "name": "geburtstag-einstellungen",
     "description": "Richte Geburtstagsankündigungen und die Geburtstagsrolle ein",
     "options": {
-      "settings": { "description": "Ändere den Ankündigungskanal, die Geburtstagsrolle und mehr" },
-      "reset": { "description": "Setz die Geburtstagseinstellungen dieses Servers zurück" }
+      "settings": {
+        "name": "einstellungen",
+        "description": "Ändere den Ankündigungskanal, die Geburtstagsrolle und mehr"
+      },
+      "reset": {
+        "name": "zurücksetzen",
+        "description": "Setz die Geburtstagseinstellungen dieses Servers zurück"
+      }
     }
   },
   "reaction-role": {
+    "name": "rollenmenü",
     "description": "Verwalte die Rollenmenüs dieses Servers",
     "options": {
-      "setup": { "description": "Erstell ein Rollenmenü" },
+      "setup": {
+        "name": "erstellen",
+        "description": "Erstell ein Rollenmenü"
+      },
       "info": {
+        "name": "info",
         "description": "Zeig Infos zu den Rollenmenüs",
         "options": {
-          "menu-id": { "description": "Die ID des Rollenmenüs" }
+          "menu-id": {
+            "name": "menü-id",
+            "description": "Die ID des Rollenmenüs"
+          }
         }
       },
       "re-send": {
+        "name": "nochmal-senden",
         "description": "Schick ein Rollenmenü nochmal, z. B. wenn die Nachricht gelöscht wurde",
         "options": {
-          "menu-id": { "description": "Die ID des Rollenmenüs, das nochmal geschickt werden soll" },
-          "target-channel": { "description": "Ein anderer Kanal, in den das Menü soll" }
+          "menu-id": {
+            "name": "menü-id",
+            "description": "Die ID des Rollenmenüs, das nochmal geschickt werden soll"
+          },
+          "target-channel": {
+            "name": "kanal",
+            "description": "Ein anderer Kanal, in den das Menü soll"
+          }
         }
       },
       "toggle": {
+        "name": "umschalten",
         "description": "Schalte ein Rollenmenü an oder aus. Ausgeschaltet bleibt die Nachricht, tut aber nichts",
         "options": {
-          "menu-id": { "description": "Die ID des Rollenmenüs, leer lassen für alle" },
-          "enabled": { "description": "An oder aus. Ohne Angabe wird es umgeschaltet" }
+          "menu-id": {
+            "name": "menü-id",
+            "description": "Die ID des Rollenmenüs, leer lassen für alle"
+          },
+          "enabled": {
+            "name": "aktiv",
+            "description": "An oder aus. Ohne Angabe wird es umgeschaltet"
+          }
         }
       },
       "delete": {
+        "name": "löschen",
         "description": "Lösch ein Rollenmenü",
         "options": {
-          "menu-id": { "description": "Die ID des Rollenmenüs, das gelöscht werden soll" }
+          "menu-id": {
+            "name": "menü-id",
+            "description": "Die ID des Rollenmenüs, das gelöscht werden soll"
+          }
         }
       }
     }
   },
   "botinfo": {
+    "name": "botinfo",
     "description": "Status, Host-Infos und Statistiken des Bots"
   },
   "counting-config": {
+    "name": "zählen-einstellungen",
     "description": "Richte das Zählspiel ein und pass es an",
     "options": {
       "setup": {
+        "name": "einrichten",
         "description": "Richte das Zählspiel ein",
         "options": {
-          "channel": { "description": "Der Kanal, in dem gezählt wird" }
+          "channel": {
+            "name": "kanal",
+            "description": "Der Kanal, in dem gezählt wird"
+          }
         }
       },
-      "settings": { "description": "Ändere die Einstellungen des Zählspiels" },
-      "reset": { "description": "Entfern das Zählspiel samt allen Statistiken" }
+      "settings": {
+        "name": "einstellungen",
+        "description": "Ändere die Einstellungen des Zählspiels"
+      },
+      "reset": {
+        "name": "zurücksetzen",
+        "description": "Entfern das Zählspiel samt allen Statistiken"
+      }
     }
   },
   "counting": {
+    "name": "zählen",
     "description": "Schau, wie das Zählspiel läuft",
     "options": {
-      "info": { "description": "Die aktuelle Runde, ihre Meilensteine und die Rekorde" },
-      "leaderboard": { "description": "Die Mitglieder, die am meisten gezählt haben" },
+      "info": {
+        "name": "info",
+        "description": "Die aktuelle Runde, ihre Meilensteine und die Rekorde"
+      },
+      "leaderboard": {
+        "name": "bestenliste",
+        "description": "Die Mitglieder, die am meisten gezählt haben"
+      },
       "user": {
+        "name": "mitglied",
         "description": "Die Zählstatistiken eines Mitglieds",
         "options": {
-          "user": { "description": "Wessen Statistiken du sehen willst. Ohne Angabe deine eigenen" }
+          "user": {
+            "name": "mitglied",
+            "description": "Wessen Statistiken du sehen willst. Ohne Angabe deine eigenen"
+          }
         }
       },
-      "runs": { "description": "Die letzten Runden und wie sie geendet haben" }
+      "runs": {
+        "name": "runden",
+        "description": "Die letzten Runden und wie sie geendet haben"
+      }
     }
   },
   "leveling-config": {
+    "name": "leveln-einstellungen",
     "description": "Richte das Leveln ein und pass es an",
     "options": {
-      "settings": { "description": "Ändere die Einstellungen, Belohnungen und Multiplikatoren fürs Leveln" },
-      "reset": { "description": "Setz die Einstellungen, Belohnungen und Multiplikatoren fürs Leveln zurück" }
+      "settings": {
+        "name": "einstellungen",
+        "description": "Ändere die Einstellungen, Belohnungen und Multiplikatoren fürs Leveln"
+      },
+      "reset": {
+        "name": "zurücksetzen",
+        "description": "Setz die Einstellungen, Belohnungen und Multiplikatoren fürs Leveln zurück"
+      }
     }
   },
   "leaderboard": {
+    "name": "bestenliste",
     "description": "Die Bestenliste des Servers nach Level und XP",
     "options": {
-      "page": { "description": "Welche Seite der Bestenliste du sehen willst" },
-      "weekly": { "description": "Ob die Wochen-Bestenliste gezeigt wird" },
-      "text": { "description": "Zeig die Bestenliste als Text statt als Bild, z. B. für Screenreader" }
+      "page": {
+        "name": "seite",
+        "description": "Welche Seite der Bestenliste du sehen willst"
+      },
+      "weekly": {
+        "name": "wöchentlich",
+        "description": "Ob die Wochen-Bestenliste gezeigt wird"
+      },
+      "text": {
+        "name": "text",
+        "description": "Zeig die Bestenliste als Text statt als Bild, z. B. für Screenreader"
+      }
     }
   },
   "rank": {
+    "name": "rang",
     "description": "Level und XP auf dem Server, insgesamt und diese Woche",
     "options": {
-      "user": { "description": "Wessen Rang du sehen willst. Ohne Angabe dein eigener" },
-      "ephemeral": { "description": "Ob nur du die Antwort siehst. Standardmäßig ja" },
-      "text": { "description": "Zeig den Rang als Text statt als Bild, z. B. für Screenreader" }
+      "user": {
+        "name": "mitglied",
+        "description": "Wessen Rang du sehen willst. Ohne Angabe dein eigener"
+      },
+      "ephemeral": {
+        "name": "privat",
+        "description": "Ob nur du die Antwort siehst. Standardmäßig ja"
+      },
+      "text": {
+        "name": "text",
+        "description": "Zeig den Rang als Text statt als Bild, z. B. für Screenreader"
+      }
     }
   }
 }

@@ -182,7 +182,7 @@
     "lifeLost_one": "Falsche Zahl! Das kostet ein Leben, aber wir bleiben bei **{{number}}**.\n{{lives}} Nur noch **{{count}}** Leben, pass auf!",
     "lifeLost_other": "Falsche Zahl! Das kostet ein Leben, aber wir bleiben bei **{{number}}**.\n{{lives}} Noch **{{count}}** Leben.",
     "outOfLives": "Falsche Zahl, und das war das letzte Leben! Ihr habt es bis **{{number}}** geschafft, jetzt geht's wieder bei 0 los.\nDie nächste Runde startet mit allen Leben: {{lives}}",
-    "none": "Hier gibt's noch kein Zählspiel. Richte eins mit `/counting-config setup` ein.",
+    "none": "Hier gibt's noch kein Zählspiel. Richte eins mit `/zählen-einstellungen einrichten` ein.",
     "removed": "Die letzte Zahl wurde gelöscht oder bearbeitet. Es war die **{{number}}** von {{user}}, also kommt als Nächstes die **{{next}}**.",
     "sync": {
       "title": "### Zählen nachgeholt",
@@ -200,8 +200,8 @@
       "lives": "Leben: {{lives}}"
     },
     "setup": {
-      "already": "Hier gibt's schon ein Zählspiel. Ändere es mit `/counting-config settings` oder setz es zurück, um neu anzufangen.",
-      "success": "Zählen ist in {{channel}} eingerichtet! Schick dort eine `1`, um loszulegen.\nDie Einstellungen kannst du unten ändern oder später mit `/counting-config settings`."
+      "already": "Hier gibt's schon ein Zählspiel. Ändere es mit `/zählen-einstellungen einstellungen` oder setz es zurück, um neu anzufangen.",
+      "success": "Zählen ist in {{channel}} eingerichtet! Schick dort eine `1`, um loszulegen.\nDie Einstellungen kannst du unten ändern oder später mit `/zählen-einstellungen einstellungen`."
     },
     "settings": {
       "title": "### ⚙️ Zähl-Einstellungen",
@@ -277,7 +277,7 @@
       "confirmButton": "Alles entfernen",
       "cancelButton": "Abbrechen",
       "cancelled": "Es wurde nichts entfernt.",
-      "success": "Das Zählspiel und seine Statistiken sind weg. Mit `/counting-config setup` kannst du ein neues starten."
+      "success": "Das Zählspiel und seine Statistiken sind weg. Mit `/zählen-einstellungen einrichten` kannst du ein neues starten."
     }
   },
   "locale": "de-DE",
@@ -287,7 +287,7 @@
       "rewards_one": "Dafür gibt es die Rolle {{roles}}.",
       "rewards_other": "Dafür gibt es die Rollen {{roles}}."
     },
-    "disabled": "Leveling ist hier nicht an. Schalte es mit `/leveling-config settings` ein.",
+    "disabled": "Leveling ist hier nicht an. Schalte es mit `/leveln-einstellungen einstellungen` ein.",
     "settings": {
       "title": "### ⚙️ Leveling-Einstellungen",
       "categories": {
@@ -352,7 +352,7 @@
       "cancelButton": "Abbrechen",
       "cancelled": "Es wurde nichts zurückgesetzt.",
       "nothing": "Hier gibt es nichts zurückzusetzen, Leveling wurde noch nicht eingerichtet.",
-      "success": "Leveling ist zurückgesetzt. Mit `/leveling-config settings` kannst du es neu einrichten."
+      "success": "Leveling ist zurückgesetzt. Mit `/leveln-einstellungen einstellungen` kannst du es neu einrichten."
     },
     "weeklyReset": {
       "message": "### 🏆 Neue Woche, neues Glück!\nDie Wochen-XP sind wieder bei 0. {{winner}} hat letzte Woche mit **{{xp}}** XP am meisten gesammelt, Glückwunsch!\n\nDie Top-Schreiber der letzten Woche:"
@@ -400,7 +400,7 @@
     "multiple": "So viele sie wollen"
   },
   "reactionRole": {
-    "none": "Hier gibt es noch keine Rollenmenüs. Erstell eins mit `/reaction-role setup`.",
+    "none": "Hier gibt es noch keine Rollenmenüs. Erstell eins mit `/rollenmenü erstellen`.",
     "notFound": "Das Rollenmenü konnte ich nicht finden.",
     "toggle": {
       "all": "Alle Rollenmenüs sind jetzt {{state}}.",
@@ -468,7 +468,7 @@
     }
   },
   "birthday": {
-    "none": "Du hast deinen Geburtstag noch nicht eingetragen. Trag ihn mit `/birthday setup` ein.",
+    "none": "Du hast deinen Geburtstag noch nicht eingetragen. Trag ihn mit `/geburtstag einrichten` ein.",
     "announcement": {
       "message": "🎉 Alles Gute zum Geburtstag, {{user}}! 🎂🎈",
       "withAge": "🎉 Alles Gute zum {{age}}. Geburtstag, {{user}}! 🎂🎈"
@@ -494,10 +494,10 @@
       "cancelButton": "Abbrechen",
       "cancelled": "Es wurde nichts zurückgesetzt.",
       "nothing": "Hier gibt es nichts zurückzusetzen, Geburtstage wurden noch nicht eingerichtet.",
-      "success": "Die Geburtstags-Einstellungen sind zurückgesetzt. Mit `/birthday-config settings` kannst du sie neu einrichten."
+      "success": "Die Geburtstags-Einstellungen sind zurückgesetzt. Mit `/geburtstag-einstellungen einstellungen` kannst du sie neu einrichten."
     },
     "setup": {
-      "already": "Du hast deinen Geburtstag schon eingetragen. Ändere ihn mit `/birthday edit` oder lösch ihn mit `/birthday reset`.",
+      "already": "Du hast deinen Geburtstag schon eingetragen. Ändere ihn mit `/geburtstag bearbeiten` oder lösch ihn mit `/geburtstag löschen`.",
       "invalidTimezone": "Die Zeitzone kenne ich nicht. Wähl eine aus der Liste, zum Beispiel `Europe/Berlin`.",
       "invalidDate": "Das Datum kann ich nicht lesen. Nimm das Format JJJJ-MM-TT, zum Beispiel `2000-01-31`.",
       "error": "Beim Speichern deines Geburtstags ist was schiefgelaufen. Versuch es gleich nochmal.",

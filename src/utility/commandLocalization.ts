@@ -9,9 +9,10 @@ const FALLBACK_LANGUAGE = 'en';
 
 /**
  * The texts of one command, subcommand or option in another language, nested like the command's JSON:
- * the description, the subcommands and options by name, and the choices by value.
+ * the name and description, the subcommands and options by their English name, and the choices by value.
  */
 export interface CommandTranslation {
+  name?: string;
   description?: string;
   options?: Record<string, CommandTranslation>;
   choices?: Record<string, string>;
@@ -20,6 +21,7 @@ export interface CommandTranslation {
 /** The part of a command's JSON that gets translated: commands, subcommand groups, subcommands and options. */
 interface CommandNode {
   name: string;
+  name_localizations?: LocalizationMap | null;
   description?: string;
   description_localizations?: LocalizationMap | null;
   options?: CommandNode[];
@@ -47,8 +49,8 @@ export function loadCommandTranslations(): CommandTranslations {
 export const discordLocalesOf = (language: string) => Object.values(Locale).filter((locale) => locale.split('-')[0] === language);
 
 /**
- * Add the translated descriptions and choice names to a command's JSON. Names stay English,
- * so commands and options are the same everywhere, like in the README or when helping someone.
+ * Add the translated names, descriptions and choice names to a command's JSON.
+ * Interactions still use the English option names, so the code reading them doesn't change.
  * @param command The command's JSON, which is changed in place.
  * @param translations The translations from {@link loadCommandTranslations}.
  */
@@ -57,6 +59,7 @@ export function localizeCommand<T extends CommandNode>(command: T, translations:
     for (const [language, translation] of Object.entries(byLanguage)) {
       if (!translation) continue;
       for (const locale of discordLocalesOf(language)) {
+        if (translation.name) node.name_localizations = { ...node.name_localizations, [locale]: translation.name };
         if (translation.description) node.description_localizations = { ...node.description_localizations, [locale]: translation.description };
         for (const choice of node.choices ?? []) {
           const name = translation.choices?.[String(choice.value)];
