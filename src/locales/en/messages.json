@@ -186,7 +186,9 @@
       "notFound": "Command not found: {{command}}",
       "error": "An error occurred while executing {{command}}",
       "noResponse": "/{{command}} finished without responding. If it was changed recently, the commands may need to be registered again",
-      "outdated": "This command isn't available anymore or has changed. Its new version will show up once the bot's commands are updated."
+      "outdated": "This command isn't available anymore or has changed. Its new version will show up once the bot's commands are updated.",
+      "devOnly": "This command is only for the bot's developers.",
+      "developerCheckFailed": "Failed to fetch the bot's owner to check for developer commands"
     },
     "autocomplete": {
       "error": "An error occurred while executing autocomplete for {{command}}"
@@ -505,6 +507,19 @@
       "assigned": "You have been assigned the {{role}} role.",
       "swapped": "You have been switched from {{removed, list}} to {{assigned}}.",
       "error": "An error occured while assigning the role!\nPlease make sure I have the appropriate permissions, the bot role is placed higher than the roles in this menu and try again."
+    }
+  },
+  "dev": {
+    "reload": {
+      "title": "### 🔄 Reloaded",
+      "line": "**{{target}}**: {{count}} loaded in {{duration}}ms",
+      "locales": "**locales**: text reloaded in {{duration}}ms",
+      "note": "-# Only the files in commands, buttons, selects and events themselves are reloaded. Changes to shared code, like in utility, database or settings, still need a restart. New command names, descriptions or options need `/dev register` too."
+    },
+    "register": {
+      "success": "Registered **{{count}}** commands globally.",
+      "dev": "Registered **{{count}}** developer commands in the developer server.",
+      "devSkipped": "Developer commands weren't registered, as `DEV_GUILD_ID` isn't set."
     }
   },
   "botinfo": {

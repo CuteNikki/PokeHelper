@@ -45,14 +45,15 @@ export class Command<T extends ApplicationCommandType = ApplicationCommandType.C
     public options: {
       /** The cooldown period for the command in seconds. Defaults to 3 seconds. */
       cooldown?: number;
+      /** Whether only the bot's developers can use the command. It's then only registered in the developer server set by DEV_GUILD_ID. */
+      devOnly?: boolean;
       /** The data for the command. */
       data: T extends ApplicationCommandType.ChatInput
-        ?
-            | SlashCommandBuilder
-            | SlashCommandOptionsOnlyBuilder
-            | SlashCommandSubcommandBuilder
-            | SlashCommandSubcommandGroupBuilder
-            | SlashCommandSubcommandsOnlyBuilder
+        ? | SlashCommandBuilder
+          | SlashCommandOptionsOnlyBuilder
+          | SlashCommandSubcommandBuilder
+          | SlashCommandSubcommandGroupBuilder
+          | SlashCommandSubcommandsOnlyBuilder
         : ContextMenuCommandBuilder;
       /** The function to execute when the command is in autocomplete mode. This is optional. */
       autocomplete?: (interaction: AutocompleteInteraction) => unknown;

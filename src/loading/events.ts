@@ -13,6 +13,11 @@ import { logger } from 'utility/logger';
  * @param client - The ExtendedClient instance to load commands into.
  */
 export async function loadEvents(client: ExtendedClient) {
+  // Remove the listeners from a previous load, so reloading doesn't handle every event twice.
+  // Only the bot's own listeners are tracked, so discord.js's internal ones are left alone
+  for (const { name, listener } of client.eventListeners) client.off(name, listener);
+  client.eventListeners = [];
+
   const tableData: { file: string; name: string; valid: boolean }[] = [];
   const startTime = performance.now();
 
@@ -27,11 +32,13 @@ export async function loadEvents(client: ExtendedClient) {
         // Register the event with the client
         // Use 'once' or 'on' based on the event options
         // Errors thrown by the handler are logged with the event and file, instead of becoming unhandled rejections
-        client[event.options.once ? 'once' : 'on'](event.options.name, (...args: ClientEvents[typeof event.options.name]) => {
+        const listener = (...args: ClientEvents[typeof event.options.name]) => {
           Promise.resolve()
             .then(() => event.options.execute(client, ...args))
             .catch((error: unknown) => logger.error(error, t('system.event.error', { event: event.options.name, file: filePath })));
-        });
+        };
+        client[event.options.once ? 'once' : 'on'](event.options.name, listener);
+        client.eventListeners.push({ name: event.options.name, listener: listener as (...args: unknown[]) => void });
 
         tableData.push({ file: filePath.split('/').slice(-2).join('/'), name: event.options.name, valid: true });
       } else {

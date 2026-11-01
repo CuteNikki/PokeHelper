@@ -1,4 +1,4 @@
-import { ApplicationCommandType, Client, Collection } from 'discord.js';
+import { ApplicationCommandType, Client, Collection, type ClientEvents } from 'discord.js';
 
 import type { Button } from 'classes/base/button';
 import type { Command } from 'classes/base/command';
@@ -32,4 +32,9 @@ export class ExtendedClient extends Client {
    * Collection<customId/commandName, Collection<userId, timestamp>>
    */
   cooldowns = new Collection<string, Collection<string, number>>();
+
+  /**
+   * The listeners registered for the files in src/events, so they can be removed when the events are reloaded.
+   */
+  eventListeners: { name: keyof ClientEvents; listener: (...args: unknown[]) => void }[] = [];
 }

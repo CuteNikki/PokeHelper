@@ -6,6 +6,7 @@ import { Event } from 'classes/base/event';
 import { getGuildOrCreate } from 'database/guild';
 import { getUserData } from 'database/user';
 
+import { isDeveloper } from 'utility/developers';
 import { logger } from 'utility/logger';
 import { sendError } from 'utility/response';
 
@@ -17,10 +18,19 @@ export default new Event({
 
     const command = client.commands.get(interaction.commandName); // Retrieve the command from the client's commands collection
 
-    // If the command is not found, log a warning and return
+    // If the command is not found, log a warning and tell the user, it's likely still registered after being removed
     if (!command) {
       logger.warn(t('system.command.notFound', { command: interaction.commandName }));
-      return;
+      return sendError(interaction, t('system.command.outdated'));
+    }
+
+    // Developer commands are only registered in the developer server, but check anyway in case they end up elsewhere
+    if (command.options.devOnly) {
+      const allowed = await isDeveloper(interaction.client, interaction.user.id).catch((error: unknown) => {
+        logger.error(error, t('system.command.developerCheckFailed'));
+        return false;
+      });
+      if (!allowed) return sendError(interaction, t('system.command.devOnly'));
     }
 
     // Handling cooldowns for the command
