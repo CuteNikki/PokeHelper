@@ -147,7 +147,7 @@ export function buildPanel({ channel, record }: TempChannel, t: Translate): Resp
     .addActionRowComponents(new ActionRowBuilder<UserSelectMenuBuilder>().addComponents(blocked))
     .addTextDisplayComponents(heading(t('tempVoice.panel.someone')))
     .addActionRowComponents(new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(someone))
-    .addSeparatorComponents(new SeparatorBuilder())
+    .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large))
     .addTextDisplayComponents(new TextDisplayBuilder().setContent(`**${t('tempVoice.panel.moderators')}**\n-# ${t('tempVoice.panel.moderatorsDescription')}`))
     .addActionRowComponents(new ActionRowBuilder<UserSelectMenuBuilder>().addComponents(moderators))
     // More space above the button at the bottom, like on the settings panels
