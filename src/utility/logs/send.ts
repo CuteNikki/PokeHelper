@@ -9,6 +9,8 @@ import {
   SeparatorSpacingSize,
   TextDisplayBuilder,
   ThumbnailBuilder,
+  time,
+  TimestampStyles,
   userMention,
   type AttachmentBuilder,
   type Guild,
@@ -93,7 +95,7 @@ export const quoteText = (text: string) =>
 
 /**
  * An entry as a card: a title like the bot's other messages, who or what it's about, where and by whom, with their picture next to it,
- * then the details under a line, and the buttons. No time, as the message has its own.
+ * then the details under a line, when it happened, and the buttons.
  */
 export function buildLogEntry(entry: LogEntry, t: Translate) {
   const context = [entry.where ? `**${t('logs.in')}** ${entry.where}` : null, entry.by ? `**${t('logs.byLabel')}** ${userMention(entry.by.id)}` : null].filter(
@@ -114,6 +116,8 @@ export function buildLogEntry(entry: LogEntry, t: Translate) {
   if (details.length > 0) {
     container.addSeparatorComponents(new SeparatorBuilder()).addTextDisplayComponents(new TextDisplayBuilder().setContent(details.join('\n\n')));
   }
+  // When it happened, in small print, as Discord only shows the time of the first of several messages in a row
+  container.addTextDisplayComponents(new TextDisplayBuilder().setContent(`-# ${time(new Date(), TimestampStyles.LongDateTime)}`));
 
   const buttons = [
     entry.link ? new ButtonBuilder().setStyle(ButtonStyle.Link).setLabel(entry.link.label).setURL(entry.link.url) : null,
