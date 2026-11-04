@@ -198,4 +198,4 @@ Please star this repository if this project helped you!
 
 ## 📄 License
 
-This project is licensed under the [MIT License](LICENSE).
+This project is licensed under the [MIT License](LICENSE). Using the bot is covered by its [Terms of Service](TERMS.md) and [Privacy Policy](PRIVACY.md).
