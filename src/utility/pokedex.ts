@@ -315,31 +315,26 @@ export async function buildPokedexEntry(match: PokedexMatch, view: PokedexView, 
     const square = TYPE_SQUARES[pokemon.types.find((entry) => entry.slot === 1)?.type.name ?? ''] ?? '⬜';
     const about = [
       `**${t('pokedex.details.type')}** ${types.map((type) => type.name).join(', ')}`,
-      // Height and weight share a line, the abilities get their own
-      details
-        .slice(0, 2)
-        .map((detail) => `**${detail.label}** ${detail.value}`)
-        .join(' · '),
-      ...details.slice(2).map((detail) => `**${detail.label}** ${detail.value}`),
+      ...details.map((detail) => `**${detail.label}** ${detail.value}`),
     ];
     const statLines = [
-      `### ${t('pokedex.stats.title')}`,
+      `### ${t('pokedex.stats.heading', { total: format(total) })}`,
       ...stats.map((stat) => `${statBar(stat.value, square)} **${stat.value}** ${stat.label}`),
-      `-# ${t('pokedex.stats.total')} ${total}`,
     ];
-    // A line per stage, with branches side by side, and the one shown in bold
-    const evolutionLines = evolves
-      ? stages
-          .map((stage) => stage.map((member) => (member.id === match.species.id ? `**${speciesName(member)}**` : speciesName(member))).join(' · '))
-          .join('\n')
-      : t('pokedex.evolution.noneText');
     container
       .addSeparatorComponents(new SeparatorBuilder())
       .addTextDisplayComponents(new TextDisplayBuilder().setContent(about.join('\n')))
       .addSeparatorComponents(new SeparatorBuilder())
       .addTextDisplayComponents(new TextDisplayBuilder().setContent(statLines.join('\n')))
-      .addSeparatorComponents(new SeparatorBuilder())
-      .addTextDisplayComponents(new TextDisplayBuilder().setContent(`### ${t('pokedex.evolution.title')}\n${evolutionLines}`));
+      .addSeparatorComponents(new SeparatorBuilder());
+    // The evolutions are their buttons, in order, with the one shown highlighted
+    if (evolves) {
+      container
+        .addTextDisplayComponents(new TextDisplayBuilder().setContent(`### ${t('pokedex.evolution.title')}`))
+        .addActionRowComponents(buildEvolutionButtons(stages.flat(), match, shownView, speciesName));
+    } else {
+      container.addTextDisplayComponents(new TextDisplayBuilder().setContent(`### ${t('pokedex.evolution.title')}\n${t('pokedex.evolution.noneText')}`));
+    }
   } else {
     // All pictures are loaded at the same time, from the cache when they were shown before
     const [artwork, evolution] = await Promise.all([
@@ -389,7 +384,8 @@ export async function buildPokedexEntry(match: PokedexMatch, view: PokedexView, 
   }
 
   const { navigation, forms } = buildControls(match, shownView, Boolean(shinyPicture), language, t);
-  const evolutionButtons = evolves ? buildEvolutionButtons(stages.flat(), match, shownView, speciesName) : [];
+  // The text has them under its evolution heading already
+  const evolutionButtons = evolves && !view.text ? buildEvolutionButtons(stages.flat(), match, shownView, speciesName) : [];
   container.addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large)).addActionRowComponents(navigation, ...evolutionButtons);
   if (forms.length > 0) container.addActionRowComponents(...forms);
 

@@ -254,7 +254,8 @@
       "special-defense": "Sp.-Vert.",
       "speed": "Init.",
       "total": "Gesamt",
-      "title": "Basiswerte"
+      "title": "Basiswerte",
+      "heading": "Basiswerte (insgesamt {{total}})"
     },
     "evolution": {
       "title": "Entwicklung",

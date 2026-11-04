@@ -632,7 +632,8 @@
       "special-defense": "Sp. Def",
       "speed": "Speed",
       "total": "Total",
-      "title": "Base stats"
+      "title": "Base stats",
+      "heading": "Base stats ({{total}} total)"
     },
     "evolution": {
       "title": "Evolution",
