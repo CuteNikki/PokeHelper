@@ -25,7 +25,7 @@ The developer can stop anyone from using the bot, or remove it from a server, if
 
 ## Liability
 
-The developer isn't responsible for any damage or loss from using the bot, as far as the law allows.
+The bot is provided for free. The developer is fully liable for damage caused on purpose or by gross negligence, and for injury to life, body or health. Otherwise, the developer isn't liable for damage or loss from using the bot, like lost XP or counting stats.
 
 ## Pokémon
 
@@ -37,8 +37,12 @@ What the bot stores and why is explained in the [Privacy Policy](PRIVACY.md).
 
 ## Changes
 
-These terms may change as the bot does. The date at the top says when they last changed. Using the bot after a change means you agree to the new terms.
+These terms may change as the bot does. The date at the top says when they last changed.
+
+## Law
+
+German law applies. If part of these terms isn't valid, the rest still applies.
 
 ## Contact
 
-Questions about these terms can be asked by [opening an issue](https://github.com/CuteNikki/PokeHelper/issues).
+The bot is run by Nikki Sophie Berthold, whose details are in the [imprint](https://niso.moe/imprint). Questions about these terms can be sent to [contact@niso.moe](mailto:contact@niso.moe).
