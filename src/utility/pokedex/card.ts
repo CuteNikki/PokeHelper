@@ -157,11 +157,20 @@ function drawEvolution(ctx: SKRSContext2D, data: PokedexCardData, color: string,
   let x = (WIDTH - totalWidth) / 2;
   data.evolution.forEach((stage, stageIndex) => {
     if (stageIndex > 0) {
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.font = 'bold 22px "Roboto"';
-      ctx.fillStyle = COLORS.textGray;
-      ctx.fillText('→', x + arrowWidth / 2, imageY + size / 2);
+      // Drawn as a chevron, as the bundled font has no arrow and it would show as a box
+      const centerX = x + arrowWidth / 2;
+      const centerY = imageY + size / 2;
+      ctx.save();
+      ctx.strokeStyle = COLORS.textGray;
+      ctx.lineWidth = 3;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.beginPath();
+      ctx.moveTo(centerX - 4, centerY - 8);
+      ctx.lineTo(centerX + 4, centerY);
+      ctx.lineTo(centerX - 4, centerY + 8);
+      ctx.stroke();
+      ctx.restore();
       x += arrowWidth;
     }
     stage.forEach((pokemon, index) => {
@@ -176,7 +185,8 @@ function drawEvolution(ctx: SKRSContext2D, data: PokedexCardData, color: string,
 
       ctx.textAlign = 'center';
       ctx.textBaseline = 'alphabetic';
-      ctx.font = `${pokemon.current ? 'bold ' : ''}${size < 90 ? 13 : 15}px "Roboto"`;
+      // Names like Nidoran♀ need the fallback, Roboto has no ♀ and ♂
+      ctx.font = `${pokemon.current ? 'bold ' : ''}${size < 90 ? 13 : 15}px "Roboto", "EmojiFallback"`;
       ctx.fillStyle = pokemon.current ? COLORS.textWhite : COLORS.textGray;
       ctx.fillText(truncateText(ctx, pokemon.name, size + gap), x + size / 2, imageY + size + 22);
       x += size;
@@ -276,7 +286,7 @@ export function renderPokedexCard(data: PokedexCardData): Buffer {
   const numberWidth = ctx.measureText(data.number).width;
 
   ctx.textAlign = 'left';
-  ctx.font = 'bold 34px "Roboto"';
+  ctx.font = 'bold 34px "Roboto", "EmojiFallback"';
   ctx.fillStyle = COLORS.textWhite;
   ctx.fillText(truncateText(ctx, data.name, contentWidth - numberWidth - 20), contentX, 60);
 
