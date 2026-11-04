@@ -837,6 +837,11 @@
       }
     },
     "skipped": {
+      "title": {
+        "moderators": "**Moderators:** some of the people you picked weren't made moderators",
+        "allow": "**Let in:** some of the people you picked weren't let in",
+        "block": "**Kept out:** some of the people you picked weren't kept out"
+      },
       "bot_one": "Bots can't be picked, so {{users}} was left out.",
       "bot_other": "Bots can't be picked, so {{users}} were left out.",
       "owner_one": "{{users}} owns this channel and can do everything already, so they were left out.",

@@ -455,6 +455,11 @@
       }
     },
     "skipped": {
+      "title": {
+        "moderators": "**Moderatoren:** Ein paar der Gewählten wurden nicht zu Moderatoren gemacht",
+        "allow": "**Reingelassen:** Ein paar der Gewählten wurden nicht reingelassen",
+        "block": "**Ausgesperrt:** Ein paar der Gewählten wurden nicht ausgesperrt"
+      },
       "bot_one": "Bots kannst du nicht wählen, also wurde {{users}} weggelassen.",
       "bot_other": "Bots kannst du nicht wählen, also wurden {{users}} weggelassen.",
       "owner_one": "{{users}} gehört der Kanal und kann schon alles, also wurde die Person weggelassen.",

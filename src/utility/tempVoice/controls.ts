@@ -243,7 +243,8 @@ export async function handleTempVoiceSelect(interaction: AnySelectMenuInteractio
     if (skipped.size > 0) {
       const lines = [...skipped].map(([why, users]) => t(`tempVoice.skipped.${why}`, { users: users.map((id) => `<@${id}>`).join(', '), count: users.length }));
       await interaction.followUp({
-        ...createResponse(lines.join('\n'), 'warning'),
+        // Says which list it's about, as the message shows up apart from the panel
+        ...createResponse([t(`tempVoice.skipped.title.${list}`), ...lines.map((line) => `- ${line}`)].join('\n'), 'warning'),
         flags: [MessageFlags.IsComponentsV2, MessageFlags.Ephemeral],
         allowedMentions: { parse: [] },
       });
