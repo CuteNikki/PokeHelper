@@ -16,7 +16,7 @@ export default new Event({
       kind: 'updated',
       label: (t) => t('logs.labels.channelUpdated'),
       subject: channelSubject(after.id, after.name),
-      details: (t) => [channelChanges(before, after, t).join('\n') || null],
+      details: (t) => [channelChanges(before, after, t).join('\n\n') || null],
       id: ['channel', after.id],
       actions: [AuditLogEvent.ChannelUpdate, AuditLogEvent.ChannelOverwriteCreate, AuditLogEvent.ChannelOverwriteUpdate, AuditLogEvent.ChannelOverwriteDelete],
       targetId: after.id,

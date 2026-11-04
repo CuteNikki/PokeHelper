@@ -26,7 +26,9 @@ export default new Event({
       where: event === 'voiceMoved' ? null : channelMention((after.channelId ?? before.channelId)!),
       subject: userSubject(member.user),
       thumbnail: avatarOf(member),
-      details: [event === 'voiceMoved' ? `${channelMention(before.channelId!)} → ${channelMention(after.channelId!)}` : null],
+      details: [
+        event === 'voiceMoved' ? `${t('logs.from')}: ${channelMention(before.channelId!)}\n${t('logs.to')}: ${channelMention(after.channelId!)}` : null,
+      ],
       ids: { user: member.id, channel: (after.channelId ?? before.channelId)! },
     }));
   },

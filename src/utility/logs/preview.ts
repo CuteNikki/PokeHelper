@@ -1,6 +1,7 @@
 import { channelMention, roleMention, time, TimestampStyles, type GuildMember, type SendableChannels } from 'discord.js';
 
 import type { Translate } from 'utility/i18next';
+import { oldNew } from 'utility/logs/changes';
 import { markChanges } from 'utility/logs/diff';
 import { ago, avatarOf, channelSubject, code, userSubject } from 'utility/logs/format';
 import { buildLogEntry, quoteText, type LogEntry } from 'utility/logs/send';
@@ -63,7 +64,7 @@ export function previewEntries(member: GuildMember, channelId: string, t: Transl
       subject: channelSubject(channelId, 'testing'),
       by,
       details: [
-        `**${t('logs.changes.name')}** ${code('test')} → ${code('testing')}\n**${t('logs.changes.slowmode')}** ${t('logs.changes.none')} → ${code('5')}`,
+        `${oldNew(t('logs.changes.name'), code('test'), code('testing'), t)}\n\n${oldNew(t('logs.changes.slowmode'), `*${t('logs.changes.none')}*`, code('5'), t)}`,
       ],
       ids: { channel: channelId, user: member.id },
     },

@@ -3,6 +3,7 @@ import { Events } from 'discord.js';
 import { Event } from 'classes/base/event';
 
 import type { Translate } from 'utility/i18next';
+import { oldNew } from 'utility/logs/changes';
 import { avatarOf, code, userSubject } from 'utility/logs/format';
 import { sendLog } from 'utility/logs/send';
 
@@ -17,11 +18,11 @@ export default new Event({
     const avatarChanged = before.avatar !== after.avatar;
     if (!usernameChanged && !displayNameChanged && !avatarChanged) return;
 
-    const name = (value: string | null, t: Translate) => (value ? code(value) : t('logs.changes.none'));
+    const name = (value: string | null, t: Translate) => (value ? code(value) : `*${t('logs.changes.none')}*`);
     const changes = (t: Translate) =>
       [
-        usernameChanged ? `**${t('logs.username')}** ${code(before.username)} → ${code(after.username)}` : null,
-        displayNameChanged ? `**${t('logs.displayName')}** ${name(before.globalName, t)} → ${name(after.globalName, t)}` : null,
+        usernameChanged ? oldNew(t('logs.username'), code(before.username), code(after.username), t) : null,
+        displayNameChanged ? oldNew(t('logs.displayName'), name(before.globalName, t), name(after.globalName, t), t) : null,
         // The new avatar is the picture on the entry
         avatarChanged ? `**${t('logs.avatar')}** ${t('logs.avatarChanged')}` : null,
       ].filter((line): line is string => line !== null);
@@ -33,7 +34,7 @@ export default new Event({
         label: t('logs.labels.profile'),
         subject: userSubject(after),
         thumbnail: avatarOf(after),
-        details: [changes(t).join('\n')],
+        details: [changes(t).join('\n\n')],
         ids: { user: after.id },
       }));
     }

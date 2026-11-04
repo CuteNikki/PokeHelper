@@ -6,10 +6,9 @@ import {
   MessageFlags,
   SectionBuilder,
   SeparatorBuilder,
+  SeparatorSpacingSize,
   TextDisplayBuilder,
   ThumbnailBuilder,
-  time,
-  TimestampStyles,
   userMention,
   type AttachmentBuilder,
   type Guild,
@@ -63,15 +62,15 @@ const KIND_COLORS: Record<LogKind, number> = {
 /** One log entry. Everything in it is already in the server's language. */
 export interface LogEntry {
   kind: LogKind;
-  /** Like `✏️ Message edited`, shown small and in capitals at the top. */
+  /** Like `Message edited ✏️`, the title at the top. */
   label: string;
   /** Where it happened, after the label, like a channel. */
   where?: string | null;
-  /** Who or what it's about, like a member's name, shown big. */
+  /** Who or what it's about, like a member's name, under the title. */
   subject: string;
   /** A picture of who or what it's about, like the member's avatar, on the right. */
   thumbnail?: string | null;
-  /** Who did it, from the audit log, shown small under the subject. */
+  /** Who did it, from the audit log, next to where it happened. */
   by?: Doer | null;
   /** The details, each its own part, like the message's text, or what changed. Empty ones are left out. */
   details?: (string | null)[];
@@ -93,15 +92,15 @@ export const quoteText = (text: string) =>
     .join('\n');
 
 /**
- * An entry as a card: a small label with where it happened, who or what it's about with their picture, who did it and when,
- * then the details under a line, and the buttons.
+ * An entry as a card: a title like the bot's other messages, who or what it's about, where and by whom, with their picture next to it,
+ * then the details under a line, and the buttons. No time, as the message has its own.
  */
 export function buildLogEntry(entry: LogEntry, t: Translate) {
-  const meta = [entry.by ? t('logs.by', { user: userMention(entry.by.id) }) : null, time(new Date(), TimestampStyles.ShortDateTime)];
+  const context = [entry.where ? `**${t('logs.in')}** ${entry.where}` : null, entry.by ? `**${t('logs.byLabel')}** ${userMention(entry.by.id)}` : null].filter(
+    Boolean,
+  );
   const header = new TextDisplayBuilder().setContent(
-    [`-# ${entry.label.toLocaleUpperCase(t('locale'))}${entry.where ? ` · ${entry.where}` : ''}`, entry.subject, `-# ${meta.filter(Boolean).join(' · ')}`].join(
-      '\n',
-    ),
+    [`### ${entry.label}`, entry.subject, context.length > 0 ? context.join('  ·  ') : null].filter(Boolean).join('\n'),
   );
 
   const container = new ContainerBuilder().setAccentColor(KIND_COLORS[entry.kind]);
@@ -120,7 +119,12 @@ export function buildLogEntry(entry: LogEntry, t: Translate) {
     entry.link ? new ButtonBuilder().setStyle(ButtonStyle.Link).setLabel(entry.link.label).setURL(entry.link.url) : null,
     copyIdsButton(entry.ids, t),
   ].filter((button): button is ButtonBuilder => button !== null);
-  if (buttons.length > 0) container.addActionRowComponents(new ActionRowBuilder<ButtonBuilder>().addComponents(buttons));
+  if (buttons.length > 0) {
+    // A little room above the buttons, without another line
+    container
+      .addSeparatorComponents(new SeparatorBuilder().setDivider(false).setSpacing(SeparatorSpacingSize.Small))
+      .addActionRowComponents(new ActionRowBuilder<ButtonBuilder>().addComponents(buttons));
+  }
 
   // Logs mention people and roles to say who it was, but never ping them
   return { components: [container], files: entry.files ?? [], flags: [MessageFlags.IsComponentsV2] as const, allowedMentions: { parse: [] } };

@@ -3,6 +3,7 @@ import { AuditLogEvent, Events } from 'discord.js';
 import { Event } from 'classes/base/event';
 
 import { channelSubject, code } from 'utility/logs/format';
+import { oldNew } from 'utility/logs/changes';
 import { logServerChange } from 'utility/logs/server';
 
 /** A thread renamed, archived, locked or opened again. Threads archiving on their own after a while aren't logged, nobody did that. */
@@ -17,9 +18,9 @@ export default new Event({
       label: (t) => t('logs.labels.threadUpdated'),
       subject: channelSubject(after.id, after.name),
       details: (t) => [
-        before.name !== after.name ? `**${t('logs.changes.name')}** ${code(before.name)} → ${code(after.name)}` : null,
-        before.locked !== after.locked ? `**${t('logs.threads.locked')}** ${t(yesNo(before.locked))} → ${t(yesNo(after.locked))}` : null,
-        before.archived !== after.archived ? `**${t('logs.threads.archived')}** ${t(yesNo(before.archived))} → ${t(yesNo(after.archived))}` : null,
+        before.name !== after.name ? oldNew(t('logs.changes.name'), code(before.name), code(after.name), t) : null,
+        before.locked !== after.locked ? oldNew(t('logs.threads.locked'), t(yesNo(before.locked)), t(yesNo(after.locked)), t) : null,
+        before.archived !== after.archived ? oldNew(t('logs.threads.archived'), t(yesNo(before.archived)), t(yesNo(after.archived)), t) : null,
       ],
       id: ['channel', after.id],
       actions: [AuditLogEvent.ThreadUpdate],

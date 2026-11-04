@@ -14,7 +14,7 @@ import {
 import type { Translate } from 'utility/i18next';
 
 /**
- * What changed about a channel, role or the server, as lines like `**Name** old → new`, in the server's language.
+ * What changed about a channel, role or the server, as a block for each change with its old and new value, in the server's language.
  * Only what people set themselves is listed, not what Discord changes on its own, like a channel's position when another one moves.
  */
 
@@ -22,46 +22,66 @@ type Value = string | number | boolean | null | undefined;
 
 /** A value as it's shown: text in code, yes or no, or none. */
 function show(value: Value, t: Translate): string {
-  if (value === null || value === undefined || value === '') return t('logs.changes.none');
+  if (value === null || value === undefined || value === '') return `*${t('logs.changes.none')}*`;
   if (typeof value === 'boolean') return t(value ? 'state.yes' : 'state.no');
   return inlineCode(String(value).replace(/`/g, "'"));
 }
 
-/** A line for a value that changed, or null if it's the same. Mentions are shown as they are, everything else in code. */
+/**
+ * A change as its own block: what it is, then the old and the new value on lines of their own, like
+ * `**Name**`, `Old: test`, `New: testing`. Values are given already formatted.
+ */
+export const oldNew = (label: string, before: string, after: string, t: Translate) =>
+  `**${label}**\n${t('logs.changes.old')}: ${before}\n${t('logs.changes.new')}: ${after}`;
+
+/** A block for a value that changed, or null if it's the same. Mentions are shown as they are, everything else in code. */
 function changed(label: string, before: Value, after: Value, t: Translate, mention?: (id: string) => string): string | null {
   if (before === after || ((before ?? '') === '' && (after ?? '') === '')) return null;
   const format = (value: Value) => (mention && typeof value === 'string' && value ? mention(value) : show(value, t));
-  return `**${label}** ${format(before)} → ${format(after)}`;
+  return oldNew(label, format(before), format(after), t);
 }
 
 /** Permissions by their names in the server's language. */
 const permissionNames = (permissions: PermissionsString[], t: Translate) => permissions.map((permission) => t(`permission.${permission}`)).join(', ');
 
-/** The permissions given and taken between two sets, like `+ Kick Members · − Ban Members`. */
-function permissionChanges(before: bigint, after: bigint, t: Translate): string | null {
+/** The permissions given and taken between two sets, as lines like `Added: Kick Members`, or none if they're the same. */
+/** The texts that say which way permissions changed. */
+type PermissionLabel = 'added' | 'removed' | 'nowAllowed' | 'noLongerAllowed' | 'nowDenied' | 'noLongerDenied';
+
+function permissionChanges(
+  before: bigint,
+  after: bigint,
+  t: Translate,
+  labels: { added: PermissionLabel; removed: PermissionLabel } = { added: 'added', removed: 'removed' },
+) {
   const added = new PermissionsBitField(after & ~before).toArray();
   const removed = new PermissionsBitField(before & ~after).toArray();
-  const parts = [added.length > 0 ? `+ ${permissionNames(added, t)}` : null, removed.length > 0 ? `− ${permissionNames(removed, t)}` : null];
-  return parts.filter(Boolean).join(' · ') || null;
+  return [
+    added.length > 0 ? `${t(`logs.changes.${labels.added}`)}: ${permissionNames(added, t)}` : null,
+    removed.length > 0 ? `${t(`logs.changes.${labels.removed}`)}: ${permissionNames(removed, t)}` : null,
+  ].filter((line): line is string => line !== null);
 }
 
-/** What changed about who can do what in a channel: each role or member whose permissions there were added, removed or changed. */
+/** What changed about who can do what in a channel: a block for each role or member whose permissions there changed. */
 function overwriteChanges(before: GuildBasedChannel, after: GuildBasedChannel, t: Translate): string[] {
   if (!('permissionOverwrites' in before) || !('permissionOverwrites' in after)) return [];
   const old = before.permissionOverwrites.cache;
   const current = after.permissionOverwrites.cache;
-  const lines: string[] = [];
+  const blocks: string[] = [];
   for (const id of new Set([...old.keys(), ...current.keys()])) {
     const was = old.get(id);
     const is = current.get(id);
     const who = (is ?? was)!.type === OverwriteType.Role ? (id === after.guild.id ? '@everyone' : roleMention(id)) : userMention(id);
-    const allowed = permissionChanges(was?.allow.bitfield ?? 0n, is?.allow.bitfield ?? 0n, t);
-    const denied = permissionChanges(was?.deny.bitfield ?? 0n, is?.deny.bitfield ?? 0n, t);
-    if (!allowed && !denied) continue;
-    const parts = [allowed ? t('logs.changes.allowed', { permissions: allowed }) : null, denied ? t('logs.changes.denied', { permissions: denied }) : null];
-    lines.push(`**${t('logs.changes.permissionsFor', { who })}** ${parts.filter(Boolean).join(' · ')}`);
+    const lines = [
+      ...permissionChanges(was?.allow.bitfield ?? 0n, is?.allow.bitfield ?? 0n, t, {
+        added: 'nowAllowed',
+        removed: 'noLongerAllowed',
+      }),
+      ...permissionChanges(was?.deny.bitfield ?? 0n, is?.deny.bitfield ?? 0n, t, { added: 'nowDenied', removed: 'noLongerDenied' }),
+    ];
+    if (lines.length > 0) blocks.push([`**${t('logs.changes.permissionsFor', { who })}**`, ...lines].join('\n'));
   }
-  return lines;
+  return blocks;
 }
 
 /** What changed about a channel. */
@@ -88,7 +108,7 @@ export function roleChanges(before: Role, after: Role, t: Translate): string[] {
     changed(t('logs.changes.hoist'), before.hoist, after.hoist, t),
     changed(t('logs.changes.mentionable'), before.mentionable, after.mentionable, t),
     changed(t('logs.changes.icon'), before.icon ?? before.unicodeEmoji, after.icon ?? after.unicodeEmoji, t),
-    permissions ? `**${t('logs.changes.permissions')}** ${permissions}` : null,
+    permissions.length > 0 ? [`**${t('logs.changes.permissions')}**`, ...permissions].join('\n') : null,
   ];
   return lines.filter((line): line is string => line !== null);
 }
@@ -111,12 +131,4 @@ export function guildChanges(before: Guild, after: Guild, t: Translate): string[
     changed(t('logs.changes.boostBar'), before.premiumProgressBarEnabled, after.premiumProgressBarEnabled, t),
   ];
   return lines.filter((line): line is string => line !== null);
-}
-
-/** The roles given and taken, like `+ @Role · − @Other`. */
-export function roleListChanges(before: string[], after: string[]): string | null {
-  const added = after.filter((id) => !before.includes(id)).map(roleMention);
-  const removed = before.filter((id) => !after.includes(id)).map(roleMention);
-  const parts = [added.length > 0 ? `+ ${added.join(', ')}` : null, removed.length > 0 ? `− ${removed.join(', ')}` : null];
-  return parts.filter(Boolean).join(' · ') || null;
 }

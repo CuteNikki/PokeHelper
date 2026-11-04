@@ -2,6 +2,7 @@ import { AuditLogEvent, Events } from 'discord.js';
 
 import { Event } from 'classes/base/event';
 
+import { oldNew } from 'utility/logs/changes';
 import { code } from 'utility/logs/format';
 import { logServerChange } from 'utility/logs/server';
 
@@ -15,7 +16,7 @@ export default new Event({
       label: (t) => t('logs.labels.emojiUpdated'),
       subject: `${after.toString()} ${code(`:${after.name}:`)}`,
       thumbnail: after.imageURL({ size: 128 }),
-      details: (t) => [before.name !== after.name ? `**${t('logs.changes.name')}** ${code(`:${before.name}:`)} → ${code(`:${after.name}:`)}` : null],
+      details: (t) => [before.name !== after.name ? oldNew(t('logs.changes.name'), code(`:${before.name}:`), code(`:${after.name}:`), t) : null],
       id: ['emoji', after.id],
       actions: [AuditLogEvent.EmojiUpdate],
       targetId: after.id,

@@ -15,7 +15,7 @@ export default new Event({
       kind: 'updated',
       label: (t) => t('logs.labels.roleUpdated'),
       subject: roleSubject(after.id, after.name),
-      details: (t) => [roleChanges(before, after, t).join('\n') || null],
+      details: (t) => [roleChanges(before, after, t).join('\n\n') || null],
       id: ['role', after.id],
       actions: [AuditLogEvent.RoleUpdate],
       targetId: after.id,

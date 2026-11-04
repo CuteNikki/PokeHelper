@@ -16,7 +16,7 @@ export default new Event({
       label: (t) => t('logs.labels.serverUpdated'),
       subject: code(after.name),
       thumbnail: after.iconURL({ size: 128 }),
-      details: (t) => [guildChanges(before, after, t).join('\n') || null],
+      details: (t) => [guildChanges(before, after, t).join('\n\n') || null],
       id: ['server', after.id],
       actions: [AuditLogEvent.GuildUpdate],
       targetId: after.id,

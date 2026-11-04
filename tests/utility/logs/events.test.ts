@@ -3,7 +3,6 @@ import { beforeAll, describe, expect, test } from 'bun:test';
 import type { GuildLogs } from 'database/logs';
 
 import { getTranslate, initI18Next } from 'utility/i18next';
-import { roleListChanges } from 'utility/logs/changes';
 import { groupOf, LOG_EVENTS, LOG_GROUPS, logChannelOf } from 'utility/logs/events';
 import { isLogChannel, quoteText, shorten } from 'utility/logs/send';
 
@@ -62,11 +61,6 @@ test("a log channel's own messages aren't logged", () => {
   expect(isLogChannel(config(), '10')).toBe(true);
   expect(isLogChannel(config(), '11')).toBe(false);
   expect(isLogChannel(config({ defaultChannelId: '20' }), '20')).toBe(true);
-});
-
-test('roleListChanges says which roles were given and taken', () => {
-  expect(roleListChanges(['1', '2'], ['2', '3'])).toBe('+ <@&3> · − <@&1>');
-  expect(roleListChanges(['1'], ['1'])).toBeNull();
 });
 
 test('long texts are shortened and quoted line by line', () => {

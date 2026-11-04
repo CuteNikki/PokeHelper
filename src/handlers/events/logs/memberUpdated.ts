@@ -3,6 +3,7 @@ import { AuditLogEvent, Events, roleMention, time, TimestampStyles } from 'disco
 import { Event } from 'classes/base/event';
 
 import { whoDid } from 'utility/logs/audit';
+import { oldNew } from 'utility/logs/changes';
 import { avatarOf, code, reasonPart, userSubject } from 'utility/logs/format';
 import { sendLog } from 'utility/logs/send';
 
@@ -27,7 +28,14 @@ export default new Event({
         thumbnail,
         // Changing your own nickname is no one else's doing
         by: doer && doer.id !== after.id ? doer : null,
-        details: [`${before.nickname ? code(before.nickname) : t('logs.changes.none')} → ${after.nickname ? code(after.nickname) : t('logs.changes.none')}`],
+        details: [
+          oldNew(
+            t('logs.changes.nickname'),
+            before.nickname ? code(before.nickname) : `*${t('logs.changes.none')}*`,
+            after.nickname ? code(after.nickname) : `*${t('logs.changes.none')}*`,
+            t,
+          ),
+        ],
         ids,
       }));
     }
@@ -50,7 +58,9 @@ export default new Event({
         by: doer,
         // Both at once are said with + and −, one of them alone only needs its label
         details: [
-          added.length > 0 && removed.length > 0 ? `+ ${added.join(' ')}\n− ${removed.join(' ')}` : [...added, ...removed].join(' '),
+          added.length > 0 && removed.length > 0
+            ? `${t('logs.changes.added')}: ${added.join(' ')}\n${t('logs.changes.removed')}: ${removed.join(' ')}`
+            : [...added, ...removed].join(' '),
           reasonPart(doer, t),
         ],
         ids,
