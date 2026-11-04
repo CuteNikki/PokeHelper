@@ -2,6 +2,9 @@ import { inspect } from 'node:util';
 
 import pino from 'pino';
 
+/** How many days of the bot's own log are kept, besides today's. Said in the privacy policy, so change it there too. */
+const LOG_DAYS_KEPT = 14;
+
 const customLevels = {
   trace: 10,
   debug: 20,
@@ -71,10 +74,15 @@ export const logger = pino(
         },
       },
       {
-        target: 'pino/file',
+        // A file a day, like logs/pino.2026-11-04.1.log, and only the last 14 are kept, as the privacy policy says
+        target: 'pino-roll',
         options: {
-          destination: `${process.cwd()}/logs/pino.log`,
+          file: `${process.cwd()}/logs/pino`,
+          frequency: 'daily',
+          dateFormat: 'yyyy-MM-dd',
+          extension: '.log',
           mkdir: true,
+          limit: { count: LOG_DAYS_KEPT },
         },
       },
     ],
