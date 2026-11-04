@@ -33,8 +33,9 @@ export const TEMP_VOICE_CUSTOM_ID_PREFIX = 'tempvoice:';
 /** The popup to rename a channel and set its limit, followed by the channel's ID. */
 export const TEMP_VOICE_EDIT_MODAL_PREFIX = 'tempvoice-edit:';
 
-export type TempVoiceAction = 'lock' | 'hide' | 'edit' | 'delete' | 'allow' | 'block' | 'member' | 'handover' | 'kick' | 'keepout';
-const ACTIONS: TempVoiceAction[] = ['lock', 'hide', 'edit', 'delete', 'allow', 'block', 'member', 'handover', 'kick', 'keepout'];
+/** `edit` is the one button for the name and limit on panels posted before they were apart. */
+export type TempVoiceAction = 'lock' | 'hide' | 'rename' | 'limit' | 'edit' | 'delete' | 'allow' | 'block' | 'member' | 'handover' | 'kick' | 'keepout';
+const ACTIONS: TempVoiceAction[] = ['lock', 'hide', 'rename', 'limit', 'edit', 'delete', 'allow', 'block', 'member', 'handover', 'kick', 'keepout'];
 
 /** Discord's user selects pick at most 25 people. */
 const MAX_PICKED = 25;
@@ -101,8 +102,9 @@ export function buildPanel({ channel, record }: TempChannel, t: Translate): Resp
   const people = channel.userLimit
     ? t('tempVoice.panel.peopleLimit', { count: here.size, limit: channel.userLimit })
     : t('tempVoice.panel.people', { count: here.size });
-  const name = channelLabel(record.namePrefix, channel.name);
-  const nameAndLimit = channel.userLimit ? t('tempVoice.panel.nameWithLimit', { name, count: channel.userLimit }) : name;
+  const edit = (action: TempVoiceAction) =>
+    new ButtonBuilder().setCustomId(tempVoiceCustomId(action, id)).setLabel(t('settings.text.edit')).setEmoji('✏️').setStyle(ButtonStyle.Primary);
+  const limit = channel.userLimit ? t('tempVoice.panel.limitValue', { count: channel.userLimit }) : t('tempVoice.panel.noLimit');
 
   const container = new ContainerBuilder()
     .setAccentColor(ThemeColors.info)
@@ -111,13 +113,9 @@ export function buildPanel({ channel, record }: TempChannel, t: Translate): Resp
     .addSectionComponents(
       row(t('tempVoice.panel.locked'), t('tempVoice.panel.lockedDescription'), toggle('lock', record.locked)),
       row(t('tempVoice.panel.hidden'), t('tempVoice.panel.hiddenDescription'), toggle('hide', record.hidden)),
-      row(
-        t('tempVoice.panel.edit'),
-        t('tempVoice.panel.editDescription'),
-        new ButtonBuilder().setCustomId(tempVoiceCustomId('edit', id)).setLabel(t('settings.text.edit')).setEmoji('✏️').setStyle(ButtonStyle.Primary),
-        // Quoted, like the value of a text setting
-        quote(nameAndLimit),
-      ),
+      // Quoted, like the values of text settings
+      row(t('tempVoice.panel.name'), t('tempVoice.panel.nameDescription'), edit('rename'), quote(channelLabel(record.namePrefix, channel.name))),
+      row(t('tempVoice.panel.limit'), t('tempVoice.panel.limitDescription'), edit('limit'), quote(limit)),
     )
     .addSeparatorComponents(new SeparatorBuilder())
     .addTextDisplayComponents(heading(t('tempVoice.panel.allowed')))

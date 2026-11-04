@@ -30,6 +30,7 @@ import {
   handOver,
   isStaff,
   maxLabelLength,
+  type Change,
   type TempChannel,
 } from 'utility/tempVoice/channel';
 import {
@@ -82,15 +83,14 @@ async function showChanged(interaction: Control, temp: TempChannel, result: { re
   await interaction.editReply(buildPanel(temp, panelT));
 }
 
-/** The popup to rename a channel and set its limit. */
-function buildEditModal(temp: TempChannel, t: Translate) {
-  const limit = new TextInputBuilder().setCustomId(LIMIT_INPUT_ID).setMaxLength(2).setStyle(TextInputStyle.Short).setRequired(false);
-  // Empty while there's no limit, rather than a 0 to clear first
-  if (temp.channel.userLimit) limit.setValue(String(temp.channel.userLimit));
-  return new ModalBuilder()
-    .setCustomId(`${TEMP_VOICE_EDIT_MODAL_PREFIX}${temp.channel.id}`)
-    .setTitle(t('tempVoice.edit.title'))
-    .addLabelComponents(
+/** What a popup changes: the name, the limit, or both, for panels from before they were apart. */
+type EditKind = 'name' | 'limit' | 'both';
+
+/** The popup to rename a channel, set its limit, or both. */
+function buildEditModal(temp: TempChannel, kind: EditKind, t: Translate) {
+  const labels: LabelBuilder[] = [];
+  if (kind !== 'limit') {
+    labels.push(
       new LabelBuilder()
         .setLabel(t('tempVoice.edit.name'))
         .setTextInputComponent(
@@ -101,8 +101,18 @@ function buildEditModal(temp: TempChannel, t: Translate) {
             .setStyle(TextInputStyle.Short)
             .setRequired(false),
         ),
-      new LabelBuilder().setLabel(t('tempVoice.edit.limit')).setTextInputComponent(limit),
     );
+  }
+  if (kind !== 'name') {
+    const limit = new TextInputBuilder().setCustomId(LIMIT_INPUT_ID).setMaxLength(2).setStyle(TextInputStyle.Short).setRequired(false);
+    // Empty while there's no limit, rather than a 0 to clear first
+    if (temp.channel.userLimit) limit.setValue(String(temp.channel.userLimit));
+    labels.push(new LabelBuilder().setLabel(t('tempVoice.edit.limit')).setTextInputComponent(limit));
+  }
+  return new ModalBuilder()
+    .setCustomId(`${TEMP_VOICE_EDIT_MODAL_PREFIX}${temp.channel.id}:${kind}`)
+    .setTitle(t(kind === 'name' ? 'tempVoice.edit.nameTitle' : kind === 'limit' ? 'tempVoice.edit.limitTitle' : 'tempVoice.edit.title'))
+    .addLabelComponents(...labels);
 }
 
 /** The buttons of a panel, and of the question what to do about someone in the channel. */
@@ -120,8 +130,13 @@ export async function handleTempVoiceButton(interaction: ButtonInteraction): Pro
       const change = parsed.action === 'lock' ? { locked: !temp.record.locked } : { hidden: !temp.record.hidden };
       return showChanged(interaction, temp, await changeTempChannel(temp, interaction.member, change), t);
     }
+    case 'rename':
+      return interaction.showModal(buildEditModal(temp, 'name', t));
+    case 'limit':
+      return interaction.showModal(buildEditModal(temp, 'limit', t));
+    // The one button for both, on panels posted before they were apart
     case 'edit':
-      return interaction.showModal(buildEditModal(temp, t));
+      return interaction.showModal(buildEditModal(temp, 'both', t));
     case 'delete': {
       await interaction.deferUpdate();
       await announce(temp, serverTranslate(interaction.guild)('tempVoice.announce.deleted', { user: `<@${interaction.user.id}>` }));
@@ -224,25 +239,32 @@ export async function handleTempVoiceSelect(interaction: AnySelectMenuInteractio
   return sendError(interaction, t('system.outdated'));
 }
 
-/** The popup to rename a channel and set its limit. */
+/** The popup to rename a channel, set its limit, or both. */
 export async function handleTempVoiceModal(interaction: ModalSubmitInteraction): Promise<unknown> {
   const t = getTranslate(interaction.locale);
   if (!interaction.inCachedGuild() || !interaction.isFromMessage()) return sendError(interaction, t('system.outdated'));
-  const temp = await controlledChannel(interaction, interaction.customId.slice(TEMP_VOICE_EDIT_MODAL_PREFIX.length), t);
+  // Popups from before the name and limit were apart have no kind, and change both
+  const [channelId = '', kind = 'both'] = interaction.customId.slice(TEMP_VOICE_EDIT_MODAL_PREFIX.length).split(':');
+  const temp = await controlledChannel(interaction, channelId, t);
   if (!temp) return;
+  const change: Change = {};
 
-  // Left empty, there's no limit, as with 0
-  const limitText = interaction.fields.getTextInputValue(LIMIT_INPUT_ID).trim() || '0';
-  const limit = Number(limitText);
-  if (!/^\d+$/.test(limitText) || limit > MAX_LIMIT) return sendError(interaction, t('tempVoice.edit.invalidLimit'));
+  if (kind !== 'name') {
+    // Left empty, there's no limit, as with 0
+    const limitText = interaction.fields.getTextInputValue(LIMIT_INPUT_ID).trim() || '0';
+    change.userLimit = Number(limitText);
+    if (!/^\d+$/.test(limitText) || change.userLimit > MAX_LIMIT) return sendError(interaction, t('tempVoice.edit.invalidLimit'));
+  }
 
   await interaction.deferUpdate();
-  // Left empty, it goes back to the owner's display name, not whoever's changing it, if that's staff
-  const owner = await interaction.guild.members.fetch(temp.record.ownerId).catch(() => null);
-  const prefix = temp.record.namePrefix;
-  const label = channelLabel(prefix, interaction.fields.getTextInputValue(NAME_INPUT_ID)) || owner?.displayName || channelLabel(prefix, temp.channel.name);
-  const result = await changeTempChannel(temp, interaction.member, { name: channelName(prefix, label), userLimit: limit });
-  return showChanged(interaction, temp, result, t);
+  if (kind !== 'limit') {
+    // Left empty, it goes back to the owner's display name, not whoever's changing it, if that's staff
+    const owner = await interaction.guild.members.fetch(temp.record.ownerId).catch(() => null);
+    const prefix = temp.record.namePrefix;
+    const label = channelLabel(prefix, interaction.fields.getTextInputValue(NAME_INPUT_ID)) || owner?.displayName || channelLabel(prefix, temp.channel.name);
+    change.name = channelName(prefix, label);
+  }
+  return showChanged(interaction, temp, await changeTempChannel(temp, interaction.member, change), t);
 }
 
 /** /voice: the panel for the channel you're in, just for you. */

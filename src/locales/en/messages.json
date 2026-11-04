@@ -699,8 +699,6 @@
       "peopleLimit_other": "{{count}} of {{limit}} people here",
       "locked": "Locked",
       "hidden": "Hidden",
-      "edit": "Name and limit",
-      "editDescription": "The channel's name and how many people can join",
       "delete": "Delete channel",
       "allowed": "Let in",
       "blocked": "Kept out",
@@ -711,8 +709,13 @@
       "nobodyHere": "Nobody else is here yet",
       "lockedDescription": "Only people you let in can join",
       "hiddenDescription": "Only people you let in can see it",
-      "nameWithLimit_one": "{{name}} · up to {{count}} person",
-      "nameWithLimit_other": "{{name}} · up to {{count}} people"
+      "name": "Name",
+      "nameDescription": "What the channel is called",
+      "limit": "User limit",
+      "limitDescription": "How many people can be in it at once",
+      "limitValue_one": "{{count}} person",
+      "limitValue_other": "{{count}} people",
+      "noLimit": "No limit"
     },
     "announce": {
       "changed": "{{user}} changed this channel:",
@@ -746,7 +749,9 @@
       "title": "Name and limit",
       "name": "Name (empty for your name)",
       "limit": "User limit (empty for none)",
-      "invalidLimit": "The limit needs to be a number up to 99, or empty for no limit."
+      "invalidLimit": "The limit needs to be a number up to 99, or empty for no limit.",
+      "nameTitle": "Rename the channel",
+      "limitTitle": "User limit"
     },
     "member": {
       "question": "What about {{user}}?",

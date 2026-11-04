@@ -321,8 +321,6 @@
       "peopleLimit_other": "{{count}} von {{limit}} Leuten hier",
       "locked": "Abgeschlossen",
       "hidden": "Versteckt",
-      "edit": "Name und Limit",
-      "editDescription": "Der Name des Kanals und wie viele Leute beitreten können",
       "delete": "Kanal löschen",
       "allowed": "Reingelassen",
       "blocked": "Ausgesperrt",
@@ -333,8 +331,13 @@
       "nobodyHere": "Sonst ist noch niemand hier",
       "lockedDescription": "Nur wen du reinlässt, kann beitreten",
       "hiddenDescription": "Nur wen du reinlässt, kann ihn sehen",
-      "nameWithLimit_one": "{{name}} · bis zu {{count}} Person",
-      "nameWithLimit_other": "{{name}} · bis zu {{count}} Leute"
+      "name": "Name",
+      "nameDescription": "Wie der Kanal heißt",
+      "limit": "Limit",
+      "limitDescription": "Wie viele Leute gleichzeitig drin sein können",
+      "limitValue_one": "{{count}} Person",
+      "limitValue_other": "{{count}} Leute",
+      "noLimit": "Kein Limit"
     },
     "announce": {
       "changed": "{{user}} hat den Kanal geändert:",
@@ -368,7 +371,9 @@
       "title": "Name und Limit",
       "name": "Name (leer für deinen Namen)",
       "limit": "Limit (leer für keins)",
-      "invalidLimit": "Das Limit muss eine Zahl bis 99 sein, oder leer für keins."
+      "invalidLimit": "Das Limit muss eine Zahl bis 99 sein, oder leer für keins.",
+      "nameTitle": "Kanal umbenennen",
+      "limitTitle": "Limit"
     },
     "member": {
       "question": "Was ist mit {{user}}?",
