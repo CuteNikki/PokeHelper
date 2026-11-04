@@ -30,16 +30,60 @@ function egg(ctx: SKRSContext2D, x: number, y: number, size: number, angle: numb
   ctx.restore();
 }
 
-/** Three eggs in the grass. */
-function eggs(ctx: SKRSContext2D, x: number, y: number, scale: number) {
+/** A woven basket with a handle, and three eggs peeking out of it. */
+function basket(ctx: SKRSContext2D, x: number, y: number, scale: number) {
   ctx.save();
-  // Lying down in the grass, as they're small
-  ctx.translate(x, y + 6);
+  ctx.translate(x, y);
   ctx.scale(scale, scale);
-  // Colors that stand out from the sky and the grass
-  egg(ctx, -42, -40, 34, -0.3, '#ff9f43', '#ffffff');
-  egg(ctx, 40, -38, 32, 0.25, '#ffc9de', '#ffd43b');
-  egg(ctx, 0, -48, 38, 0, '#d0bfff', '#69db7c');
+
+  // The handle, behind the eggs
+  ctx.strokeStyle = '#a0612b';
+  ctx.lineWidth = 10;
+  ctx.beginPath();
+  ctx.moveTo(-58, -78);
+  ctx.bezierCurveTo(-56, -170, 56, -170, 58, -78);
+  ctx.stroke();
+
+  // The eggs, their bottoms hidden in the basket. Colors that stand out from the sky and the grass
+  egg(ctx, -32, -96, 30, -0.3, '#ff9f43', '#ffffff');
+  egg(ctx, 32, -94, 28, 0.25, '#ffc9de', '#ffd43b');
+  egg(ctx, 0, -104, 33, 0, '#d0bfff', '#69db7c');
+
+  // The basket, a bowl wider at the top, with a rim and woven rows
+  const bowl = () => {
+    ctx.beginPath();
+    ctx.moveTo(-70, -84);
+    ctx.lineTo(70, -84);
+    ctx.quadraticCurveTo(66, 0, 40, 0);
+    ctx.lineTo(-40, 0);
+    ctx.quadraticCurveTo(-66, 0, -70, -84);
+    ctx.closePath();
+  };
+  bowl();
+  ctx.fillStyle = '#c98a4b';
+  ctx.fill();
+  ctx.save();
+  bowl();
+  ctx.clip();
+  ctx.strokeStyle = '#a0612b';
+  ctx.lineWidth = 4;
+  for (let row = -64; row < 0; row += 18) {
+    ctx.beginPath();
+    ctx.moveTo(-80, row);
+    ctx.lineTo(80, row);
+    ctx.stroke();
+  }
+  for (let column = -60; column <= 60; column += 20) {
+    ctx.beginPath();
+    ctx.moveTo(column, -84);
+    ctx.lineTo(column * 0.7, 0);
+    ctx.stroke();
+  }
+  ctx.restore();
+  ctx.fillStyle = '#a0612b';
+  ctx.beginPath();
+  ctx.roundRect(-76, -92, 152, 16, 8);
+  ctx.fill();
   ctx.restore();
 }
 
@@ -71,7 +115,7 @@ function chick(ctx: SKRSContext2D, time: number) {
   ctx.restore();
 }
 
-/** Easter: a soft spring sky, painted eggs in the grass, and a chick on its head. */
+/** Easter: a soft spring sky, a basket of painted eggs, and a chick on its head. */
 export const easter: Theme = {
   sky: ['#b3e1ff', '#6fa8f0'],
   cloud: '#ffffff',
@@ -79,6 +123,6 @@ export const easter: Theme = {
   ground: { kind: 'grass', colors: ['#3f9a52', '#5bbf6a', '#7fd88a'] },
   ear: '#46507e',
   titleShadow: 'rgba(30,60,130,0.35)',
-  prop: (ctx, x, y, scale) => eggs(ctx, x, y, scale),
+  prop: (ctx, x, y, scale) => basket(ctx, x, y, scale),
   hat: chick,
 };
