@@ -279,7 +279,7 @@
       "rewards_other": "You got the {{roles}} roles for it."
     },
     "weeklyReset": {
-      "message": "### New week, new chances! 🏆\nWeekly XP is back to 0. {{winner}} earned the most last week with **{{xp}}** XP, congrats!\n\nLast week's top chatters:"
+      "message": "### New week, new chances! 🏆\nWeekly XP is back to 0. {{winner}} earned the most last week with {{xp}} XP, congrats!\n\nLast week's top chatters:"
     },
     "disabled": "Leveling isn't turned on here. Turn it on with `/leveling-config settings`.",
     "rank": {
