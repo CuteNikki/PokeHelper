@@ -16,6 +16,8 @@ import { prisma } from 'database/index';
 import { registerCommands } from 'utility/commandRegistration';
 import { logger } from 'utility/logger';
 import { changedSinceStart, reload, RELOAD_TARGETS, type ReloadTarget } from 'utility/reload';
+import { logTranslate } from 'utility/logs/send';
+import { sendPreview } from 'utility/logs/preview';
 import { createResponse } from 'utility/response';
 
 export default new Command({
@@ -40,7 +42,8 @@ export default new Command({
         ),
     )
     .addSubcommand((cmd) => cmd.setName('register').setDescription('Reload the commands and register them with Discord'))
-    .addSubcommand((cmd) => cmd.setName('restart').setDescription('Restart the bot, for changes a reload does not pick up')),
+    .addSubcommand((cmd) => cmd.setName('restart').setDescription('Restart the bot, for changes a reload does not pick up'))
+    .addSubcommand((cmd) => cmd.setName('log-preview').setDescription('Post sample log entries here, to see how logs look')),
   async execute(interaction) {
     if (!interaction.inCachedGuild()) return;
 
@@ -51,6 +54,8 @@ export default new Command({
         return handleRegister(interaction);
       case 'restart':
         return handleRestart(interaction);
+      case 'log-preview':
+        return handleLogPreview(interaction);
     }
   },
 });
@@ -103,4 +108,12 @@ async function handleRestart(interaction: ChatInputCommandInteraction<'cached'>)
   await interaction.client.destroy();
   await prisma.$disconnect();
   process.exit(0);
+}
+
+/** Post sample log entries in this channel, in the server's language like real ones, to see how they look. */
+async function handleLogPreview(interaction: ChatInputCommandInteraction<'cached'>) {
+  await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
+  if (!interaction.channel?.isSendable()) return interaction.editReply(createResponse("I can't post in this channel.", 'error'));
+  await sendPreview(interaction.channel, interaction.member, logTranslate(interaction.guild));
+  return interaction.editReply(createResponse('Posted the sample log entries.', 'success'));
 }

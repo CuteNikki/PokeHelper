@@ -96,7 +96,7 @@ export const quoteText = (text: string) =>
  * An entry as a card: a small label with where it happened, who or what it's about with their picture, who did it and when,
  * then the details under a line, and the buttons.
  */
-function buildEntry(entry: LogEntry, t: Translate) {
+export function buildLogEntry(entry: LogEntry, t: Translate) {
   const meta = [entry.by ? t('logs.by', { user: userMention(entry.by.id) }) : null, time(new Date(), TimestampStyles.ShortDateTime)];
   const header = new TextDisplayBuilder().setContent(
     [`-# ${entry.label.toLocaleUpperCase(t('locale'))}${entry.where ? ` · ${entry.where}` : ''}`, entry.subject, `-# ${meta.filter(Boolean).join(' · ')}`].join(
@@ -167,7 +167,7 @@ export async function sendLog(guild: Guild, event: LogEvent, entry: LogEntry | (
 
     const t = logTranslate(guild);
     const built = typeof entry === 'function' ? await entry(t) : entry;
-    if (built) await channel.send(buildEntry(built, t));
+    if (built) await channel.send(buildLogEntry(built, t));
   } catch (error) {
     logger.warn(error, `Failed to log ${event} in guild ${guild.id}`);
   }
