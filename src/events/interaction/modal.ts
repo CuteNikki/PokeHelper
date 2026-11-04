@@ -5,10 +5,10 @@ import { Event } from 'classes/base/event';
 import { handleSettingsModal } from 'settings/index';
 
 import { getTranslate } from 'utility/i18next';
-import { handleLeaderboardPageModal } from 'utility/leaderboardPageModal';
-import { LEADERBOARD_PAGE_MODAL_PREFIX } from 'utility/leaderboardView';
+import { handleLeaderboardPageModal } from 'utility/leveling/leaderboardPageModal';
+import { LEADERBOARD_PAGE_MODAL_PREFIX } from 'utility/leveling/leaderboardView';
 import { logger } from 'utility/logger';
-import { handlePokedexSearchModal, POKEDEX_SEARCH_MODAL_PREFIX } from 'utility/pokedex';
+import { handlePokedexSearchModal, POKEDEX_SEARCH_MODAL_PREFIX } from 'utility/pokedex/entry';
 import { sendError } from 'utility/response';
 import { SETTINGS_CUSTOM_ID_PREFIX } from 'utility/settings';
 

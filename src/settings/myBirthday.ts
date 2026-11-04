@@ -2,7 +2,7 @@ import { ButtonBuilder, ButtonStyle, type Client } from 'discord.js';
 
 import { getUserBirthday, setUserBirthdayDate, updateUserBirthday } from 'database/birthday';
 
-import { parseBirthday, resolveTimezone } from 'utility/birthdayDates';
+import { parseBirthday, resolveTimezone } from 'utility/birthday/dates';
 import { createSettingsPanel } from 'utility/settings';
 
 /** Custom ID of the button that asks whether to delete your birthday. */

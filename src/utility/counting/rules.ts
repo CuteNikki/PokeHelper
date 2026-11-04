@@ -1,6 +1,6 @@
 import type { GuildCounting } from 'generated/prisma/client';
 
-import { parseCount } from 'utility/countingParse';
+import { parseCount } from 'utility/counting/parse';
 
 /** The part of the counting configuration that changes while counting. */
 export type CountingState = Pick<

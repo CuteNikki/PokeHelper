@@ -4,9 +4,9 @@ import { Command } from 'classes/base/command';
 
 import { getTranslate, resolveLanguage } from 'utility/i18next';
 import { logger } from 'utility/logger';
-import { PokeApiError } from 'utility/pokeapi';
-import { buildPokedexEntry } from 'utility/pokedex';
-import { findPokemon, formatDexNumber, loadPokedexData, matchName, matchSlug, searchPokemon } from 'utility/pokedexData';
+import { PokeApiError } from 'utility/pokedex/api';
+import { buildPokedexEntry } from 'utility/pokedex/entry';
+import { findPokemon, formatDexNumber, loadPokedexData, matchName, matchSlug, searchPokemon } from 'utility/pokedex/names';
 import { createResponse, sendResponse } from 'utility/response';
 
 /** Discord shows at most 25 autocomplete choices. */

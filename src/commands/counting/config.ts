@@ -17,7 +17,7 @@ import { createCounting, getCounting } from 'database/counting';
 import { COUNTING_CHANNEL_PERMISSIONS, countingSettings } from 'settings/counting';
 
 import { buildConfirmation } from 'utility/confirm';
-import { runCountingTask } from 'utility/countingGame';
+import { runCountingTask } from 'utility/counting/game';
 import { getTranslate } from 'utility/i18next';
 import { createResponse, sendResponse } from 'utility/response';
 import { formatPermissions, missingBotPermissions, settingsContext } from 'utility/settings';

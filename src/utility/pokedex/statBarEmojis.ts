@@ -2,7 +2,7 @@ import { createCanvas } from '@napi-rs/canvas';
 import type { Client } from 'discord.js';
 
 import { logger } from 'utility/logger';
-import { TYPE_COLORS } from 'utility/pokemonTypes';
+import { TYPE_COLORS } from 'utility/pokedex/types';
 
 /**
  * The bot's own emojis that stat bars are made of, in every type's color. They're drawn here and uploaded to the bot's application

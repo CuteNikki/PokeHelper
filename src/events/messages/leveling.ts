@@ -7,8 +7,8 @@ import { addXpToUser, addXpToUserWeekly, getGuildLevelingConfiguration, getLevel
 import { getUserData } from 'database/user';
 
 import { getTranslate } from 'utility/i18next';
-import { getChannelChain, syncRewardRoles } from 'utility/levelingRewards';
-import { applyMultiplier, earnsXp, getMultiplier } from 'utility/levelingRules';
+import { getChannelChain, syncRewardRoles } from 'utility/leveling/rewards';
+import { applyMultiplier, earnsXp, getMultiplier } from 'utility/leveling/rules';
 import { logger } from 'utility/logger';
 import { logFailure } from 'utility/response';
 import { ThemeColors } from 'utility/theme';

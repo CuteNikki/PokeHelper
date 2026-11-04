@@ -23,8 +23,8 @@ import {
   type CountingEvent,
   type CountingState,
   type CountMessage,
-} from 'utility/counting';
-import { parseCount } from 'utility/countingParse';
+} from 'utility/counting/rules';
+import { parseCount } from 'utility/counting/parse';
 import { getTranslate } from 'utility/i18next';
 import { logger } from 'utility/logger';
 import { KeyedQueue } from 'utility/queue';

@@ -2,7 +2,7 @@ import type { Guild, GuildMember, GuildTextBasedChannel } from 'discord.js';
 
 import { getUserIdsWithXp, getXPForLevel } from 'database/leveling';
 
-import { getEarnedRewardRoles } from 'utility/levelingRules';
+import { getEarnedRewardRoles } from 'utility/leveling/rules';
 import { logger } from 'utility/logger';
 import { canGiveRole } from 'utility/roles';
 

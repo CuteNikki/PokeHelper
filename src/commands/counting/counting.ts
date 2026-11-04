@@ -17,7 +17,7 @@ import { getCounting } from 'database/counting';
 import { getCountingUser, getCurrentRun, getEntriesForNumbers, getRecentRuns, getRunCount, getRunNumber, getTopCounters } from 'database/countingStats';
 
 import type { CountingRun, GuildCounting } from 'generated/prisma/client';
-import { formatLives, getMilestones } from 'utility/counting';
+import { formatLives, getMilestones } from 'utility/counting/rules';
 import { formatDuration, formatNumber } from 'utility/duration';
 import { createResponse, sendError, sendResponse } from 'utility/response';
 

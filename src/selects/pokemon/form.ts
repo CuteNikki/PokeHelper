@@ -3,7 +3,7 @@ import type { StringSelectMenuInteraction } from 'discord.js';
 import { SelectMenu } from 'classes/base/select';
 
 import { getTranslate } from 'utility/i18next';
-import { parsePokedexFormSelectId, POKEDEX_FORM_SELECT_ID, updatePokedexEntry } from 'utility/pokedex';
+import { parsePokedexFormSelectId, POKEDEX_FORM_SELECT_ID, updatePokedexEntry } from 'utility/pokedex/entry';
 import { sendError } from 'utility/response';
 
 /** The forms select of a Pokédex entry, like Alolan Raichu or Mega Charizard X. */

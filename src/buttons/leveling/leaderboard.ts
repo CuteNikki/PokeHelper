@@ -3,9 +3,9 @@ import { Button } from 'classes/base/button';
 import { getGuildLevelingConfiguration } from 'database/leveling';
 
 import { getTranslate } from 'utility/i18next';
-import { buildLeaderboard } from 'utility/leaderboard';
-import { buildLeaderboardPageModal } from 'utility/leaderboardPageModal';
-import { LEADERBOARD_CUSTOM_ID_PREFIX, parseLeaderboardCustomId } from 'utility/leaderboardView';
+import { buildLeaderboard } from 'utility/leveling/leaderboard';
+import { buildLeaderboardPageModal } from 'utility/leveling/leaderboardPageModal';
+import { LEADERBOARD_CUSTOM_ID_PREFIX, parseLeaderboardCustomId } from 'utility/leveling/leaderboardView';
 import { sendError } from 'utility/response';
 
 /** The page buttons of the leaderboard. Each carries the view it leads to, so they work however old the message is. */

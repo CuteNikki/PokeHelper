@@ -4,7 +4,7 @@ import { Event } from 'classes/base/event';
 
 import { getCounting } from 'database/counting';
 
-import { handleCountingMessage, isPlayerMessage, runCountingTask } from 'utility/countingGame';
+import { handleCountingMessage, isPlayerMessage, runCountingTask } from 'utility/counting/game';
 
 export default new Event({
   name: Events.MessageCreate,

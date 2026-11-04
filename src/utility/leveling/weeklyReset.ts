@@ -3,7 +3,7 @@ import { ContainerBuilder, MessageFlags, TextDisplayBuilder, userMention, type C
 import { getActiveLevelingConfigs, getLevelFromXP, getTopWeeklyUsersByXP, processWeeklyResetTransaction } from 'database/leveling';
 
 import { getTranslate } from 'utility/i18next';
-import { isWeeklyResetDue } from 'utility/levelingRules';
+import { isWeeklyResetDue } from 'utility/leveling/rules';
 import { logger } from 'utility/logger';
 import { canGiveRole } from 'utility/roles';
 import { ThemeColors } from 'utility/theme';

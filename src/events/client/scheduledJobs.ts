@@ -2,8 +2,8 @@ import { Events } from 'discord.js';
 
 import { Event } from 'classes/base/event';
 
-import { runBirthdayJob } from 'utility/birthday';
-import { runWeeklyResetJob } from 'utility/leveling';
+import { runBirthdayJob } from 'utility/birthday/job';
+import { runWeeklyResetJob } from 'utility/leveling/weeklyReset';
 import { scheduleJob } from 'utility/scheduler';
 
 /** How often the jobs check what's due. Often enough that birthdays are on time, rarely enough to stay cheap. */

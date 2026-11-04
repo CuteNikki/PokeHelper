@@ -1,7 +1,7 @@
 import { Button } from 'classes/base/button';
 
 import { getTranslate } from 'utility/i18next';
-import { buildPokedexSearchModal, parsePokedexCustomId, POKEDEX_CUSTOM_ID_PREFIX, updatePokedexEntry } from 'utility/pokedex';
+import { buildPokedexSearchModal, parsePokedexCustomId, POKEDEX_CUSTOM_ID_PREFIX, updatePokedexEntry } from 'utility/pokedex/entry';
 import { sendError } from 'utility/response';
 
 /** The buttons of a Pokédex entry: previous, next, search, shiny and the evolutions. Each carries the entry it leads to, so they work however old the message is. */

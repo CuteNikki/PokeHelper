@@ -22,7 +22,7 @@ import {
 } from 'database/leveling';
 
 import { getTranslate, type Translate } from 'utility/i18next';
-import { renderRankCard, type LevelProgress } from 'utility/rankCard';
+import { renderRankCard, type LevelProgress } from 'utility/leveling/rankCard';
 import { createResponse, sendError } from 'utility/response';
 
 /** A member's level progress from their XP and rank. */

@@ -10,7 +10,7 @@ import {
   replayCounts,
   type CountingState,
   type CountMessage,
-} from 'utility/counting';
+} from 'utility/counting/rules';
 
 const emptyState: CountingState = {
   livesLeft: 0,

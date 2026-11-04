@@ -6,7 +6,7 @@ import { deleteGuildLevelingConfiguration } from 'database/leveling';
 
 import { myBirthdaySettings } from 'settings/myBirthday';
 
-import { runCountingTask } from 'utility/countingGame';
+import { runCountingTask } from 'utility/counting/game';
 import type { Translate } from 'utility/i18next';
 import { createResponse, type ResponsePayload } from 'utility/response';
 import type { SettingsContext } from 'utility/settings';

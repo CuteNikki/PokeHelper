@@ -3,7 +3,7 @@ import { Events } from 'discord.js';
 import { Event } from 'classes/base/event';
 
 import { logger } from 'utility/logger';
-import { syncStatBarEmojis } from 'utility/statBarEmojis';
+import { syncStatBarEmojis } from 'utility/pokedex/statBarEmojis';
 
 /** Makes sure the bot has the emojis stat bars are made of. Until then, or if it fails, the bars use plain emoji. */
 export default new Event({

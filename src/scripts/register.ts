@@ -5,7 +5,7 @@ import type { Command } from 'classes/base/command';
 import { registerCommands } from 'utility/commandRegistration';
 import { getFilesFrom } from 'utility/files';
 import { logger } from 'utility/logger';
-import { isValidCommand } from '../loading/commands';
+import { isValidCommand } from 'loading/commands';
 
 const DISCORD_TOKEN = process.env.DISCORD_TOKEN;
 const DISCORD_ID = process.env.DISCORD_ID;

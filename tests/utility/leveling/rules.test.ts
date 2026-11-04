@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 
-import { applyMultiplier, earnsXp, getEarnedRewardRoles, getMultiplier, isWeeklyResetDue, startOfWeek } from 'utility/levelingRules';
+import { applyMultiplier, earnsXp, getEarnedRewardRoles, getMultiplier, isWeeklyResetDue, startOfWeek } from 'utility/leveling/rules';
 
 const noFilters = { ignoredChannels: [], enabledChannels: [], ignoredRoles: [], enabledRoles: [] };
 // A thread in #general, which is in the Chat category

@@ -3,8 +3,8 @@ import { SelectMenu } from 'classes/base/select';
 import { getGuildLevelingConfiguration } from 'database/leveling';
 
 import { getTranslate } from 'utility/i18next';
-import { buildLeaderboard } from 'utility/leaderboard';
-import { LEADERBOARD_CUSTOM_ID_PREFIX, parseLeaderboardCustomId } from 'utility/leaderboardView';
+import { buildLeaderboard } from 'utility/leveling/leaderboard';
+import { LEADERBOARD_CUSTOM_ID_PREFIX, parseLeaderboardCustomId } from 'utility/leveling/leaderboardView';
 import { parseSortOrder } from 'utility/pagination';
 import { sendError } from 'utility/response';
 

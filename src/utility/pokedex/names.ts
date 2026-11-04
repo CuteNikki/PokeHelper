@@ -1,6 +1,6 @@
 import { supportedLanguages } from 'utility/i18next';
 import { logger } from 'utility/logger';
-import { PokeApiError } from 'utility/pokeapi';
+import { PokeApiError } from 'utility/pokedex/api';
 
 const GRAPHQL_URL = 'https://beta.pokeapi.co/graphql/v1beta';
 const TIMEOUT = 30_000;

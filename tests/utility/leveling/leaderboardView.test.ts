@@ -7,7 +7,7 @@ import {
   parseLeaderboardCustomId,
   parseLeaderboardPageModalId,
   type LeaderboardView,
-} from 'utility/leaderboardView';
+} from 'utility/leveling/leaderboardView';
 
 const view: LeaderboardView = { page: 3, sortOrder: 'asc', weekly: true, text: true };
 

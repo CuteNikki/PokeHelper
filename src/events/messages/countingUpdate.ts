@@ -4,7 +4,7 @@ import { Event } from 'classes/base/event';
 
 import { getCounting } from 'database/counting';
 
-import { handleChangedCount, runCountingTask } from 'utility/countingGame';
+import { handleChangedCount, runCountingTask } from 'utility/counting/game';
 
 export default new Event({
   name: Events.MessageUpdate,

@@ -3,7 +3,7 @@ import { userMention, type Client } from 'discord.js';
 import { prisma } from 'database/index';
 
 import type { GuildBirthday, UserBirthday } from 'generated/prisma/client';
-import { ageInYear, getBirthdayActions } from 'utility/birthdayDates';
+import { ageInYear, getBirthdayActions } from 'utility/birthday/dates';
 import { getTranslate } from 'utility/i18next';
 import { logger } from 'utility/logger';
 import { createResponse } from 'utility/response';

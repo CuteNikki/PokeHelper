@@ -34,10 +34,10 @@ import {
   speciesIdFromUrl,
   type ApiEvolutionLink,
   type ApiSpecies,
-} from 'utility/pokeapi';
-import { renderPokedexCard, STAT_BAR_MAX } from 'utility/pokedexCard';
-import { TYPE_COLORS } from 'utility/pokemonTypes';
-import { statBarEmoji, type BarPiece } from 'utility/statBarEmojis';
+} from 'utility/pokedex/api';
+import { renderPokedexCard, STAT_BAR_MAX } from 'utility/pokedex/card';
+import { TYPE_COLORS } from 'utility/pokedex/types';
+import { statBarEmoji, type BarPiece } from 'utility/pokedex/statBarEmojis';
 import {
   findBySlug,
   findPokemon,
@@ -49,7 +49,7 @@ import {
   nameIn,
   speciesById,
   type PokedexMatch,
-} from 'utility/pokedexData';
+} from 'utility/pokedex/names';
 import { sendError, type ResponsePayload } from 'utility/response';
 import { ThemeColors } from 'utility/theme';
 

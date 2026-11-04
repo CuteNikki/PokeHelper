@@ -19,7 +19,7 @@ import { getLevelFromXP, getTopUsersByXP, getTopWeeklyUsersByXP, getTotalUsersWi
 import { drawAvatar, truncateText } from 'utility/canvas';
 import { formatCompactNumber } from 'utility/duration';
 import type { Translate } from 'utility/i18next';
-import { clampPage, leaderboardCustomId, type LeaderboardAction, type LeaderboardView } from 'utility/leaderboardView';
+import { clampPage, leaderboardCustomId, type LeaderboardAction, type LeaderboardView } from 'utility/leveling/leaderboardView';
 
 const ITEMS_PER_PAGE = 5;
 

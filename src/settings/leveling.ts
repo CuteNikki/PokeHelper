@@ -4,7 +4,7 @@ import { getOrCreateGuildLevelingConfiguration, setLevelingMultiplier, setLeveli
 
 import type { GuildLevelingReward, LevelingMultiplier, MultiplierTarget, GuildLeveling } from 'generated/prisma/client';
 import type { Translate } from 'utility/i18next';
-import { grantRewardToQualifiedMembers } from 'utility/levelingRewards';
+import { grantRewardToQualifiedMembers } from 'utility/leveling/rewards';
 import { logFailure } from 'utility/response';
 import { createSettingsPanel, type EntriesSetting } from 'utility/settings';
 

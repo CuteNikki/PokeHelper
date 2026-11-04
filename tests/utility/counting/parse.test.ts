@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 
-import { parseCount } from 'utility/countingParse';
+import { parseCount } from 'utility/counting/parse';
 
 describe('parseCount without math', () => {
   test.each([

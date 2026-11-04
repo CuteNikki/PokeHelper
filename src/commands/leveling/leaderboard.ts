@@ -5,7 +5,7 @@ import { Command } from 'classes/base/command';
 import { getGuildLevelingConfiguration } from 'database/leveling';
 
 import { getTranslate } from 'utility/i18next';
-import { buildLeaderboard } from 'utility/leaderboard';
+import { buildLeaderboard } from 'utility/leveling/leaderboard';
 import { sendError } from 'utility/response';
 
 export default new Command({

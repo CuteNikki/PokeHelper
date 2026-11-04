@@ -3,7 +3,7 @@ import { ChannelType, SnowflakeUtil, type PermissionsString } from 'discord.js';
 import { getCounting, updateCounting } from 'database/counting';
 
 import type { GuildCounting } from 'generated/prisma/client';
-import { runCountingTask } from 'utility/countingGame';
+import { runCountingTask } from 'utility/counting/game';
 import { createSettingsPanel } from 'utility/settings';
 
 /** What the bot needs in the counting channel: read the numbers and catch up on them, reply, delete wrong numbers and react to milestones. */

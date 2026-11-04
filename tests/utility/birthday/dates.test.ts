@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 
-import { ageInYear, getBirthdayActions, getLocalTime, isBirthdayOn, parseBirthday, resolveTimezone } from 'utility/birthdayDates';
+import { ageInYear, getBirthdayActions, getLocalTime, isBirthdayOn, parseBirthday, resolveTimezone } from 'utility/birthday/dates';
 
 const birthday = (date: string) => new Date(`${date}T00:00:00Z`);
 const nothingDone = { roleYear: null, announcedYear: null, roleActive: false };

@@ -1,8 +1,8 @@
 import { LabelBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, type ModalSubmitInteraction } from 'discord.js';
 
 import { getTranslate, type Translate } from 'utility/i18next';
-import { buildLeaderboard } from 'utility/leaderboard';
-import { leaderboardPageModalId, parseLeaderboardPageModalId, type LeaderboardView } from 'utility/leaderboardView';
+import { buildLeaderboard } from 'utility/leveling/leaderboard';
+import { leaderboardPageModalId, parseLeaderboardPageModalId, type LeaderboardView } from 'utility/leveling/leaderboardView';
 import { sendError } from 'utility/response';
 
 const PAGE_INPUT_ID = 'page_input';
