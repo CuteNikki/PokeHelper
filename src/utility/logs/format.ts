@@ -56,5 +56,6 @@ export const userRef = (guild: Guild, id: string) => userSubject(guild.client.us
 /** The reason someone gave, as a part of the entry, or null if they gave none. */
 export const reasonPart = (doer: Doer | null, t: Translate) => (doer?.reason ? `**${t('logs.reason')}**\n${quoteText(doer.reason)}` : null);
 
-/** A date as how long ago it was, like `3 years ago`. */
-export const ago = (date: Date | number | null) => (date ? time(new Date(date), TimestampStyles.RelativeTime) : null);
+/** A date, and how long ago or from now that is, like `4 November 2026 21:14 (3 years ago)`. */
+export const when = (date: Date | number | null) =>
+  date ? `${time(new Date(date), TimestampStyles.ShortDateTime)} (${time(new Date(date), TimestampStyles.RelativeTime)})` : null;

@@ -1,10 +1,10 @@
-import { AuditLogEvent, Events, time, TimestampStyles } from 'discord.js';
+import { AuditLogEvent, Events } from 'discord.js';
 
 import { Event } from 'classes/base/event';
 
 import { whoDid } from 'utility/logs/audit';
 import { oldNew } from 'utility/logs/changes';
-import { avatarOf, code, reasonPart, roleSubject, userSubject } from 'utility/logs/format';
+import { avatarOf, code, reasonPart, roleSubject, userSubject, when } from 'utility/logs/format';
 import { sendLog } from 'utility/logs/send';
 
 /** A member changed: their nickname, roles or server avatar, or a timeout given or taken away. Each is its own log. */
@@ -97,7 +97,7 @@ export default new Event({
         subject,
         thumbnail,
         by: doer,
-        details: [timedOut ? `**${t('logs.until')}** ${time(new Date(isUntil), TimestampStyles.LongDateTime)}` : null, reasonPart(doer, t)],
+        details: [timedOut ? `**${t('logs.until')}** ${when(isUntil)}` : null, reasonPart(doer, t)],
         ids,
       }));
     }

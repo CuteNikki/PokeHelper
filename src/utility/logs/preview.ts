@@ -1,9 +1,9 @@
-import { time, TimestampStyles, type GuildMember, type SendableChannels } from 'discord.js';
+import { type GuildMember, type SendableChannels } from 'discord.js';
 
 import type { Translate } from 'utility/i18next';
 import { oldNew } from 'utility/logs/changes';
 import { transcriptFile, type TranscriptMessage } from 'utility/logs/files';
-import { ago, avatarOf, channelRef, channelSubject, code, reasonPart, roleSubject, userSubject } from 'utility/logs/format';
+import { when, avatarOf, channelRef, channelSubject, code, reasonPart, roleSubject, userSubject } from 'utility/logs/format';
 import { deletedText, editedText } from 'utility/logs/messages';
 import { postLogEntry, type LogEntry } from 'utility/logs/send';
 
@@ -144,7 +144,7 @@ export function previewEntries(member: GuildMember, channelId: string, t: Transl
       subject,
       thumbnail,
       details: [
-        `**${t('logs.accountCreated')}** ${ago(member.user.createdTimestamp)}\n**${t('logs.memberCount')}** ${guild.memberCount.toLocaleString(t('locale'))}`,
+        `**${t('logs.accountCreated')}** ${when(member.user.createdTimestamp)}\n**${t('logs.memberCount')}** ${guild.memberCount.toLocaleString(t('locale'))}`,
       ],
       ids: { user: member.id },
     },
@@ -155,7 +155,7 @@ export function previewEntries(member: GuildMember, channelId: string, t: Transl
       subject,
       thumbnail,
       details: [
-        `**${t('logs.joined')}** ${ago(member.joinedTimestamp)}`,
+        `**${t('logs.joined')}** ${when(member.joinedTimestamp)}`,
         `**${t('logs.roles')}**\n${[role(0, 'Melon'), role(1, 'Light Salmon Pink'), role(2, 'Bot')].join('\n')}`,
       ],
       ids: { user: member.id },
@@ -187,7 +187,7 @@ export function previewEntries(member: GuildMember, channelId: string, t: Transl
       subject,
       thumbnail,
       by: byWithReason,
-      details: [`**${t('logs.until')}** ${time(new Date(Date.now() + 60 * 60 * 1000), TimestampStyles.LongDateTime)}`, reasonPart(byWithReason, t)],
+      details: [`**${t('logs.until')}** ${when(Date.now() + 60 * 60 * 1000)}`, reasonPart(byWithReason, t)],
       ids: { user: member.id },
     },
     { kind: 'created', label: t('logs.labels.timeoutRemoved'), about: 'user', subject, thumbnail, by, ids: { user: member.id } },
@@ -267,9 +267,7 @@ export function previewEntries(member: GuildMember, channelId: string, t: Transl
       subject: code('pokehelper'),
       thumbnail,
       by: { id: member.id, reason: null },
-      details: [
-        `**${t('logs.invites.uses')}** ${t('logs.invites.unlimited')}\n**${t('logs.invites.expires')}** ${time(new Date(Date.now() + 7 * 86_400_000), TimestampStyles.RelativeTime)}`,
-      ],
+      details: [`**${t('logs.invites.uses')}** ${t('logs.invites.unlimited')}\n**${t('logs.invites.expires')}** ${when(Date.now() + 7 * 86_400_000)}`],
       ids: { invite: 'pokehelper' },
     },
     { kind: 'created', label: t('logs.labels.voiceJoined'), where, about: 'user', subject, thumbnail, ids: { user: member.id, channel: channelId } },
