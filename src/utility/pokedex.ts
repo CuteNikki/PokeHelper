@@ -30,6 +30,8 @@ import {
   type ApiSpecies,
 } from 'utility/pokeapi';
 import { renderPokedexCard, STAT_BAR_MAX } from 'utility/pokedexCard';
+import { TYPE_COLORS } from 'utility/pokemonTypes';
+import { statBarEmoji, type BarPiece } from 'utility/statBarEmojis';
 import {
   findBySlug,
   formatDexNumber,
@@ -60,29 +62,8 @@ export const POKEDEX_FORM_SELECT_ID = `${POKEDEX_CUSTOM_ID_PREFIX}form:`;
 
 /** Discord shows at most 25 options in a select. */
 const MAX_FORMS = 25;
-/** The colors the games use for each type. */
-const TYPE_COLORS: Record<string, number> = {
-  normal: 0xa8a77a,
-  fire: 0xee8130,
-  water: 0x6390f0,
-  electric: 0xf7d02c,
-  grass: 0x7ac74c,
-  ice: 0x96d9d6,
-  fighting: 0xc22e28,
-  poison: 0xa33ea1,
-  ground: 0xe2bf65,
-  flying: 0xa98ff3,
-  psychic: 0xf95587,
-  bug: 0xa6b91a,
-  rock: 0xb6a136,
-  ghost: 0x735797,
-  dragon: 0x6f35fc,
-  dark: 0x705746,
-  steel: 0xb7b7ce,
-  fairy: 0xd685ad,
-};
 
-/** The square emoji closest to each type's color, for the stat bars in the text. */
+/** The square emoji closest to each type's color, for the stat bars in the text when the bot's own bar emojis aren't there. */
 const TYPE_SQUARES: Record<string, string> = {
   normal: '⬜',
   fire: '🟧',
@@ -103,14 +84,19 @@ const TYPE_SQUARES: Record<string, string> = {
   steel: '⬜',
   fairy: '🟪',
 };
-/** Squares in a stat bar, which are all filled at the same value as the card's bars. */
-const STAT_SQUARES = 10;
+/** Pieces of a stat bar, which are all filled at the same value as the card's bars. */
+const STAT_BAR_PIECES = 10;
 
-/** A base stat as a bar of squares, like 🟩🟩🟩⬛⬛⬛⬛⬛⬛⬛. */
-const statBar = (value: number, square: string) => {
-  const filled = Math.max(1, Math.min(STAT_SQUARES, Math.round((value / STAT_BAR_MAX) * STAT_SQUARES)));
-  return square.repeat(filled) + '⬛'.repeat(STAT_SQUARES - filled);
-};
+/** A base stat as a bar in its type's color, made of the bot's bar emojis, or of squares like 🟩🟩🟩⬛⬛ if they aren't there. */
+function statBar(value: number, type: string): string {
+  const filled = Math.max(1, Math.min(STAT_BAR_PIECES, Math.round((value / STAT_BAR_MAX) * STAT_BAR_PIECES)));
+  const pieces = Array.from({ length: STAT_BAR_PIECES }, (_, index) => {
+    const piece: BarPiece = index === 0 ? 'start' : index === STAT_BAR_PIECES - 1 ? 'end' : 'middle';
+    return statBarEmoji(index < filled ? type : 'empty', piece);
+  });
+  if (pieces.every(Boolean)) return pieces.join('');
+  return (TYPE_SQUARES[type] ?? '⬜').repeat(filled) + '⬛'.repeat(STAT_BAR_PIECES - filled);
+}
 
 const STATS = ['hp', 'attack', 'defense', 'special-attack', 'special-defense', 'speed'] as const;
 
@@ -312,14 +298,14 @@ export async function buildPokedexEntry(match: PokedexMatch, view: PokedexView, 
       container.addTextDisplayComponents(header);
     }
 
-    const square = TYPE_SQUARES[pokemon.types.find((entry) => entry.slot === 1)?.type.name ?? ''] ?? '⬜';
+    const firstType = pokemon.types.find((entry) => entry.slot === 1)?.type.name ?? 'normal';
     const about = [
       `**${t('pokedex.details.type')}** ${types.map((type) => type.name).join(', ')}`,
       ...details.map((detail) => `**${detail.label}** ${detail.value}`),
     ];
     const statLines = [
       `### ${t('pokedex.stats.heading', { total: format(total) })}`,
-      ...stats.map((stat) => `${statBar(stat.value, square)} **${stat.value}** ${stat.label}`),
+      ...stats.map((stat) => `${statBar(stat.value, firstType)} **${stat.value}** ${stat.label}`),
     ];
     container
       .addSeparatorComponents(new SeparatorBuilder())
