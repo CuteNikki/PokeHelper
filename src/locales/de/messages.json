@@ -453,6 +453,16 @@
         "item": "- {{channel}} · neue Kanäle in {{category}}",
         "placeholder": "Wähl einen Beitrittskanal aus, um ihn zu ändern"
       }
+    },
+    "skipped": {
+      "bot_one": "Bots kannst du nicht wählen, also wurde {{users}} weggelassen.",
+      "bot_other": "Bots kannst du nicht wählen, also wurden {{users}} weggelassen.",
+      "owner_one": "{{users}} gehört der Kanal und kann schon alles, also wurde die Person weggelassen.",
+      "owner_other": "{{users}} gehört der Kanal und kann schon alles, also wurde die Person weggelassen.",
+      "staff_one": "{{users}} kommt als Moderator des Servers in jeden Kanal, aussperren würde also nichts bringen.",
+      "staff_other": "{{users}} kommen als Moderatoren des Servers in jeden Kanal, aussperren würde also nichts bringen.",
+      "moderator_one": "{{users}} ist Moderator dieses Kanals und wird immer reingelassen. Nimm die Person erst aus den Moderatoren, um sie auszusperren.",
+      "moderator_other": "{{users}} sind Moderatoren dieses Kanals und werden immer reingelassen. Nimm sie erst aus den Moderatoren, um sie auszusperren."
     }
   },
   "locale": "de-DE",

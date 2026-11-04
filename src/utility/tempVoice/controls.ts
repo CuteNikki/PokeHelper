@@ -214,21 +214,41 @@ export async function handleTempVoiceSelect(interaction: AnySelectMenuInteractio
   if (!temp) return;
 
   // Picking sets the whole list, so leaving someone out takes them off it
-  if (parsed.action === 'moderators' && interaction.isUserSelectMenu()) {
+  // Picking sets the whole list, so leaving someone out takes them off it. Who can't be on it is left off, and whoever picked is told why
+  if ((parsed.action === 'moderators' || parsed.action === 'allow' || parsed.action === 'block') && interaction.isUserSelectMenu()) {
+    const list = parsed.action;
+    /** Why someone can't be on the list, or null if they can. */
+    const reason = (id: string): 'bot' | 'owner' | 'staff' | 'moderator' | null => {
+      if (interaction.users.get(id)?.bot) return 'bot';
+      // The owner is always let in and can do everything already
+      if (id === temp.record.ownerId) return 'owner';
+      if (list !== 'block') return null;
+      // Staff are always let through, and moderators always let in, so keeping them out wouldn't do anything
+      const member = interaction.members.get(id);
+      if (member && isStaff(member)) return 'staff';
+      return temp.record.moderators.includes(id) ? 'moderator' : null;
+    };
+
+    const ids: string[] = [];
+    const skipped = new Map<'bot' | 'owner' | 'staff' | 'moderator', string[]>();
+    for (const id of interaction.users.keys()) {
+      const why = reason(id);
+      if (why) skipped.set(why, [...(skipped.get(why) ?? []), id]);
+      else ids.push(id);
+    }
+
     await interaction.deferUpdate();
-    const moderators = interaction.users.filter((user) => !user.bot).map((user) => user.id);
-    return showChanged(interaction, temp, await changeTempChannel(temp, interaction.member, { moderators }), t);
-  }
-  if (parsed.action === 'allow' && interaction.isUserSelectMenu()) {
-    await interaction.deferUpdate();
-    const allowed = interaction.users.filter((user) => !user.bot).map((user) => user.id);
-    return showChanged(interaction, temp, await changeTempChannel(temp, interaction.member, { allowed }), t);
-  }
-  if (parsed.action === 'block' && interaction.isUserSelectMenu()) {
-    await interaction.deferUpdate();
-    // Staff are always let through, so keeping them out wouldn't do anything
-    const blocked = interaction.members.filter((member) => !member.user.bot && !isStaff(member)).map((member) => member.id);
-    return showChanged(interaction, temp, await changeTempChannel(temp, interaction.member, { blocked }), t);
+    const change = list === 'moderators' ? { moderators: ids } : list === 'allow' ? { allowed: ids } : { blocked: ids };
+    await showChanged(interaction, temp, await changeTempChannel(temp, interaction.member, change), t);
+    if (skipped.size > 0) {
+      const lines = [...skipped].map(([why, users]) => t(`tempVoice.skipped.${why}`, { users: users.map((id) => `<@${id}>`).join(', '), count: users.length }));
+      await interaction.followUp({
+        ...createResponse(lines.join('\n'), 'warning'),
+        flags: [MessageFlags.IsComponentsV2, MessageFlags.Ephemeral],
+        allowedMentions: { parse: [] },
+      });
+    }
+    return;
   }
   if (parsed.action === 'member' && interaction.isStringSelectMenu()) {
     const target = interaction.values[0] ?? '';

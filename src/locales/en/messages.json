@@ -835,6 +835,16 @@
         "item": "- {{channel}} · new channels in {{category}}",
         "placeholder": "Pick a join channel to change it"
       }
+    },
+    "skipped": {
+      "bot_one": "Bots can't be picked, so {{users}} was left out.",
+      "bot_other": "Bots can't be picked, so {{users}} were left out.",
+      "owner_one": "{{users}} owns this channel and can do everything already, so they were left out.",
+      "owner_other": "{{users}} owns this channel and can do everything already, so they were left out.",
+      "staff_one": "{{users}} can join any channel as a moderator of the server, so keeping them out wouldn't do anything.",
+      "staff_other": "{{users}} can join any channel as moderators of the server, so keeping them out wouldn't do anything.",
+      "moderator_one": "{{users}} is a moderator of this channel and always let in. Take them off the moderators first to keep them out.",
+      "moderator_other": "{{users}} are moderators of this channel and always let in. Take them off the moderators first to keep them out."
     }
   },
   "locale": "en-US",
