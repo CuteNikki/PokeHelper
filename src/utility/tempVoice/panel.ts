@@ -4,6 +4,7 @@ import {
   ButtonStyle,
   ContainerBuilder,
   MessageFlags,
+  SectionBuilder,
   SeparatorBuilder,
   SeparatorSpacingSize,
   StringSelectMenuBuilder,
@@ -17,7 +18,7 @@ import { getTempVoiceChannel, updateTempVoiceChannel } from 'database/tempVoice'
 import { getTranslate, type Translate } from 'utility/i18next';
 import { logger } from 'utility/logger';
 import type { ResponsePayload } from 'utility/response';
-import type { TempChannel } from 'utility/tempVoice/channel';
+import { channelLabel, type TempChannel } from 'utility/tempVoice/channel';
 import { ThemeColors } from 'utility/theme';
 
 /**
@@ -59,9 +60,16 @@ export function buildPanel({ channel, record }: TempChannel, t: Translate): Resp
   const here = channel.members.filter((member) => !member.user.bot);
   const others = here.filter((member) => member.id !== record.ownerId);
 
-  const button = (action: TempVoiceAction, label: string, emoji: string, style = ButtonStyle.Secondary) =>
-    new ButtonBuilder().setCustomId(tempVoiceCustomId(action, id)).setLabel(label).setEmoji(emoji).setStyle(style);
-  const heading = (text: string) => new TextDisplayBuilder().setContent(`-# ${text}`);
+  // Rows like the settings panels': a bold name and a short description, with the button on the right
+  const row = (label: string, description: string, button: ButtonBuilder) =>
+    new SectionBuilder().addTextDisplayComponents(new TextDisplayBuilder().setContent(`**${label}**\n-# ${description}`)).setButtonAccessory(button);
+  const toggle = (action: TempVoiceAction, on: boolean) =>
+    new ButtonBuilder()
+      .setCustomId(tempVoiceCustomId(action, id))
+      .setLabel(t(on ? 'state.on' : 'state.off'))
+      .setEmoji(on ? '✅' : '✖️')
+      .setStyle(on ? ButtonStyle.Success : ButtonStyle.Secondary);
+  const heading = (text: string) => new TextDisplayBuilder().setContent(`**${text}**`);
 
   const allowed = new UserSelectMenuBuilder()
     .setCustomId(tempVoiceCustomId('allow', id))
@@ -86,32 +94,40 @@ export function buildPanel({ channel, record }: TempChannel, t: Translate): Resp
     someone.setPlaceholder(t('tempVoice.panel.nobodyHere')).addOptions({ label: '-', value: 'nobody' }).setDisabled(true);
   }
 
-  const details = [
-    t('tempVoice.panel.title'),
-    t('tempVoice.panel.owner', { owner: `<@${record.ownerId}>` }) + (here.has(record.ownerId) ? '' : ` ${t('tempVoice.panel.ownerAway')}`),
-    channel.userLimit ? t('tempVoice.panel.peopleLimit', { count: here.size, limit: channel.userLimit }) : t('tempVoice.panel.people', { count: here.size }),
-    t(record.locked ? 'tempVoice.panel.locked' : 'tempVoice.panel.unlocked'),
-    t(record.hidden ? 'tempVoice.panel.hidden' : 'tempVoice.panel.shown'),
-  ];
+  const owner = t('tempVoice.panel.owner', { owner: `<@${record.ownerId}>` }) + (here.has(record.ownerId) ? '' : ` ${t('tempVoice.panel.ownerAway')}`);
+  const people = channel.userLimit
+    ? t('tempVoice.panel.peopleLimit', { count: here.size, limit: channel.userLimit })
+    : t('tempVoice.panel.people', { count: here.size });
+  const name = channelLabel(record.namePrefix, channel.name);
+  const nameAndLimit = channel.userLimit ? t('tempVoice.panel.nameWithLimit', { name, count: channel.userLimit }) : name;
 
   const container = new ContainerBuilder()
     .setAccentColor(ThemeColors.info)
-    .addTextDisplayComponents(new TextDisplayBuilder().setContent(details.join('\n')))
-    .addActionRowComponents(
-      new ActionRowBuilder<ButtonBuilder>().addComponents(
-        record.locked ? button('lock', t('tempVoice.panel.unlock'), '🔓') : button('lock', t('tempVoice.panel.lock'), '🔒'),
-        record.hidden ? button('hide', t('tempVoice.panel.show'), '👀') : button('hide', t('tempVoice.panel.hide'), '🙈'),
-        button('edit', t('tempVoice.panel.edit'), '✏️'),
-        button('delete', t('tempVoice.panel.delete'), '🗑️', ButtonStyle.Danger),
+    .addTextDisplayComponents(new TextDisplayBuilder().setContent(`${t('tempVoice.panel.title')}\n${owner} · ${people}`))
+    .addSeparatorComponents(new SeparatorBuilder())
+    .addSectionComponents(
+      row(t('tempVoice.panel.locked'), t('tempVoice.panel.lockedDescription'), toggle('lock', record.locked)),
+      row(t('tempVoice.panel.hidden'), t('tempVoice.panel.hiddenDescription'), toggle('hide', record.hidden)),
+      row(
+        t('tempVoice.panel.edit'),
+        nameAndLimit,
+        new ButtonBuilder().setCustomId(tempVoiceCustomId('edit', id)).setLabel(t('settings.text.edit')).setEmoji('✏️').setStyle(ButtonStyle.Secondary),
       ),
     )
-    .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large))
+    .addSeparatorComponents(new SeparatorBuilder())
     .addTextDisplayComponents(heading(t('tempVoice.panel.allowed')))
     .addActionRowComponents(new ActionRowBuilder<UserSelectMenuBuilder>().addComponents(allowed))
     .addTextDisplayComponents(heading(t('tempVoice.panel.blocked')))
     .addActionRowComponents(new ActionRowBuilder<UserSelectMenuBuilder>().addComponents(blocked))
     .addTextDisplayComponents(heading(t('tempVoice.panel.someone')))
-    .addActionRowComponents(new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(someone));
+    .addActionRowComponents(new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(someone))
+    // More space above the button at the bottom, like on the settings panels
+    .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large))
+    .addActionRowComponents(
+      new ActionRowBuilder<ButtonBuilder>().addComponents(
+        new ButtonBuilder().setCustomId(tempVoiceCustomId('delete', id)).setLabel(t('tempVoice.panel.delete')).setEmoji('🗑️').setStyle(ButtonStyle.Danger),
+      ),
+    );
 
   // The owner's mention pings them when the panel is posted, so they find their controls. Edits keep it allowed too:
   // an edit that didn't would take the mention, and its notification, back. Edits never ping
