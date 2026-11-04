@@ -11,9 +11,10 @@ import { t } from 'i18next';
 import type { ExtendedClient } from 'classes/base/client';
 import { Command } from 'classes/base/command';
 
+import { scheduleLines } from 'art/calendar';
 import { THEMES } from 'art/themes';
 
-import { updateBotProfile } from 'database/botProfile';
+import { getBotProfile, updateBotProfile } from 'database/botProfile';
 import { prisma } from 'database/index';
 
 import { registerCommands } from 'utility/commandRegistration';
@@ -21,7 +22,7 @@ import { logger } from 'utility/logger';
 import { changedSinceStart, reload, RELOAD_TARGETS, type ReloadTarget } from 'utility/reload';
 import { logTranslate } from 'utility/logs/send';
 import { sendPreview } from 'utility/logs/preview';
-import { isThemeName, profileThemesEnabled, syncProfileTheme } from 'utility/profileTheme';
+import { isThemeName, madeOn, profileThemesEnabled, syncProfileTheme, wantedTheme } from 'utility/profileTheme';
 import { createResponse } from 'utility/response';
 
 export default new Command({
@@ -59,7 +60,8 @@ export default new Command({
             .setRequired(true)
             .addChoices({ name: 'auto', value: 'auto' }, ...Object.keys(THEMES).map((name) => ({ name, value: name }))),
         ),
-    ),
+    )
+    .addSubcommand((cmd) => cmd.setName('theme-calendar').setDescription('Which theme the bot wears when, over the next twelve months')),
   async execute(interaction) {
     if (!interaction.inCachedGuild()) return;
 
@@ -74,6 +76,8 @@ export default new Command({
         return handleLogPreview(interaction);
       case 'profile-theme':
         return handleProfileTheme(interaction);
+      case 'theme-calendar':
+        return handleThemeCalendar(interaction);
     }
   },
 });
@@ -152,4 +156,18 @@ async function handleProfileTheme(interaction: ChatInputCommandInteraction<'cach
     profileThemesEnabled() ? null : '-# PROFILE_THEMES is off here, so it only changes when you use this command.',
   ];
   return interaction.editReply(createResponse(lines.filter(Boolean).join('\n'), 'success'));
+}
+
+/** Which theme the bot wears now, and when it wears which over the next twelve months, in a code block. */
+async function handleThemeCalendar(interaction: ChatInputCommandInteraction<'cached'>) {
+  const profile = await getBotProfile();
+  const override = isThemeName(profile?.override) ? profile.override : null;
+  const lines = [
+    override
+      ? `Wearing **${override}**, picked by hand. \`/dev profile-theme auto\` goes back to the calendar below.`
+      : `Wearing **${wantedTheme(interaction.client, null)}**, the theme of the day.`,
+    profileThemesEnabled() ? null : "-# PROFILE_THEMES is off here, so the bot doesn't change by itself.",
+    ['```', ...scheduleLines(madeOn(interaction.client)), '```'].join('\n'),
+  ];
+  return interaction.reply({ ...createResponse(lines.filter(Boolean).join('\n'), 'info'), flags: [MessageFlags.IsComponentsV2, MessageFlags.Ephemeral] });
 }

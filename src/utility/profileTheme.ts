@@ -22,7 +22,7 @@ export const profileThemesEnabled = () => process.env.PROFILE_THEMES === 'on';
 export const isThemeName = (name: string | null | undefined): name is ThemeName => !!name && name in THEMES;
 
 /** When the bot was made, from its ID, whose day is its birthday each year. */
-const madeOn = (client: Client<true>) => new Date(SnowflakeUtil.timestampFrom(client.user.id));
+export const madeOn = (client: Client<true>) => new Date(SnowflakeUtil.timestampFrom(client.user.id));
 
 /** The theme the bot should wear now: the one picked by hand, or else the one of the day. */
 export function wantedTheme(client: Client<true>, override: string | null, now = new Date()): ThemeName {

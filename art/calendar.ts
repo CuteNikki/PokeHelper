@@ -53,3 +53,47 @@ export function themeOn(date: Date, birthday: Date | null): ThemeName {
   if (month <= 8) return 'summer';
   return 'autumn';
 }
+
+/** A stretch of days with the same theme. */
+export interface ThemeStretch {
+  theme: ThemeName;
+  /** The first and the last day, at midnight UTC. */
+  from: Date;
+  to: Date;
+  days: number;
+}
+
+/**
+ * The themes over the coming days, from today, as stretches of the same theme.
+ * @param days How many days ahead, today included.
+ */
+export function themeSchedule(birthday: Date | null, days = 366, now = new Date()): ThemeStretch[] {
+  const start = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+  const stretches: ThemeStretch[] = [];
+  for (let day = 0; day < days; day++) {
+    const time = start + day * DAY;
+    const theme = themeOn(new Date(time), birthday);
+    const last = stretches.at(-1);
+    if (last?.theme === theme) {
+      last.to = new Date(time);
+      last.days++;
+    } else {
+      stretches.push({ theme, from: new Date(time), to: new Date(time), days: 1 });
+    }
+  }
+  return stretches;
+}
+
+/** The schedule as lines of text, like `2026-12-01 to 2026-12-30  christmas   30 days`, lined up for a code block. */
+export function scheduleLines(birthday: Date | null, days?: number, now?: Date): string[] {
+  const date = (value: Date) => value.toISOString().slice(0, 10);
+  return [
+    birthday ? `The bot's birthday is on ${date(birthday).slice(5)} each year.` : 'The birthday is left out.',
+    '',
+    ...themeSchedule(birthday, days, now).map(
+      (stretch) => `${date(stretch.from)} to ${date(stretch.to)}  ${stretch.theme.padEnd(11)} ${stretch.days} ${stretch.days === 1 ? 'day' : 'days'}`,
+    ),
+    '',
+    'Each change happens at midnight UTC, and the bot puts it on within 15 minutes.',
+  ];
+}
