@@ -723,7 +723,10 @@
       "limitDescription": "How many people can be in it at once",
       "limitValue_one": "{{count}} person",
       "limitValue_other": "{{count}} people",
-      "noLimit": "No limit"
+      "noLimit": "No limit",
+      "moderators": "Moderators",
+      "moderatorsDescription": "They can let people in, keep them out, kick them and set the limit, but can't rename, lock, hide or delete it",
+      "moderatorsPlaceholder": "Pick who helps you"
     },
     "announce": {
       "changed": "{{user}} changed this channel:",
@@ -744,14 +747,19 @@
       "tookOver": "{{new}} took over this channel from {{old}}.",
       "gaveAway": "{{user}} gave this channel to {{new}}, it was {{old}}'s.",
       "kicked": "{{user}} kicked {{target}}.",
-      "deleted": "🗑️ {{user}} deleted this channel. It's going away in a moment."
+      "deleted": "🗑️ {{user}} deleted this channel. It's going away in a moment.",
+      "moderators_one": "made {{users}} a moderator",
+      "moderators_other": "made {{users}} moderators",
+      "unmoderators_one": "made {{users}} not a moderator anymore",
+      "unmoderators_other": "made {{users}} not moderators anymore"
     },
     "controls": {
       "gone": "This channel doesn't exist anymore.",
       "notOwner": "Only {{owner}} can change this channel.",
       "renameLimit": "Discord only lets a channel be renamed so often. Try again {{time}}.",
       "notInOne": "You're not in a voice channel of your own right now.",
-      "notInOneJoin": "You're not in a voice channel of your own right now. Join {{channels}} to get one."
+      "notInOneJoin": "You're not in a voice channel of your own right now. Join {{channels}} to get one.",
+      "ownerOnly": "Only {{owner}} can do that, moderators can't."
     },
     "edit": {
       "title": "Name and limit",
@@ -774,7 +782,8 @@
       "cantTakeOver": "They've left, so they can't have it.",
       "alreadyOwner": "It's {{user}}'s already.",
       "changedMeanwhile": "This channel changed hands or was deleted in the meantime.",
-      "handedOver": "It's {{user}}'s channel now."
+      "handedOver": "It's {{user}}'s channel now.",
+      "notOnModerators": "Moderators can't do that to the owner or other moderators."
     },
     "config": {
       "title": "### Join Channel Settings 🔊",

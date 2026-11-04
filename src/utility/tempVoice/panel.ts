@@ -19,7 +19,7 @@ import { getTempVoiceChannel, updateTempVoiceChannel } from 'database/tempVoice'
 import { getTranslate, type Translate } from 'utility/i18next';
 import { logger } from 'utility/logger';
 import type { ResponsePayload } from 'utility/response';
-import { channelLabel, type TempChannel } from 'utility/tempVoice/channel';
+import { channelLabel, MAX_MODERATORS, type TempChannel } from 'utility/tempVoice/channel';
 import { ThemeColors } from 'utility/theme';
 
 /**
@@ -34,8 +34,25 @@ export const TEMP_VOICE_CUSTOM_ID_PREFIX = 'tempvoice:';
 export const TEMP_VOICE_EDIT_MODAL_PREFIX = 'tempvoice-edit:';
 
 /** `edit` is the one button for the name and limit on panels posted before they were apart. */
-export type TempVoiceAction = 'lock' | 'hide' | 'rename' | 'limit' | 'edit' | 'delete' | 'allow' | 'block' | 'member' | 'handover' | 'kick' | 'keepout';
-const ACTIONS: TempVoiceAction[] = ['lock', 'hide', 'rename', 'limit', 'edit', 'delete', 'allow', 'block', 'member', 'handover', 'kick', 'keepout'];
+export type TempVoiceAction =
+  'lock' | 'hide' | 'rename' | 'limit' | 'edit' | 'delete' | 'allow' | 'block' | 'moderators' | 'member' | 'handover' | 'kick' | 'keepout';
+const ACTIONS: TempVoiceAction[] = [
+  'lock',
+  'hide',
+  'rename',
+  'limit',
+  'edit',
+  'delete',
+  'allow',
+  'block',
+  'moderators',
+  'member',
+  'handover',
+  'kick',
+  'keepout',
+];
+/** What moderators can do: let people in, keep them out, kick them, and set the limit. The rest is for the owner. */
+export const MODERATOR_ACTIONS: TempVoiceAction[] = ['allow', 'block', 'limit', 'member', 'kick', 'keepout'];
 
 /** Discord's user selects pick at most 25 people. */
 const MAX_PICKED = 25;
@@ -87,6 +104,12 @@ export function buildPanel({ channel, record }: TempChannel, t: Translate): Resp
     .setMinValues(0)
     .setMaxValues(MAX_PICKED);
   if (record.blocked.length > 0) blocked.setDefaultUsers(record.blocked.slice(0, MAX_PICKED));
+  const moderators = new UserSelectMenuBuilder()
+    .setCustomId(tempVoiceCustomId('moderators', id))
+    .setPlaceholder(t('tempVoice.panel.moderatorsPlaceholder'))
+    .setMinValues(0)
+    .setMaxValues(MAX_MODERATORS);
+  if (record.moderators.length > 0) moderators.setDefaultUsers(record.moderators.slice(0, MAX_MODERATORS));
 
   // Always there, so the panel doesn't change shape when someone joins, and greyed out until there's someone to pick
   const someone = new StringSelectMenuBuilder().setCustomId(tempVoiceCustomId('member', id));
@@ -124,6 +147,9 @@ export function buildPanel({ channel, record }: TempChannel, t: Translate): Resp
     .addActionRowComponents(new ActionRowBuilder<UserSelectMenuBuilder>().addComponents(blocked))
     .addTextDisplayComponents(heading(t('tempVoice.panel.someone')))
     .addActionRowComponents(new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(someone))
+    .addSeparatorComponents(new SeparatorBuilder())
+    .addTextDisplayComponents(new TextDisplayBuilder().setContent(`**${t('tempVoice.panel.moderators')}**\n-# ${t('tempVoice.panel.moderatorsDescription')}`))
+    .addActionRowComponents(new ActionRowBuilder<UserSelectMenuBuilder>().addComponents(moderators))
     // More space above the button at the bottom, like on the settings panels
     .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large))
     .addActionRowComponents(

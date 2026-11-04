@@ -29,7 +29,7 @@ describe('channel names', () => {
 });
 
 describe('describeChanges', () => {
-  const base = { name: 'Nikki', userLimit: 0, namePrefix: '', locked: false, hidden: false, allowed: [], blocked: [] };
+  const base = { name: 'Nikki', userLimit: 0, namePrefix: '', locked: false, hidden: false, allowed: [], blocked: [], moderators: [] };
   const t = () => getTranslate('en');
 
   test('says nothing when nothing changed', () => {
@@ -44,6 +44,11 @@ describe('describeChanges', () => {
   test('moving someone from one list to the other is said once, as where they went', () => {
     const changes = describeChanges({ ...base, allowed: ['1'] }, { ...base, blocked: ['1'] }, t());
     expect(changes).toEqual(['kept out <@1>']);
+  });
+
+  test('says who became a moderator and who stopped being one', () => {
+    expect(describeChanges(base, { ...base, moderators: ['3'] }, t())).toEqual(['made <@3> a moderator']);
+    expect(describeChanges({ ...base, moderators: ['3'] }, base, t())).toEqual(['made <@3> not a moderator anymore']);
   });
 
   test('taking someone off a list is said too', () => {

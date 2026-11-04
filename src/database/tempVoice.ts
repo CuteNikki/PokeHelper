@@ -46,12 +46,12 @@ export const findTempVoiceChannelIds = async (channelIds: string[]) =>
 export const getOwnedTempVoiceChannels = async (guildId: string, ownerId: string) => prisma.tempVoiceChannel.findMany({ where: { guildId, ownerId } });
 
 export const createTempVoiceChannel = async (
-  data: Pick<TempVoiceChannel, 'channelId' | 'guildId' | 'creatorId' | 'ownerId' | 'namePrefix' | 'locked' | 'hidden' | 'allowed' | 'blocked'>,
+  data: Pick<TempVoiceChannel, 'channelId' | 'guildId' | 'creatorId' | 'ownerId' | 'namePrefix' | 'locked' | 'hidden' | 'allowed' | 'blocked' | 'moderators'>,
 ) => prisma.tempVoiceChannel.create({ data });
 
 export const updateTempVoiceChannel = async (
   channelId: string,
-  data: Partial<Pick<TempVoiceChannel, 'ownerId' | 'panelMessageId' | 'locked' | 'hidden' | 'allowed' | 'blocked'>>,
+  data: Partial<Pick<TempVoiceChannel, 'ownerId' | 'panelMessageId' | 'locked' | 'hidden' | 'allowed' | 'blocked' | 'moderators'>>,
 ) => prisma.tempVoiceChannel.update({ where: { channelId }, data });
 
 export const deleteTempVoiceChannel = async (channelId: string) => prisma.tempVoiceChannel.deleteMany({ where: { channelId } });

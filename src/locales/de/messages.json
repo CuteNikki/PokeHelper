@@ -341,7 +341,10 @@
       "limitDescription": "Wie viele Leute gleichzeitig drin sein können",
       "limitValue_one": "{{count}} Person",
       "limitValue_other": "{{count}} Leute",
-      "noLimit": "Kein Limit"
+      "noLimit": "Kein Limit",
+      "moderators": "Moderatoren",
+      "moderatorsDescription": "Sie können Leute reinlassen, aussperren, rauswerfen und das Limit setzen, aber den Kanal nicht umbenennen, abschließen, verstecken oder löschen",
+      "moderatorsPlaceholder": "Wähl, wer dir hilft"
     },
     "announce": {
       "changed": "{{user}} hat den Kanal geändert:",
@@ -362,14 +365,19 @@
       "tookOver": "{{new}} hat den Kanal von {{old}} übernommen.",
       "gaveAway": "{{user}} hat den Kanal an {{new}} gegeben, er gehörte {{old}}.",
       "kicked": "{{user}} hat {{target}} rausgeworfen.",
-      "deleted": "🗑️ {{user}} hat den Kanal gelöscht. Er verschwindet gleich."
+      "deleted": "🗑️ {{user}} hat den Kanal gelöscht. Er verschwindet gleich.",
+      "moderators_one": "{{users}} zum Moderator gemacht",
+      "moderators_other": "{{users}} zu Moderatoren gemacht",
+      "unmoderators_one": "{{users}} ist kein Moderator mehr",
+      "unmoderators_other": "{{users}} sind keine Moderatoren mehr"
     },
     "controls": {
       "gone": "Diesen Kanal gibt es nicht mehr.",
       "notOwner": "Nur {{owner}} kann diesen Kanal ändern.",
       "renameLimit": "Discord lässt einen Kanal nur ab und zu umbenennen. Versuch es {{time}} nochmal.",
       "notInOne": "Du bist gerade in keinem eigenen Sprachkanal.",
-      "notInOneJoin": "Du bist gerade in keinem eigenen Sprachkanal. Geh in {{channels}}, um einen zu bekommen."
+      "notInOneJoin": "Du bist gerade in keinem eigenen Sprachkanal. Geh in {{channels}}, um einen zu bekommen.",
+      "ownerOnly": "Das kann nur {{owner}}, Moderatoren nicht."
     },
     "edit": {
       "title": "Name und Limit",
@@ -392,7 +400,8 @@
       "cantTakeOver": "Die Person ist schon weg, also kann sie ihn nicht bekommen.",
       "alreadyOwner": "Der Kanal gehört schon {{user}}.",
       "changedMeanwhile": "Der Kanal hat in der Zwischenzeit den Besitzer gewechselt oder wurde gelöscht.",
-      "handedOver": "Der Kanal gehört jetzt {{user}}."
+      "handedOver": "Der Kanal gehört jetzt {{user}}.",
+      "notOnModerators": "Moderatoren können das nicht mit dem Besitzer oder anderen Moderatoren machen."
     },
     "config": {
       "title": "### Beitrittskanal-Einstellungen 🔊",

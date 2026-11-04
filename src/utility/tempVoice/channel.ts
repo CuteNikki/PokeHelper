@@ -42,8 +42,11 @@ import { announce, postPanel, refreshPanel, serverTranslate } from 'utility/temp
 
 export type TempChannel = { channel: VoiceChannel; record: TempVoiceChannel };
 
-/** Who's let in even while it's locked or hidden, who's kept out, and whether it's locked or hidden. */
-export type Access = Pick<TempVoiceChannel, 'locked' | 'hidden' | 'allowed' | 'blocked'>;
+/** Who's let in even while it's locked or hidden, who's kept out, who helps the owner, and whether it's locked or hidden. */
+export type Access = Pick<TempVoiceChannel, 'locked' | 'hidden' | 'allowed' | 'blocked' | 'moderators'>;
+
+/** The most moderators a channel can have. */
+export const MAX_MODERATORS = 10;
 
 /** How long an owner can be gone, like a dropped connection or a quick hop elsewhere, before their channel goes to someone still there. */
 const OWNER_GRACE = 30_000;
@@ -109,10 +112,18 @@ export function isStaff(member: GuildMember) {
   return member.permissions.any(STAFF);
 }
 
-/** Whether someone may change a channel: its owner, or staff. */
+/** Whether someone may change everything about a channel: its owner, or staff. */
 export function canChange(member: GuildMember, temp: TempChannel) {
   return member.id === temp.record.ownerId || isStaff(member);
 }
+
+/** Whether someone may let people in, keep them out, kick them and set the limit: the owner, staff, or one of its moderators. */
+export function canModerate(member: GuildMember, temp: TempChannel) {
+  return canChange(member, temp) || temp.record.moderators.includes(member.id);
+}
+
+/** Whether a change only needs a moderator: who's let in or kept out, and the limit. Anything else needs the owner. */
+const isModeratorChange = (change: Change) => Object.keys(change).every((key) => key === 'allowed' || key === 'blocked' || key === 'userLimit');
 
 /** Where a join channel's channels go: its own category, or the join channel's. */
 export function creatorCategory(guild: Guild, creator: TempVoiceCreator): CategoryChannel | null {
@@ -160,7 +171,7 @@ export function overwrites(guild: Guild, category: CategoryChannel | null, owner
   }
 
   set(guild.client.user.id, OverwriteType.Member, BOT, 0n);
-  for (const id of access.allowed) set(id, OverwriteType.Member, VIEW | CONNECT, 0n);
+  for (const id of [...access.allowed, ...access.moderators]) set(id, OverwriteType.Member, VIEW | CONNECT, 0n);
   for (const id of access.blocked) set(id, OverwriteType.Member, 0n, VIEW | CONNECT);
   set(ownerId, OverwriteType.Member, MEMBER, 0n);
   return [...list.values()];
@@ -234,6 +245,7 @@ export function createTempChannel(member: GuildMember, creator: TempVoiceCreator
       hidden: settings?.hidden ?? false,
       allowed: await onServer(guild, settings?.allowed ?? []),
       blocked: await onServer(guild, settings?.blocked ?? []),
+      moderators: await onServer(guild, settings?.moderators ?? []),
     };
     const category = creatorCategory(guild, creator);
     const channel = await guild.channels.create({
@@ -354,6 +366,7 @@ async function giveTo(temp: TempChannel, newOwnerId: string) {
     ownerId: newOwnerId,
     allowed: temp.record.allowed.filter((id) => id !== newOwnerId),
     blocked: temp.record.blocked.filter((id) => id !== newOwnerId),
+    moderators: temp.record.moderators.filter((id) => id !== newOwnerId),
   });
   await applyAccess(temp);
   // Nice to have: the hand-over stands even if this fails
@@ -391,8 +404,10 @@ export type Change = Partial<Access> & { name?: string; userLimit?: number };
 export function changeTempChannel(temp: TempChannel, by: GuildMember, change: Change | ((record: TempVoiceChannel) => Change)) {
   return queue.run(`channel:${temp.channel.id}`, async (): Promise<{ retryAt: Date } | void> => {
     // A change made just before this one, or a hand-over, may have changed it since it was read
-    if (!(await reread(temp)) || !canChange(by, temp)) return;
-    const { name, userLimit, ...access } = typeof change === 'function' ? change(temp.record) : change;
+    if (!(await reread(temp))) return;
+    const changed = typeof change === 'function' ? change(temp.record) : change;
+    if (!(isModeratorChange(changed) ? canModerate(by, temp) : canChange(by, temp))) return;
+    const { name, userLimit, ...access } = changed;
     const before = { name: temp.channel.name, userLimit: temp.channel.userLimit, ...temp.record };
 
     if ((name !== undefined && name !== temp.channel.name) || (userLimit !== undefined && userLimit !== temp.channel.userLimit)) {
@@ -405,10 +420,12 @@ export function changeTempChannel(temp: TempChannel, by: GuildMember, change: Ch
     }
 
     if (Object.keys(access).length > 0) {
-      // Nobody's both let in and kept out, and the owner is neither
-      const allowed = (access.allowed ?? temp.record.allowed).filter((id) => id !== temp.record.ownerId && !access.blocked?.includes(id));
-      const blocked = (access.blocked ?? temp.record.blocked).filter((id) => id !== temp.record.ownerId && !access.allowed?.includes(id));
-      temp.record = await updateTempVoiceChannel(temp.channel.id, { ...access, allowed, blocked });
+      // Nobody's both let in and kept out, and the owner is neither. Moderators are always let in, so they can't be kept out either
+      const { ownerId } = temp.record;
+      const moderators = (access.moderators ?? temp.record.moderators).filter((id) => id !== ownerId).slice(0, MAX_MODERATORS);
+      const allowed = (access.allowed ?? temp.record.allowed).filter((id) => id !== ownerId && !access.blocked?.includes(id));
+      const blocked = (access.blocked ?? temp.record.blocked).filter((id) => id !== ownerId && !moderators.includes(id) && !access.allowed?.includes(id));
+      temp.record = await updateTempVoiceChannel(temp.channel.id, { ...access, allowed, blocked, moderators });
       await applyAccess(temp);
       // Anyone kept out who's still here has to go
       for (const id of blocked) {
@@ -431,6 +448,7 @@ export function changeTempChannel(temp: TempChannel, by: GuildMember, change: Ch
         hidden: temp.record.hidden,
         allowed: temp.record.allowed,
         blocked: temp.record.blocked,
+        moderators: temp.record.moderators,
       });
     }
     refreshPanel(temp);
@@ -464,6 +482,12 @@ export function describeChanges(before: Described, after: Described, t: Translat
   if (keptOut.length > 0) changes.push(t('tempVoice.announce.blocked', { users: mentions(keptOut) }));
   if (noLongerLetIn.length > 0) changes.push(t('tempVoice.announce.unallowed', { users: mentions(noLongerLetIn) }));
   if (letBackIn.length > 0) changes.push(t('tempVoice.announce.unblocked', { users: mentions(letBackIn) }));
+
+  const newModerators = added(before.moderators, after.moderators);
+  const noLongerModerators = added(after.moderators, before.moderators);
+  if (newModerators.length > 0) changes.push(t('tempVoice.announce.moderators', { users: mentions(newModerators), count: newModerators.length }));
+  if (noLongerModerators.length > 0)
+    changes.push(t('tempVoice.announce.unmoderators', { users: mentions(noLongerModerators), count: noLongerModerators.length }));
   return changes;
 }
 

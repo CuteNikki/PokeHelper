@@ -22,6 +22,7 @@ import { logger } from 'utility/logger';
 import { createResponse, sendError } from 'utility/response';
 import {
   canChange,
+  canModerate,
   changeTempChannel,
   channelLabel,
   channelName,
@@ -36,6 +37,7 @@ import {
 import {
   announce,
   buildPanel,
+  MODERATOR_ACTIONS,
   parseTempVoiceCustomId,
   serverTranslate,
   TEMP_VOICE_EDIT_MODAL_PREFIX,
@@ -56,14 +58,17 @@ const DELETE_DELAY = 3_000;
  * The channel a control is for, if whoever used it may change it. Otherwise answers why not.
  * @param channelId From the control's custom ID.
  */
-async function controlledChannel(interaction: Control, channelId: string, t: Translate): Promise<TempChannel | null> {
+async function controlledChannel(interaction: Control, channelId: string, forModerators: boolean, t: Translate): Promise<TempChannel | null> {
   const temp = await findTempChannel(interaction.guild, channelId);
   if (!temp) {
     await sendError(interaction, t('tempVoice.controls.gone'));
     return null;
   }
-  if (!canChange(interaction.member, temp)) {
-    await sendError(interaction, t('tempVoice.controls.notOwner', { owner: `<@${temp.record.ownerId}>` }));
+  if (!(forModerators ? canModerate(interaction.member, temp) : canChange(interaction.member, temp))) {
+    const owner = `<@${temp.record.ownerId}>`;
+    // A moderator can use some of the controls, so they're told this one is the owner's
+    const text = canModerate(interaction.member, temp) ? t('tempVoice.controls.ownerOnly', { owner }) : t('tempVoice.controls.notOwner', { owner });
+    await sendError(interaction, text);
     return null;
   }
   return temp;
@@ -120,7 +125,7 @@ export async function handleTempVoiceButton(interaction: ButtonInteraction): Pro
   const t = getTranslate(interaction.locale);
   const parsed = parseTempVoiceCustomId(interaction.customId);
   if (!parsed || !interaction.inCachedGuild()) return sendError(interaction, t('system.outdated'));
-  const temp = await controlledChannel(interaction, parsed.channelId, t);
+  const temp = await controlledChannel(interaction, parsed.channelId, MODERATOR_ACTIONS.includes(parsed.action), t);
   if (!temp) return;
 
   switch (parsed.action) {
@@ -158,6 +163,11 @@ async function handleMemberAction(interaction: ButtonInteraction<'cached'>, temp
   const mention = `<@${memberId}>`;
   const serverT = serverTranslate(interaction.guild);
   await interaction.deferUpdate();
+
+  // Moderators help the owner, so they can't do anything to the owner or each other
+  if (!canChange(interaction.member, temp) && (memberId === temp.record.ownerId || temp.record.moderators.includes(memberId))) {
+    return answer(t('tempVoice.member.notOnModerators'), 'error');
+  }
 
   if (action === 'kick') {
     const member = temp.channel.members.get(memberId);
@@ -200,10 +210,15 @@ export async function handleTempVoiceSelect(interaction: AnySelectMenuInteractio
   const t = getTranslate(interaction.locale);
   const parsed = parseTempVoiceCustomId(interaction.customId);
   if (!parsed || !interaction.inCachedGuild()) return sendError(interaction, t('system.outdated'));
-  const temp = await controlledChannel(interaction, parsed.channelId, t);
+  const temp = await controlledChannel(interaction, parsed.channelId, MODERATOR_ACTIONS.includes(parsed.action), t);
   if (!temp) return;
 
   // Picking sets the whole list, so leaving someone out takes them off it
+  if (parsed.action === 'moderators' && interaction.isUserSelectMenu()) {
+    await interaction.deferUpdate();
+    const moderators = interaction.users.filter((user) => !user.bot).map((user) => user.id);
+    return showChanged(interaction, temp, await changeTempChannel(temp, interaction.member, { moderators }), t);
+  }
   if (parsed.action === 'allow' && interaction.isUserSelectMenu()) {
     await interaction.deferUpdate();
     const allowed = interaction.users.filter((user) => !user.bot).map((user) => user.id);
@@ -227,7 +242,8 @@ export async function handleTempVoiceSelect(interaction: AnySelectMenuInteractio
       components: [
         ...(question.components ?? []),
         new ActionRowBuilder<ButtonBuilder>().addComponents(
-          button('handover', t('tempVoice.member.handover'), ButtonStyle.Primary),
+          // Handing it over is the owner's, so moderators don't get the button
+          ...(canChange(interaction.member, temp) ? [button('handover', t('tempVoice.member.handover'), ButtonStyle.Primary)] : []),
           button('kick', t('tempVoice.member.kick'), ButtonStyle.Secondary),
           button('keepout', t('tempVoice.member.keepout'), ButtonStyle.Danger),
         ),
@@ -245,7 +261,8 @@ export async function handleTempVoiceModal(interaction: ModalSubmitInteraction):
   if (!interaction.inCachedGuild() || !interaction.isFromMessage()) return sendError(interaction, t('system.outdated'));
   // Popups from before the name and limit were apart have no kind, and change both
   const [channelId = '', kind = 'both'] = interaction.customId.slice(TEMP_VOICE_EDIT_MODAL_PREFIX.length).split(':');
-  const temp = await controlledChannel(interaction, channelId, t);
+  // Moderators can set the limit, but only the owner can rename it
+  const temp = await controlledChannel(interaction, channelId, kind === 'limit', t);
   if (!temp) return;
   const change: Change = {};
 
@@ -276,7 +293,7 @@ export async function showOwnPanel(interaction: ChatInputCommandInteraction<'cac
     const join = creators.map((creator) => `<#${creator.channelId}>`).join(', ');
     return sendError(interaction, creators.length > 0 ? t('tempVoice.controls.notInOneJoin', { channels: join }) : t('tempVoice.controls.notInOne'));
   }
-  if (!canChange(interaction.member, temp)) return sendError(interaction, t('tempVoice.controls.notOwner', { owner: `<@${temp.record.ownerId}>` }));
+  if (!canModerate(interaction.member, temp)) return sendError(interaction, t('tempVoice.controls.notOwner', { owner: `<@${temp.record.ownerId}>` }));
   const panel = buildPanel(temp, t);
   return interaction.reply({ ...panel, flags: [MessageFlags.IsComponentsV2, MessageFlags.Ephemeral], allowedMentions: { parse: [] } });
 }
