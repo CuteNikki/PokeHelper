@@ -697,6 +697,43 @@
       "placeholder": "Pikachu, Mega Charizard X, 25..."
     }
   },
+  "guess": {
+    "title": "### Who's that Pokémon? ❔",
+    "anyLanguage": "Guess its name, in any language",
+    "fromGeneration": "A Pokémon from generation {{generation}}, guess its name in any language",
+    "silhouette": "The silhouette of a Pokémon to guess",
+    "notIt": "It's not **{{name}}**.",
+    "guesses_one": "{{count}} guess so far",
+    "guesses_other": "{{count}} guesses so far",
+    "hints": {
+      "generation": "Generation",
+      "name": "Name"
+    },
+    "buttons": {
+      "guess": "Guess",
+      "hint": "Hint",
+      "hintsLeft_one": "Hint ({{count}} left)",
+      "hintsLeft_other": "Hint ({{count}} left)",
+      "giveUp": "Give up",
+      "again": "Play again",
+      "pokedex": "Pokédex"
+    },
+    "solved": "### It's {{name}}! 🎉",
+    "solvedIn_one": "You got it on the first try",
+    "solvedIn_other": "You got it in {{count}} guesses",
+    "withHints_one": ", with {{count}} hint",
+    "withHints_other": ", with {{count}} hints",
+    "gaveUp": "### It was {{name}}",
+    "gaveUpAfter_one": "You gave up after {{count}} guess",
+    "gaveUpAfter_other": "You gave up after {{count}} guesses",
+    "gaveUpEarly": "You gave up without guessing",
+    "modal": {
+      "title": "Who's that Pokémon?",
+      "label": "Name",
+      "placeholder": "In any language, like Pikachu"
+    },
+    "unknown": "`{{name}}` isn't a Pokémon I know, so it doesn't count as a guess. Check the spelling and try again."
+  },
   "tempVoice": {
     "panel": {
       "title": "### Voice Channel Controls 🔊",

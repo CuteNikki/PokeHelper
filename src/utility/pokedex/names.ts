@@ -175,6 +175,13 @@ const normalize = (text: string) =>
     .toLowerCase()
     .replace(/[^\p{L}\p{N}]+/gu, '');
 
+/** Whether what's typed is a name of the species in any language, or of one of its forms, like `Alolan Raichu` for Raichu. */
+export function isNameOf(species: PokedexSpecies, input: string): boolean {
+  const key = normalize(input);
+  if (!key) return false;
+  return [species, ...species.forms].some((entry) => [entry.slug, ...Object.values(entry.names)].some((name) => normalize(name) === key));
+}
+
 /** The species with a Pokédex number, or null. */
 export function speciesById(id: number): PokedexSpecies | null {
   const species = getPokedexData().species;

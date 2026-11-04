@@ -315,6 +315,43 @@
       "placeholder": "Pikachu, Mega-Glurak X, 25..."
     }
   },
+  "guess": {
+    "title": "### Wer ist das Pokémon? ❔",
+    "anyLanguage": "Rate seinen Namen, in jeder Sprache",
+    "fromGeneration": "Ein Pokémon aus Generation {{generation}}, rate seinen Namen in jeder Sprache",
+    "silhouette": "Der Umriss eines Pokémon zum Raten",
+    "notIt": "Es ist nicht **{{name}}**.",
+    "guesses_one": "{{count}} Versuch bisher",
+    "guesses_other": "{{count}} Versuche bisher",
+    "hints": {
+      "generation": "Generation",
+      "name": "Name"
+    },
+    "buttons": {
+      "guess": "Raten",
+      "hint": "Tipp",
+      "hintsLeft_one": "Tipp (noch {{count}})",
+      "hintsLeft_other": "Tipp (noch {{count}})",
+      "giveUp": "Aufgeben",
+      "again": "Nochmal",
+      "pokedex": "Pokédex"
+    },
+    "solved": "### Es ist {{name}}! 🎉",
+    "solvedIn_one": "Du hast es beim ersten Versuch erraten",
+    "solvedIn_other": "Du hast es mit {{count}} Versuchen erraten",
+    "withHints_one": ", mit {{count}} Tipp",
+    "withHints_other": ", mit {{count}} Tipps",
+    "gaveUp": "### Es war {{name}}",
+    "gaveUpAfter_one": "Du hast nach {{count}} Versuch aufgegeben",
+    "gaveUpAfter_other": "Du hast nach {{count}} Versuchen aufgegeben",
+    "gaveUpEarly": "Du hast aufgegeben, ohne zu raten",
+    "modal": {
+      "title": "Wer ist das Pokémon?",
+      "label": "Name",
+      "placeholder": "In jeder Sprache, z. B. Pikachu"
+    },
+    "unknown": "`{{name}}` kenne ich nicht als Pokémon, das zählt also nicht als Versuch. Prüf die Schreibweise und versuch's nochmal."
+  },
   "tempVoice": {
     "panel": {
       "title": "### Sprachkanal-Steuerung 🔊",

@@ -167,6 +167,16 @@
       }
     }
   },
+  "guess": {
+    "name": "raten",
+    "description": "Errate ein Pokémon an seinem Umriss",
+    "options": {
+      "generation": {
+        "name": "generation",
+        "description": "Nur Pokémon aus dieser Generation"
+      }
+    }
+  },
   "help": {
     "name": "hilfe",
     "description": "Alle Befehle, die du hier benutzen kannst"
