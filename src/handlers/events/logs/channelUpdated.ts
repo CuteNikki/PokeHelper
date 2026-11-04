@@ -1,0 +1,29 @@
+import { AuditLogEvent, channelMention, Events } from 'discord.js';
+
+import { Event } from 'classes/base/event';
+
+import { channelChanges } from 'utility/logs/changes';
+import { logServerChange } from 'utility/logs/server';
+
+export default new Event({
+  name: Events.ChannelUpdate,
+  once: false,
+  async execute(_client, before, after) {
+    if (before.isDMBased() || after.isDMBased()) return;
+    await logServerChange(after.guild, {
+      event: 'channels',
+      kind: 'updated',
+      title: (t) => t('logs.channels.updated'),
+      about: `${channelMention(after.id)} (${after.name})`,
+      details: (t) => [channelChanges(before, after, t).join('\n') || null],
+      ids: (t) => t('logs.ids.channel', { channel: after.id }),
+      actions: [
+        AuditLogEvent.ChannelUpdate,
+        AuditLogEvent.ChannelOverwriteCreate,
+        AuditLogEvent.ChannelOverwriteUpdate,
+        AuditLogEvent.ChannelOverwriteDelete,
+      ],
+      targetId: after.id,
+    });
+  },
+});

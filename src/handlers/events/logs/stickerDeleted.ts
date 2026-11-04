@@ -1,0 +1,22 @@
+import { AuditLogEvent, Events } from 'discord.js';
+
+import { Event } from 'classes/base/event';
+
+import { logServerChange } from 'utility/logs/server';
+
+export default new Event({
+  name: Events.GuildStickerDelete,
+  once: false,
+  async execute(_client, sticker) {
+    if (!sticker.guild) return;
+    await logServerChange(sticker.guild, {
+      event: 'emojis',
+      kind: 'deleted',
+      title: (t) => t('logs.emojis.stickerDeleted'),
+      about: `[${sticker.name}](${sticker.url})`,
+      ids: (t) => t('logs.ids.sticker', { sticker: sticker.id }),
+      actions: [AuditLogEvent.StickerDelete],
+      targetId: sticker.id,
+    });
+  },
+});

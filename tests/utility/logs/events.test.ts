@@ -1,0 +1,68 @@
+import { beforeAll, describe, expect, test } from 'bun:test';
+
+import type { GuildLogs } from 'database/logs';
+
+import { getTranslate, initI18Next } from 'utility/i18next';
+import { roleListChanges } from 'utility/logs/changes';
+import { groupOf, LOG_EVENTS, LOG_GROUPS, logChannelOf } from 'utility/logs/events';
+import { isLogChannel, quoteText, shorten } from 'utility/logs/send';
+
+beforeAll(() => initI18Next());
+
+const config = (changes: Partial<GuildLogs> = {}): GuildLogs => ({
+  guildId: '1',
+  enabled: true,
+  messagesChannelId: '10',
+  membersChannelId: null,
+  moderationChannelId: '10',
+  serverChannelId: null,
+  voiceChannelId: null,
+  disabledEvents: [],
+  ignoredChannelIds: [],
+  ignoredRoleIds: [],
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  ...changes,
+});
+
+describe('logChannelOf', () => {
+  test("logs an event in its group's channel", () => {
+    expect(logChannelOf(config(), 'messageDeleted')).toBe('10');
+    expect(logChannelOf(config(), 'memberBanned')).toBe('10');
+  });
+
+  test("doesn't log a group without a channel", () => {
+    expect(logChannelOf(config(), 'memberJoined')).toBeNull();
+  });
+
+  test("doesn't log an event that's turned off, or anything when logs are off", () => {
+    expect(logChannelOf(config({ disabledEvents: ['messageDeleted'] }), 'messageDeleted')).toBeNull();
+    expect(logChannelOf(config({ disabledEvents: ['messageDeleted'] }), 'messageEdited')).toBe('10');
+    expect(logChannelOf(config({ enabled: false }), 'messageEdited')).toBeNull();
+  });
+});
+
+test('every event is in exactly one group, and has texts for its switch', () => {
+  const t = getTranslate('en');
+  const events = LOG_GROUPS.flatMap((group) => [...LOG_EVENTS[group]]);
+  expect(new Set(events).size).toBe(events.length);
+  for (const event of events) {
+    expect(LOG_GROUPS).toContain(groupOf(event));
+    expect(t(`logs.settings.events.${event}.label`)).not.toContain('logs.settings');
+  }
+});
+
+test("a log channel's own messages aren't logged", () => {
+  expect(isLogChannel(config(), '10')).toBe(true);
+  expect(isLogChannel(config(), '11')).toBe(false);
+});
+
+test('roleListChanges says which roles were given and taken', () => {
+  expect(roleListChanges(['1', '2'], ['2', '3'])).toBe('+ <@&3> · − <@&1>');
+  expect(roleListChanges(['1'], ['1'])).toBeNull();
+});
+
+test('long texts are shortened and quoted line by line', () => {
+  expect(shorten('abcdef', 3)).toBe('abc…');
+  expect(quoteText('one\ntwo')).toBe('> one\n> two');
+});
