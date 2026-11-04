@@ -622,6 +622,18 @@
   },
   "help": {
     "title": "## Commands 📖",
+    "intro": "Pick a category below to see its commands.",
+    "select": "Pick a category",
+    "overview": "Overview",
+    "descriptions": {
+      "pokemon": "Look up any Pokémon",
+      "leveling": "Levels, ranks and the leaderboard",
+      "birthday": "Your birthday and its announcement",
+      "counting": "The counting game and its stats",
+      "role-menu": "Menus to pick roles from",
+      "general": "About the bot",
+      "settings": "Set up the bot for this server"
+    },
     "categories": {
       "pokemon": "Pokémon",
       "leveling": "Leveling",

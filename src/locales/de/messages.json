@@ -244,6 +244,18 @@
   },
   "help": {
     "title": "## Befehle 📖",
+    "intro": "Wähl unten eine Kategorie, um ihre Befehle zu sehen.",
+    "select": "Wähl eine Kategorie",
+    "overview": "Übersicht",
+    "descriptions": {
+      "pokemon": "Schlag jedes Pokémon nach",
+      "leveling": "Level, Ränge und die Bestenliste",
+      "birthday": "Dein Geburtstag und seine Ankündigung",
+      "counting": "Das Zählspiel und seine Statistiken",
+      "role-menu": "Menüs, aus denen man sich Rollen aussucht",
+      "general": "Über den Bot",
+      "settings": "Richte den Bot für diesen Server ein"
+    },
     "categories": {
       "pokemon": "Pokémon",
       "leveling": "Leveling",
