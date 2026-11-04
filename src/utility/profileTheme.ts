@@ -70,3 +70,29 @@ export async function syncProfileTheme(client: Client<true>, force = false): Pro
 export async function runProfileThemeJob(client: Client<true>) {
   if (profileThemesEnabled()) await syncProfileTheme(client);
 }
+
+let overview: Promise<Uint8Array> | null = null;
+
+/**
+ * Every theme in one GIF, like `art/out/overview.gif`. Drawn in a thread of its own the first time, which takes a few seconds, and
+ * kept after that, as the themes only change with a new version of the bot.
+ */
+export function themeOverview(): Promise<Uint8Array> {
+  overview ??= new Promise<Uint8Array>((resolve, reject) => {
+    const worker = new Worker(new URL('../../art/overviewWorker.ts', import.meta.url).href);
+    worker.onmessage = (event: MessageEvent<Uint8Array>) => {
+      resolve(event.data);
+      worker.terminate();
+    };
+    worker.onerror = (event) => {
+      reject(new Error(`Drawing the theme overview failed: ${event.message}`));
+      worker.terminate();
+    };
+    worker.postMessage(null);
+  }).catch((error: unknown) => {
+    // Tried again next time
+    overview = null;
+    throw error;
+  });
+  return overview;
+}

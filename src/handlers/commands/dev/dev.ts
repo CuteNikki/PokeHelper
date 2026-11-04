@@ -1,10 +1,14 @@
 import {
   ApplicationIntegrationType,
+  AttachmentBuilder,
   ChatInputCommandInteraction,
+  ContainerBuilder,
   InteractionContextType,
+  MediaGalleryBuilder,
   MessageFlags,
   PermissionFlagsBits,
   SlashCommandBuilder,
+  TextDisplayBuilder,
 } from 'discord.js';
 import { t } from 'i18next';
 
@@ -22,7 +26,7 @@ import { logger } from 'utility/logger';
 import { changedSinceStart, reload, RELOAD_TARGETS, type ReloadTarget } from 'utility/reload';
 import { logTranslate } from 'utility/logs/send';
 import { sendPreview } from 'utility/logs/preview';
-import { isThemeName, madeOn, profileThemesEnabled, syncProfileTheme, wantedTheme } from 'utility/profileTheme';
+import { isThemeName, madeOn, profileThemesEnabled, syncProfileTheme, themeOverview, wantedTheme } from 'utility/profileTheme';
 import { createResponse } from 'utility/response';
 
 export default new Command({
@@ -61,7 +65,8 @@ export default new Command({
             .addChoices({ name: 'auto', value: 'auto' }, ...Object.keys(THEMES).map((name) => ({ name, value: name }))),
         ),
     )
-    .addSubcommand((cmd) => cmd.setName('theme-calendar').setDescription('Which theme the bot wears when, over the next twelve months')),
+    .addSubcommand((cmd) => cmd.setName('theme-calendar').setDescription('Which theme the bot wears when, over the next twelve months'))
+    .addSubcommand((cmd) => cmd.setName('theme-preview').setDescription('Post every theme of the avatar and banner in one GIF here')),
   async execute(interaction) {
     if (!interaction.inCachedGuild()) return;
 
@@ -78,6 +83,8 @@ export default new Command({
         return handleProfileTheme(interaction);
       case 'theme-calendar':
         return handleThemeCalendar(interaction);
+      case 'theme-preview':
+        return handleThemePreview(interaction);
     }
   },
 });
@@ -170,4 +177,23 @@ async function handleThemeCalendar(interaction: ChatInputCommandInteraction<'cac
     ['```', ...scheduleLines(madeOn(interaction.client)), '```'].join('\n'),
   ];
   return interaction.reply({ ...createResponse(lines.filter(Boolean).join('\n'), 'info'), flags: [MessageFlags.IsComponentsV2, MessageFlags.Ephemeral] });
+}
+
+/** Every theme in one GIF, posted for everyone in the channel to see, like to show them off. */
+async function handleThemePreview(interaction: ChatInputCommandInteraction<'cached'>) {
+  // Drawing it the first time takes a few seconds
+  await interaction.deferReply();
+  const gif = await themeOverview();
+  const container = new ContainerBuilder()
+    .addTextDisplayComponents(new TextDisplayBuilder().setContent("### Poke Helper's Looks 🎨\n-# Every theme the avatar and banner wear through the year"))
+    .addMediaGalleryComponents(
+      new MediaGalleryBuilder().addItems((item) =>
+        item.setURL('attachment://themes.gif').setDescription('Every theme of the bot, each with its animated banner and avatar'),
+      ),
+    );
+  return interaction.editReply({
+    components: [container],
+    files: [new AttachmentBuilder(Buffer.from(gif), { name: 'themes.gif' })],
+    flags: [MessageFlags.IsComponentsV2],
+  });
 }

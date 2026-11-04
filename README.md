@@ -92,7 +92,7 @@ With `PROFILE_THEMES=on`, the bot changes its animated avatar and banner by itse
 | September 1 to 15                    | Standard        |
 | September 16 to 30, and November     | Autumn          |
 
-Days change at midnight UTC, and the bot puts the new look on within 15 minutes. `bun run themes` and `/dev theme-calendar` list the exact dates of the next twelve months, and `/dev profile-theme` puts on any look right away.
+Days change at midnight UTC, and the bot puts the new look on within 15 minutes. `bun run themes` and `/dev theme-calendar` list the exact dates of the next twelve months, `/dev theme-preview` posts every look in one GIF, and `/dev profile-theme` puts on any look right away.
 
 ## 💬 Commands
 
