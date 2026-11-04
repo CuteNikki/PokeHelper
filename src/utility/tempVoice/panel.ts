@@ -90,7 +90,8 @@ export function buildPanel({ channel, record }: TempChannel, t: Translate): Resp
       .setLabel(t(on ? 'state.on' : 'state.off'))
       .setEmoji(on ? '✅' : '✖️')
       .setStyle(on ? ButtonStyle.Success : ButtonStyle.Secondary);
-  const heading = (text: string) => new TextDisplayBuilder().setContent(`**${text}**`);
+  // A bold name with a short description under it, like the rows above, for the pickers that have no row of their own
+  const heading = (label: string, description: string) => new TextDisplayBuilder().setContent(`**${label}**\n-# ${description}`);
 
   const allowed = new UserSelectMenuBuilder()
     .setCustomId(tempVoiceCustomId('allow', id))
@@ -141,16 +142,15 @@ export function buildPanel({ channel, record }: TempChannel, t: Translate): Resp
       row(t('tempVoice.panel.limit'), t('tempVoice.panel.limitDescription'), edit('limit'), quote(limit)),
     )
     .addSeparatorComponents(new SeparatorBuilder())
-    .addTextDisplayComponents(heading(t('tempVoice.panel.allowed')))
+    .addTextDisplayComponents(heading(t('tempVoice.panel.allowed'), t('tempVoice.panel.allowedDescription')))
     .addActionRowComponents(new ActionRowBuilder<UserSelectMenuBuilder>().addComponents(allowed))
-    .addTextDisplayComponents(heading(t('tempVoice.panel.blocked')))
+    .addTextDisplayComponents(heading(t('tempVoice.panel.blocked'), t('tempVoice.panel.blockedDescription')))
     .addActionRowComponents(new ActionRowBuilder<UserSelectMenuBuilder>().addComponents(blocked))
     .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large))
-    // Said what it's for, as there's nothing to pick until someone else joins
-    .addTextDisplayComponents(new TextDisplayBuilder().setContent(`**${t('tempVoice.panel.someone')}**\n-# ${t('tempVoice.panel.someoneDescription')}`))
+    .addTextDisplayComponents(heading(t('tempVoice.panel.someone'), t('tempVoice.panel.someoneDescription')))
     .addActionRowComponents(new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(someone))
     .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large))
-    .addTextDisplayComponents(new TextDisplayBuilder().setContent(`**${t('tempVoice.panel.moderators')}**\n-# ${t('tempVoice.panel.moderatorsDescription')}`))
+    .addTextDisplayComponents(heading(t('tempVoice.panel.moderators'), t('tempVoice.panel.moderatorsDescription')))
     .addActionRowComponents(new ActionRowBuilder<UserSelectMenuBuilder>().addComponents(moderators))
     // More space above the button at the bottom, like on the settings panels
     .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large))

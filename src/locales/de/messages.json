@@ -329,6 +329,8 @@
       "delete": "Kanal löschen",
       "allowed": "Reingelassen",
       "blocked": "Ausgesperrt",
+      "allowedDescription": "Können immer beitreten und ihn sehen, auch wenn er abgeschlossen oder versteckt ist",
+      "blockedDescription": "Können weder beitreten noch ihn sehen, und fliegen raus, wenn sie drin sind",
       "someone": "Jemand hier",
       "someoneDescription": "Wähl jemanden, der im Kanal ist, um die Person rauszuwerfen, auszusperren oder ihr den Kanal zu übergeben",
       "allowPlaceholder": "Wähl, wen du reinlässt",

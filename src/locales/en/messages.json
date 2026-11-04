@@ -711,6 +711,8 @@
       "delete": "Delete channel",
       "allowed": "Let in",
       "blocked": "Kept out",
+      "allowedDescription": "Can always join and see it, even when it's locked or hidden",
+      "blockedDescription": "Can't join or see it, and are kicked if they're in it",
       "someone": "Someone here",
       "someoneDescription": "Pick someone who's in the channel to kick them, keep them out, or hand the channel over to them",
       "allowPlaceholder": "Pick who to let in",
