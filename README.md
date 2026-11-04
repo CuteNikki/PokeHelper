@@ -68,6 +68,7 @@ _A Pokémon themed Discord bot_
 - An animated mascot as avatar and banner, which changes with the seasons and holidays, like a witch hat in October
 - `/help` lists the commands by category, and only the ones of features that are turned on
 - English and German, following each member's Discord language
+- `/privacy` to download or delete your own data, and server managers their server's
 - Data of a server is deleted 30 days after the bot leaves it
 
 ### 🎨 Seasonal Looks
@@ -96,25 +97,25 @@ Days change at midnight UTC, and the bot puts the new look on within 15 minutes.
 
 ## 💬 Commands
 
-| Command             | What it does                                           |
-| ------------------- | ------------------------------------------------------ |
-| `/counting`         | Current run, records, leaderboard, user stats and runs |
-| `/rank`             | Your rank card or someone else's                       |
-| `/leaderboard`      | The server's level leaderboard, all time or weekly     |
-| `/birthday`         | Your birthday, timezone and where it gets announced    |
-| `/pokedex`          | Look up a Pokémon                                      |
-| `/guess`            | Guess a Pokémon from its silhouette                    |
-| `/voice`            | The control panel of your temporary voice channel      |
-| `/help`             | All commands, by category                              |
-| `/privacy`          | Download or delete your data, or the server's          |
-| `/botinfo`          | Bot status, host stats and versions                    |
-| `/counting-config`  | Set up the counting game and change its settings       |
-| `/leveling-config`  | Change leveling settings, rewards and multipliers      |
-| `/birthday-config`  | Set the birthday channel and role                      |
-| `/role-menu-config` | Create role menus and change them                      |
-| `/voice-config`     | Set up join channels for temporary voice channels      |
-| `/logs-config`      | Set up the log channels and which events are logged    |
-| `/dev`              | Reload, register, restart and preview logs, dev server |
+| Command             | What it does                                                      |
+| ------------------- | ----------------------------------------------------------------- |
+| `/counting`         | Current run, records, leaderboard, user stats and runs            |
+| `/rank`             | Your rank card or someone else's                                  |
+| `/leaderboard`      | The server's level leaderboard, all time or weekly                |
+| `/birthday`         | Your birthday, timezone and where it gets announced               |
+| `/pokedex`          | Look up a Pokémon                                                 |
+| `/guess`            | Guess a Pokémon from its silhouette                               |
+| `/voice`            | The control panel of your temporary voice channel                 |
+| `/help`             | All commands, by category                                         |
+| `/privacy`          | Download or delete your data, or the server's                     |
+| `/botinfo`          | Bot status, host stats and versions                               |
+| `/counting-config`  | Set up the counting game and change its settings                  |
+| `/leveling-config`  | Change leveling settings, rewards and multipliers                 |
+| `/birthday-config`  | Set the birthday channel and role                                 |
+| `/role-menu-config` | Create role menus and change them                                 |
+| `/voice-config`     | Set up join channels for temporary voice channels                 |
+| `/logs-config`      | Set up the log channels and which events are logged               |
+| `/dev`              | Reload, restart, log previews and the bot's look, dev server only |
 
 The config commands need the **Manage Server** permission, `/counting-config` and `/voice-config` need **Manage Channels**.
 
@@ -125,7 +126,8 @@ The config commands need the **Manage Server** permission, `/counting-config` an
 - [discord.js](https://discord.js.org/): Discord API integration
 - [Prisma](https://www.prisma.io/) with [PostgreSQL](https://www.postgresql.org/): type-safe database access
 - [i18next](https://www.i18next.com/): translations
-- [@napi-rs/canvas](https://github.com/Brooooooklyn/canvas): rank card and leaderboard images
+- [@napi-rs/canvas](https://github.com/Brooooooklyn/canvas): rank cards, the leaderboard, the Pokédex card and the mascot
+- [gifenc](https://github.com/mattdesl/gifenc): the animated avatar and banner
 
 ## 🚀 Getting Started
 
