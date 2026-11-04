@@ -44,7 +44,7 @@ const ENTRY_MAX_LINES = 4;
 const DETAILS_HEIGHT = 50;
 const ARTWORK_SIZE = 260;
 /** Bars are full at this value. A few Pokémon go higher, up to 255, but scaling to that makes nearly every bar look short. */
-const STAT_BAR_MAX = 200;
+export const STAT_BAR_MAX = 200;
 
 const COLORS = {
   cardBg: 'rgba(42, 43, 60, 0.85)',

@@ -636,7 +636,8 @@
     },
     "evolution": {
       "title": "Evolution",
-      "none": "doesn't evolve"
+      "none": "doesn't evolve",
+      "noneText": "Doesn't evolve"
     },
     "shiny": {
       "show": "Shiny",
@@ -652,7 +653,8 @@
       "abilities": "Abilities",
       "type": "Type"
     },
-    "shinyName": "Shiny {{name}}"
+    "shinyName": "Shiny {{name}}",
+    "picture": "Official artwork of {{name}}"
   },
   "locale": "en-US",
   "number": {

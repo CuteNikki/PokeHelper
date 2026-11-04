@@ -258,7 +258,8 @@
     },
     "evolution": {
       "title": "Entwicklung",
-      "none": "entwickelt sich nicht"
+      "none": "entwickelt sich nicht",
+      "noneText": "Entwickelt sich nicht"
     },
     "shiny": {
       "show": "Schillernd",
@@ -274,7 +275,8 @@
       "abilities": "Fähigkeiten",
       "type": "Typ"
     },
-    "shinyName": "Schillerndes {{name}}"
+    "shinyName": "Schillerndes {{name}}",
+    "picture": "Offizielles Artwork von {{name}}"
   },
   "locale": "de-DE",
   "leveling": {
