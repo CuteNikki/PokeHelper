@@ -106,3 +106,44 @@ for (const name of (names.length > 0 ? names : Object.keys(THEMES)) as ThemeName
   await Bun.write(join(folder, 'preview.png'), preview(theme));
   console.log(`${name}: avatar ${megabytes(avatarGif.length)}, banner ${megabytes(bannerGif.length)}, in art/out/${name}`);
 }
+
+// A page with every theme rendered so far, animated as on Discord: a profile popup, and the avatar at the size it has in chat
+const rendered = Object.keys(THEMES).filter((name) => Bun.file(join(OUT, name, 'avatar.gif')).size > 0);
+const card = (name: string) => `
+  <section>
+    <h2>${name}</h2>
+    <div class="popup">
+      <img class="banner" src="${name}/banner.gif" alt="">
+      <img class="avatar" src="${name}/avatar.gif" alt="">
+      <p>Poke Helper <span>APP</span></p>
+    </div>
+    <div class="chat">
+      <img src="${name}/avatar.gif" alt=""><b>Poke Helper</b> <span>APP</span>
+    </div>
+  </section>`;
+await Bun.write(
+  join(OUT, 'index.html'),
+  `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Poke Helper art</title>
+<style>
+  body { background: #313338; color: #dbdee1; font-family: system-ui, sans-serif; margin: 32px; display: flex; flex-wrap: wrap; gap: 40px; }
+  h2 { text-transform: capitalize; margin: 0 0 12px; }
+  .popup { width: 340px; background: #232428; border-radius: 12px; overflow: hidden; position: relative; padding-bottom: 16px; }
+  .banner { width: 100%; display: block; }
+  .avatar { position: absolute; left: 16px; top: calc(340px * 240 / 680 - 52px); width: 92px; height: 92px; border-radius: 50%; border: 6px solid #232428; }
+  .popup p { margin: 60px 16px 0; font-size: 20px; font-weight: 700; }
+  span { background: #5865f2; color: #fff; font-size: 11px; padding: 1px 5px; border-radius: 4px; vertical-align: middle; }
+  .chat { margin-top: 16px; display: flex; align-items: center; gap: 10px; }
+  .chat img { width: 40px; height: 40px; border-radius: 50%; }
+  .chat b { color: #f2f3f5; }
+</style>
+</head>
+<body>${rendered.map(card).join('')}
+</body>
+</html>
+`,
+);
+console.log(`See them animated: art/out/index.html`);

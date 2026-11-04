@@ -1,4 +1,4 @@
-import type { SKRSContext2D } from '@napi-rs/canvas';
+import { createCanvas, type SKRSContext2D } from '@napi-rs/canvas';
 
 import { TAU } from './draw';
 
@@ -177,13 +177,23 @@ const halloween: Theme = {
   backdrop: (ctx, scene) => (scene.kind === 'banner' ? moon(ctx, 1290, 95, 55) : moon(ctx, 420, 95, 60)),
   life: (ctx, scene, time) => {
     if (scene.kind !== 'banner') return;
-    // Bats flutter across in a pattern that repeats every half width, moving that far in a loop, like the clouds
+    // Bats flutter across in a pattern that repeats every half width, moving that far in a loop, like the clouds. They're drawn
+    // on their own and faded out on the right, so the moon and the mascot's hat stay clear, and they seem to come out of the moonlight
+    const layer = createCanvas(scene.width, scene.height);
+    const bats = layer.getContext('2d');
     const period = scene.width / 2;
     for (let copy = -1; copy <= 2; copy++) {
       const x = copy * period - time * period;
-      bat(ctx, x + 200, 120 + Math.sin(time * TAU * 2) * 12, 0.9, Math.cos(time * TAU * 24));
-      bat(ctx, x + 520, 70 + Math.cos(time * TAU * 2) * 10, 0.65, Math.cos(time * TAU * 24 + 1));
+      bat(bats, x + 200, 120 + Math.sin(time * TAU * 2) * 12, 0.9, Math.cos(time * TAU * 24));
+      bat(bats, x + 520, 70 + Math.cos(time * TAU * 2) * 10, 0.65, Math.cos(time * TAU * 24 + 1));
     }
+    const fade = bats.createLinearGradient(scene.width - 420, 0, scene.width - 260, 0);
+    fade.addColorStop(0, 'rgba(0,0,0,0)');
+    fade.addColorStop(1, 'rgba(0,0,0,1)');
+    bats.globalCompositeOperation = 'destination-out';
+    bats.fillStyle = fade;
+    bats.fillRect(scene.width - 420, 0, 420, scene.height);
+    ctx.drawImage(layer, 0, 0);
   },
   prop: pumpkin,
   hat: witchHat,
