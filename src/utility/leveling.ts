@@ -58,8 +58,14 @@ export async function runWeeklyResetJob(client: Client) {
       const channel = config.channelId ? guild.channels.cache.get(config.channelId) : undefined;
       if (!channel?.isSendable()) continue;
 
+      const format = (value: number) => value.toLocaleString(t('locale'));
       const ranking = topUsers.map((entry, index) =>
-        t('leveling.leaderboard.entry', { user: userMention(entry.userId), level: getLevelFromXP(entry.xp), xp: entry.xp, position: index + 1 }),
+        t('leveling.leaderboard.entry', {
+          user: userMention(entry.userId),
+          level: format(getLevelFromXP(entry.xp)),
+          xp: format(entry.xp),
+          position: format(index + 1),
+        }),
       );
       await channel
         .send({
@@ -68,7 +74,7 @@ export async function runWeeklyResetJob(client: Client) {
               .setAccentColor(ThemeColors.warning)
               .addTextDisplayComponents(
                 new TextDisplayBuilder().setContent(
-                  [t('leveling.weeklyReset.message', { winner: userMention(topUser.userId), xp: topUser.xp }), ...ranking].join('\n'),
+                  [t('leveling.weeklyReset.message', { winner: userMention(topUser.userId), xp: format(topUser.xp) }), ...ranking].join('\n'),
                 ),
               ),
           ],

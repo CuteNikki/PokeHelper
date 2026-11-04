@@ -165,7 +165,7 @@
       "success": "Zählen ist in {{channel}} eingerichtet! Schick dort eine `1`, um loszulegen.\nDie Einstellungen kannst du unten ändern oder später mit `/zählen-einstellungen einstellungen`."
     },
     "settings": {
-      "title": "### ⚙️ Zähl-Einstellungen",
+      "title": "### Zähl-Einstellungen ⚙️",
       "channel": {
         "label": "Kanal",
         "description": "Der Kanal, in dem gezählt wird. Nachrichten, die schon in einem neuen Kanal sind, bleiben in Ruhe."
@@ -191,7 +191,7 @@
       }
     },
     "info": {
-      "title": "### 🔢 Zählen",
+      "title": "### Zählen 🔢",
       "overview": "Es wird in {{channel}} gezählt · Nächste Zahl: **{{next}}**",
       "currentRun": "**Aktuelle Runde #{{run}}**",
       "started": "Gestartet {{time}} ({{relative}})",
@@ -212,12 +212,12 @@
       "runs_other": "Bisher {{count}} Runden"
     },
     "leaderboard": {
-      "title": "### 🏆 Top-Zähler",
+      "title": "### Top-Zähler 🏆",
       "entry": "**{{position}}.** {{user}} · **{{counted}}** gezählt · {{accuracy}}% richtig",
       "empty": "Hier hat noch niemand gezählt."
     },
     "user": {
-      "title": "### 🔢 Zähl-Statistiken von {{user}}",
+      "title": "### Zähl-Statistiken von {{user}} 🔢",
       "rank": "Platz: **#{{rank}}**",
       "counted": "Gezählt: **{{counted}}**",
       "mistakes": "Fehler: **{{mistakes}}**",
@@ -226,7 +226,7 @@
       "none": "{{user}} hat noch nicht gezählt."
     },
     "runs": {
-      "title": "### 📜 Letzte Runden",
+      "title": "### Letzte Runden 📜",
       "ongoing": "**#{{run}}** · läuft · bei **{{number}}** · {{started}}",
       "finished": "**#{{run}}** · bis **{{number}}** · beendet von {{user}} {{relative}}",
       "lasted": " · hat {{duration}} gehalten",
@@ -235,7 +235,7 @@
       "empty": "Noch keine Runden. Schick eine `1` in den Zählkanal, um die erste zu starten!"
     },
     "resetConfiguration": {
-      "confirm": "### ⚠️ Zählspiel entfernen?\nDas entfernt das Zählspiel auf diesem Server **mit allen Statistiken**: Runden, gezählte Zahlen und die Zahlen von allen. Das kann man nicht rückgängig machen.",
+      "confirm": "### Zählspiel entfernen? ⚠️\nDas entfernt das Zählspiel auf diesem Server **mit allen Statistiken**: Runden, gezählte Zahlen und die Zahlen von allen. Das kann man nicht rückgängig machen.",
       "confirmButton": "Alles entfernen",
       "cancelButton": "Abbrechen",
       "cancelled": "Es wurde nichts entfernt.",
@@ -251,7 +251,7 @@
     },
     "disabled": "Leveling ist hier nicht an. Schalte es mit `/leveln-einstellungen einstellungen` ein.",
     "settings": {
-      "title": "### ⚙️ Leveling-Einstellungen",
+      "title": "### Leveling-Einstellungen ⚙️",
       "categories": {
         "general": "Allgemein",
         "filters": "Filter",
@@ -309,7 +309,7 @@
       "multiplier": "{{value}}x"
     },
     "resetConfiguration": {
-      "confirm": "### ⚠️ Leveling zurücksetzen?\nDas setzt die Leveling-Einstellungen, Belohnungen und Multiplikatoren zurück. Alle behalten ihre XP und Level.",
+      "confirm": "### Leveling zurücksetzen? ⚠️\nDas setzt die Leveling-Einstellungen, Belohnungen und Multiplikatoren zurück. Alle behalten ihre XP und Level.",
       "confirmButton": "Zurücksetzen",
       "cancelButton": "Abbrechen",
       "cancelled": "Es wurde nichts zurückgesetzt.",
@@ -317,13 +317,13 @@
       "success": "Leveling ist zurückgesetzt. Mit `/leveln-einstellungen einstellungen` kannst du es neu einrichten."
     },
     "weeklyReset": {
-      "message": "### 🏆 Neue Woche, neues Glück!\nDie Wochen-XP sind wieder bei 0. {{winner}} hat letzte Woche mit **{{xp}}** XP am meisten gesammelt, Glückwunsch!\n\nDie Top-Schreiber der letzten Woche:"
+      "message": "### Neue Woche, neues Glück! 🏆\nDie Wochen-XP sind wieder bei 0. {{winner}} hat letzte Woche mit **{{xp}}** XP am meisten gesammelt, Glückwunsch!\n\nDie Top-Schreiber der letzten Woche:"
     },
     "leaderboard": {
       "entry": "{{position}}. {{user}} · {{xp}} XP (Level {{level}})",
       "none": "Hier hat noch niemand XP gesammelt. Fangt an zu schreiben!",
-      "title": "### 🏆 {{guild}} Bestenliste",
-      "titleWeekly": "### 🏆 {{guild}} Wochen-Bestenliste"
+      "title": "### {{guild}} Bestenliste 🏆",
+      "titleWeekly": "### {{guild}} Wochen-Bestenliste 🏆"
     },
     "rank": {
       "all": "GESAMT",
@@ -331,7 +331,7 @@
       "level": "Level",
       "exp": "XP",
       "text": {
-        "title": "### 📊 Rang von {{user}}",
+        "title": "### Rang von {{user}} 📊",
         "allTime": "**Gesamt:** Level **{{level}}** · Platz **#{{rank}}** · {{xpIntoLevel}}/{{xpRequired}} XP bis zum nächsten Level ({{xp}} XP insgesamt)",
         "weekly": "**Diese Woche:** Level **{{level}}** · Platz **#{{rank}}** · {{xpIntoLevel}}/{{xpRequired}} XP bis zum nächsten Level ({{xp}} XP insgesamt)",
         "allTimePlain": "gesamt Level {{level}}, Platz {{rank}}, {{xpIntoLevel}} von {{xpRequired}} XP bis zum nächsten Level",
@@ -362,7 +362,7 @@
   "roleMenu": {
     "notFound": "Ich finde dieses Rollenmenü nicht. Vielleicht wurde es gelöscht.",
     "message": {
-      "title": "🎭 Such dir deine Rollen aus",
+      "title": "Such dir deine Rollen aus 🎭",
       "description": "Klick auf einen Button, um seine Rolle zu bekommen, und nochmal, um sie wieder loszuwerden.",
       "item": "{{emoji}} {{role}}",
       "disabled": "Dieses Menü ist gerade ausgeschaltet."
@@ -371,7 +371,7 @@
       "maximum": "Dieser Server hat schon {{max}} Rollenmenüs, mehr gehen nicht. Lösch eins, bevor du ein neues erstellst."
     },
     "list": {
-      "title": "### 🎭 Rollenmenüs",
+      "title": "### Rollenmenüs 🎭",
       "count": "{{count}}/{{max}} Menüs",
       "none": "Hier gibt es noch keine Rollenmenüs. Erstell eins mit `/rollenmenü-einstellungen erstellen`.",
       "item": "- **{{name}}** in {{channel}} · {{roles}}",
@@ -383,7 +383,7 @@
       "optionDescription": "{{channel}} · {{roles}}"
     },
     "settings": {
-      "title": "### 🎭 Rollenmenü",
+      "title": "### Rollenmenü 🎭",
       "categories": {
         "roles": "Rollen",
         "text": "Text",
@@ -457,7 +457,7 @@
       "withAge": "🎉 Alles Gute zum {{age}}. Geburtstag, {{user}}! 🎂🎈"
     },
     "settings": {
-      "title": "### 🎂 Geburtstags-Einstellungen",
+      "title": "### Geburtstags-Einstellungen 🎂",
       "enabled": {
         "label": "Geburtstage",
         "description": "Geburtstage ankündigen und die Geburtstagsrolle vergeben."
@@ -472,7 +472,7 @@
       }
     },
     "resetConfiguration": {
-      "confirm": "### ⚠️ Geburtstags-Einstellungen zurücksetzen?\nDas setzt den Kanal, die Rolle und alles andere zurück. Die Geburtstage aller bleiben gespeichert.",
+      "confirm": "### Geburtstags-Einstellungen zurücksetzen? ⚠️\nDas setzt den Kanal, die Rolle und alles andere zurück. Die Geburtstage aller bleiben gespeichert.",
       "confirmButton": "Zurücksetzen",
       "cancelButton": "Abbrechen",
       "cancelled": "Es wurde nichts zurückgesetzt.",
@@ -480,7 +480,7 @@
       "success": "Die Geburtstags-Einstellungen sind zurückgesetzt. Mit `/geburtstag-einstellungen einstellungen` kannst du sie neu einrichten."
     },
     "panel": {
-      "title": "### 🎂 Dein Geburtstag",
+      "title": "### Dein Geburtstag 🎂",
       "none": "Du hast deinen Geburtstag noch nicht eingetragen. Trag ihn unten ein, dann wird er auf den Servern angekündigt, die Geburtstage eingerichtet haben.",
       "date": {
         "label": "Geburtstag",

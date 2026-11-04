@@ -214,7 +214,7 @@
       "withAge": "🎉 Happy birthday, {{user}}! {{age}} today! 🎂🎈"
     },
     "settings": {
-      "title": "### 🎂 Birthday Settings",
+      "title": "### Birthday Settings 🎂",
       "enabled": {
         "label": "Birthdays",
         "description": "Announce birthdays and give out the birthday role."
@@ -229,7 +229,7 @@
       }
     },
     "resetConfiguration": {
-      "confirm": "### ⚠️ Reset the birthday settings?\nThis resets the channel, role and everything else. Everyone's birthdays are kept.",
+      "confirm": "### Reset the birthday settings? ⚠️\nThis resets the channel, role and everything else. Everyone's birthdays are kept.",
       "confirmButton": "Reset",
       "cancelButton": "Cancel",
       "cancelled": "Nothing was reset.",
@@ -237,7 +237,7 @@
       "success": "The birthday settings are reset. Use `/birthday-config settings` to set them up again."
     },
     "panel": {
-      "title": "### 🎂 Your Birthday",
+      "title": "### Your Birthday 🎂",
       "none": "You haven't set your birthday yet. Set it below, and it gets announced in the servers that have birthdays set up.",
       "date": {
         "label": "Birthday",
@@ -279,7 +279,7 @@
       "rewards_other": "You got the {{roles}} roles for it."
     },
     "weeklyReset": {
-      "message": "### 🏆 New week, new chances!\nWeekly XP is back to 0. {{winner}} earned the most last week with **{{xp}}** XP, congrats!\n\nLast week's top chatters:"
+      "message": "### New week, new chances! 🏆\nWeekly XP is back to 0. {{winner}} earned the most last week with **{{xp}}** XP, congrats!\n\nLast week's top chatters:"
     },
     "disabled": "Leveling isn't turned on here. Turn it on with `/leveling-config settings`.",
     "rank": {
@@ -288,7 +288,7 @@
       "level": "Level",
       "exp": "XP",
       "text": {
-        "title": "### 📊 Rank of {{user}}",
+        "title": "### Rank of {{user}} 📊",
         "allTime": "**All-time:** level **{{level}}** · rank **#{{rank}}** · {{xpIntoLevel}}/{{xpRequired}} XP to the next level ({{xp}} XP in total)",
         "weekly": "**This week:** level **{{level}}** · rank **#{{rank}}** · {{xpIntoLevel}}/{{xpRequired}} XP to the next level ({{xp}} XP in total)",
         "allTimePlain": "all-time level {{level}}, rank {{rank}}, {{xpIntoLevel}} of {{xpRequired}} XP to the next level",
@@ -298,12 +298,12 @@
     },
     "leaderboard": {
       "none": "Nobody has earned XP here yet. Start chatting!",
-      "title": "### 🏆 {{guild}} Leaderboard",
-      "titleWeekly": "### 🏆 {{guild}} Weekly Leaderboard",
+      "title": "### {{guild}} Leaderboard 🏆",
+      "titleWeekly": "### {{guild}} Weekly Leaderboard 🏆",
       "entry": "{{position}}. {{user}} · {{xp}} XP (level {{level}})"
     },
     "settings": {
-      "title": "### ⚙️ Leveling Settings",
+      "title": "### Leveling Settings ⚙️",
       "categories": {
         "general": "General",
         "filters": "Filters",
@@ -361,7 +361,7 @@
       "multiplier": "{{value}}x"
     },
     "resetConfiguration": {
-      "confirm": "### ⚠️ Reset leveling?\nThis resets the leveling settings, rewards and multipliers. Everyone keeps their XP and levels.",
+      "confirm": "### Reset leveling? ⚠️\nThis resets the leveling settings, rewards and multipliers. Everyone keeps their XP and levels.",
       "confirmButton": "Reset",
       "cancelButton": "Cancel",
       "cancelled": "Nothing was reset.",
@@ -400,7 +400,7 @@
       "success": "Counting is set up in {{channel}}! Send `1` there to get started.\nYou can change the settings below, or later with `/counting-config settings`."
     },
     "settings": {
-      "title": "### ⚙️ Counting Settings",
+      "title": "### Counting Settings ⚙️",
       "channel": {
         "label": "Channel",
         "description": "The channel where the counting happens. Messages already in a new channel are left alone."
@@ -426,7 +426,7 @@
       }
     },
     "info": {
-      "title": "### 🔢 Counting",
+      "title": "### Counting 🔢",
       "overview": "Counting in {{channel}} · Next number: **{{next}}**",
       "currentRun": "**Current run #{{run}}**",
       "started": "Started {{time}} ({{relative}})",
@@ -447,12 +447,12 @@
       "runs_other": "{{count}} runs so far"
     },
     "leaderboard": {
-      "title": "### 🏆 Top Counters",
+      "title": "### Top Counters 🏆",
       "entry": "**{{position}}.** {{user}} · **{{counted}}** counted · {{accuracy}}% accurate",
       "empty": "Nobody has counted yet."
     },
     "user": {
-      "title": "### 🔢 Counting Stats for {{user}}",
+      "title": "### Counting Stats for {{user}} 🔢",
       "rank": "Rank: **#{{rank}}**",
       "counted": "Counted: **{{counted}}**",
       "mistakes": "Mistakes: **{{mistakes}}**",
@@ -461,7 +461,7 @@
       "none": "{{user}} hasn't counted yet."
     },
     "runs": {
-      "title": "### 📜 Recent Runs",
+      "title": "### Recent Runs 📜",
       "ongoing": "**#{{run}}** · ongoing · at **{{number}}** · {{started}}",
       "finished": "**#{{run}}** · reached **{{number}}** · broken by {{user}} {{relative}}",
       "lasted": " · lasted {{duration}}",
@@ -470,7 +470,7 @@
       "empty": "No runs yet. Send `1` in the counting channel to start the first one!"
     },
     "resetConfiguration": {
-      "confirm": "### ⚠️ Remove the counting game?\nThis removes the counting game in this server **with all its stats**: runs, counted numbers and everyone's counts. This can't be undone.",
+      "confirm": "### Remove the counting game? ⚠️\nThis removes the counting game in this server **with all its stats**: runs, counted numbers and everyone's counts. This can't be undone.",
       "confirmButton": "Remove everything",
       "cancelButton": "Cancel",
       "cancelled": "Nothing was removed.",
@@ -480,7 +480,7 @@
   "roleMenu": {
     "notFound": "Couldn't find that role menu. It may have been deleted.",
     "message": {
-      "title": "🎭 Pick your roles",
+      "title": "Pick your roles 🎭",
       "description": "Click a button to get its role, and click it again to remove it.",
       "item": "{{emoji}} {{role}}",
       "disabled": "This menu is turned off right now."
@@ -489,7 +489,7 @@
       "maximum": "This server already has {{max}} role menus, the most there can be. Delete one before creating a new one."
     },
     "list": {
-      "title": "### 🎭 Role Menus",
+      "title": "### Role Menus 🎭",
       "count": "{{count}}/{{max}} menus",
       "none": "There are no role menus here yet. Create one with `/role-menu-config create`.",
       "item": "- **{{name}}** in {{channel}} · {{roles}}",
@@ -501,7 +501,7 @@
       "optionDescription": "{{channel}} · {{roles}}"
     },
     "settings": {
-      "title": "### 🎭 Role Menu",
+      "title": "### Role Menu 🎭",
       "categories": {
         "roles": "Roles",
         "text": "Text",
@@ -571,7 +571,7 @@
   },
   "dev": {
     "reload": {
-      "title": "### 🔄 Reloaded",
+      "title": "### Reloaded 🔄",
       "line": "**{{target}}**: {{count}} loaded in {{duration}}ms",
       "locales": "**locales**: text reloaded in {{duration}}ms",
       "needsRestart": "⚠️ These files changed since the bot started, and a reload doesn't pick them up. Use `/dev restart` for them:\n{{files}}",
@@ -583,7 +583,7 @@
       "devSkipped": "Developer commands weren't registered, as `DEV_GUILD_ID` isn't set."
     },
     "restart": {
-      "message": "### 🔁 Restarting\nBack in a few seconds. Counting and scheduled jobs catch up on what happens meanwhile.\n-# This relies on something starting the bot again, like Docker. Without that, it stays off."
+      "message": "### Restarting 🔁\nBack in a few seconds. Counting and scheduled jobs catch up on what happens meanwhile.\n-# This relies on something starting the bot again, like Docker. Without that, it stays off."
     }
   },
   "botinfo": {
