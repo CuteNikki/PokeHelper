@@ -290,8 +290,7 @@
     },
     "evolution": {
       "title": "Entwicklung",
-      "none": "entwickelt sich nicht",
-      "noneText": "Entwickelt sich nicht"
+      "none": "entwickelt sich nicht"
     },
     "shiny": {
       "show": "Schillernd",

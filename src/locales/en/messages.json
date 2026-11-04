@@ -672,8 +672,7 @@
     },
     "evolution": {
       "title": "Evolution",
-      "none": "doesn't evolve",
-      "noneText": "Doesn't evolve"
+      "none": "doesn't evolve"
     },
     "shiny": {
       "show": "Shiny",

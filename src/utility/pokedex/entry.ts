@@ -327,15 +327,13 @@ export async function buildPokedexEntry(match: PokedexMatch, view: PokedexView, 
       .addSeparatorComponents(new SeparatorBuilder())
       .addTextDisplayComponents(new TextDisplayBuilder().setContent(about.join('\n')))
       .addSeparatorComponents(new SeparatorBuilder())
-      .addTextDisplayComponents(new TextDisplayBuilder().setContent(statLines.join('\n')))
-      .addSeparatorComponents(new SeparatorBuilder());
-    // The evolutions are their buttons, in order, with the one shown highlighted
+      .addTextDisplayComponents(new TextDisplayBuilder().setContent(statLines.join('\n')));
+    // The evolutions are their buttons, in order, with the one shown highlighted. Left out when it doesn't evolve, like on the card
     if (evolves) {
       container
+        .addSeparatorComponents(new SeparatorBuilder())
         .addTextDisplayComponents(new TextDisplayBuilder().setContent(`### ${t('pokedex.evolution.title')}`))
         .addActionRowComponents(buildEvolutionButtons(stages.flat(), match, shownView, speciesName));
-    } else {
-      container.addTextDisplayComponents(new TextDisplayBuilder().setContent(`### ${t('pokedex.evolution.title')}\n${t('pokedex.evolution.noneText')}`));
     }
   } else {
     // All pictures are loaded at the same time, from the cache when they were shown before
