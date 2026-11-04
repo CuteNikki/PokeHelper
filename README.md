@@ -72,7 +72,7 @@ _A Pokémon themed Discord bot_
 
 ### 🎨 Seasonal Looks
 
-With `PROFILE_THEMES=on`, the bot changes its animated avatar and banner by itself. Holidays come before the season they fall in:
+With `PROFILE_THEMES=on`, the bot changes its animated avatar and banner by itself. Holidays come before the season they fall in, and between the seasons it wears its standard look:
 
 | When                                 | Theme           |
 | ------------------------------------ | --------------- |
@@ -84,9 +84,11 @@ With `PROFILE_THEMES=on`, the bot changes its animated avatar and banner by itse
 | October                              | Halloween       |
 | December                             | Christmas       |
 | January and February                 | Winter          |
-| March to May                         | Spring          |
+| March 1 to 15                        | Standard        |
+| March 16 to May 31                   | Spring          |
 | July and August                      | Summer          |
-| September and November               | Autumn          |
+| September 1 to 15                    | Standard        |
+| September 16 to 30, and November     | Autumn          |
 
 Days change at midnight UTC, and the bot puts the new look on within 15 minutes. `bun run themes` lists the exact dates of the next twelve months, and `/dev profile-theme` puts on any look right away.
 

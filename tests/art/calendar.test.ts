@@ -14,10 +14,19 @@ test('easterSunday knows the Easter dates of a few years', () => {
 describe('themeOn', () => {
   test('has a season for every ordinary day', () => {
     expect(on('2026-01-20')).toBe('winter');
-    expect(on('2026-03-10')).toBe('spring');
+    expect(on('2026-03-20')).toBe('spring');
     expect(on('2026-07-15')).toBe('summer');
-    expect(on('2026-09-15')).toBe('autumn');
+    expect(on('2026-09-20')).toBe('autumn');
     expect(on('2026-11-15')).toBe('autumn');
+  });
+
+  test('has its own look between the seasons, in the first half of March and September', () => {
+    expect(on('2027-03-01')).toBe('standard');
+    expect(on('2027-03-15')).toBe('standard');
+    expect(on('2027-03-16')).toBe('spring');
+    expect(on('2027-09-01')).toBe('standard');
+    expect(on('2027-09-15')).toBe('standard');
+    expect(on('2027-09-16')).toBe('autumn');
   });
 
   test('has the holidays over the seasons', () => {
