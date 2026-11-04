@@ -3,7 +3,7 @@ import { AttachmentBuilder, AuditLogEvent, channelMention, Events } from 'discor
 import { Event } from 'classes/base/event';
 
 import { whoDid } from 'utility/logs/audit';
-import { byLine } from 'utility/logs/format';
+import { code } from 'utility/logs/format';
 import { isIgnoredChannel, sendLog, shouldLog } from 'utility/logs/send';
 
 /** Many messages deleted at once, like by a purge, with the ones the bot saw in a text file. */
@@ -24,10 +24,11 @@ export default new Event({
 
     await sendLog(guild, 'messagesBulkDeleted', (t) => ({
       kind: 'deleted',
-      title: t('logs.messagesBulkDeleted.title', { count: messages.size }),
-      about: t('logs.messagesBulkDeleted.about', { channel: channelMention(channel.id) }) + byLine(doer, t),
-      details: [seen.length < messages.size ? `-# ${t('logs.messagesBulkDeleted.notSeen', { count: messages.size - seen.length })}` : null],
-      ids: t('logs.ids.channel', { channel: channel.id }),
+      label: t('logs.labels.messagesBulkDeleted', { count: messages.size }),
+      subject: `${channelMention(channel.id)} ${code(`#${channel.name}`)}`,
+      by: doer,
+      details: [seen.length < messages.size ? `-# ${t('logs.bulkNotSeen', { count: messages.size - seen.length })}` : null],
+      ids: { channel: channel.id, ...(doer ? { user: doer.id } : {}) },
       files: seen.length > 0 ? [new AttachmentBuilder(Buffer.from(transcript, 'utf8'), { name: `deleted-messages-${channel.id}.txt` })] : [],
     }));
   },

@@ -2,6 +2,7 @@ import { AuditLogEvent, channelMention, Events } from 'discord.js';
 
 import { Event } from 'classes/base/event';
 
+import { code } from 'utility/logs/format';
 import { logServerChange } from 'utility/logs/server';
 
 /** An invite deleted by someone. Invites that ran out or were used up aren't in the audit log, but are logged too, with no one named. */
@@ -14,10 +15,10 @@ export default new Event({
     await logServerChange(guild, {
       event: 'invites',
       kind: 'deleted',
-      title: (t) => t('logs.invites.deleted'),
-      about: invite.url,
-      details: (t) => [invite.channelId ? `**${t('logs.invites.channel')}** ${channelMention(invite.channelId)}` : null],
-      ids: (t) => t('logs.ids.invite', { code: invite.code }),
+      label: (t) => t('logs.labels.inviteDeleted'),
+      subject: code(invite.code),
+      where: invite.channelId ? channelMention(invite.channelId) : null,
+      id: ['invite', invite.code],
       actions: [AuditLogEvent.InviteDelete],
       targetId: invite.code,
     });

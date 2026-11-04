@@ -859,125 +859,88 @@
     "reason": "Reason",
     "before": "Before",
     "after": "After",
-    "inChannel": "{{user}} in {{channel}}",
     "notSeen": "Sent before I started, so I don't know what it said.",
     "noText": "*No text*",
+    "unknownAuthor": "Someone",
     "attachments": "Attachments",
     "stickers": "Stickers",
     "jumpToMessage": "Jump to message",
     "jumpToContext": "Jump to where it was",
-    "ids": {
-      "message": "User {{user}} · Message {{message}}",
-      "messageOnly": "Message {{message}}",
-      "user": "User {{user}}",
-      "channel": "Channel {{channel}}",
-      "role": "Role {{role}}",
-      "server": "Server {{server}}",
-      "emoji": "Emoji {{emoji}}",
-      "sticker": "Sticker {{sticker}}",
-      "invite": "Invite {{code}}"
+    "accountCreated": "Account created",
+    "memberCount": "Members now",
+    "joined": "Joined",
+    "roles": "Roles",
+    "until": "Until",
+    "username": "Username",
+    "displayName": "Display name",
+    "avatar": "Avatar",
+    "avatarChanged": "changed, the new one is on the right",
+    "avatarRemoved": "Removed their server avatar",
+    "bulkNotSeen_one": "{{count}} of them was sent before I started, so it's not in the file.",
+    "bulkNotSeen_other": "{{count}} of them were sent before I started, so they're not in the file.",
+    "labels": {
+      "messageEdited": "✏️ Message edited",
+      "messageDeleted": "🗑️ Message deleted",
+      "messagesBulkDeleted_one": "🗑️ {{count}} message deleted",
+      "messagesBulkDeleted_other": "🗑️ {{count}} messages deleted",
+      "memberJoined": "📥 Member joined",
+      "memberLeft": "📤 Member left",
+      "memberNickname": "🏷️ Nickname changed",
+      "rolesAdded_one": "🎭 Role added",
+      "rolesAdded_other": "🎭 Roles added",
+      "rolesRemoved_one": "🎭 Role removed",
+      "rolesRemoved_other": "🎭 Roles removed",
+      "rolesChanged": "🎭 Roles changed",
+      "profile": "👤 Profile changed",
+      "serverAvatar": "👤 Server avatar changed",
+      "banned": "🔨 Member banned",
+      "unbanned": "🕊️ Member unbanned",
+      "kicked": "👢 Member kicked",
+      "timedOut": "⏳ Member timed out",
+      "timeoutRemoved": "⌛ Timeout removed",
+      "channelCreated": "📁 Channel created",
+      "channelDeleted": "📁 Channel deleted",
+      "channelUpdated": "📁 Channel changed",
+      "roleCreated": "🎭 Role created",
+      "roleDeleted": "🎭 Role deleted",
+      "roleUpdated": "🎭 Role changed",
+      "serverUpdated": "🏠 Server changed",
+      "emojiCreated": "😀 Emoji added",
+      "emojiDeleted": "😀 Emoji deleted",
+      "emojiUpdated": "😀 Emoji changed",
+      "stickerCreated": "🖼️ Sticker added",
+      "stickerDeleted": "🖼️ Sticker deleted",
+      "stickerUpdated": "🖼️ Sticker changed",
+      "threadCreated": "🧵 Thread started",
+      "threadDeleted": "🧵 Thread deleted",
+      "threadUpdated": "🧵 Thread changed",
+      "inviteCreated": "🔗 Invite created",
+      "inviteDeleted": "🔗 Invite deleted",
+      "voiceJoined": "🔊 Joined voice",
+      "voiceLeft": "🔇 Left voice",
+      "voiceMoved": "🔀 Moved voice channels"
     },
-    "messageEdited": {
-      "title": "Message Edited ✏️"
-    },
-    "messageDeleted": {
-      "title": "Message Deleted 🗑️",
-      "unknown": "A message in {{channel}}"
-    },
-    "messagesBulkDeleted": {
-      "title_one": "{{count}} Message Deleted 🗑️",
-      "title_other": "{{count}} Messages Deleted 🗑️",
-      "about": "In {{channel}}",
-      "notSeen_one": "{{count}} of them was sent before I started, so it's not in the file.",
-      "notSeen_other": "{{count}} of them were sent before I started, so they're not in the file."
-    },
-    "memberJoined": {
-      "title": "Member Joined 📥",
-      "created": "Account created",
-      "count": "Members now"
-    },
-    "memberLeft": {
-      "title": "Member Left 📤",
-      "joined": "Joined",
-      "roles": "Roles"
-    },
-    "memberNickname": {
-      "title": "Nickname Changed 🏷️"
-    },
-    "memberRoles": {
-      "title": "Roles Changed 🎭"
-    },
-    "memberProfile": {
-      "title": "Profile Changed 👤",
-      "serverAvatar": "Server Avatar Changed 👤",
-      "username": "Username",
-      "displayName": "Display name",
-      "newAvatar": "New avatar",
-      "avatarRemoved": "Removed their server avatar"
-    },
-    "memberBanned": {
-      "title": "Member Banned 🔨"
-    },
-    "memberUnbanned": {
-      "title": "Member Unbanned 🕊️"
-    },
-    "memberKicked": {
-      "title": "Member Kicked 👢"
-    },
-    "memberTimedOut": {
-      "title": "Member Timed Out ⏳",
-      "removed": "Timeout Removed ⌛",
-      "until": "Until"
-    },
-    "channels": {
-      "created": "Channel Created 📁",
-      "deleted": "Channel Deleted 📁",
-      "updated": "Channel Changed 📁"
-    },
-    "roles": {
-      "created": "Role Created 🎭",
-      "deleted": "Role Deleted 🎭",
-      "updated": "Role Changed 🎭"
-    },
-    "server": {
-      "updated": "Server Changed 🏠"
-    },
-    "emojis": {
-      "created": "Emoji Added 😀",
-      "deleted": "Emoji Deleted 😀",
-      "updated": "Emoji Changed 😀",
-      "stickerCreated": "Sticker Added 🖼️",
-      "stickerDeleted": "Sticker Deleted 🖼️",
-      "stickerUpdated": "Sticker Changed 🖼️"
+    "copy": {
+      "button": "Copy IDs",
+      "title": "IDs to copy",
+      "user": "User",
+      "message": "Message",
+      "channel": "Channel",
+      "role": "Role",
+      "server": "Server",
+      "emoji": "Emoji",
+      "sticker": "Sticker",
+      "invite": "Invite"
     },
     "threads": {
-      "created": "Thread Created 🧵",
-      "deleted": "Thread Deleted 🧵",
-      "updated": "Thread Changed 🧵",
-      "about": "{{thread}} in {{channel}}",
-      "startedBy": "Started by",
-      "channel": "In",
       "locked": "Locked",
       "archived": "Archived"
     },
     "invites": {
-      "created": "Invite Created 🔗",
-      "deleted": "Invite Deleted 🔗",
-      "channel": "For",
       "uses": "Uses",
       "unlimited": "Unlimited",
       "expires": "Expires",
       "never": "Never"
-    },
-    "voiceJoined": {
-      "title": "Joined Voice 🔊"
-    },
-    "voiceLeft": {
-      "title": "Left Voice 🔇"
-    },
-    "voiceMoved": {
-      "title": "Moved Voice Channels 🔀",
-      "about": "{{user}} from {{from}} to {{to}}"
     },
     "changes": {
       "none": "none",

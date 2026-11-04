@@ -1,10 +1,9 @@
-import { AuditLogEvent, Events, time, TimestampStyles } from 'discord.js';
+import { AuditLogEvent, Events, roleMention, time, TimestampStyles } from 'discord.js';
 
 import { Event } from 'classes/base/event';
 
 import { whoDid } from 'utility/logs/audit';
-import { roleListChanges } from 'utility/logs/changes';
-import { byLine, reasonPart, who } from 'utility/logs/format';
+import { avatarOf, code, reasonPart, userSubject } from 'utility/logs/format';
 import { sendLog } from 'utility/logs/send';
 
 /** A member changed: their nickname, roles or server avatar, or a timeout given or taken away. Each is its own log. */
@@ -15,42 +14,57 @@ export default new Event({
     // Without the member from before, there's nothing to compare
     if (before.partial) return;
     const { guild } = after;
+    const subject = userSubject(after.user);
+    const thumbnail = avatarOf(after);
+    const ids = { user: after.id };
 
     if (before.nickname !== after.nickname) {
       const doer = await whoDid(guild.id, AuditLogEvent.MemberUpdate, after.id);
       await sendLog(guild, 'memberNickname', (t) => ({
         kind: 'updated',
-        title: t('logs.memberNickname.title'),
+        label: t('logs.labels.memberNickname'),
+        subject,
+        thumbnail,
         // Changing your own nickname is no one else's doing
-        about: who(after.user) + (doer && doer.id !== after.id ? byLine(doer, t) : ''),
-        details: [
-          `**${t('logs.before')}** ${before.nickname ?? t('logs.changes.none')}`,
-          `**${t('logs.after')}** ${after.nickname ?? t('logs.changes.none')}`,
-        ],
-        ids: t('logs.ids.user', { user: after.id }),
+        by: doer && doer.id !== after.id ? doer : null,
+        details: [`${before.nickname ? code(before.nickname) : t('logs.changes.none')} → ${after.nickname ? code(after.nickname) : t('logs.changes.none')}`],
+        ids,
       }));
     }
 
-    const roles = roleListChanges([...before.roles.cache.keys()], [...after.roles.cache.keys()]);
-    if (roles) {
+    const added = after.roles.cache.filter((role) => !before.roles.cache.has(role.id)).map((role) => roleMention(role.id));
+    const removed = before.roles.cache.filter((role) => !after.roles.cache.has(role.id)).map((role) => roleMention(role.id));
+    if (added.length > 0 || removed.length > 0) {
       const doer = await whoDid(guild.id, AuditLogEvent.MemberRoleUpdate, after.id);
       // Roles the bot gives and takes, like birthday or reward roles, are logged too, so it's clear where they came from
       await sendLog(guild, 'memberRoles', (t) => ({
-        kind: 'updated',
-        title: t('logs.memberRoles.title'),
-        about: who(after.user) + byLine(doer, t),
-        details: [roles],
-        ids: t('logs.ids.user', { user: after.id }),
+        kind: removed.length === 0 ? 'created' : added.length === 0 ? 'deleted' : 'updated',
+        label:
+          removed.length === 0
+            ? t('logs.labels.rolesAdded', { count: added.length })
+            : added.length === 0
+              ? t('logs.labels.rolesRemoved', { count: removed.length })
+              : t('logs.labels.rolesChanged'),
+        subject,
+        thumbnail,
+        by: doer,
+        // Both at once are said with + and −, one of them alone only needs its label
+        details: [
+          added.length > 0 && removed.length > 0 ? `+ ${added.join(' ')}\n− ${removed.join(' ')}` : [...added, ...removed].join(' '),
+          reasonPart(doer, t),
+        ],
+        ids,
       }));
     }
 
     if (before.avatar !== after.avatar) {
       await sendLog(guild, 'memberProfile', (t) => ({
         kind: 'updated',
-        title: t('logs.memberProfile.serverAvatar'),
-        about: who(after.user),
-        details: [after.avatar ? `[${t('logs.memberProfile.newAvatar')}](${after.displayAvatarURL({ size: 512 })})` : t('logs.memberProfile.avatarRemoved')],
-        ids: t('logs.ids.user', { user: after.id }),
+        label: t('logs.labels.serverAvatar'),
+        subject,
+        thumbnail,
+        details: [after.avatar ? null : t('logs.avatarRemoved')],
+        ids,
       }));
     }
 
@@ -62,10 +76,12 @@ export default new Event({
       const doer = await whoDid(guild.id, AuditLogEvent.MemberUpdate, after.id);
       await sendLog(guild, 'memberTimedOut', (t) => ({
         kind: timedOut ? 'deleted' : 'created',
-        title: t(timedOut ? 'logs.memberTimedOut.title' : 'logs.memberTimedOut.removed'),
-        about: who(after.user) + byLine(doer, t),
-        details: [timedOut ? `**${t('logs.memberTimedOut.until')}** ${time(new Date(isUntil), TimestampStyles.LongDateTime)}` : null, reasonPart(doer, t)],
-        ids: t('logs.ids.user', { user: after.id }),
+        label: t(timedOut ? 'logs.labels.timedOut' : 'logs.labels.timeoutRemoved'),
+        subject,
+        thumbnail,
+        by: doer,
+        details: [timedOut ? `**${t('logs.until')}** ${time(new Date(isUntil), TimestampStyles.LongDateTime)}` : null, reasonPart(doer, t)],
+        ids,
       }));
     }
   },

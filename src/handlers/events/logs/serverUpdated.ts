@@ -3,6 +3,7 @@ import { AuditLogEvent, Events } from 'discord.js';
 import { Event } from 'classes/base/event';
 
 import { guildChanges } from 'utility/logs/changes';
+import { code } from 'utility/logs/format';
 import { logServerChange } from 'utility/logs/server';
 
 export default new Event({
@@ -12,10 +13,11 @@ export default new Event({
     await logServerChange(after, {
       event: 'server',
       kind: 'updated',
-      title: (t) => t('logs.server.updated'),
-      about: after.name,
+      label: (t) => t('logs.labels.serverUpdated'),
+      subject: code(after.name),
+      thumbnail: after.iconURL({ size: 128 }),
       details: (t) => [guildChanges(before, after, t).join('\n') || null],
-      ids: (t) => t('logs.ids.server', { server: after.id }),
+      id: ['server', after.id],
       actions: [AuditLogEvent.GuildUpdate],
       targetId: after.id,
     });

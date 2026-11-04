@@ -1,8 +1,9 @@
-import { AuditLogEvent, channelMention, Events } from 'discord.js';
+import { AuditLogEvent, Events } from 'discord.js';
 
 import { Event } from 'classes/base/event';
 
 import { channelChanges } from 'utility/logs/changes';
+import { channelSubject } from 'utility/logs/format';
 import { logServerChange } from 'utility/logs/server';
 
 export default new Event({
@@ -13,16 +14,11 @@ export default new Event({
     await logServerChange(after.guild, {
       event: 'channels',
       kind: 'updated',
-      title: (t) => t('logs.channels.updated'),
-      about: `${channelMention(after.id)} (${after.name})`,
+      label: (t) => t('logs.labels.channelUpdated'),
+      subject: channelSubject(after.id, after.name),
       details: (t) => [channelChanges(before, after, t).join('\n') || null],
-      ids: (t) => t('logs.ids.channel', { channel: after.id }),
-      actions: [
-        AuditLogEvent.ChannelUpdate,
-        AuditLogEvent.ChannelOverwriteCreate,
-        AuditLogEvent.ChannelOverwriteUpdate,
-        AuditLogEvent.ChannelOverwriteDelete,
-      ],
+      id: ['channel', after.id],
+      actions: [AuditLogEvent.ChannelUpdate, AuditLogEvent.ChannelOverwriteCreate, AuditLogEvent.ChannelOverwriteUpdate, AuditLogEvent.ChannelOverwriteDelete],
       targetId: after.id,
     });
   },

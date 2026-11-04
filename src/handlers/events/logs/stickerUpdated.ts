@@ -2,6 +2,7 @@ import { AuditLogEvent, Events } from 'discord.js';
 
 import { Event } from 'classes/base/event';
 
+import { code } from 'utility/logs/format';
 import { logServerChange } from 'utility/logs/server';
 
 export default new Event({
@@ -12,13 +13,16 @@ export default new Event({
     await logServerChange(after.guild, {
       event: 'emojis',
       kind: 'updated',
-      title: (t) => t('logs.emojis.stickerUpdated'),
-      about: `[${after.name}](${after.url})`,
+      label: (t) => t('logs.labels.stickerUpdated'),
+      subject: code(after.name),
+      thumbnail: after.url,
       details: (t) => [
-        before.name !== after.name ? `**${t('logs.changes.name')}** ${before.name} → ${after.name}` : null,
-        before.description !== after.description ? `**${t('logs.changes.description')}** ${before.description ?? '-'} → ${after.description ?? '-'}` : null,
+        before.name !== after.name ? `**${t('logs.changes.name')}** ${code(before.name)} → ${code(after.name)}` : null,
+        before.description !== after.description
+          ? `**${t('logs.changes.description')}** ${before.description ? code(before.description) : t('logs.changes.none')} → ${after.description ? code(after.description) : t('logs.changes.none')}`
+          : null,
       ],
-      ids: (t) => t('logs.ids.sticker', { sticker: after.id }),
+      id: ['sticker', after.id],
       actions: [AuditLogEvent.StickerUpdate],
       targetId: after.id,
     });

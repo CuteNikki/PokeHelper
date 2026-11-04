@@ -4,10 +4,13 @@ import {
   ButtonStyle,
   ContainerBuilder,
   MessageFlags,
+  SectionBuilder,
   SeparatorBuilder,
   TextDisplayBuilder,
+  ThumbnailBuilder,
   time,
   TimestampStyles,
+  userMention,
   type AttachmentBuilder,
   type Guild,
   type GuildMember,
@@ -18,6 +21,8 @@ import { getGuildLogs, type GuildLogs } from 'database/logs';
 
 import { getTranslate, type Translate } from 'utility/i18next';
 import { logger } from 'utility/logger';
+import type { Doer } from 'utility/logs/audit';
+import { copyIdsButton, type LogIds } from 'utility/logs/copyIds';
 import { CHANNEL_FIELDS, LOG_GROUPS, logChannelOf, type LogEvent } from 'utility/logs/events';
 import { missingBotPermissions } from 'utility/settings';
 import { ThemeColors } from 'utility/theme';
@@ -47,26 +52,31 @@ export const forgetLogConfig = (guildId: string) => cache.delete(guildId);
 /** The language of a server's logs, which its staff read. */
 export const logTranslate = (guild: Guild): Translate => getTranslate(guild.preferredLocale);
 
-/** What kind of change an entry is about, which decides its color. */
-export type LogKind = 'created' | 'deleted' | 'updated' | 'info';
+/** What kind of change an entry is about, which decides its color: added in green, removed in red, changed in blue. */
+export type LogKind = 'created' | 'deleted' | 'updated';
 const KIND_COLORS: Record<LogKind, number> = {
   created: ThemeColors.success,
   deleted: ThemeColors.error,
-  updated: ThemeColors.warning,
-  info: ThemeColors.info,
+  updated: ThemeColors.info,
 };
 
 /** One log entry. Everything in it is already in the server's language. */
 export interface LogEntry {
   kind: LogKind;
-  /** Like `Message Deleted 🗑️`. */
-  title: string;
-  /** Who and where, under the title, like `@user in #general · by @mod`. */
-  about: string;
+  /** Like `✏️ Message edited`, shown small and in capitals at the top. */
+  label: string;
+  /** Where it happened, after the label, like a channel. */
+  where?: string | null;
+  /** Who or what it's about, like a member's name, shown big. */
+  subject: string;
+  /** A picture of who or what it's about, like the member's avatar, on the right. */
+  thumbnail?: string | null;
+  /** Who did it, from the audit log, shown small under the subject. */
+  by?: Doer | null;
   /** The details, each its own part, like the message's text, or what changed. Empty ones are left out. */
   details?: (string | null)[];
-  /** IDs to copy, like `User 123 · Message 456`, shown small at the bottom with the time. */
-  ids: string;
+  /** The IDs the Copy IDs button shows, by what they are. */
+  ids: LogIds;
   /** A button to where it happened, like the edited message. */
   link?: { label: string; url: string };
   files?: AttachmentBuilder[];
@@ -82,21 +92,36 @@ export const quoteText = (text: string) =>
     .map((line) => `> ${line}`)
     .join('\n');
 
-function buildEntry(entry: LogEntry) {
-  const container = new ContainerBuilder()
-    .setAccentColor(KIND_COLORS[entry.kind])
-    .addTextDisplayComponents(new TextDisplayBuilder().setContent(`### ${entry.title}\n${entry.about}`));
+/**
+ * An entry as a card: a small label with where it happened, who or what it's about with their picture, who did it and when,
+ * then the details under a line, and the buttons.
+ */
+function buildEntry(entry: LogEntry, t: Translate) {
+  const meta = [entry.by ? t('logs.by', { user: userMention(entry.by.id) }) : null, time(new Date(), TimestampStyles.ShortDateTime)];
+  const header = new TextDisplayBuilder().setContent(
+    [`-# ${entry.label.toLocaleUpperCase(t('locale'))}${entry.where ? ` · ${entry.where}` : ''}`, entry.subject, `-# ${meta.filter(Boolean).join(' · ')}`].join(
+      '\n',
+    ),
+  );
+
+  const container = new ContainerBuilder().setAccentColor(KIND_COLORS[entry.kind]);
+  if (entry.thumbnail) {
+    container.addSectionComponents(new SectionBuilder().addTextDisplayComponents(header).setThumbnailAccessory(new ThumbnailBuilder().setURL(entry.thumbnail)));
+  } else {
+    container.addTextDisplayComponents(header);
+  }
 
   const details = (entry.details ?? []).filter((detail): detail is string => Boolean(detail));
   if (details.length > 0) {
     container.addSeparatorComponents(new SeparatorBuilder()).addTextDisplayComponents(new TextDisplayBuilder().setContent(details.join('\n\n')));
   }
-  container.addTextDisplayComponents(new TextDisplayBuilder().setContent(`-# ${entry.ids} · ${time(new Date(), TimestampStyles.ShortDateTime)}`));
-  if (entry.link) {
-    container.addActionRowComponents(
-      new ActionRowBuilder<ButtonBuilder>().addComponents(new ButtonBuilder().setStyle(ButtonStyle.Link).setLabel(entry.link.label).setURL(entry.link.url)),
-    );
-  }
+
+  const buttons = [
+    entry.link ? new ButtonBuilder().setStyle(ButtonStyle.Link).setLabel(entry.link.label).setURL(entry.link.url) : null,
+    copyIdsButton(entry.ids, t),
+  ].filter((button): button is ButtonBuilder => button !== null);
+  if (buttons.length > 0) container.addActionRowComponents(new ActionRowBuilder<ButtonBuilder>().addComponents(buttons));
+
   // Logs mention people and roles to say who it was, but never ping them
   return { components: [container], files: entry.files ?? [], flags: [MessageFlags.IsComponentsV2] as const, allowedMentions: { parse: [] } };
 }
@@ -140,8 +165,9 @@ export async function sendLog(guild: Guild, event: LogEvent, entry: LogEntry | (
     if (!channel?.isSendable()) return;
     if (missingBotPermissions(guild, channelId, LOG_CHANNEL_PERMISSIONS).length > 0) return;
 
-    const built = typeof entry === 'function' ? await entry(logTranslate(guild)) : entry;
-    if (built) await channel.send(buildEntry(built));
+    const t = logTranslate(guild);
+    const built = typeof entry === 'function' ? await entry(t) : entry;
+    if (built) await channel.send(buildEntry(built, t));
   } catch (error) {
     logger.warn(error, `Failed to log ${event} in guild ${guild.id}`);
   }

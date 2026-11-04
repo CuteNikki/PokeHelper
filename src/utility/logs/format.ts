@@ -1,15 +1,30 @@
-import { time, TimestampStyles, userMention, type PartialUser, type User } from 'discord.js';
+import { channelMention, inlineCode, roleMention, time, TimestampStyles, userMention, type GuildMember, type PartialUser, type User } from 'discord.js';
 
 import type { Translate } from 'utility/i18next';
 import type { Doer } from 'utility/logs/audit';
 import { quoteText } from 'utility/logs/send';
 
-/** Someone as they're shown in logs: a mention, which may not show a name for someone who left, and their username to be sure. */
-export const who = (user: User | PartialUser | null | undefined, id?: string) =>
-  user?.username ? `${userMention(user.id)} (${user.username})` : userMention(user?.id ?? id ?? '0');
+/** A name in code, so whatever it's called can't turn into formatting, like a name with stars or underscores. */
+export const code = (text: string) => inlineCode(text.replace(/`/g, 'ˋ'));
 
-/** ` · by @mod`, when the audit log says who did it, with their reason if they gave one. Empty when it doesn't. */
-export const byLine = (doer: Doer | null, t: Translate) => (doer ? ` · ${t('logs.by', { user: userMention(doer.id) })}` : '');
+/**
+ * Someone as they're shown in logs: a mention, to open their profile, and their username in code, as a mention only shows
+ * a name for people the reader's Discord knows.
+ */
+export const userSubject = (user: User | PartialUser | null | undefined, id?: string) => {
+  const userId = user?.id ?? id ?? '0';
+  return user?.username ? `${userMention(userId)} ${code(user.username)}` : userMention(userId);
+};
+
+/** Someone's picture: their server avatar if they have one, or their own. */
+export const avatarOf = (who: User | PartialUser | GuildMember | null | undefined) =>
+  who && 'displayAvatarURL' in who ? who.displayAvatarURL({ size: 128 }) : null;
+
+/** A channel that still exists: a mention to go there, and its name. */
+export const channelSubject = (id: string, name: string) => `${channelMention(id)} ${code(`#${name}`)}`;
+
+/** A role that still exists: a mention, and its name. */
+export const roleSubject = (id: string, name: string) => `${roleMention(id)} ${code(`@${name}`)}`;
 
 /** The reason someone gave, as a part of the entry, or null if they gave none. */
 export const reasonPart = (doer: Doer | null, t: Translate) => (doer?.reason ? `**${t('logs.reason')}**\n${quoteText(doer.reason)}` : null);

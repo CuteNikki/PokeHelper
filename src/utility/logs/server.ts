@@ -2,20 +2,25 @@ import type { AuditLogEvent, Guild } from 'discord.js';
 
 import type { Translate } from 'utility/i18next';
 import { whoDid } from 'utility/logs/audit';
+import type { IdKind } from 'utility/logs/copyIds';
 import type { LogEvent } from 'utility/logs/events';
-import { byLine, reasonPart } from 'utility/logs/format';
+import { reasonPart } from 'utility/logs/format';
 import { sendLog, shouldLog, type LogKind } from 'utility/logs/send';
 
 /** A change to the server, like a channel or role created, deleted or changed. */
 interface ServerChange {
   event: LogEvent;
   kind: LogKind;
-  /** Like `Channel Created 📁`, in the server's language. */
-  title: (t: Translate) => string;
+  /** Like `📁 Channel created`, in the server's language. */
+  label: (t: Translate) => string;
+  /** Where it happened, after the label, like the channel of a thread. */
+  where?: string | null;
   /** What changed, like a channel mention and its name. */
-  about: string;
+  subject: string;
+  thumbnail?: string | null;
   details?: (t: Translate) => (string | null)[];
-  ids: (t: Translate) => string;
+  /** The ID of what changed, for the Copy IDs button. */
+  id: [IdKind, string];
   /** The audit log entries that say who did it. */
   actions: AuditLogEvent[];
   targetId: string;
@@ -38,10 +43,13 @@ export async function logServerChange(guild: Guild, change: ServerChange) {
     if (change.kind === 'updated' && details.every((detail) => !detail)) return null;
     return {
       kind: change.kind,
-      title: change.title(t),
-      about: change.about + byLine(doer, t),
+      label: change.label(t),
+      where: change.where,
+      subject: change.subject,
+      thumbnail: change.thumbnail,
+      by: doer,
       details: [...details, reasonPart(doer, t)],
-      ids: change.ids(t),
+      ids: { [change.id[0]]: change.id[1], ...(doer ? { user: doer.id } : {}) },
     };
   });
 }

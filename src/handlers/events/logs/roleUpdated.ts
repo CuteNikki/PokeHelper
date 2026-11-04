@@ -1,8 +1,9 @@
-import { AuditLogEvent, Events, roleMention } from 'discord.js';
+import { AuditLogEvent, Events } from 'discord.js';
 
 import { Event } from 'classes/base/event';
 
 import { roleChanges } from 'utility/logs/changes';
+import { roleSubject } from 'utility/logs/format';
 import { logServerChange } from 'utility/logs/server';
 
 export default new Event({
@@ -12,10 +13,10 @@ export default new Event({
     await logServerChange(after.guild, {
       event: 'roles',
       kind: 'updated',
-      title: (t) => t('logs.roles.updated'),
-      about: `${roleMention(after.id)} (${after.name})`,
+      label: (t) => t('logs.labels.roleUpdated'),
+      subject: roleSubject(after.id, after.name),
       details: (t) => [roleChanges(before, after, t).join('\n') || null],
-      ids: (t) => t('logs.ids.role', { role: after.id }),
+      id: ['role', after.id],
       actions: [AuditLogEvent.RoleUpdate],
       targetId: after.id,
     });

@@ -2,6 +2,7 @@ import { AuditLogEvent, Events } from 'discord.js';
 
 import { Event } from 'classes/base/event';
 
+import { code } from 'utility/logs/format';
 import { logServerChange } from 'utility/logs/server';
 
 export default new Event({
@@ -12,9 +13,10 @@ export default new Event({
     await logServerChange(sticker.guild, {
       event: 'emojis',
       kind: 'created',
-      title: (t) => t('logs.emojis.stickerCreated'),
-      about: `[${sticker.name}](${sticker.url})`,
-      ids: (t) => t('logs.ids.sticker', { sticker: sticker.id }),
+      label: (t) => t('logs.labels.stickerCreated'),
+      subject: code(sticker.name),
+      thumbnail: sticker.url,
+      id: ['sticker', sticker.id],
       actions: [AuditLogEvent.StickerCreate],
       targetId: sticker.id,
     });

@@ -3,7 +3,7 @@ import { AuditLogEvent, Events } from 'discord.js';
 import { Event } from 'classes/base/event';
 
 import { rememberAuditEntry } from 'utility/logs/audit';
-import { byLine, reasonPart, who } from 'utility/logs/format';
+import { avatarOf, reasonPart, userSubject } from 'utility/logs/format';
 import { sendLog } from 'utility/logs/send';
 
 /**
@@ -22,10 +22,12 @@ export default new Event({
     const doer = entry.executorId ? { id: entry.executorId, reason: entry.reason } : null;
     await sendLog(guild, 'memberKicked', (t) => ({
       kind: 'deleted',
-      title: t('logs.memberKicked.title'),
-      about: who(target, targetId) + byLine(doer, t),
+      label: t('logs.labels.kicked'),
+      subject: userSubject(target, targetId),
+      thumbnail: avatarOf(target),
+      by: doer,
       details: [reasonPart(doer, t)],
-      ids: t('logs.ids.user', { user: targetId }),
+      ids: { user: targetId },
     }));
   },
 });

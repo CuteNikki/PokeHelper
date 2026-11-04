@@ -2,6 +2,7 @@ import { AuditLogEvent, channelMention, Events } from 'discord.js';
 
 import { Event } from 'classes/base/event';
 
+import { code } from 'utility/logs/format';
 import { logServerChange } from 'utility/logs/server';
 
 export default new Event({
@@ -12,11 +13,11 @@ export default new Event({
     await logServerChange(channel.guild, {
       event: 'channels',
       kind: 'deleted',
-      title: (t) => t('logs.channels.deleted'),
+      label: (t) => t('logs.labels.channelDeleted'),
       // A mention of a deleted channel shows as unknown, so the name says which it was
-      about: `#${channel.name}`,
+      subject: code(`#${channel.name}`),
       details: (t) => [channel.parentId ? `**${t('logs.changes.category')}** ${channelMention(channel.parentId)}` : null],
-      ids: (t) => t('logs.ids.channel', { channel: channel.id }),
+      id: ['channel', channel.id],
       actions: [AuditLogEvent.ChannelDelete],
       targetId: channel.id,
     });

@@ -477,125 +477,88 @@
     "reason": "Grund",
     "before": "Vorher",
     "after": "Nachher",
-    "inChannel": "{{user}} in {{channel}}",
     "notSeen": "Vor meinem Start gesendet, also weiß ich nicht, was drinstand.",
     "noText": "*Kein Text*",
+    "unknownAuthor": "Jemand",
     "attachments": "Anhänge",
     "stickers": "Sticker",
     "jumpToMessage": "Zur Nachricht",
     "jumpToContext": "Dahin, wo sie war",
-    "ids": {
-      "message": "Nutzer {{user}} · Nachricht {{message}}",
-      "messageOnly": "Nachricht {{message}}",
-      "user": "Nutzer {{user}}",
-      "channel": "Kanal {{channel}}",
-      "role": "Rolle {{role}}",
-      "server": "Server {{server}}",
-      "emoji": "Emoji {{emoji}}",
-      "sticker": "Sticker {{sticker}}",
-      "invite": "Einladung {{code}}"
+    "accountCreated": "Konto erstellt",
+    "memberCount": "Mitglieder jetzt",
+    "joined": "Beigetreten",
+    "roles": "Rollen",
+    "until": "Bis",
+    "username": "Nutzername",
+    "displayName": "Anzeigename",
+    "avatar": "Avatar",
+    "avatarChanged": "geändert, der neue ist rechts",
+    "avatarRemoved": "Hat den Server-Avatar entfernt",
+    "bulkNotSeen_one": "{{count}} davon wurde vor meinem Start gesendet und ist nicht in der Datei.",
+    "bulkNotSeen_other": "{{count}} davon wurden vor meinem Start gesendet und sind nicht in der Datei.",
+    "labels": {
+      "messageEdited": "✏️ Nachricht bearbeitet",
+      "messageDeleted": "🗑️ Nachricht gelöscht",
+      "messagesBulkDeleted_one": "🗑️ {{count}} Nachricht gelöscht",
+      "messagesBulkDeleted_other": "🗑️ {{count}} Nachrichten gelöscht",
+      "memberJoined": "📥 Mitglied beigetreten",
+      "memberLeft": "📤 Mitglied gegangen",
+      "memberNickname": "🏷️ Spitzname geändert",
+      "rolesAdded_one": "🎭 Rolle vergeben",
+      "rolesAdded_other": "🎭 Rollen vergeben",
+      "rolesRemoved_one": "🎭 Rolle entzogen",
+      "rolesRemoved_other": "🎭 Rollen entzogen",
+      "rolesChanged": "🎭 Rollen geändert",
+      "profile": "👤 Profil geändert",
+      "serverAvatar": "👤 Server-Avatar geändert",
+      "banned": "🔨 Mitglied gebannt",
+      "unbanned": "🕊️ Mitglied entbannt",
+      "kicked": "👢 Mitglied gekickt",
+      "timedOut": "⏳ Mitglied stummgeschaltet",
+      "timeoutRemoved": "⌛ Stummschaltung aufgehoben",
+      "channelCreated": "📁 Kanal erstellt",
+      "channelDeleted": "📁 Kanal gelöscht",
+      "channelUpdated": "📁 Kanal geändert",
+      "roleCreated": "🎭 Rolle erstellt",
+      "roleDeleted": "🎭 Rolle gelöscht",
+      "roleUpdated": "🎭 Rolle geändert",
+      "serverUpdated": "🏠 Server geändert",
+      "emojiCreated": "😀 Emoji hinzugefügt",
+      "emojiDeleted": "😀 Emoji gelöscht",
+      "emojiUpdated": "😀 Emoji geändert",
+      "stickerCreated": "🖼️ Sticker hinzugefügt",
+      "stickerDeleted": "🖼️ Sticker gelöscht",
+      "stickerUpdated": "🖼️ Sticker geändert",
+      "threadCreated": "🧵 Thread gestartet",
+      "threadDeleted": "🧵 Thread gelöscht",
+      "threadUpdated": "🧵 Thread geändert",
+      "inviteCreated": "🔗 Einladung erstellt",
+      "inviteDeleted": "🔗 Einladung gelöscht",
+      "voiceJoined": "🔊 Sprachkanal betreten",
+      "voiceLeft": "🔇 Sprachkanal verlassen",
+      "voiceMoved": "🔀 Sprachkanal gewechselt"
     },
-    "messageEdited": {
-      "title": "Nachricht bearbeitet ✏️"
-    },
-    "messageDeleted": {
-      "title": "Nachricht gelöscht 🗑️",
-      "unknown": "Eine Nachricht in {{channel}}"
-    },
-    "messagesBulkDeleted": {
-      "title_one": "{{count}} Nachricht gelöscht 🗑️",
-      "title_other": "{{count}} Nachrichten gelöscht 🗑️",
-      "about": "In {{channel}}",
-      "notSeen_one": "{{count}} davon wurde vor meinem Start gesendet und ist nicht in der Datei.",
-      "notSeen_other": "{{count}} davon wurden vor meinem Start gesendet und sind nicht in der Datei."
-    },
-    "memberJoined": {
-      "title": "Mitglied beigetreten 📥",
-      "created": "Konto erstellt",
-      "count": "Mitglieder jetzt"
-    },
-    "memberLeft": {
-      "title": "Mitglied gegangen 📤",
-      "joined": "Beigetreten",
-      "roles": "Rollen"
-    },
-    "memberNickname": {
-      "title": "Spitzname geändert 🏷️"
-    },
-    "memberRoles": {
-      "title": "Rollen geändert 🎭"
-    },
-    "memberProfile": {
-      "title": "Profil geändert 👤",
-      "serverAvatar": "Server-Avatar geändert 👤",
-      "username": "Nutzername",
-      "displayName": "Anzeigename",
-      "newAvatar": "Neuer Avatar",
-      "avatarRemoved": "Hat den Server-Avatar entfernt"
-    },
-    "memberBanned": {
-      "title": "Mitglied gebannt 🔨"
-    },
-    "memberUnbanned": {
-      "title": "Mitglied entbannt 🕊️"
-    },
-    "memberKicked": {
-      "title": "Mitglied gekickt 👢"
-    },
-    "memberTimedOut": {
-      "title": "Mitglied stummgeschaltet ⏳",
-      "removed": "Stummschaltung aufgehoben ⌛",
-      "until": "Bis"
-    },
-    "channels": {
-      "created": "Kanal erstellt 📁",
-      "deleted": "Kanal gelöscht 📁",
-      "updated": "Kanal geändert 📁"
-    },
-    "roles": {
-      "created": "Rolle erstellt 🎭",
-      "deleted": "Rolle gelöscht 🎭",
-      "updated": "Rolle geändert 🎭"
-    },
-    "server": {
-      "updated": "Server geändert 🏠"
-    },
-    "emojis": {
-      "created": "Emoji hinzugefügt 😀",
-      "deleted": "Emoji gelöscht 😀",
-      "updated": "Emoji geändert 😀",
-      "stickerCreated": "Sticker hinzugefügt 🖼️",
-      "stickerDeleted": "Sticker gelöscht 🖼️",
-      "stickerUpdated": "Sticker geändert 🖼️"
+    "copy": {
+      "button": "IDs kopieren",
+      "title": "IDs zum Kopieren",
+      "user": "Nutzer",
+      "message": "Nachricht",
+      "channel": "Kanal",
+      "role": "Rolle",
+      "server": "Server",
+      "emoji": "Emoji",
+      "sticker": "Sticker",
+      "invite": "Einladung"
     },
     "threads": {
-      "created": "Thread erstellt 🧵",
-      "deleted": "Thread gelöscht 🧵",
-      "updated": "Thread geändert 🧵",
-      "about": "{{thread}} in {{channel}}",
-      "startedBy": "Gestartet von",
-      "channel": "In",
       "locked": "Gesperrt",
       "archived": "Archiviert"
     },
     "invites": {
-      "created": "Einladung erstellt 🔗",
-      "deleted": "Einladung gelöscht 🔗",
-      "channel": "Für",
       "uses": "Nutzungen",
       "unlimited": "Unbegrenzt",
       "expires": "Läuft ab",
       "never": "Nie"
-    },
-    "voiceJoined": {
-      "title": "Sprachkanal betreten 🔊"
-    },
-    "voiceLeft": {
-      "title": "Sprachkanal verlassen 🔇"
-    },
-    "voiceMoved": {
-      "title": "Sprachkanal gewechselt 🔀",
-      "about": "{{user}} von {{from}} nach {{to}}"
     },
     "changes": {
       "none": "keiner",
