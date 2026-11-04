@@ -30,7 +30,8 @@ export default new Event({
       details: [
         event === 'voiceMoved' ? `${t('logs.from')}: ${channelRef(guild, before.channelId!)}\n${t('logs.to')}: ${channelRef(guild, after.channelId!)}` : null,
       ],
-      ids: { user: member.id, channel: (after.channelId ?? before.channelId)! },
+      // Moved, where from and where to, in that order
+      ids: { user: member.id, channel: [before.channelId, after.channelId].filter((id): id is string => id !== null) },
     }));
   },
 });

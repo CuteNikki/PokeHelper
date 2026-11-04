@@ -32,6 +32,8 @@ export function previewEntries(member: GuildMember, channelId: string, t: Transl
   const roles = [...guild.roles.cache.values()].filter((role) => role.id !== guild.id && !role.managed).slice(0, 3);
   const role = (index: number, fallback: string) => (roles[index] ? roleSubject(roles[index].id, roles[index].name) : code(`@${fallback}`));
   const emoji = guild.emojis.cache.first();
+  // A real voice channel to move to, so from and to differ
+  const movedTo = guild.channels.cache.find((channel) => channel.isVoiceBased() && channel.id !== channelId)?.id ?? channelId;
 
   const shortEdit = editedText('i founf the command, its called piku', 'i found the command, it’s called pokedex', '1', t);
   const longEdit = editedText(LONG_TEXT, LONG_TEXT.replace('Line 20', 'Line twenty'), '2', t);
@@ -277,8 +279,8 @@ export function previewEntries(member: GuildMember, channelId: string, t: Transl
       about: 'user',
       subject,
       thumbnail,
-      details: [`${t('logs.from')}: ${where}\n${t('logs.to')}: ${where}`],
-      ids: { user: member.id, channel: channelId },
+      details: [`${t('logs.from')}: ${where}\n${t('logs.to')}: ${channelRef(guild, movedTo)}`],
+      ids: { user: member.id, channel: [channelId, movedTo] },
     },
   ];
 }

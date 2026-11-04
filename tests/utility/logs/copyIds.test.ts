@@ -29,6 +29,14 @@ describe('copyIdsButton', () => {
     expect(kept.length).toBeGreaterThan(2);
   });
 
+  test('keeps several channels, like where someone moved from and to, in their order', () => {
+    expect(ids(copyIdsButton({ user: '1'.repeat(18), channel: ['2'.repeat(18), '3'.repeat(18)] }, getTranslate('en')))).toEqual([
+      ['user', '1'.repeat(18)],
+      ['channel', '2'.repeat(18)],
+      ['channel', '3'.repeat(18)],
+    ]);
+  });
+
   test('has no button without IDs', () => {
     expect(copyIdsButton({}, getTranslate('en'))).toBeNull();
   });

@@ -26,8 +26,8 @@ export const COPY_IDS_MODAL_ID = 'logids-modal';
  */
 const ID_KINDS = { user: 'u', by: 'b', channel: 'c', message: 'm', role: 'r', server: 's', emoji: 'e', sticker: 'k', invite: 'i' } as const;
 export type IdKind = keyof typeof ID_KINDS;
-/** The IDs of an entry by what they are. Roles can be several, like the roles someone was given. */
-export type LogIds = Partial<Record<Exclude<IdKind, 'role'>, string>> & { role?: string | string[] };
+/** The IDs of an entry by what they are. Roles and channels can be several, like the roles someone was given, or where someone moved from and to. */
+export type LogIds = Partial<Record<Exclude<IdKind, 'role' | 'channel'>, string>> & { role?: string | string[]; channel?: string | string[] };
 
 /** Discord's limit for custom IDs. The IDs that don't fit are left out, the first ones are the ones most often wanted. */
 const MAX_CUSTOM_ID = 100;
