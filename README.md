@@ -70,6 +70,26 @@ _A Pokémon themed Discord bot_
 - English and German, following each member's Discord language
 - Data of a server is deleted 30 days after the bot leaves it
 
+### 🎨 Seasonal Looks
+
+With `PROFILE_THEMES=on`, the bot changes its animated avatar and banner by itself. Holidays come before the season they fall in:
+
+| When                                 | Theme           |
+| ------------------------------------ | --------------- |
+| The day the bot was made, every year | Birthday        |
+| December 31 and January 1            | New Year        |
+| February 13 to 15                    | Valentine's Day |
+| Good Friday to Easter Monday         | Easter          |
+| June                                 | Pride           |
+| October                              | Halloween       |
+| December                             | Christmas       |
+| January and February                 | Winter          |
+| March to May                         | Spring          |
+| July and August                      | Summer          |
+| September and November               | Autumn          |
+
+Days change at midnight UTC, and the bot puts the new look on within 15 minutes. `bun run themes` lists the exact dates of the next twelve months, and `/dev profile-theme` puts on any look right away.
+
 ## 💬 Commands
 
 | Command             | What it does                                           |
@@ -190,6 +210,7 @@ docker compose exec pokehelper bunx prisma migrate deploy
 | `bun run format`   | Format with Prettier                                                                                |
 | `bun run art`      | Render the avatar and banner, in every theme or the ones named, like `bun run art halloween`        |
 | `bun run profile`  | Upload them to the bot: `--avatar art/out/standard/avatar.gif --banner art/out/standard/banner.gif` |
+| `bun run themes`   | Which seasonal look the bot wears when, over the next twelve months                                 |
 
 Translations live in `src/locales/<language>/messages.json`. English is the source; missing German texts fall back to it.
 
