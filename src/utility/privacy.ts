@@ -4,6 +4,7 @@ import {
   ButtonBuilder,
   ButtonStyle,
   ContainerBuilder,
+  FileBuilder,
   MessageFlags,
   SeparatorBuilder,
   SeparatorSpacingSize,
@@ -96,11 +97,14 @@ export async function handlePrivacyButton(interaction: ButtonInteraction): Promi
 
   await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
   const exportedAt = new Date().toISOString();
-  const file =
-    scope === 'user'
-      ? jsonFile({ exportedAt, ...(await getUserData(interaction.user.id)) }, `poke-helper-user-${interaction.user.id}.json`)
-      : jsonFile({ exportedAt, ...(await getGuildData(interaction.guildId!)) }, `poke-helper-server-${interaction.guildId}.json`);
-  return interaction.editReply({ ...createResponse(t(`privacy.${scope}.downloaded`), 'success'), files: [file] });
+  const name = scope === 'user' ? `poke-helper-user-${interaction.user.id}.json` : `poke-helper-server-${interaction.guildId}.json`;
+  const data = scope === 'user' ? await getUserData(interaction.user.id) : await getGuildData(interaction.guildId!);
+  // A file on a message made of components only shows when a component points to it
+  const container = new ContainerBuilder()
+    .setAccentColor(ThemeColors.success)
+    .addTextDisplayComponents(new TextDisplayBuilder().setContent(t(`privacy.${scope}.downloaded`)))
+    .addFileComponents(new FileBuilder().setURL(`attachment://${name}`));
+  return interaction.editReply({ components: [container], files: [jsonFile({ exportedAt, ...data }, name)], flags: [MessageFlags.IsComponentsV2] });
 }
 
 /** Delete everything about whoever confirmed, in every server. */
