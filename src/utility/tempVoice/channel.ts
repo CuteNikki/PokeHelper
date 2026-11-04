@@ -48,8 +48,6 @@ export type Access = Pick<TempVoiceChannel, 'locked' | 'hidden' | 'allowed' | 'b
 const OWNER_GRACE = 30_000;
 /** How long between channels for one person, so hopping in and out of a join channel can't flood the server with channels. */
 const CREATE_COOLDOWN = 10_000;
-/** How long a new channel waits before it's deleted for being empty, in case Discord put its owner back in the join channel for a moment. */
-const NEW_CHANNEL_GRACE = 5_000;
 /** The longest a channel's name can be. */
 const MAX_NAME_LENGTH = 100;
 
@@ -270,14 +268,9 @@ export const findCreator = (channelId: string) => getTempVoiceCreatorByChannel(c
 
 const ownerAway = new Map<string, ReturnType<typeof setTimeout>>();
 
-/** New channels that are empty, waiting to be deleted. */
-const emptyAway = new Map<string, ReturnType<typeof setTimeout>>();
-
 const stopOwnerTimer = (channelId: string) => {
   clearTimeout(ownerAway.get(channelId));
   ownerAway.delete(channelId);
-  clearTimeout(emptyAway.get(channelId));
-  emptyAway.delete(channelId);
 };
 
 /**
@@ -291,21 +284,6 @@ export function settleTempChannel(channel: VoiceChannel, ownerGrace = OWNER_GRAC
     const here = people(channel);
 
     if (here.size === 0) {
-      // Right after being moved in, Discord sometimes puts someone back in the join channel for a moment. A new channel waits a little
-      // before it's deleted, so joining again moves them back into it instead of making a second one
-      const age = Date.now() - channel.createdTimestamp;
-      if (age < NEW_CHANNEL_GRACE) {
-        if (!emptyAway.has(channel.id)) {
-          emptyAway.set(
-            channel.id,
-            setTimeout(() => {
-              emptyAway.delete(channel.id);
-              settleTempChannel(channel, ownerGrace).catch((error: unknown) => logger.error(error, 'Failed to settle a temporary voice channel'));
-            }, NEW_CHANNEL_GRACE - age),
-          );
-        }
-        return;
-      }
       await deleteTempChannel(temp);
       return;
     }
