@@ -277,7 +277,13 @@
       "type": "Typ"
     },
     "shinyName": "Schillerndes {{name}}",
-    "picture": "Offizielles Artwork von {{name}}"
+    "picture": "Offizielles Artwork von {{name}}",
+    "search": {
+      "button": "Suchen",
+      "title": "Pokémon nachschlagen",
+      "label": "Name oder Pokédex-Nummer",
+      "placeholder": "Pikachu, Mega-Glurak X, 25..."
+    }
   },
   "locale": "de-DE",
   "leveling": {

@@ -655,7 +655,13 @@
       "type": "Type"
     },
     "shinyName": "Shiny {{name}}",
-    "picture": "Official artwork of {{name}}"
+    "picture": "Official artwork of {{name}}",
+    "search": {
+      "button": "Search",
+      "title": "Look up a Pokémon",
+      "label": "Name or Pokédex number",
+      "placeholder": "Pikachu, Mega Charizard X, 25..."
+    }
   },
   "locale": "en-US",
   "number": {

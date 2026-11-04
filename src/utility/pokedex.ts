@@ -6,13 +6,19 @@ import {
   type ButtonInteraction,
   ContainerBuilder,
   MediaGalleryBuilder,
+  LabelBuilder,
   MessageFlags,
+  ModalBuilder,
+  type ModalMessageModalSubmitInteraction,
+  type ModalSubmitInteraction,
   SectionBuilder,
   SeparatorBuilder,
   SeparatorSpacingSize,
   StringSelectMenuBuilder,
   type StringSelectMenuInteraction,
   TextDisplayBuilder,
+  TextInputBuilder,
+  TextInputStyle,
   ThumbnailBuilder,
 } from 'discord.js';
 
@@ -34,6 +40,7 @@ import { TYPE_COLORS } from 'utility/pokemonTypes';
 import { statBarEmoji, type BarPiece } from 'utility/statBarEmojis';
 import {
   findBySlug,
+  findPokemon,
   formatDexNumber,
   getPokedexData,
   loadPokedexData,
@@ -104,8 +111,12 @@ const BUTTONS_PER_ROW = 5;
 /** Two rows of evolutions, more than any Pokémon has: Eevee has nine with itself. */
 const MAX_EVOLUTION_BUTTONS = 10;
 
-export type PokedexAction = 'prev' | 'next' | 'shiny' | 'evo';
-const ACTIONS: PokedexAction[] = ['prev', 'next', 'shiny', 'evo'];
+export type PokedexAction = 'prev' | 'next' | 'shiny' | 'evo' | 'search';
+const ACTIONS: PokedexAction[] = ['prev', 'next', 'shiny', 'evo', 'search'];
+
+/** Custom IDs of the popup asking which Pokémon to show are this, followed by the view of the entry it was opened on. */
+export const POKEDEX_SEARCH_MODAL_PREFIX = 'pokedex-search:';
+const SEARCH_INPUT_ID = 'pokemon';
 
 const encodeView = (view: PokedexView) => `${view.shiny ? 's' : 'n'}:${view.text ? 't' : 'i'}`;
 
@@ -117,12 +128,12 @@ function decodeView(shiny: string | undefined, mode: string | undefined): Pokede
 
 export const pokedexCustomId = (action: PokedexAction, slug: string, view: PokedexView) => `${POKEDEX_CUSTOM_ID_PREFIX}${action}:${slug}:${encodeView(view)}`;
 
-/** The Pokémon and view a button leads to, or null if it isn't one. */
-export function parsePokedexCustomId(customId: string): { slug: string; view: PokedexView } | null {
+/** What a button does, the Pokémon it leads to and the view, or null if it isn't one. */
+export function parsePokedexCustomId(customId: string): { action: PokedexAction; slug: string; view: PokedexView } | null {
   const [prefix, action, slug, shiny, mode, ...rest] = customId.split(':');
   if (`${prefix}:` !== POKEDEX_CUSTOM_ID_PREFIX || !ACTIONS.includes(action as PokedexAction) || !slug || rest.length > 0) return null;
   const view = decodeView(shiny, mode);
-  return view ? { slug, view } : null;
+  return view ? { action: action as PokedexAction, slug, view } : null;
 }
 
 /** The view of the entry the forms select is on, or null if it isn't one. */
@@ -175,6 +186,11 @@ function buildControls(match: PokedexMatch, view: PokedexView, hasShiny: boolean
       .setEmoji(t('pagination.previous.icon'))
       .setLabel(formatDexNumber(previous?.id ?? species.id))
       .setDisabled(!previous),
+    new ButtonBuilder()
+      .setCustomId(pokedexCustomId('search', slug, view))
+      .setStyle(ButtonStyle.Secondary)
+      .setEmoji('🔍')
+      .setLabel(t('pokedex.search.button')),
     new ButtonBuilder()
       .setCustomId(pokedexCustomId('shiny', slug, { ...view, shiny: !view.shiny }))
       .setStyle(view.shiny ? ButtonStyle.Primary : ButtonStyle.Secondary)
@@ -382,7 +398,11 @@ export async function buildPokedexEntry(match: PokedexMatch, view: PokedexView, 
  * Show another entry on the message a button or select is on, for its buttons and select.
  * Errors are sent to only whoever pressed, so the entry stays as it was.
  */
-export async function updatePokedexEntry(interaction: ButtonInteraction | StringSelectMenuInteraction, slug: string, view: PokedexView): Promise<unknown> {
+export async function updatePokedexEntry(
+  interaction: ButtonInteraction | StringSelectMenuInteraction | ModalMessageModalSubmitInteraction,
+  slug: string,
+  view: PokedexView,
+): Promise<unknown> {
   const t = getTranslate(interaction.locale);
   await interaction.deferUpdate();
   try {
@@ -397,4 +417,42 @@ export async function updatePokedexEntry(interaction: ButtonInteraction | String
     logger.warn(error, error.message);
     return sendError(interaction, t('pokedex.unavailable'));
   }
+}
+
+/** The popup asking which Pokémon to show next, opened on an entry with the view it keeps. */
+export function buildPokedexSearchModal(view: PokedexView, t: Translate) {
+  return new ModalBuilder()
+    .setCustomId(`${POKEDEX_SEARCH_MODAL_PREFIX}${encodeView(view)}`)
+    .setTitle(t('pokedex.search.title'))
+    .addLabelComponents(
+      new LabelBuilder()
+        .setLabel(t('pokedex.search.label'))
+        .setTextInputComponent(
+          new TextInputBuilder()
+            .setCustomId(SEARCH_INPUT_ID)
+            .setStyle(TextInputStyle.Short)
+            .setPlaceholder(t('pokedex.search.placeholder'))
+            .setMaxLength(100)
+            .setRequired(true),
+        ),
+    );
+}
+
+/** Show the Pokémon typed into the popup, by any name or number, on the entry it was opened from. */
+export async function handlePokedexSearchModal(interaction: ModalSubmitInteraction): Promise<unknown> {
+  const t = getTranslate(interaction.locale);
+  const view = decodeView(...(interaction.customId.slice(POKEDEX_SEARCH_MODAL_PREFIX.length).split(':') as [string, string]));
+  if (!view || !interaction.isFromMessage()) return sendError(interaction, t('system.outdated'));
+
+  const input = interaction.fields.getTextInputValue(SEARCH_INPUT_ID);
+  try {
+    await loadPokedexData();
+  } catch (error) {
+    if (!(error instanceof PokeApiError)) throw error;
+    logger.warn(error, error.message);
+    return sendError(interaction, t('pokedex.unavailable'));
+  }
+  const match = findPokemon(input);
+  if (!match) return sendError(interaction, t('pokedex.notFound', { name: input }));
+  return updatePokedexEntry(interaction, matchSlug(match), view);
 }

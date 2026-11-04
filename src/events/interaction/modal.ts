@@ -8,6 +8,7 @@ import { getTranslate } from 'utility/i18next';
 import { handleLeaderboardPageModal } from 'utility/leaderboardPageModal';
 import { LEADERBOARD_PAGE_MODAL_PREFIX } from 'utility/leaderboardView';
 import { logger } from 'utility/logger';
+import { handlePokedexSearchModal, POKEDEX_SEARCH_MODAL_PREFIX } from 'utility/pokedex';
 import { sendError } from 'utility/response';
 import { SETTINGS_CUSTOM_ID_PREFIX } from 'utility/settings';
 
@@ -24,6 +25,7 @@ export default new Event({
     try {
       if (interaction.customId.startsWith(SETTINGS_CUSTOM_ID_PREFIX)) await handleSettingsModal(interaction);
       else if (interaction.customId.startsWith(LEADERBOARD_PAGE_MODAL_PREFIX)) await handleLeaderboardPageModal(interaction);
+      else if (interaction.customId.startsWith(POKEDEX_SEARCH_MODAL_PREFIX)) await handlePokedexSearchModal(interaction);
       else await sendError(interaction, getTranslate(interaction.locale)('system.outdated'));
     } catch (error) {
       logger.error(error, `Failed to handle the popup ${interaction.customId}`);
