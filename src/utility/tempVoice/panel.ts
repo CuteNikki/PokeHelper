@@ -145,6 +145,7 @@ export function buildPanel({ channel, record }: TempChannel, t: Translate): Resp
     .addActionRowComponents(new ActionRowBuilder<UserSelectMenuBuilder>().addComponents(allowed))
     .addTextDisplayComponents(heading(t('tempVoice.panel.blocked')))
     .addActionRowComponents(new ActionRowBuilder<UserSelectMenuBuilder>().addComponents(blocked))
+    .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large))
     // Said what it's for, as there's nothing to pick until someone else joins
     .addTextDisplayComponents(new TextDisplayBuilder().setContent(`**${t('tempVoice.panel.someone')}**\n-# ${t('tempVoice.panel.someoneDescription')}`))
     .addActionRowComponents(new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(someone))
