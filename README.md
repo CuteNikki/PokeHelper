@@ -2,7 +2,7 @@
 
 _A Pokémon themed Discord bot_
 
-**Poke Helper** is a Discord bot made for a Pokémon community server. It runs the server's counting game, levels, birthdays, role menus, temporary voice channels and server logs, and has a Pokédex and a guessing game, in English and German.
+**Poke Helper** is a Discord bot made for a Pokémon community server. It runs the server's counting game, levels, birthdays, role menus, temporary voice channels and server logs, and has a Pokédex and a guessing game.
 
 ## ✨ Features
 
