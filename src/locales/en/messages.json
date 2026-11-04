@@ -626,11 +626,11 @@
     "select": "Pick a category",
     "overview": "Overview",
     "descriptions": {
-      "pokemon": "Look up any Pokémon",
-      "leveling": "Levels, ranks and the leaderboard",
-      "birthday": "Your birthday and its announcement",
-      "counting": "The counting game and its stats",
-      "role-menu": "Menus to pick roles from",
+      "pokemon": "Everything about Pokémon",
+      "leveling": "Levels and ranks for chatting",
+      "birthday": "Birthdays and their announcements",
+      "counting": "The counting game",
+      "role-menu": "Roles to pick for yourself",
       "general": "About the bot",
       "settings": "Set up the bot for this server"
     },
