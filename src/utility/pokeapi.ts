@@ -1,6 +1,6 @@
+import { loadImage, type Image } from '@napi-rs/canvas';
+
 const API_URL = 'https://pokeapi.co/api/v2';
-/** The most answers kept. They never change, so the cache only has to stop growing forever. */
-const CACHE_SIZE = 500;
 const TIMEOUT = 10_000;
 
 type Named = { name: string; url: string };
@@ -46,38 +46,51 @@ export interface ApiEvolutionChain {
 /** Thrown when PokéAPI can't be reached or answers with an error, but not when something doesn't exist. */
 export class PokeApiError extends Error {}
 
-const cache = new Map<string, Promise<unknown>>();
+/** A cache that keeps the most recently used, up to a limit. Waiting answers are kept too, so asking twice at once fetches once. */
+class RecentCache {
+  private readonly entries = new Map<string, Promise<unknown>>();
+
+  constructor(private readonly limit: number) {}
+
+  get<T>(key: string, load: () => Promise<T>): Promise<T> {
+    const cached = this.entries.get(key);
+    // Moved to the end, so the ones asked for least recently are first in line to go
+    this.entries.delete(key);
+    if (cached) {
+      this.entries.set(key, cached);
+      return cached as Promise<T>;
+    }
+
+    const request = load();
+    this.entries.set(key, request);
+    // Failures aren't kept, so the next try asks again
+    request.catch(() => this.entries.delete(key));
+    for (const oldest of this.entries.keys()) {
+      if (this.entries.size <= this.limit) break;
+      this.entries.delete(oldest);
+    }
+    return request;
+  }
+}
+
+/** Answers never change, so this only has to stop the cache from growing forever. */
+const answers = new RecentCache(500);
+/** Pictures take about 1 MB each once loaded, so fewer are kept. Enough for Eevee and all its evolutions a few times over. */
+const images = new RecentCache(60);
 
 /**
- * An answer from PokéAPI, cached so each Pokémon is only fetched once. Asking again while it's on its way waits for the same answer.
+ * An answer from PokéAPI, cached so each Pokémon is only fetched once.
  * @returns The answer, or null if it doesn't exist.
  */
-async function get<T>(path: string): Promise<T | null> {
-  const cached = cache.get(path);
-  if (cached) {
-    // Moved to the end, so the ones asked for least recently are first in line to go
-    cache.delete(path);
-    cache.set(path, cached);
-    return cached as Promise<T | null>;
-  }
-
-  const request = (async () => {
+function get<T>(path: string): Promise<T | null> {
+  return answers.get(path, async () => {
     const response = await fetch(`${API_URL}/${path}`, { signal: AbortSignal.timeout(TIMEOUT) }).catch((error: unknown) => {
       throw new PokeApiError(`PokéAPI couldn't be reached for ${path}`, { cause: error });
     });
     if (response.status === 404) return null;
     if (!response.ok) throw new PokeApiError(`PokéAPI answered ${response.status} for ${path}`);
     return (await response.json()) as T;
-  })();
-
-  cache.set(path, request);
-  // Failures aren't kept, so the next try asks again
-  request.catch(() => cache.delete(path));
-  for (const key of cache.keys()) {
-    if (cache.size <= CACHE_SIZE) break;
-    cache.delete(key);
-  }
-  return request;
+  });
 }
 
 export const getPokemon = (slug: string) => get<ApiPokemon>(`pokemon/${encodeURIComponent(slug)}`);
@@ -91,3 +104,11 @@ export function getEvolutionChain(url: string) {
 
 /** The Pokédex number in a species URL, like the ones in evolution chains. */
 export const speciesIdFromUrl = (url: string) => Number(url.match(/pokemon-species\/(\d+)/)?.[1]) || null;
+
+const ARTWORK_URL = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork';
+
+/** The official artwork of a species by its Pokédex number, without asking PokéAPI where it is. */
+export const artworkUrl = (id: number, shiny: boolean) => `${ARTWORK_URL}/${shiny ? 'shiny/' : ''}${id}.png`;
+
+/** A picture, cached. Null if it can't be loaded, so a missing picture leaves a gap instead of failing. */
+export const getImage = (url: string): Promise<Image | null> => images.get(url, () => loadImage(url)).catch(() => null);

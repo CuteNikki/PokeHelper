@@ -250,7 +250,6 @@
     "abilities": "**Fähigkeiten** {{abilities}}",
     "hiddenAbility": "{{name}} (versteckt)",
     "stats": {
-      "title": "**Basiswerte**",
       "hp": "KP",
       "attack": "Angriff",
       "defense": "Vert.",
@@ -260,18 +259,18 @@
       "total": "Gesamt"
     },
     "evolution": {
-      "title": "**Entwicklung**",
-      "none": "Entwickelt sich nicht"
+      "title": "Entwicklung",
+      "none": "**Entwicklung** Entwickelt sich nicht",
+      "noneShort": "entwickelt sich nicht"
     },
     "shiny": {
       "show": "Schillernd",
       "hide": "Normal"
     },
     "forms": "Andere Formen",
-    "picture": "Offizielles Artwork von {{name}}",
-    "pictureShiny": "Offizielles Artwork von schillerndem {{name}}",
     "notFound": "Ich hab kein Pokémon namens **{{name}}** gefunden. Nimm einen der Vorschläge oder probier die Nummer.",
-    "unavailable": "Der Pokédex ist gerade nicht erreichbar. Versuch es gleich nochmal."
+    "unavailable": "Der Pokédex ist gerade nicht erreichbar. Versuch es gleich nochmal.",
+    "altText": "Pokédex-Karte von {{name}}. Typ: {{types}}. Basiswerte: {{stats}}. Entwicklung: {{evolution}}."
   },
   "locale": "de-DE",
   "leveling": {

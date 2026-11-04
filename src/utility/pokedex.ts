@@ -1,22 +1,33 @@
 import {
   ActionRowBuilder,
+  AttachmentBuilder,
   ButtonBuilder,
   ButtonStyle,
   type ButtonInteraction,
   ContainerBuilder,
+  MediaGalleryBuilder,
   MessageFlags,
-  SectionBuilder,
   SeparatorBuilder,
   SeparatorSpacingSize,
   StringSelectMenuBuilder,
   type StringSelectMenuInteraction,
   TextDisplayBuilder,
-  ThumbnailBuilder,
 } from 'discord.js';
 
 import { getTranslate, resolveLanguage, type Translate } from 'utility/i18next';
 import { logger } from 'utility/logger';
-import { getEvolutionChain, getPokemon, getSpecies, PokeApiError, speciesIdFromUrl, type ApiEvolutionLink, type ApiSpecies } from 'utility/pokeapi';
+import {
+  artworkUrl,
+  getEvolutionChain,
+  getImage,
+  getPokemon,
+  getSpecies,
+  PokeApiError,
+  speciesIdFromUrl,
+  type ApiEvolutionLink,
+  type ApiSpecies,
+} from 'utility/pokeapi';
+import { renderPokedexCard } from 'utility/pokedexCard';
 import {
   findBySlug,
   formatDexNumber,
@@ -40,29 +51,26 @@ export const POKEDEX_FORM_SELECT_ID = `${POKEDEX_CUSTOM_ID_PREFIX}form:`;
 
 /** Discord shows at most 25 options in a select. */
 const MAX_FORMS = 25;
-/** The highest a base stat can be, which a full bar stands for. */
-const MAX_STAT = 255;
-const STAT_BAR_LENGTH = 12;
-
-const TYPE_STYLE: Record<string, { emoji: string; color: number }> = {
-  normal: { emoji: '⚪', color: 0xa8a77a },
-  fire: { emoji: '🔥', color: 0xee8130 },
-  water: { emoji: '💧', color: 0x6390f0 },
-  electric: { emoji: '⚡', color: 0xf7d02c },
-  grass: { emoji: '🌿', color: 0x7ac74c },
-  ice: { emoji: '❄️', color: 0x96d9d6 },
-  fighting: { emoji: '🥊', color: 0xc22e28 },
-  poison: { emoji: '☠️', color: 0xa33ea1 },
-  ground: { emoji: '⛰️', color: 0xe2bf65 },
-  flying: { emoji: '🪶', color: 0xa98ff3 },
-  psychic: { emoji: '🔮', color: 0xf95587 },
-  bug: { emoji: '🐛', color: 0xa6b91a },
-  rock: { emoji: '🪨', color: 0xb6a136 },
-  ghost: { emoji: '👻', color: 0x735797 },
-  dragon: { emoji: '🐉', color: 0x6f35fc },
-  dark: { emoji: '🌑', color: 0x705746 },
-  steel: { emoji: '⚙️', color: 0xb7b7ce },
-  fairy: { emoji: '🧚', color: 0xd685ad },
+/** The colors the games use for each type. */
+const TYPE_COLORS: Record<string, number> = {
+  normal: 0xa8a77a,
+  fire: 0xee8130,
+  water: 0x6390f0,
+  electric: 0xf7d02c,
+  grass: 0x7ac74c,
+  ice: 0x96d9d6,
+  fighting: 0xc22e28,
+  poison: 0xa33ea1,
+  ground: 0xe2bf65,
+  flying: 0xa98ff3,
+  psychic: 0xf95587,
+  bug: 0xa6b91a,
+  rock: 0xb6a136,
+  ghost: 0x735797,
+  dragon: 0x6f35fc,
+  dark: 0x705746,
+  steel: 0xb7b7ce,
+  fairy: 0xd685ad,
 };
 
 const STATS = ['hp', 'attack', 'defense', 'special-attack', 'special-defense', 'speed'] as const;
@@ -99,30 +107,16 @@ function genus(species: ApiSpecies, language: string): string | null {
   return find(language) ?? find('en') ?? null;
 }
 
-/** The evolution chain, a stage per line position: `Pichu → **Pikachu** → Raichu`. Branches share their stage: `Eevee → Vaporeon / Jolteon / ...`. */
-function formatEvolution(chain: ApiEvolutionLink, currentId: number, language: string): string | null {
-  const stages: ApiEvolutionLink[][] = [];
+/** The species of an evolution chain by stage, branches side by side: Eevee, then all eight of its evolutions. */
+function evolutionStages(chain: ApiEvolutionLink): { id: number; slug: string }[][] {
+  const stages: { id: number; slug: string }[][] = [];
   let stage = [chain];
   while (stage.length > 0) {
-    stages.push(stage);
+    stages.push(stage.map((link) => ({ id: speciesIdFromUrl(link.species.url) ?? 0, slug: link.species.name })));
     stage = stage.flatMap((link) => link.evolves_to);
   }
-  if (stages.length < 2) return null;
-
-  const name = (link: ApiEvolutionLink) => {
-    const id = speciesIdFromUrl(link.species.url);
-    const species = id ? speciesById(id) : null;
-    const text = species ? nameIn(species.names, language) : link.species.name;
-    return id === currentId ? `**${text}**` : text;
-  };
-  return stages.map((links) => links.map(name).join(' / ')).join(' → ');
+  return stages;
 }
-
-/** A base stat as a bar, out of the highest any Pokémon can have. */
-const statBar = (value: number) => {
-  const filled = Math.max(1, Math.round((value / MAX_STAT) * STAT_BAR_LENGTH));
-  return '█'.repeat(filled) + '░'.repeat(STAT_BAR_LENGTH - filled);
-};
 
 /** The buttons to the previous and next Pokémon and to the shiny picture, and the forms select if there are forms. */
 function buildControls(match: PokedexMatch, shiny: boolean, hasShiny: boolean, language: string, t: Translate): ActionRowBuilder<ButtonBuilder | StringSelectMenuBuilder>[] {
@@ -166,10 +160,11 @@ function buildControls(match: PokedexMatch, shiny: boolean, hasShiny: boolean, l
 }
 
 /**
- * Build a Pokédex entry: picture, kind, types and entry text, height, weight and abilities, base stats, evolutions, and the controls.
+ * Build a Pokédex entry: its kind and Pokédex text, a card with the artwork, types, base stats and evolutions,
+ * its height, weight and abilities, and the controls.
  * @param match The species or form to show.
- * @param shiny Whether to show the shiny picture.
- * @param language The language of the names and entry text, like `de`.
+ * @param shiny Whether to show the shiny pictures.
+ * @param language The language of the names and texts, like `de`.
  * @throws {PokeApiError} When PokéAPI can't be reached.
  * @returns The entry, or null when PokéAPI doesn't know the Pokémon.
  */
@@ -181,71 +176,98 @@ export async function buildPokedexEntry(match: PokedexMatch, shiny: boolean, lan
   const data = getPokedexData();
   const format = (value: number) => value.toLocaleString(t('locale'), { maximumFractionDigits: 1 });
   const name = matchName(match, language);
+  const number = formatDexNumber(match.species.id);
 
-  const types = [...pokemon.types].sort((a, b) => a.slot - b.slot).map((entry) => entry.type.name);
-  const typeText = types.map((type) => `${TYPE_STYLE[type]?.emoji ?? ''} ${nameIn(data.types[type], language) || type}`.trim()).join('  ');
+  const artworks = pokemon.sprites.other?.['official-artwork'];
+  const normalPicture = artworks?.front_default ?? pokemon.sprites.front_default;
+  const shinyPicture = artworks?.front_shiny ?? pokemon.sprites.front_shiny;
+  // Not every form has a shiny picture
+  const showShiny = shiny && Boolean(shinyPicture);
+  const picture = showShiny ? shinyPicture : normalPicture;
+
+  const types = [...pokemon.types]
+    .sort((a, b) => a.slot - b.slot)
+    .map((entry) => ({ name: nameIn(data.types[entry.type.name], language) || entry.type.name, color: TYPE_COLORS[entry.type.name] ?? ThemeColors.info }));
+  const stats = STATS.map((stat) => ({ label: t(`pokedex.stats.${stat}`), value: pokemon.stats.find((entry) => entry.stat.name === stat)?.base_stat ?? 0 }));
+  const total = stats.reduce((sum, stat) => sum + stat.value, 0);
+
+  const stages = chain ? evolutionStages(chain.chain) : [];
+  const evolves = stages.length > 1;
+  const speciesName = (entry: { id: number; slug: string }) => nameIn(speciesById(entry.id)?.names, language) || entry.slug;
+
+  // All pictures are loaded at the same time, from the cache when they were shown before
+  const [artwork, evolution] = await Promise.all([
+    picture ? getImage(picture) : null,
+    Promise.all(
+      (evolves ? stages : []).map((stage) =>
+        Promise.all(
+          stage.map(async (entry) => ({
+            name: speciesName(entry),
+            image: await getImage(artworkUrl(entry.id, showShiny)),
+            current: entry.id === match.species.id,
+          })),
+        ),
+      ),
+    ),
+  ]);
+
+  const toHex = (color: number) => `#${color.toString(16).padStart(6, '0')}`;
+  const card = renderPokedexCard({
+    name,
+    number,
+    artwork,
+    types: types.map((type) => ({ name: type.name, color: toHex(type.color) })),
+    stats,
+    totalLabel: t('pokedex.stats.total'),
+    evolution,
+    evolutionLabel: t('pokedex.evolution.title'),
+  });
 
   const kind = genus(species, language);
   const rarity = species.is_mythical ? t('pokedex.mythical') : species.is_legendary ? t('pokedex.legendary') : null;
   const entry = flavorText(species, language);
-  const header = [
-    t('pokedex.title', { name, number: formatDexNumber(match.species.id) }),
-    [kind, rarity].filter(Boolean).length > 0 ? `-# ${[kind, rarity].filter(Boolean).join(' · ')}` : null,
-    typeText,
-    entry ? `> ${entry}` : null,
-  ]
+  const header = [t('pokedex.title', { name, number }), kind || rarity ? `-# ${[kind, rarity].filter(Boolean).join(' · ')}` : null, entry ? `> ${entry}` : null]
     .filter(Boolean)
     .join('\n');
 
   const abilities = [...pokemon.abilities]
     .sort((a, b) => a.slot - b.slot)
-    .map((entry) => {
-      const abilityName = nameIn(data.abilities[entry.ability.name], language) || entry.ability.name;
-      return entry.is_hidden ? t('pokedex.hiddenAbility', { name: abilityName }) : abilityName;
+    .map((ability) => {
+      const abilityName = nameIn(data.abilities[ability.ability.name], language) || ability.ability.name;
+      return ability.is_hidden ? t('pokedex.hiddenAbility', { name: abilityName }) : abilityName;
     });
   const details = [
     t('pokedex.size', { height: format(pokemon.height / 10), weight: format(pokemon.weight / 10) }),
     t('pokedex.abilities', { abilities: abilities.join(', ') }),
-  ].join('\n');
+    evolves ? null : t('pokedex.evolution.none'),
+  ]
+    .filter(Boolean)
+    .join('\n');
 
-  const stats = STATS.map((stat) => ({ label: t(`pokedex.stats.${stat}`), value: pokemon.stats.find((entry) => entry.stat.name === stat)?.base_stat ?? 0 }));
-  const labelWidth = Math.max(...stats.map((stat) => stat.label.length), t('pokedex.stats.total').length);
-  const statLines = stats.map((stat) => `${stat.label.padEnd(labelWidth)} ${String(stat.value).padStart(3)} ${statBar(stat.value)}`);
-  statLines.push(`${t('pokedex.stats.total').padEnd(labelWidth)} ${String(stats.reduce((sum, stat) => sum + stat.value, 0)).padStart(3)}`);
-  const statsText = `${t('pokedex.stats.title')}\n\`\`\`\n${statLines.join('\n')}\n\`\`\``;
-
-  const evolution = chain ? formatEvolution(chain.chain, match.species.id, language) : null;
-  const evolutionText = `${t('pokedex.evolution.title')}\n${evolution ?? t('pokedex.evolution.none')}`;
-
-  const artwork = pokemon.sprites.other?.['official-artwork'];
-  const normalPicture = artwork?.front_default ?? pokemon.sprites.front_default;
-  const shinyPicture = artwork?.front_shiny ?? pokemon.sprites.front_shiny;
-  const picture = shiny ? (shinyPicture ?? normalPicture) : normalPicture;
+  // The card is only pixels, so its description has everything on it for screen readers
+  const description = t('pokedex.altText', {
+    name,
+    types: types.map((type) => type.name).join(', '),
+    stats: [...stats.map((stat) => `${stat.label} ${stat.value}`), `${t('pokedex.stats.total')} ${total}`].join(', '),
+    evolution: evolves ? stages.map((stage) => stage.map(speciesName).join(' / ')).join(' → ') : t('pokedex.evolution.noneShort'),
+  });
 
   // The accent is the color of its first type, like the games' Pokédex
-  const container = new ContainerBuilder().setAccentColor(TYPE_STYLE[types[0] ?? '']?.color ?? ThemeColors.info);
-  const headerText = new TextDisplayBuilder().setContent(header);
-  if (picture) {
-    container.addSectionComponents(
-      new SectionBuilder()
-        .addTextDisplayComponents(headerText)
-        .setThumbnailAccessory(new ThumbnailBuilder().setURL(picture).setDescription(t(shiny ? 'pokedex.pictureShiny' : 'pokedex.picture', { name }))),
-    );
-  } else {
-    container.addTextDisplayComponents(headerText);
-  }
-
-  container
-    .addSeparatorComponents(new SeparatorBuilder())
+  const container = new ContainerBuilder()
+    .setAccentColor(types[0]?.color ?? ThemeColors.info)
+    .addTextDisplayComponents(new TextDisplayBuilder().setContent(header))
+    .addMediaGalleryComponents(new MediaGalleryBuilder().addItems((item) => item.setURL('attachment://pokedex.png').setDescription(description.slice(0, 1024))))
     .addTextDisplayComponents(new TextDisplayBuilder().setContent(details))
-    .addTextDisplayComponents(new TextDisplayBuilder().setContent(statsText))
-    .addTextDisplayComponents(new TextDisplayBuilder().setContent(evolutionText))
     .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large))
-    .addActionRowComponents(...buildControls(match, shiny && Boolean(shinyPicture), Boolean(shinyPicture), language, t));
+    .addActionRowComponents(...buildControls(match, showShiny, Boolean(shinyPicture), language, t));
 
-  return { components: [container], flags: [MessageFlags.IsComponentsV2], allowedMentions: { parse: [] } };
+  return {
+    components: [container],
+    files: [new AttachmentBuilder(card, { name: 'pokedex.png' })],
+    flags: [MessageFlags.IsComponentsV2],
+    allowedMentions: { parse: [] },
+  };
 }
-
 
 /**
  * Show another entry on the message a button or select is on, for its buttons and select.

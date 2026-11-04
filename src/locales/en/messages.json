@@ -628,7 +628,6 @@
     "abilities": "**Abilities** {{abilities}}",
     "hiddenAbility": "{{name}} (hidden)",
     "stats": {
-      "title": "**Base stats**",
       "hp": "HP",
       "attack": "Attack",
       "defense": "Defense",
@@ -638,18 +637,18 @@
       "total": "Total"
     },
     "evolution": {
-      "title": "**Evolution**",
-      "none": "Doesn't evolve"
+      "title": "Evolution",
+      "none": "**Evolution** Doesn't evolve",
+      "noneShort": "doesn't evolve"
     },
     "shiny": {
       "show": "Shiny",
       "hide": "Normal"
     },
     "forms": "Other forms",
-    "picture": "Official artwork of {{name}}",
-    "pictureShiny": "Official artwork of shiny {{name}}",
     "notFound": "I couldn't find a Pokémon called **{{name}}**. Pick one of the suggestions, or try its number.",
-    "unavailable": "The Pokédex can't be reached right now. Try again in a bit."
+    "unavailable": "The Pokédex can't be reached right now. Try again in a bit.",
+    "altText": "Pokédex card of {{name}}. Type: {{types}}. Base stats: {{stats}}. Evolution: {{evolution}}."
   },
   "locale": "en-US",
   "number": {
