@@ -1,7 +1,12 @@
-import type { SKRSContext2D } from '@napi-rs/canvas';
+import { join } from 'node:path';
+
+import { GlobalFonts, type SKRSContext2D } from '@napi-rs/canvas';
 
 import { cloud, grass, mascot, snow, sparkle, TAU } from './draw';
-import type { Scene, Theme } from './themes';
+import type { Scene, Theme } from './themes/types';
+
+// The font of the name on the banner, kept with the art
+GlobalFonts.registerFromPath(join(import.meta.dir, 'fonts', 'Nunito-Black.ttf'), 'Nunito Black');
 
 /** The avatar's size. Discord shows it tiny, so the face fills it, and the scene is only sky and a few big tufts of grass. */
 export const AVATAR_SIZE = 512;
@@ -70,7 +75,8 @@ export function banner(ctx: SKRSContext2D, theme: Theme, time: number, blink = 0
 
   ground(ctx, theme, 0, BANNER_W, BANNER_H - 30, 110, time, 3);
   mascot(ctx, 1195, BANNER_H - 10, 1.25, time, blink, theme.ear, theme.hat);
-  theme.prop?.(ctx, 1010, BANNER_H - 25, 0.9, time);
+  // High enough that the grass in front only covers its bottom
+  theme.prop?.(ctx, 1010, BANNER_H - 58, 0.9, time);
   ground(ctx, theme, 1, BANNER_W, BANNER_H + 10, 100, time, 11);
   ground(ctx, theme, 2, BANNER_W, BANNER_H + 60, 90, time, 7);
 

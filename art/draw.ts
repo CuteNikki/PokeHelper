@@ -187,3 +187,74 @@ export function mascot(
   hat?.(ctx, time);
   ctx.restore();
 }
+
+/**
+ * Things falling or rising through a scene, like snow, petals or hearts, in a pattern that moves exactly its own height in a loop,
+ * so it never stops. They're spread evenly but not in a grid, the same in every frame, and sway a little from side to side.
+ * @param draw Draws one at x and y. `index` is its number, to vary them.
+ * @param direction 1 to fall, -1 to rise.
+ */
+export function drifting(
+  width: number,
+  height: number,
+  time: number,
+  count: number,
+  draw: (x: number, y: number, index: number) => void,
+  direction: 1 | -1 = 1,
+  sway = 10,
+) {
+  for (let index = 0; index < count; index++) {
+    const startX = (index * 197.3) % width;
+    const startY = (index * 89.7) % height;
+    const y = (((startY + direction * time * height) % height) + height) % height;
+    const x = startX + Math.sin(time * TAU * 2 + index) * sway;
+    // Also a height above and below, so one leaving at one edge is already coming in at the other
+    for (const offset of [-height, 0, height]) draw(x, y + offset, index);
+  }
+}
+
+/** A heart, its point at the bottom, centered on x and y. */
+export function heart(ctx: SKRSContext2D, x: number, y: number, size: number, color: string) {
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.moveTo(x, y + size * 0.6);
+  ctx.bezierCurveTo(x - size * 1.1, y - size * 0.1, x - size * 0.55, y - size * 0.95, x, y - size * 0.4);
+  ctx.bezierCurveTo(x + size * 0.55, y - size * 0.95, x + size * 1.1, y - size * 0.1, x, y + size * 0.6);
+  ctx.fill();
+}
+
+/** A striped party hat with a pompom, sitting a little crooked on the mascot's head. */
+export function partyHat(ctx: SKRSContext2D, time: number, colors: [string, string, string]) {
+  ctx.save();
+  ctx.translate(0, -168);
+  ctx.rotate(0.15 + Math.sin(time * TAU * 3) * 0.03);
+  const cone = () => {
+    ctx.beginPath();
+    ctx.moveTo(-48, 0);
+    ctx.lineTo(0, -120);
+    ctx.lineTo(48, 0);
+    ctx.quadraticCurveTo(0, 14, -48, 0);
+    ctx.closePath();
+  };
+  cone();
+  ctx.fillStyle = colors[0];
+  ctx.fill();
+  ctx.save();
+  cone();
+  ctx.clip();
+  ctx.fillStyle = colors[1];
+  for (let y = -110; y < 10; y += 34) {
+    ctx.beginPath();
+    ctx.moveTo(-60, y + 20);
+    ctx.lineTo(60, y);
+    ctx.lineTo(60, y + 14);
+    ctx.lineTo(-60, y + 34);
+    ctx.fill();
+  }
+  ctx.restore();
+  ctx.fillStyle = colors[2];
+  ctx.beginPath();
+  ctx.arc(0, -122, 16, 0, TAU);
+  ctx.fill();
+  ctx.restore();
+}

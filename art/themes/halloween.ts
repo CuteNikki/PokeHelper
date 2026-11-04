@@ -1,50 +1,7 @@
 import { createCanvas, type SKRSContext2D } from '@napi-rs/canvas';
 
-import { TAU } from './draw';
-
-/** Where something is drawn: the square avatar, shown tiny, or the wide banner. */
-export interface Scene {
-  kind: 'avatar' | 'banner';
-  width: number;
-  height: number;
-}
-
-type Draw = (ctx: SKRSContext2D, scene: Scene, time: number) => void;
-
-export interface Theme {
-  /** The sky, from the top down. The banner runs it diagonally, the second color on the right. */
-  sky: [string, string];
-  /** Clouds drifting by, or null for none. */
-  cloud: string | null;
-  /** The two colors of the sparkles. */
-  sparkles: [string, string];
-  /** Grass or snow, its rows from the back to the front. */
-  ground: { kind: 'grass' | 'snow'; colors: [string, string, string] };
-  /** The color of the tips of the mascot's ears. */
-  ear: string;
-  /** The color of the shadow under the name. */
-  titleShadow: string;
-  /** Far away in the sky, behind everything, like a moon. */
-  backdrop?: Draw;
-  /** Moving in the sky, in front of the clouds but behind the name, like bats or falling snow. */
-  life?: Draw;
-  /** Next to the mascot in the grass, like a pumpkin, at the place each scene gives. */
-  prop?: (ctx: SKRSContext2D, x: number, y: number, scale: number, time: number) => void;
-  /** On the mascot's head, in its coordinates, where the top of its head is at y -175. */
-  hat?: (ctx: SKRSContext2D, time: number) => void;
-}
-
-/** The everyday look: a blue sky, white clouds and green grass. */
-const standard: Theme = {
-  sky: ['#6fa8ff', '#3b4cca'],
-  cloud: '#f3f7ff',
-  sparkles: ['#ffffff', '#ffcb05'],
-  ground: { kind: 'grass', colors: ['#2f8f5b', '#3fae6a', '#5cc97f'] },
-  ear: '#46507e',
-  titleShadow: 'rgba(20,26,77,0.35)',
-};
-
-// Halloween
+import { TAU } from '../draw';
+import type { Theme } from './types';
 
 /** A pale full moon with a soft glow and a few craters. */
 function moon(ctx: SKRSContext2D, x: number, y: number, r: number) {
@@ -167,7 +124,8 @@ function witchHat(ctx: SKRSContext2D, time: number) {
   ctx.restore();
 }
 
-const halloween: Theme = {
+/** Halloween: a purple night, a full moon, bats, a carved pumpkin and a witch hat. */
+export const halloween: Theme = {
   sky: ['#2a1650', '#5b2a86'],
   cloud: '#4a3373',
   sparkles: ['#f3e7ff', '#ffb347'],
@@ -198,85 +156,3 @@ const halloween: Theme = {
   prop: pumpkin,
   hat: witchHat,
 };
-
-// Christmas
-
-/** Snow falling, in a pattern that falls exactly its own height in a loop, so it never stops. */
-function snowfall(ctx: SKRSContext2D, scene: Scene, time: number) {
-  const count = scene.kind === 'banner' ? 70 : 18;
-  ctx.fillStyle = 'rgba(255,255,255,0.9)';
-  for (let i = 0; i < count; i++) {
-    // Spread evenly but not in a grid, the same each frame
-    const startX = (i * 197.3) % scene.width;
-    const startY = (i * 89.7) % scene.height;
-    const r = (scene.kind === 'banner' ? 2.5 : 6) + (i % 3) * (scene.kind === 'banner' ? 1.2 : 2.5);
-    const y = (startY + time * scene.height) % scene.height;
-    const x = startX + Math.sin(time * TAU * 2 + i) * 10;
-    // Also just above the top, so one leaving at the bottom is already coming in at the top
-    for (const dy of [0, -scene.height]) {
-      ctx.beginPath();
-      ctx.arc(x, y + dy, r, 0, TAU);
-      ctx.fill();
-    }
-  }
-}
-
-/** A present, red with a gold ribbon and bow. */
-function present(ctx: SKRSContext2D, x: number, y: number, scale: number) {
-  ctx.save();
-  ctx.translate(x, y);
-  ctx.scale(scale, scale);
-  ctx.fillStyle = '#d63c4a';
-  ctx.fillRect(-48, -80, 96, 80);
-  ctx.fillStyle = '#b52a38';
-  ctx.fillRect(-54, -96, 108, 22);
-  ctx.fillStyle = '#ffcb05';
-  ctx.fillRect(-9, -96, 18, 96);
-  for (const side of [-1, 1]) {
-    ctx.beginPath();
-    ctx.ellipse(side * 18, -106, 20, 12, side * -0.5, 0, TAU);
-    ctx.fill();
-  }
-  ctx.beginPath();
-  ctx.arc(0, -100, 8, 0, TAU);
-  ctx.fill();
-  ctx.restore();
-}
-
-/** A Santa hat, flopping over to one side, its pompom swinging. */
-function santaHat(ctx: SKRSContext2D, time: number) {
-  ctx.save();
-  ctx.translate(0, -162);
-  const swing = Math.sin(time * TAU * 3) * 6;
-  ctx.fillStyle = '#d63c4a';
-  ctx.beginPath();
-  ctx.moveTo(-78, 0);
-  ctx.quadraticCurveTo(-60, -110, 30, -112);
-  ctx.quadraticCurveTo(95 + swing, -105, 105 + swing, -55);
-  ctx.quadraticCurveTo(70, -80, 78, 0);
-  ctx.closePath();
-  ctx.fill();
-  ctx.fillStyle = '#ffffff';
-  ctx.beginPath();
-  ctx.roundRect(-90, -16, 180, 34, 17);
-  ctx.fill();
-  ctx.beginPath();
-  ctx.arc(105 + swing, -50, 20, 0, TAU);
-  ctx.fill();
-  ctx.restore();
-}
-
-const christmas: Theme = {
-  sky: ['#16244f', '#3a5aa8'],
-  cloud: '#8fa3d6',
-  sparkles: ['#ffffff', '#ffe27a'],
-  ground: { kind: 'snow', colors: ['#c9d8f5', '#e3ecfc', '#ffffff'] },
-  ear: '#46507e',
-  titleShadow: 'rgba(10,18,52,0.55)',
-  life: snowfall,
-  prop: (ctx, x, y, scale) => present(ctx, x, y, scale),
-  hat: santaHat,
-};
-
-export const THEMES = { standard, halloween, christmas } satisfies Record<string, Theme>;
-export type ThemeName = keyof typeof THEMES;
