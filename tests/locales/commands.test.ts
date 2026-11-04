@@ -13,7 +13,7 @@ interface CommandNode {
 }
 
 const commands: CommandNode[] = [];
-for (const file of await getFilesFrom('src/commands')) {
+for (const file of await getFilesFrom('src/handlers/commands')) {
   const command = ((await import(file)) as { default: Command }).default;
   // Developer commands are only visible in the developer server, so they stay English
   if (!command.options.devOnly) commands.push(command.options.data.toJSON());

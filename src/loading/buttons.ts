@@ -19,7 +19,7 @@ export async function loadButtons(client: ExtendedClient) {
   const tableData: { file: string; customId: string; valid: boolean }[] = [];
   const startTime = performance.now();
 
-  const filePaths = await getFilesFrom('src/buttons');
+  const filePaths = await getFilesFrom('src/handlers/buttons');
 
   // Use Promise.all to load all button files concurrently
   await Promise.all(

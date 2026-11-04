@@ -17,7 +17,7 @@ if (!DISCORD_TOKEN || !DISCORD_ID) {
 
 logger.info('Registering commands...');
 
-const filePaths = await getFilesFrom('src/commands');
+const filePaths = await getFilesFrom('src/handlers/commands');
 
 const commands: Command[] = [];
 

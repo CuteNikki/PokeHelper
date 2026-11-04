@@ -23,7 +23,7 @@ export interface ReloadResult {
 /**
  * Reload parts of the bot without restarting or disconnecting from the gateway.
  *
- * The files in src/commands, src/buttons, src/selects and src/events are imported again, but what they import
+ * The files in src/handlers are imported again, but what they import
  * (utility, database, settings and so on) stays as it was loaded at startup, so changes there still need a restart.
  * The locales are read again from disk, which updates all the bot's text.
  * @param client The client to reload into.
@@ -67,11 +67,10 @@ export async function reload(client: ExtendedClient, targets: readonly ReloadTar
 }
 
 /** The folders whose files are imported again when reloading. Text is reloaded too, so locales count as well. */
-const RELOADABLE_FOLDERS = ['src/commands/', 'src/buttons/', 'src/selects/', 'src/events/', 'src/locales/'];
+const RELOADABLE_FOLDERS = ['src/handlers/', 'src/locales/'];
 
 /**
  * The source files changed since the bot started that a reload doesn't pick up, like in utility or settings, so a restart is needed.
- * Tests aren't part of the bot, so they're left out.
  */
 export async function changedSinceStart(): Promise<string[]> {
   // When the process started, so no start time has to be kept
@@ -80,7 +79,7 @@ export async function changedSinceStart(): Promise<string[]> {
   for await (const path of new Glob('src/**/*.ts').scan('.')) {
     // Windows paths use backslashes
     const file = path.replaceAll('\\', '/');
-    if (file.endsWith('.test.ts') || RELOADABLE_FOLDERS.some((folder) => file.startsWith(folder))) continue;
+    if (RELOADABLE_FOLDERS.some((folder) => file.startsWith(folder))) continue;
     if ((await stat(file)).mtimeMs > startedAt) changed.push(file);
   }
   return changed.sort();

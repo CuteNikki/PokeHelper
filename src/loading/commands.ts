@@ -19,7 +19,7 @@ export async function loadCommands(client: ExtendedClient) {
   const tableData: { file: string; name: string; valid: boolean }[] = [];
   const startTime = performance.now();
 
-  const filePaths = await getFilesFrom('src/commands');
+  const filePaths = await getFilesFrom('src/handlers/commands');
 
   // Use Promise.all to load all command files concurrently
   await Promise.all(

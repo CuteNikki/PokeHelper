@@ -19,7 +19,7 @@ export async function loadSelectMenus(client: ExtendedClient) {
   const tableData: { file: string; customId: string; valid: boolean }[] = [];
   const startTime = performance.now();
 
-  const filePaths = await getFilesFrom('src/selects');
+  const filePaths = await getFilesFrom('src/handlers/selects');
 
   // Use Promise.all to load all select menu files concurrently
   await Promise.all(

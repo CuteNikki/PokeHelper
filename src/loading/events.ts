@@ -21,7 +21,7 @@ export async function loadEvents(client: ExtendedClient) {
   const tableData: { file: string; name: string; valid: boolean }[] = [];
   const startTime = performance.now();
 
-  const filePaths = await getFilesFrom('src/events');
+  const filePaths = await getFilesFrom('src/handlers/events');
 
   // Use Promise.all to load all event files concurrently
   await Promise.all(
