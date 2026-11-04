@@ -18,7 +18,8 @@ function cake(ctx: SKRSContext2D, x: number, y: number, scale: number, time: num
   ctx.fillStyle = '#ff8fab';
   ctx.beginPath();
   ctx.moveTo(-60, -60);
-  for (let i = 0; i <= 6; i++) {
+  // Six drips across the width of the cake, the last ending at its right edge
+  for (let i = 0; i < 6; i++) {
     const dx = -60 + i * 20;
     ctx.quadraticCurveTo(dx + 5, -40 - (i % 2) * 10, dx + 10, -58);
     ctx.lineTo(dx + 20, -60);

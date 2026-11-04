@@ -31,7 +31,7 @@ function leaf(ctx: SKRSContext2D, x: number, y: number, size: number, angle: num
  */
 function leafPile(ctx: SKRSContext2D, x: number, y: number, scale: number) {
   ctx.save();
-  ctx.translate(x, y + 40);
+  ctx.translate(x, y + 16);
   ctx.scale(scale, scale);
   // From the bottom row up, so the higher leaves lie on the lower ones. Lying flat is a quarter turn, as a leaf points up
   // The lowest rows reach down to the bottom of the banner, behind the grass in front, so the pile doesn't end in mid-air

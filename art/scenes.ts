@@ -76,8 +76,8 @@ export function banner(ctx: SKRSContext2D, theme: Theme, time: number, blink = 0
   ground(ctx, theme, 0, BANNER_W, BANNER_H - 30, 110, time, 3);
   mascot(ctx, 1195, BANNER_H - 10, 1.25, time, blink, theme.ear, theme.hat);
   // High enough that the grass in front only covers its bottom, and lower on snow, which lies lower than grass
-  // Far enough left to stay clear of the mascot, even the wide cake
-  theme.prop?.(ctx, 955, theme.ground.kind === 'snow' ? BANNER_H - 18 : BANNER_H - 58, 0.9, time);
+  // In front of the mascot, as if it holds it, and low enough that the grass always covers its bottom. Lower on snow, which lies lower
+  theme.prop?.(ctx, 1010, theme.ground.kind === 'snow' ? BANNER_H - 18 : BANNER_H - 32, 0.9, time);
   ground(ctx, theme, 1, BANNER_W, BANNER_H + 10, 100, time, 11);
   ground(ctx, theme, 2, BANNER_W, BANNER_H + 60, 90, time, 7);
 

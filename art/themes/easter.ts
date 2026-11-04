@@ -34,7 +34,7 @@ function egg(ctx: SKRSContext2D, x: number, y: number, size: number, angle: numb
 function eggs(ctx: SKRSContext2D, x: number, y: number, scale: number) {
   ctx.save();
   // Lying down in the grass, as they're small
-  ctx.translate(x, y + 26);
+  ctx.translate(x, y + 6);
   ctx.scale(scale, scale);
   // Colors that stand out from the sky and the grass
   egg(ctx, -42, -40, 34, -0.3, '#ff9f43', '#ffffff');
