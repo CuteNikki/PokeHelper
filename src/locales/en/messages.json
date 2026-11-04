@@ -711,6 +711,7 @@
       "allowed": "Let in",
       "blocked": "Kept out",
       "someone": "Someone here",
+      "someoneDescription": "Pick someone who's in the channel to kick them, keep them out, or hand the channel over to them",
       "allowPlaceholder": "Pick who to let in",
       "blockPlaceholder": "Pick who to keep out",
       "memberPlaceholder": "Kick, keep out or hand over",
