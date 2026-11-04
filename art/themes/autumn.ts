@@ -25,20 +25,33 @@ function leaf(ctx: SKRSContext2D, x: number, y: number, size: number, angle: num
   ctx.restore();
 }
 
-/** A little pile of fallen leaves. */
+/**
+ * A little pile of fallen leaves: a low mound of leaves lying mostly flat, the bottom row widest. Drawn lower than other props, as
+ * it's flat and sits down in the grass rather than standing in it.
+ */
 function leafPile(ctx: SKRSContext2D, x: number, y: number, scale: number) {
   ctx.save();
-  ctx.translate(x, y);
+  ctx.translate(x, y + 40);
   ctx.scale(scale, scale);
-  const leaves = [
-    [-50, -14, 1.2],
-    [40, -12, -1.0],
-    [-10, -30, 0.4],
-    [25, -40, 2.2],
-    [-35, -40, -0.6],
-    [5, -58, 1.4],
-  ] as const;
-  leaves.forEach(([dx, dy, angle], i) => leaf(ctx, dx, dy, 30, angle, LEAF_COLORS[i % LEAF_COLORS.length]!));
+  // From the bottom row up, so the higher leaves lie on the lower ones. Lying flat is a quarter turn, as a leaf points up
+  // The lowest rows reach down to the bottom of the banner, behind the grass in front, so the pile doesn't end in mid-air
+  const rows = [
+    { y: 40, xs: [-96, -64, -32, 0, 32, 64, 96] },
+    { y: 24, xs: [-84, -52, -20, 12, 44, 76] },
+    { y: 8, xs: [-76, -44, -12, 20, 52, 82] },
+    { y: -8, xs: [-66, -33, 0, 33, 66] },
+    { y: -24, xs: [-46, -14, 18, 50] },
+    { y: -40, xs: [-28, 6, 34] },
+    { y: -54, xs: [-8, 18] },
+  ];
+  let i = 0;
+  for (const row of rows) {
+    for (const dx of row.xs) {
+      const tilt = ((i * 37) % 9) / 9 - 0.5;
+      leaf(ctx, dx, row.y, 24, Math.PI / 2 + tilt * 0.9 + (i % 2 ? Math.PI : 0), LEAF_COLORS[i % LEAF_COLORS.length]!);
+      i++;
+    }
+  }
   ctx.restore();
 }
 

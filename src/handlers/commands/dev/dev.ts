@@ -51,7 +51,7 @@ export default new Command({
     .addSubcommand((cmd) =>
       cmd
         .setName('profile-theme')
-        .setDescription("Put a theme on the bot's avatar and banner now, or go back to the calendar")
+        .setDescription("Put a theme on the bot's profile now, even if it's worn already, or go back to the calendar")
         .addStringOption((option) =>
           option
             .setName('theme')
@@ -144,7 +144,8 @@ async function handleProfileTheme(interaction: ChatInputCommandInteraction<'cach
   await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
   const choice = interaction.options.getString('theme', true);
   await updateBotProfile({ override: isThemeName(choice) ? choice : null });
-  const result = await syncProfileTheme(interaction.client);
+  // Always uploaded again, so changed artwork can be put on without waiting for the next theme
+  const result = await syncProfileTheme(interaction.client, true);
   const lines = [
     `Wearing the **${result.theme}** theme${isThemeName(choice) ? ' until set back to auto' : ', the one of the day'}.`,
     `Avatar: ${SYNC_TEXT[result.avatar]}. Banner: ${SYNC_TEXT[result.banner]}.`,

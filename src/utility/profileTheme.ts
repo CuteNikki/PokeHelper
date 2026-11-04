@@ -42,14 +42,15 @@ export interface ProfileSync {
 /**
  * Put the wanted theme on the avatar and banner, those not wearing it yet. The pictures are drawn only when one has to change, which
  * takes a second or two.
+ * @param force Upload them again even when they wear it already, like after the artwork changed.
  */
-export async function syncProfileTheme(client: Client<true>): Promise<ProfileSync> {
+export async function syncProfileTheme(client: Client<true>, force = false): Promise<ProfileSync> {
   const profile = await getBotProfile();
   const theme = wantedTheme(client, profile?.override ?? null);
   const result: ProfileSync = { theme, avatar: 'unchanged', banner: 'unchanged' };
 
   for (const part of ['avatar', 'banner'] as const) {
-    if (profile?.[`${part}Theme`] === theme) continue;
+    if (!force && profile?.[`${part}Theme`] === theme) continue;
     try {
       const image = Buffer.from(part === 'avatar' ? avatarGif(THEMES[theme]) : bannerGif(THEMES[theme]));
       await (part === 'avatar' ? client.user.setAvatar(image) : client.user.setBanner(image));

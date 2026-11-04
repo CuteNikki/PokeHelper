@@ -33,9 +33,11 @@ function egg(ctx: SKRSContext2D, x: number, y: number, size: number, angle: numb
 /** Three eggs in the grass. */
 function eggs(ctx: SKRSContext2D, x: number, y: number, scale: number) {
   ctx.save();
-  ctx.translate(x, y);
+  // Lying down in the grass, as they're small
+  ctx.translate(x, y + 26);
   ctx.scale(scale, scale);
-  egg(ctx, -42, -40, 34, -0.3, '#a5d8ff', '#ffffff');
+  // Colors that stand out from the sky and the grass
+  egg(ctx, -42, -40, 34, -0.3, '#ff9f43', '#ffffff');
   egg(ctx, 40, -38, 32, 0.25, '#ffc9de', '#ffd43b');
   egg(ctx, 0, -48, 38, 0, '#d0bfff', '#69db7c');
   ctx.restore();
