@@ -46,8 +46,10 @@ function mark(parts: string[], kept: boolean[], marker: string): string {
     run = '';
   };
   parts.forEach((part, index) => {
-    // Spaces between two changed words belong to the run, so they're marked as one
-    const changed = !kept[index] || (/^\s+$/.test(part) && run !== '' && kept[index + 1] === false);
+    // Spaces between two changed words belong to the run, so they're marked as one. A line break ends it, as Discord doesn't mark
+    // across lines, and a mark over two lines would show its markers instead
+    const lineBreak = part.includes('\n');
+    const changed = !lineBreak && (!kept[index] || (/^\s+$/.test(part) && run !== '' && kept[index + 1] === false));
     if (changed) run += part;
     else {
       flush();

@@ -9,7 +9,10 @@ const ids = (button: ReturnType<typeof copyIdsButton>) => parseCopyIds((button?.
 
 describe('copyIdsButton', () => {
   test('keeps who it is about, who did it and the roles, in that order', () => {
-    const button = copyIdsButton({ role: ['111111111111111111', '222222222222222222'], user: '333333333333333333', by: '444444444444444444' }, getTranslate('en'));
+    const button = copyIdsButton(
+      { role: ['111111111111111111', '222222222222222222'], user: '333333333333333333', by: '444444444444444444' },
+      getTranslate('en'),
+    );
     expect(ids(button)).toEqual([
       ['user', '333333333333333333'],
       ['by', '444444444444444444'],

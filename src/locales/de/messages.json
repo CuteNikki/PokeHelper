@@ -724,7 +724,9 @@
     "in": "In",
     "byLabel": "Von",
     "from": "Von",
-    "to": "Nach"
+    "to": "Nach",
+    "tooLong": "Zu lang, um hier ganz angezeigt zu werden, der ganze Text ist in der Datei darunter.",
+    "transcriptHeading": "{{count}} Nachrichten gelöscht in #{{channel}} ({{channelId}})"
   },
   "locale": "de-DE",
   "leveling": {

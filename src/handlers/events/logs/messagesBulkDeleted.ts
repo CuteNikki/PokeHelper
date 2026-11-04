@@ -1,12 +1,13 @@
-import { AttachmentBuilder, AuditLogEvent, Events } from 'discord.js';
+import { AuditLogEvent, Events } from 'discord.js';
 
 import { Event } from 'classes/base/event';
 
 import { whoDid } from 'utility/logs/audit';
+import { toTranscriptMessage, transcriptFile } from 'utility/logs/files';
 import { channelSubject } from 'utility/logs/format';
 import { isIgnoredChannel, sendLog, shouldLog } from 'utility/logs/send';
 
-/** Many messages deleted at once, like by a purge, with the ones the bot saw in a text file. */
+/** Many messages deleted at once, like by a purge, with the ones the bot saw in a text file under the entry. */
 export default new Event({
   name: Events.MessageBulkDelete,
   once: false,
@@ -16,11 +17,8 @@ export default new Event({
     if (!config || isIgnoredChannel(config, guild, channel.id)) return;
     const doer = await whoDid(guild.id, AuditLogEvent.MessageBulkDelete, channel.id);
 
-    // Oldest first, like they were in the channel. Messages sent before the bot started are only counted
-    const seen = [...messages.values()].filter((message) => !message.partial).sort((a, b) => a.createdTimestamp - b.createdTimestamp);
-    const transcript = seen
-      .map((message) => `[${message.createdAt.toISOString()}] ${message.author.username} (${message.author.id}): ${message.content}`)
-      .join('\n');
+    // Messages sent before the bot started are only counted, it never saw what they said
+    const seen = [...messages.values()].filter((message) => !message.partial).map(toTranscriptMessage);
 
     await sendLog(guild, 'messagesBulkDeleted', (t) => ({
       kind: 'deleted',
@@ -29,7 +27,16 @@ export default new Event({
       by: doer,
       details: [seen.length < messages.size ? `-# ${t('logs.bulkNotSeen', { count: messages.size - seen.length })}` : null],
       ids: { channel: channel.id },
-      files: seen.length > 0 ? [new AttachmentBuilder(Buffer.from(transcript, 'utf8'), { name: `deleted-messages-${channel.id}.txt` })] : [],
+      files:
+        seen.length > 0
+          ? [
+              transcriptFile(
+                seen,
+                t('logs.transcriptHeading', { count: messages.size, channel: channel.name, channelId: channel.id }),
+                `deleted-messages-${channel.id}.txt`,
+              ),
+            ]
+          : [],
     }));
   },
 });

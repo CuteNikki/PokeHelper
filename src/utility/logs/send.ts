@@ -15,6 +15,7 @@ import {
   type Guild,
   type GuildMember,
   type PermissionsString,
+  type SendableChannels,
   type User,
 } from 'discord.js';
 
@@ -36,6 +37,8 @@ export const LOG_CHANNEL_PERMISSIONS: PermissionsString[] = ['ViewChannel', 'Sen
 const CACHE_TTL = 60_000;
 /** The most of a text shown, so long messages leave room for the rest of the entry. */
 const MAX_TEXT = 1_500;
+/** Discord fits 4000 characters of text in a message made of components, some are left for the buttons and the like. */
+const MAX_ENTRY_TEXT = 3_800;
 
 const cache = new Map<string, { config: GuildLogs | null; at: number }>();
 
@@ -87,12 +90,15 @@ export interface LogEntry {
 /** Shorten a text so the entry has room for the rest, ending in … when it was cut. */
 export const shorten = (text: string, max = MAX_TEXT) => (text.length > max ? `${text.slice(0, max)}…` : text);
 
-/** A text as a quote, so it stands apart from the entry's own text. */
-export const quoteText = (text: string) =>
-  shorten(text)
-    .split('\n')
-    .map((line) => `> ${line}`)
-    .join('\n');
+/** The most lines of a text shown, so a message of many short lines doesn't take over the log. */
+export const MAX_QUOTE_LINES = 15;
+
+/** A text as a quote, so it stands apart from the entry's own text, cut short if it's long or has many lines. */
+export function quoteText(text: string) {
+  const lines = shorten(text).split('\n');
+  const shown = lines.length > MAX_QUOTE_LINES ? [...lines.slice(0, MAX_QUOTE_LINES), '…'] : lines;
+  return shown.map((line) => `> ${line}`).join('\n');
+}
 
 /**
  * An entry as a card: a title like the bot's other messages, who or what it's about, where and by whom, with their picture next to it,
@@ -121,10 +127,11 @@ export function buildLogEntry(entry: LogEntry, t: Translate, doer?: User | null)
     container.addTextDisplayComponents(header);
   }
 
-  const details = (entry.details ?? []).filter((detail): detail is string => Boolean(detail));
-  if (details.length > 0) {
-    container.addSeparatorComponents(space()).addTextDisplayComponents(new TextDisplayBuilder().setContent(details.join('\n\n')));
-  }
+  const details = fitDetails(
+    (entry.details ?? []).filter((detail): detail is string => Boolean(detail)),
+    MAX_ENTRY_TEXT - header.data.content!.length,
+  );
+  if (details) container.addSeparatorComponents(space()).addTextDisplayComponents(new TextDisplayBuilder().setContent(details));
 
   const buttons = [
     entry.link ? new ButtonBuilder().setStyle(ButtonStyle.Link).setLabel(entry.link.label).setURL(entry.link.url) : null,
@@ -136,7 +143,34 @@ export function buildLogEntry(entry: LogEntry, t: Translate, doer?: User | null)
   }
 
   // Logs mention people and roles to say who it was, but never ping them
-  return { components: [container], files: entry.files ?? [], flags: [MessageFlags.IsComponentsV2] as const, allowedMentions: { parse: [] } };
+  return { components: [container], flags: [MessageFlags.IsComponentsV2] as const, allowedMentions: { parse: [] } };
+}
+
+/**
+ * The details, as many of their parts as fit the room, the last one cut short if it has to. The entry's own code keeps them short,
+ * this is for whatever slips through, as Discord refuses an entry with too much text and it would be lost.
+ */
+export function fitDetails(parts: string[], room: number): string | null {
+  const kept: string[] = [];
+  for (const part of parts) {
+    const used = kept.join('\n\n').length + (kept.length > 0 ? 2 : 0);
+    if (used + part.length <= room) {
+      kept.push(part);
+      continue;
+    }
+    if (room - used > 100) kept.push(`${part.slice(0, room - used - 1)}…`);
+    break;
+  }
+  return kept.length > 0 ? kept.join('\n\n') : null;
+}
+
+/**
+ * Post an entry, and its files as a reply of their own. On a message made of components, a file only shows as a download card,
+ * while on a plain message Discord shows a preview of a text file, so it can be read right there.
+ */
+export async function postLogEntry(channel: SendableChannels, entry: LogEntry, t: Translate, doer?: User | null) {
+  const message = await channel.send(buildLogEntry(entry, t, doer));
+  if (entry.files?.length) await message.reply({ files: entry.files, allowedMentions: { parse: [], repliedUser: false } });
 }
 
 /** Whether a channel is one of the server's log channels, whose own messages aren't logged. */
@@ -183,7 +217,7 @@ export async function sendLog(guild: Guild, event: LogEvent, entry: LogEntry | (
     if (!built) return;
     // Who did it, for their name next to the mention
     const doer = built.by ? await guild.client.users.fetch(built.by.id).catch(() => null) : null;
-    await channel.send(buildLogEntry(built, t, doer));
+    await postLogEntry(channel, built, t, doer);
   } catch (error) {
     logger.warn(error, `Failed to log ${event} in guild ${guild.id}`);
   }

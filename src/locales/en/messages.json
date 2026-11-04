@@ -1106,7 +1106,9 @@
     "in": "In",
     "byLabel": "By",
     "from": "From",
-    "to": "To"
+    "to": "To",
+    "tooLong": "Too long to show in full here, the whole text is in the file below.",
+    "transcriptHeading": "{{count}} messages deleted in #{{channel}} ({{channelId}})"
   },
   "locale": "en-US",
   "number": {
