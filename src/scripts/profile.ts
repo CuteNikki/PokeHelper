@@ -1,6 +1,6 @@
 import { extname } from 'node:path';
 
-import { REST, Routes } from 'discord.js';
+import { DiscordAPIError, REST, Routes } from 'discord.js';
 
 /**
  * Set the bot's avatar and banner from image files, through Discord's API: the developer portal turns an animated GIF into a still
@@ -40,10 +40,23 @@ if (!avatarPath && !bannerPath) {
   process.exit(1);
 }
 
-const body: { avatar?: string; banner?: string } = {};
-if (avatarPath) body.avatar = await dataUri(avatarPath);
-if (bannerPath) body.banner = await dataUri(bannerPath);
-
 const rest = new REST().setToken(DISCORD_TOKEN);
-const user = (await rest.patch(Routes.user(), { body })) as { username: string; avatar: string | null; banner: string | null };
-console.log(`Updated ${user.username}: ${[avatarPath && `avatar ${user.avatar}`, bannerPath && `banner ${user.banner}`].filter(Boolean).join(', ')}`);
+let failed = false;
+
+// One at a time, so one that's rate limited doesn't hold back the other
+for (const [field, path] of [
+  ['avatar', avatarPath],
+  ['banner', bannerPath],
+] as const) {
+  if (!path) continue;
+  try {
+    await rest.patch(Routes.user(), { body: { [field]: await dataUri(path) } });
+    console.log(`Updated the ${field}.`);
+  } catch (error) {
+    failed = true;
+    // Discord says why in the error's details, like that it was changed too recently
+    const message = error instanceof DiscordAPIError ? JSON.stringify(error.rawError) : String(error);
+    console.error(`Couldn't update the ${field}: ${message.includes('RATE_LIMIT') ? 'changed too recently, try again in a while.' : message}`);
+  }
+}
+process.exit(failed ? 1 : 0);
