@@ -1,8 +1,8 @@
-import { AuditLogEvent, channelMention, Events } from 'discord.js';
+import { AuditLogEvent, Events } from 'discord.js';
 
 import { Event } from 'classes/base/event';
 
-import { channelSubject } from 'utility/logs/format';
+import { channelRef, channelSubject } from 'utility/logs/format';
 import { logServerChange } from 'utility/logs/server';
 
 export default new Event({
@@ -14,7 +14,7 @@ export default new Event({
       kind: 'created',
       label: (t) => t('logs.labels.channelCreated'),
       subject: channelSubject(channel.id, channel.name),
-      details: (t) => [channel.parentId ? `**${t('logs.changes.category')}** ${channelMention(channel.parentId)}` : null],
+      details: (t) => [channel.parentId ? `**${t('logs.changes.category')}** ${channelRef(channel.guild, channel.parentId)}` : null],
       id: ['channel', channel.id],
       actions: [AuditLogEvent.ChannelCreate],
       targetId: channel.id,

@@ -1,17 +1,7 @@
-import {
-  channelMention,
-  inlineCode,
-  OverwriteType,
-  PermissionsBitField,
-  roleMention,
-  userMention,
-  type Guild,
-  type GuildBasedChannel,
-  type PermissionsString,
-  type Role,
-} from 'discord.js';
+import { inlineCode, OverwriteType, PermissionsBitField, type Guild, type GuildBasedChannel, type PermissionsString, type Role } from 'discord.js';
 
 import type { Translate } from 'utility/i18next';
+import { channelRef, code, roleRef, userRef } from 'utility/logs/format';
 
 /**
  * What changed about a channel, role or the server, as a block for each change with its old and new value, in the server's language.
@@ -71,7 +61,7 @@ function overwriteChanges(before: GuildBasedChannel, after: GuildBasedChannel, t
   for (const id of new Set([...old.keys(), ...current.keys()])) {
     const was = old.get(id);
     const is = current.get(id);
-    const who = (is ?? was)!.type === OverwriteType.Role ? (id === after.guild.id ? '@everyone' : roleMention(id)) : userMention(id);
+    const who = (is ?? was)!.type === OverwriteType.Role ? (id === after.guild.id ? code('@everyone') : roleRef(after.guild, id)) : userRef(after.guild, id);
     const lines = [
       ...permissionChanges(was?.allow.bitfield ?? 0n, is?.allow.bitfield ?? 0n, t, {
         added: 'nowAllowed',
@@ -90,7 +80,7 @@ export function channelChanges(before: GuildBasedChannel, after: GuildBasedChann
   const lines = [
     changed(t('logs.changes.name'), before.name, after.name, t),
     changed(t('logs.changes.topic'), get(before, 'topic'), get(after, 'topic'), t),
-    changed(t('logs.changes.category'), before.parentId, after.parentId, t, channelMention),
+    changed(t('logs.changes.category'), before.parentId, after.parentId, t, (id) => channelRef(after.guild, id)),
     changed(t('logs.changes.nsfw'), get(before, 'nsfw'), get(after, 'nsfw'), t),
     changed(t('logs.changes.slowmode'), get(before, 'rateLimitPerUser'), get(after, 'rateLimitPerUser'), t),
     changed(t('logs.changes.bitrate'), get(before, 'bitrate'), get(after, 'bitrate'), t),
@@ -120,13 +110,13 @@ export function guildChanges(before: Guild, after: Guild, t: Translate): string[
     changed(t('logs.changes.description'), before.description, after.description, t),
     changed(t('logs.changes.icon'), before.icon, after.icon, t),
     changed(t('logs.changes.banner'), before.banner, after.banner, t),
-    changed(t('logs.changes.owner'), before.ownerId, after.ownerId, t, userMention),
+    changed(t('logs.changes.owner'), before.ownerId, after.ownerId, t, (id) => userRef(after, id)),
     changed(t('logs.changes.verification'), before.verificationLevel, after.verificationLevel, t),
     changed(t('logs.changes.contentFilter'), before.explicitContentFilter, after.explicitContentFilter, t),
-    changed(t('logs.changes.afkChannel'), before.afkChannelId, after.afkChannelId, t, channelMention),
+    changed(t('logs.changes.afkChannel'), before.afkChannelId, after.afkChannelId, t, (id) => channelRef(after, id)),
     changed(t('logs.changes.afkTimeout'), before.afkTimeout, after.afkTimeout, t),
-    changed(t('logs.changes.systemChannel'), before.systemChannelId, after.systemChannelId, t, channelMention),
-    changed(t('logs.changes.rulesChannel'), before.rulesChannelId, after.rulesChannelId, t, channelMention),
+    changed(t('logs.changes.systemChannel'), before.systemChannelId, after.systemChannelId, t, (id) => channelRef(after, id)),
+    changed(t('logs.changes.rulesChannel'), before.rulesChannelId, after.rulesChannelId, t, (id) => channelRef(after, id)),
     changed(t('logs.changes.vanity'), before.vanityURLCode, after.vanityURLCode, t),
     changed(t('logs.changes.boostBar'), before.premiumProgressBarEnabled, after.premiumProgressBarEnabled, t),
   ];

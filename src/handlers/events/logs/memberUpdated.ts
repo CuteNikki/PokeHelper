@@ -1,10 +1,10 @@
-import { AuditLogEvent, Events, roleMention, time, TimestampStyles } from 'discord.js';
+import { AuditLogEvent, Events, time, TimestampStyles } from 'discord.js';
 
 import { Event } from 'classes/base/event';
 
 import { whoDid } from 'utility/logs/audit';
 import { oldNew } from 'utility/logs/changes';
-import { avatarOf, code, reasonPart, userSubject } from 'utility/logs/format';
+import { avatarOf, code, reasonPart, roleSubject, userSubject } from 'utility/logs/format';
 import { sendLog } from 'utility/logs/send';
 
 /** A member changed: their nickname, roles or server avatar, or a timeout given or taken away. Each is its own log. */
@@ -40,8 +40,8 @@ export default new Event({
       }));
     }
 
-    const added = after.roles.cache.filter((role) => !before.roles.cache.has(role.id)).map((role) => roleMention(role.id));
-    const removed = before.roles.cache.filter((role) => !after.roles.cache.has(role.id)).map((role) => roleMention(role.id));
+    const added = after.roles.cache.filter((role) => !before.roles.cache.has(role.id)).map((role) => roleSubject(role.id, role.name));
+    const removed = before.roles.cache.filter((role) => !after.roles.cache.has(role.id)).map((role) => roleSubject(role.id, role.name));
     if (added.length > 0 || removed.length > 0) {
       const doer = await whoDid(guild.id, AuditLogEvent.MemberRoleUpdate, after.id);
       // Roles the bot gives and takes, like birthday or reward roles, are logged too, so it's clear where they came from
@@ -63,7 +63,11 @@ export default new Event({
             : [...added, ...removed].join(' '),
           reasonPart(doer, t),
         ],
-        ids,
+        // The roles too, so their IDs can be copied with the member's and the moderator's
+        ids: {
+          ...ids,
+          role: [...after.roles.cache.keys(), ...before.roles.cache.keys()].filter((id) => !before.roles.cache.has(id) || !after.roles.cache.has(id)),
+        },
       }));
     }
 

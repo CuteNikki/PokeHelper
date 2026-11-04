@@ -1,9 +1,9 @@
-import { AttachmentBuilder, AuditLogEvent, channelMention, Events } from 'discord.js';
+import { AttachmentBuilder, AuditLogEvent, Events } from 'discord.js';
 
 import { Event } from 'classes/base/event';
 
 import { whoDid } from 'utility/logs/audit';
-import { code } from 'utility/logs/format';
+import { channelSubject } from 'utility/logs/format';
 import { isIgnoredChannel, sendLog, shouldLog } from 'utility/logs/send';
 
 /** Many messages deleted at once, like by a purge, with the ones the bot saw in a text file. */
@@ -25,10 +25,10 @@ export default new Event({
     await sendLog(guild, 'messagesBulkDeleted', (t) => ({
       kind: 'deleted',
       label: t('logs.labels.messagesBulkDeleted', { count: messages.size }),
-      subject: `${channelMention(channel.id)} ${code(`#${channel.name}`)}`,
+      subject: channelSubject(channel.id, channel.name),
       by: doer,
       details: [seen.length < messages.size ? `-# ${t('logs.bulkNotSeen', { count: messages.size - seen.length })}` : null],
-      ids: { channel: channel.id, ...(doer ? { user: doer.id } : {}) },
+      ids: { channel: channel.id },
       files: seen.length > 0 ? [new AttachmentBuilder(Buffer.from(transcript, 'utf8'), { name: `deleted-messages-${channel.id}.txt` })] : [],
     }));
   },

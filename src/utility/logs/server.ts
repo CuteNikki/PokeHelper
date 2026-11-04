@@ -49,7 +49,7 @@ export async function logServerChange(guild: Guild, change: ServerChange) {
       thumbnail: change.thumbnail,
       by: doer,
       details: [...details, reasonPart(doer, t)],
-      ids: { [change.id[0]]: change.id[1], ...(doer ? { user: doer.id } : {}) },
+      ids: { [change.id[0]]: change.id[1] },
     };
   });
 }

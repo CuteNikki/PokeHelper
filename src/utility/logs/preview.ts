@@ -1,9 +1,9 @@
-import { channelMention, roleMention, time, TimestampStyles, type GuildMember, type SendableChannels } from 'discord.js';
+import { time, TimestampStyles, type GuildMember, type SendableChannels } from 'discord.js';
 
 import type { Translate } from 'utility/i18next';
 import { oldNew } from 'utility/logs/changes';
 import { markChanges } from 'utility/logs/diff';
-import { ago, avatarOf, channelSubject, code, userSubject } from 'utility/logs/format';
+import { ago, avatarOf, channelRef, channelSubject, code, roleSubject, userSubject } from 'utility/logs/format';
 import { buildLogEntry, quoteText, type LogEntry } from 'utility/logs/send';
 
 /**
@@ -21,7 +21,7 @@ export function previewEntries(member: GuildMember, channelId: string, t: Transl
     {
       kind: 'updated',
       label: t('logs.labels.messageEdited'),
-      where: channelMention(channelId),
+      where: channelRef(member.guild, channelId),
       subject,
       thumbnail,
       details: [`**${t('logs.before')}**\n${quoteText(edited.before)}`, `**${t('logs.after')}**\n${quoteText(edited.after)}`],
@@ -31,7 +31,7 @@ export function previewEntries(member: GuildMember, channelId: string, t: Transl
     {
       kind: 'deleted',
       label: t('logs.labels.messageDeleted'),
-      where: channelMention(channelId),
+      where: channelRef(member.guild, channelId),
       subject,
       thumbnail,
       by,
@@ -45,7 +45,7 @@ export function previewEntries(member: GuildMember, channelId: string, t: Transl
       subject,
       thumbnail,
       by,
-      details: [role ? roleMention(role.id) : code('@Light Salmon Pink')],
+      details: [role ? roleSubject(role.id, role.name) : code('@Light Salmon Pink')],
       ids: { user: member.id },
     },
     {
@@ -85,5 +85,5 @@ export function previewEntries(member: GuildMember, channelId: string, t: Transl
 
 /** Post the sample entries in a channel, one after another so they stay in order. */
 export async function sendPreview(channel: SendableChannels, member: GuildMember, t: Translate) {
-  for (const entry of previewEntries(member, channel.id, t)) await channel.send(buildLogEntry(entry, t));
+  for (const entry of previewEntries(member, channel.id, t)) await channel.send(buildLogEntry(entry, t, member.user));
 }

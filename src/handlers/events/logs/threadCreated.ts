@@ -1,8 +1,8 @@
-import { channelMention, Events } from 'discord.js';
+import { Events } from 'discord.js';
 
 import { Event } from 'classes/base/event';
 
-import { avatarOf, channelSubject } from 'utility/logs/format';
+import { avatarOf, channelRef, channelSubject } from 'utility/logs/format';
 import { isIgnoredChannel, sendLog, shouldLog } from 'utility/logs/send';
 
 /** A thread started. The thread says who started it, so the audit log isn't needed. */
@@ -19,11 +19,11 @@ export default new Event({
     await sendLog(thread.guild, 'threads', (t) => ({
       kind: 'created',
       label: t('logs.labels.threadCreated'),
-      where: thread.parentId ? channelMention(thread.parentId) : null,
+      where: thread.parentId ? channelRef(thread.guild, thread.parentId) : null,
       subject: channelSubject(thread.id, thread.name),
       thumbnail: avatarOf(owner),
       by: owner ? { id: owner.id, reason: null } : null,
-      ids: { channel: thread.id, ...(owner ? { user: owner.id } : {}) },
+      ids: { channel: thread.id },
     }));
   },
 });

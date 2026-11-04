@@ -1,9 +1,9 @@
-import { channelMention, Events } from 'discord.js';
+import { Events } from 'discord.js';
 
 import { Event } from 'classes/base/event';
 
 import { markChanges } from 'utility/logs/diff';
-import { avatarOf, userSubject } from 'utility/logs/format';
+import { avatarOf, channelRef, userSubject } from 'utility/logs/format';
 import { isIgnoredChannel, isIgnoredMember, quoteText, sendLog, shouldLog } from 'utility/logs/send';
 
 /** A message edited, with what it said before and after, and what changed marked. */
@@ -23,7 +23,7 @@ export default new Event({
       return {
         kind: 'updated',
         label: t('logs.labels.messageEdited'),
-        where: channelMention(after.channelId),
+        where: channelRef(after.guild, after.channelId),
         subject: userSubject(after.author),
         thumbnail: avatarOf(after.member ?? after.author),
         details: [

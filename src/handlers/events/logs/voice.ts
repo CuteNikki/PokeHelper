@@ -1,8 +1,8 @@
-import { channelMention, Events } from 'discord.js';
+import { Events } from 'discord.js';
 
 import { Event } from 'classes/base/event';
 
-import { avatarOf, userSubject } from 'utility/logs/format';
+import { avatarOf, channelRef, userSubject } from 'utility/logs/format';
 import { isIgnoredChannel, isIgnoredMember, sendLog, shouldLog } from 'utility/logs/send';
 
 /** Someone joining, leaving or moving between voice channels. Muting and the like isn't logged, only where they are. */
@@ -23,11 +23,11 @@ export default new Event({
     await sendLog(guild, event, (t) => ({
       kind: event === 'voiceJoined' ? 'created' : event === 'voiceLeft' ? 'deleted' : 'updated',
       label: t(`logs.labels.${event}`),
-      where: event === 'voiceMoved' ? null : channelMention((after.channelId ?? before.channelId)!),
+      where: event === 'voiceMoved' ? null : channelRef(guild, (after.channelId ?? before.channelId)!),
       subject: userSubject(member.user),
       thumbnail: avatarOf(member),
       details: [
-        event === 'voiceMoved' ? `${t('logs.from')}: ${channelMention(before.channelId!)}\n${t('logs.to')}: ${channelMention(after.channelId!)}` : null,
+        event === 'voiceMoved' ? `${t('logs.from')}: ${channelRef(guild, before.channelId!)}\n${t('logs.to')}: ${channelRef(guild, after.channelId!)}` : null,
       ],
       ids: { user: member.id, channel: (after.channelId ?? before.channelId)! },
     }));

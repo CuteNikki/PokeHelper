@@ -20,17 +20,28 @@ export const COPY_IDS_PREFIX = 'logids:';
 /** The popup's custom ID. Nothing is saved from it, closing it is all there is to do. */
 export const COPY_IDS_MODAL_ID = 'logids-modal';
 
-/** The kinds of IDs, each with the letter it's kept as in the button. */
-const ID_KINDS = { user: 'u', message: 'm', channel: 'c', role: 'r', server: 's', emoji: 'e', sticker: 'k', invite: 'i' } as const;
+/**
+ * The kinds of IDs, each with the letter it's kept as in the button, in the order they're shown: who it's about, who did it, then
+ * where and what. `by` is who did it, added from the entry's By on its own.
+ */
+const ID_KINDS = { user: 'u', by: 'b', channel: 'c', message: 'm', role: 'r', server: 's', emoji: 'e', sticker: 'k', invite: 'i' } as const;
 export type IdKind = keyof typeof ID_KINDS;
-export type LogIds = Partial<Record<IdKind, string>>;
+/** The IDs of an entry by what they are. Roles can be several, like the roles someone was given. */
+export type LogIds = Partial<Record<Exclude<IdKind, 'role'>, string>> & { role?: string | string[] };
 
-/** Custom IDs fit 100 characters, room for four IDs. */
-const MAX_IDS = 4;
+/** Discord's limit for custom IDs. The IDs that don't fit are left out, the first ones are the ones most often wanted. */
+const MAX_CUSTOM_ID = 100;
+/** A popup fits five fields. */
+const MAX_FIELDS = 5;
 
 /** The Copy IDs button for these IDs, or null if there are none. */
 export function copyIdsButton(ids: LogIds, t: Translate): ButtonBuilder | null {
-  const parts = (Object.entries(ids) as [IdKind, string][]).slice(0, MAX_IDS).map(([kind, id]) => `${ID_KINDS[kind]}${id}`);
+  const entries = (Object.keys(ID_KINDS) as IdKind[]).flatMap((kind) => [ids[kind] ?? []].flat().map((id) => `${ID_KINDS[kind]}${id}`));
+  const parts: string[] = [];
+  for (const part of [...new Set(entries)].slice(0, MAX_FIELDS)) {
+    if (COPY_IDS_PREFIX.length + [...parts, part].join('.').length > MAX_CUSTOM_ID) break;
+    parts.push(part);
+  }
   if (parts.length === 0) return null;
   return new ButtonBuilder()
     .setCustomId(`${COPY_IDS_PREFIX}${parts.join('.')}`)
@@ -60,13 +71,36 @@ export async function showCopyIds(interaction: ButtonInteraction): Promise<unkno
       .setCustomId(COPY_IDS_MODAL_ID)
       .setTitle(t('logs.copy.title'))
       .addLabelComponents(
-        ids.map(([kind, id]) =>
-          new LabelBuilder()
-            .setLabel(t(`logs.copy.${kind}`))
-            .setTextInputComponent(new TextInputBuilder().setCustomId(kind).setStyle(TextInputStyle.Short).setValue(id).setRequired(false)),
-        ),
+        ids.map(([kind, id], index) => {
+          // The name too, to tell apart several of a kind, like the member and who did it, or several roles
+          const name = nameOf(interaction, kind, id);
+          return new LabelBuilder()
+            .setLabel((name ? `${t(`logs.copy.${kind}`)} · ${name}` : t(`logs.copy.${kind}`)).slice(0, MAX_LABEL))
+            .setTextInputComponent(new TextInputBuilder().setCustomId(`${kind}${index}`).setStyle(TextInputStyle.Short).setValue(id).setRequired(false));
+        }),
       ),
   );
+}
+
+/** Discord's limit for a field's label. */
+const MAX_LABEL = 45;
+
+/** What an ID is called, as far as the bot knows it, like a username or a role's name. */
+function nameOf(interaction: ButtonInteraction, kind: IdKind, id: string): string | null {
+  const { guild, client } = interaction;
+  switch (kind) {
+    case 'user':
+    case 'by':
+      return client.users.cache.get(id)?.username ?? null;
+    case 'role':
+      return guild?.roles.cache.get(id)?.name ?? null;
+    case 'channel': {
+      const channel = guild?.channels.cache.get(id);
+      return channel ? `#${channel.name}` : null;
+    }
+    default:
+      return null;
+  }
 }
 
 /** Closing the popup with its button sends it, which only needs an answer. */

@@ -1,9 +1,9 @@
-import { AuditLogEvent, channelMention, Events, messageLink } from 'discord.js';
+import { AuditLogEvent, Events, messageLink } from 'discord.js';
 
 import { Event } from 'classes/base/event';
 
 import { whoDid } from 'utility/logs/audit';
-import { avatarOf, code, userSubject } from 'utility/logs/format';
+import { avatarOf, channelRef, code, userSubject } from 'utility/logs/format';
 import { isIgnoredChannel, isIgnoredMember, quoteText, sendLog, shouldLog } from 'utility/logs/send';
 
 /** A message deleted, with what it said and its attachments, and who deleted it if it wasn't its author. */
@@ -24,7 +24,7 @@ export default new Event({
     await sendLog(guild, 'messageDeleted', (t) => ({
       kind: 'deleted',
       label: t('logs.labels.messageDeleted'),
-      where: channelMention(message.channelId),
+      where: channelRef(guild, message.channelId),
       // Sent before the bot started, so it never saw who sent it or what it said
       subject: message.author ? userSubject(message.author) : t('logs.unknownAuthor'),
       thumbnail: avatarOf(message.member ?? message.author),

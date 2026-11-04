@@ -541,6 +541,7 @@
       "button": "IDs kopieren",
       "title": "IDs zum Kopieren",
       "user": "Nutzer",
+      "by": "Von",
       "message": "Nachricht",
       "channel": "Kanal",
       "role": "Rolle",

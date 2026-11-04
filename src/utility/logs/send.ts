@@ -11,11 +11,11 @@ import {
   ThumbnailBuilder,
   time,
   TimestampStyles,
-  userMention,
   type AttachmentBuilder,
   type Guild,
   type GuildMember,
   type PermissionsString,
+  type User,
 } from 'discord.js';
 
 import { getGuildLogs, type GuildLogs } from 'database/logs';
@@ -25,6 +25,7 @@ import { logger } from 'utility/logger';
 import type { Doer } from 'utility/logs/audit';
 import { copyIdsButton, type LogIds } from 'utility/logs/copyIds';
 import { CHANNEL_FIELDS, LOG_GROUPS, logChannelOf, type LogEvent } from 'utility/logs/events';
+import { userSubject } from 'utility/logs/format';
 import { missingBotPermissions } from 'utility/settings';
 import { ThemeColors } from 'utility/theme';
 
@@ -97,13 +98,13 @@ export const quoteText = (text: string) =>
  * An entry as a card: a title like the bot's other messages, who or what it's about, where and by whom, with their picture next to it,
  * and when it happened, then the details and the buttons, each with some room above.
  */
-export function buildLogEntry(entry: LogEntry, t: Translate) {
+export function buildLogEntry(entry: LogEntry, t: Translate, doer?: User | null) {
   const header = new TextDisplayBuilder().setContent(
     [
       `### ${entry.label}`,
       entry.subject,
       entry.where ? `**${t('logs.in')}** ${entry.where}` : null,
-      entry.by ? `**${t('logs.byLabel')}** ${userMention(entry.by.id)}` : null,
+      entry.by ? `**${t('logs.byLabel')}** ${userSubject(doer, entry.by.id)}` : null,
       // When it happened, as Discord only shows the time of the first of several messages in a row
       `-# ${time(new Date(), TimestampStyles.LongDateTime)}`,
     ]
@@ -127,7 +128,8 @@ export function buildLogEntry(entry: LogEntry, t: Translate) {
 
   const buttons = [
     entry.link ? new ButtonBuilder().setStyle(ButtonStyle.Link).setLabel(entry.link.label).setURL(entry.link.url) : null,
-    copyIdsButton(entry.ids, t),
+    // Who did it can be copied too, for every entry that says who
+    copyIdsButton(entry.by ? { ...entry.ids, by: entry.by.id } : entry.ids, t),
   ].filter((button): button is ButtonBuilder => button !== null);
   if (buttons.length > 0) {
     container.addSeparatorComponents(space()).addActionRowComponents(new ActionRowBuilder<ButtonBuilder>().addComponents(buttons));
@@ -178,7 +180,10 @@ export async function sendLog(guild: Guild, event: LogEvent, entry: LogEntry | (
 
     const t = logTranslate(guild);
     const built = typeof entry === 'function' ? await entry(t) : entry;
-    if (built) await channel.send(buildLogEntry(built, t));
+    if (!built) return;
+    // Who did it, for their name next to the mention
+    const doer = built.by ? await guild.client.users.fetch(built.by.id).catch(() => null) : null;
+    await channel.send(buildLogEntry(built, t, doer));
   } catch (error) {
     logger.warn(error, `Failed to log ${event} in guild ${guild.id}`);
   }

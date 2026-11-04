@@ -923,6 +923,7 @@
       "button": "Copy IDs",
       "title": "IDs to copy",
       "user": "User",
+      "by": "By",
       "message": "Message",
       "channel": "Channel",
       "role": "Role",

@@ -1,8 +1,8 @@
-import { AuditLogEvent, channelMention, Events } from 'discord.js';
+import { AuditLogEvent, Events } from 'discord.js';
 
 import { Event } from 'classes/base/event';
 
-import { code } from 'utility/logs/format';
+import { channelRef, code } from 'utility/logs/format';
 import { logServerChange } from 'utility/logs/server';
 
 export default new Event({
@@ -14,7 +14,7 @@ export default new Event({
       kind: 'deleted',
       label: (t) => t('logs.labels.threadDeleted'),
       subject: code(`#${thread.name}`),
-      where: thread.parentId ? channelMention(thread.parentId) : null,
+      where: thread.parentId ? channelRef(thread.guild, thread.parentId) : null,
       id: ['channel', thread.id],
       actions: [AuditLogEvent.ThreadDelete],
       targetId: thread.id,
