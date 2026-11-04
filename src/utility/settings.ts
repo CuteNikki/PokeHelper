@@ -732,7 +732,8 @@ export function createSettingsPanel<C>(definition: SettingsPanelDefinition<C>): 
           ),
         );
       }
-      container.addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Small));
+      // Large, so the title and page select stand apart from the settings, like the buttons at the bottom
+      container.addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large));
 
       const settings = definition.settings.filter((setting) => (page === SINGLE_PAGE || setting.category === page) && isShown(setting, config));
       settings.forEach((setting, index) => {
