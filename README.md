@@ -81,6 +81,7 @@ _A Pokémon themed Discord bot_
 | `/guess`            | Guess a Pokémon from its silhouette                    |
 | `/voice`            | The control panel of your temporary voice channel      |
 | `/help`             | All commands, by category                              |
+| `/privacy`          | Download or delete your data, or the server's          |
 | `/botinfo`          | Bot status, host stats and versions                    |
 | `/counting-config`  | Set up the counting game and change its settings       |
 | `/leveling-config`  | Change leveling settings, rewards and multipliers      |

@@ -10,6 +10,7 @@ import { myBirthdaySettings } from 'settings/myBirthday';
 import { runCountingTask } from 'utility/counting/game';
 import type { Translate } from 'utility/i18next';
 import { forgetLogConfig } from 'utility/logs/send';
+import { buildPrivacyPanel, deleteOwnData, deleteServerData, GUILD_DATA_PERMISSIONS } from 'utility/privacy';
 import { createResponse, type ResponsePayload } from 'utility/response';
 import type { SettingsContext } from 'utility/settings';
 
@@ -76,6 +77,19 @@ export const confirmations: Record<string, Confirmation> = {
       await deleteGuildBirthdayConfiguration(guildOf(context).id);
       return createResponse(t('birthday.resetConfiguration.success'), 'warning');
     },
+  },
+  // From /privacy, which is shown again when cancelled
+  'privacy-delete-user': {
+    scope: 'user',
+    permissions: [],
+    cancel: (context, t) => Promise.resolve(buildPrivacyPanel(context, t)),
+    run: deleteOwnData,
+  },
+  'privacy-delete-guild': {
+    scope: 'guild',
+    permissions: GUILD_DATA_PERMISSIONS,
+    cancel: (context, t) => Promise.resolve(buildPrivacyPanel(context, t)),
+    run: deleteServerData,
   },
   // Your own birthday, from its panel, which is shown again either way
   'birthday-delete': {

@@ -42,12 +42,12 @@ The bot uses [PokéAPI](https://pokeapi.co/) for Pokémon names, pictures and de
 
 - **Server data**, including everyone's XP and counting stats there, is deleted **30 days after the bot is removed** from a server, unless it's added back before then.
 - **Birthdays** stay until you delete them with `/birthday`, as they aren't tied to one server.
-- **Temporary voice channels** are forgotten once they're deleted. Saved settings for your next channel stay until you ask for them to be deleted.
-- Server staff can reset the settings of a feature, like with `/logs-config reset`.
+- **Temporary voice channels** are forgotten once they're deleted. Saved settings for your next channel stay until you delete them with `/privacy`.
+- Server managers can reset the settings of a feature, like with `/logs-config reset`, or delete all of the server's data with `/privacy`.
 
 ## Your rights
 
-You can ask to see the data stored about you, or to have it deleted, at any time. [Open an issue](https://github.com/CuteNikki/PokeHelper/issues) or contact the developer on Discord. Deleting your data resets your XP and counting stats in every server.
+Use `/privacy` to download everything stored about you as a file, or to delete it, at any time. Deleting your data resets your XP and counting stats in every server. Server managers can download and delete their server's data there too. You can also [open an issue](https://github.com/CuteNikki/PokeHelper/issues) or contact the developer on Discord.
 
 ## Children
 

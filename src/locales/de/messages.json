@@ -315,6 +315,28 @@
       "placeholder": "Pikachu, Mega-Glurak X, 25..."
     }
   },
+  "privacy": {
+    "title": "### Deine Daten 🔒",
+    "intro": "Lad runter, was der Bot speichert, oder lösch es. Was gespeichert wird und warum, steht in der [Datenschutzerklärung]({{url}}).",
+    "download": "Herunterladen",
+    "delete": "Löschen",
+    "confirmButton": "Löschen",
+    "cancelButton": "Behalten",
+    "user": {
+      "title": "Über dich",
+      "description": "Deine XP, Zähl-Statistiken, dein Geburtstag und deine Sprachkanal-Einstellungen, in allen Servern",
+      "downloaded": "Hier ist alles, was über dich gespeichert ist, als Datei, die nur du sehen kannst.",
+      "confirm": "### Deine Daten löschen?\nDeine XP, Zähl-Statistiken, dein Geburtstag und deine gespeicherten Sprachkanal-Einstellungen werden in **allen Servern** gelöscht. Das lässt sich nicht rückgängig machen.",
+      "deleted": "Deine Daten sind gelöscht. Wenn du den Bot wieder benutzt, zum Beispiel beim Schreiben, wo Leveling an ist, fängst du bei null an."
+    },
+    "guild": {
+      "title": "Über {{name}}",
+      "description": "Die Einstellungen des Servers und die Level und Zähl-Statistiken seiner Mitglieder",
+      "downloaded": "Hier ist alles, was über diesen Server gespeichert ist, als Datei, die nur du sehen kannst.",
+      "confirm": "### Alle Daten von {{name}} löschen?\nAlle Einstellungen, Rollenmenüs, Log-Einstellungen und Beitrittskanäle sowie die Level und Zähl-Statistiken aller hier werden gelöscht, als wäre der Bot gerade erst hinzugefügt worden. Das lässt sich nicht rückgängig machen.",
+      "deleted": "Alle Daten dieses Servers sind gelöscht. Alles ist wieder so wie direkt nach dem Hinzufügen des Bots."
+    }
+  },
   "guess": {
     "title": "### Wer ist das Pokémon? ❔",
     "anyLanguage": "Rate seinen Namen, in jeder Sprache",

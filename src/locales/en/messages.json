@@ -697,6 +697,28 @@
       "placeholder": "Pikachu, Mega Charizard X, 25..."
     }
   },
+  "privacy": {
+    "title": "### Your Data 🔒",
+    "intro": "Download what the bot stores, or delete it. What's stored and why is in the [privacy policy]({{url}}).",
+    "download": "Download",
+    "delete": "Delete",
+    "confirmButton": "Delete",
+    "cancelButton": "Keep it",
+    "user": {
+      "title": "About you",
+      "description": "Your XP, counting stats, birthday and temporary voice channel settings, in every server",
+      "downloaded": "Here's everything stored about you, as a file only you can see.",
+      "confirm": "### Delete your data?\nYour XP, counting stats, birthday and saved voice channel settings are deleted in **every server**. This can't be undone.",
+      "deleted": "Your data is deleted. Using the bot again, like chatting where leveling is on, starts over from zero."
+    },
+    "guild": {
+      "title": "About {{name}}",
+      "description": "The server's settings, and its members' levels and counting stats",
+      "downloaded": "Here's everything stored about this server, as a file only you can see.",
+      "confirm": "### Delete all data of {{name}}?\nEvery setting, role menu, log setting and join channel, and everyone's levels and counting stats here are deleted, as if the bot was just added. This can't be undone.",
+      "deleted": "All data of this server is deleted. Every feature is back to how it was when the bot was added."
+    }
+  },
   "guess": {
     "title": "### Who's that Pokémon? ❔",
     "anyLanguage": "Guess its name, in any language",

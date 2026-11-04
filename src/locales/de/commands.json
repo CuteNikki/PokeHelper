@@ -167,6 +167,10 @@
       }
     }
   },
+  "privacy": {
+    "name": "datenschutz",
+    "description": "Lad die über dich oder diesen Server gespeicherten Daten herunter oder lösch sie"
+  },
   "guess": {
     "name": "raten",
     "description": "Errate ein Pokémon an seinem Umriss",
