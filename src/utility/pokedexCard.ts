@@ -18,10 +18,16 @@ export interface PokedexCardData {
   name: string;
   /** Like `#0025`. */
   number: string;
+  /** The kind and rarity, like "Mouse Pokémon" or "New Species Pokémon · Mythical". */
+  genus: string | null;
   artwork: Image | null;
   types: PokedexCardType[];
   stats: { label: string; value: number }[];
   totalLabel: string;
+  /** The Pokédex text. */
+  entry: string | null;
+  /** Labeled values in a row below the entry, like height, weight and abilities. The last one gets the space that's left. */
+  details: { label: string; value: string }[];
   /** The evolution chain by stage, branches side by side. Empty when it doesn't evolve. */
   evolution: PokedexCardEvolution[][];
   evolutionLabel: string;
@@ -29,8 +35,13 @@ export interface PokedexCardData {
 
 const WIDTH = 880;
 const PADDING = 32;
-const TOP_HEIGHT = 340;
+const TOP_HEIGHT = 360;
 const EVOLUTION_HEIGHT = 190;
+const ENTRY_FONT = '17px "Roboto"';
+const ENTRY_LINE_HEIGHT = 25;
+/** The most lines of Pokédex text, which is plenty for any of them. */
+const ENTRY_MAX_LINES = 4;
+const DETAILS_HEIGHT = 50;
 const ARTWORK_SIZE = 260;
 /** Bars are full at this value. A few Pokémon go higher, up to 255, but scaling to that makes nearly every bar look short. */
 const STAT_BAR_MAX = 200;
@@ -173,14 +184,68 @@ function drawEvolution(ctx: SKRSContext2D, data: PokedexCardData, color: string,
   });
 }
 
+/** Text broken into lines that fit the width, in the context's current font. Past the most lines, the last ends in `...`. */
+function wrapText(ctx: SKRSContext2D, text: string, maxWidth: number, maxLines: number): string[] {
+  const lines: string[] = [];
+  let line = '';
+  for (const word of text.split(' ')) {
+    const candidate = line ? `${line} ${word}` : word;
+    if (ctx.measureText(candidate).width <= maxWidth || !line) {
+      line = candidate;
+      continue;
+    }
+    lines.push(line);
+    line = word;
+  }
+  if (line) lines.push(line);
+  if (lines.length <= maxLines) return lines;
+  return [...lines.slice(0, maxLines - 1), truncateText(ctx, `${lines[maxLines - 1]} ${lines[maxLines]}`, maxWidth - 30)];
+}
+
+/** The height of the section with the Pokédex text and the details. */
+const aboutHeight = (entryLines: number) => 28 + entryLines * ENTRY_LINE_HEIGHT + (entryLines > 0 ? 16 : 0) + DETAILS_HEIGHT + 20;
+
+/** The Pokédex text, then the details side by side with their labels above. */
+function drawAbout(ctx: SKRSContext2D, data: PokedexCardData, entryLines: string[], y: number) {
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'alphabetic';
+  ctx.font = ENTRY_FONT;
+  ctx.fillStyle = COLORS.textWhite;
+  entryLines.forEach((line, index) => ctx.fillText(line, PADDING, y + 28 + 14 + index * ENTRY_LINE_HEIGHT));
+
+  const detailsY = y + 28 + entryLines.length * ENTRY_LINE_HEIGHT + (entryLines.length > 0 ? 16 : 0);
+  let x = PADDING;
+  data.details.forEach((detail, index) => {
+    const last = index === data.details.length - 1;
+    ctx.font = 'bold 13px "Roboto"';
+    const labelWidth = ctx.measureText(detail.label.toUpperCase()).width;
+    ctx.font = '18px "Roboto", "EmojiFallback"';
+    const width = last ? WIDTH - PADDING - x : Math.max(labelWidth, ctx.measureText(detail.value).width) + 48;
+
+    ctx.font = 'bold 13px "Roboto"';
+    ctx.fillStyle = COLORS.textGray;
+    ctx.fillText(detail.label.toUpperCase(), x, detailsY + 14);
+    ctx.font = '18px "Roboto", "EmojiFallback"';
+    ctx.fillStyle = COLORS.textWhite;
+    ctx.fillText(truncateText(ctx, detail.value, width), x, detailsY + 40);
+    x += width;
+  });
+}
+
 /**
- * Draw a Pokédex card: the artwork, name, number and types, the base stats, and the evolution chain with pictures.
- * The labels are passed in already translated.
+ * Draw a Pokédex card: the artwork, name, number, kind and types, the base stats, the Pokédex text and details,
+ * and the evolution chain with pictures. The labels are passed in already translated.
  * @returns The card as a PNG.
  */
 export function renderPokedexCard(data: PokedexCardData): Buffer {
   const hasEvolution = data.evolution.length > 1;
-  const height = TOP_HEIGHT + (hasEvolution ? EVOLUTION_HEIGHT : 0);
+  // The text is wrapped first, as the card's height depends on how many lines it takes
+  const measure = createCanvas(1, 1).getContext('2d');
+  measure.font = ENTRY_FONT;
+  const entryLines = data.entry ? wrapText(measure, data.entry, WIDTH - PADDING * 2, ENTRY_MAX_LINES) : [];
+  const aboutY = TOP_HEIGHT;
+  const evolutionY = aboutY + aboutHeight(entryLines.length);
+  const height = evolutionY + (hasEvolution ? EVOLUTION_HEIGHT : 0);
   const canvas = createCanvas(WIDTH, height);
   const ctx = canvas.getContext('2d');
   const color = data.types[0]?.color ?? '#a8a77a';
@@ -207,21 +272,31 @@ export function renderPokedexCard(data: PokedexCardData): Buffer {
   ctx.textAlign = 'right';
   ctx.font = 'bold 22px "Roboto"';
   ctx.fillStyle = COLORS.textGray;
-  ctx.fillText(data.number, WIDTH - PADDING, 64);
+  ctx.fillText(data.number, WIDTH - PADDING, 60);
   const numberWidth = ctx.measureText(data.number).width;
 
   ctx.textAlign = 'left';
   ctx.font = 'bold 34px "Roboto"';
   ctx.fillStyle = COLORS.textWhite;
-  ctx.fillText(truncateText(ctx, data.name, contentWidth - numberWidth - 20), contentX, 64);
+  ctx.fillText(truncateText(ctx, data.name, contentWidth - numberWidth - 20), contentX, 60);
 
-  drawTypes(ctx, data.types, contentX, 82);
-  drawStats(ctx, data, color, contentX, 122, contentWidth);
+  if (data.genus) {
+    ctx.font = '16px "Roboto"';
+    ctx.fillStyle = COLORS.textGray;
+    ctx.fillText(truncateText(ctx, data.genus, contentWidth), contentX, 88);
+  }
+
+  drawTypes(ctx, data.types, contentX, 102);
+  drawStats(ctx, data, color, contentX, 148, contentWidth);
+
+  ctx.fillStyle = COLORS.divider;
+  ctx.fillRect(PADDING, aboutY, WIDTH - PADDING * 2, 1);
+  drawAbout(ctx, data, entryLines, aboutY);
 
   if (hasEvolution) {
     ctx.fillStyle = COLORS.divider;
-    ctx.fillRect(PADDING, TOP_HEIGHT, WIDTH - PADDING * 2, 1);
-    drawEvolution(ctx, data, color, TOP_HEIGHT);
+    ctx.fillRect(PADDING, evolutionY, WIDTH - PADDING * 2, 1);
+    drawEvolution(ctx, data, color, evolutionY);
   }
 
   return canvas.toBuffer('image/png');

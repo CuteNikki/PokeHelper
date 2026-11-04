@@ -67,6 +67,7 @@ describe('custom IDs', () => {
   test('a button leads back to the Pokémon and shininess it was made with', () => {
     expect(parsePokedexCustomId(pokedexCustomId('next', 'raichu-alola', true))).toEqual({ slug: 'raichu-alola', shiny: true });
     expect(parsePokedexCustomId(pokedexCustomId('shiny', 'pikachu', false))).toEqual({ slug: 'pikachu', shiny: false });
+    expect(parsePokedexCustomId(pokedexCustomId('evo', 'raichu', false))).toEqual({ slug: 'raichu', shiny: false });
   });
 
   test("other or broken custom IDs aren't taken", () => {

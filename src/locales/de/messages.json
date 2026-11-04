@@ -243,11 +243,8 @@
     }
   },
   "pokedex": {
-    "title": "## {{name}} {{number}}",
     "legendary": "Legendär",
     "mythical": "Mysteriös",
-    "size": "**Größe** {{height}} m · **Gewicht** {{weight}} kg",
-    "abilities": "**Fähigkeiten** {{abilities}}",
     "hiddenAbility": "{{name}} (versteckt)",
     "stats": {
       "hp": "KP",
@@ -260,8 +257,7 @@
     },
     "evolution": {
       "title": "Entwicklung",
-      "none": "**Entwicklung** Entwickelt sich nicht",
-      "noneShort": "entwickelt sich nicht"
+      "none": "entwickelt sich nicht"
     },
     "shiny": {
       "show": "Schillernd",
@@ -270,7 +266,12 @@
     "forms": "Andere Formen",
     "notFound": "Ich hab kein Pokémon namens **{{name}}** gefunden. Nimm einen der Vorschläge oder probier die Nummer.",
     "unavailable": "Der Pokédex ist gerade nicht erreichbar. Versuch es gleich nochmal.",
-    "altText": "Pokédex-Karte von {{name}}. Typ: {{types}}. Basiswerte: {{stats}}. Entwicklung: {{evolution}}."
+    "altText": "Pokédex-Karte von {{name}}, {{genus}}. Typ: {{types}}. Basiswerte: {{stats}}. {{details}}. Entwicklung: {{evolution}}. {{entry}}",
+    "details": {
+      "height": "Größe",
+      "weight": "Gewicht",
+      "abilities": "Fähigkeiten"
+    }
   },
   "locale": "de-DE",
   "leveling": {

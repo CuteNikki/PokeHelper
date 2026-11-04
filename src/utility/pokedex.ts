@@ -4,14 +4,10 @@ import {
   ButtonBuilder,
   ButtonStyle,
   type ButtonInteraction,
-  ContainerBuilder,
   MediaGalleryBuilder,
   MessageFlags,
-  SeparatorBuilder,
-  SeparatorSpacingSize,
   StringSelectMenuBuilder,
   type StringSelectMenuInteraction,
-  TextDisplayBuilder,
 } from 'discord.js';
 
 import { getTranslate, resolveLanguage, type Translate } from 'utility/i18next';
@@ -43,7 +39,7 @@ import { sendError, type ResponsePayload } from 'utility/response';
 import { ThemeColors } from 'utility/theme';
 
 /**
- * Custom IDs of the entry's buttons are `pokedex:<prev|next|shiny>:<slug>:<s|n>`, with the Pokémon they lead to and whether it's shiny,
+ * Custom IDs of the entry's buttons are `pokedex:<prev|next|shiny|evo>:<slug>:<s|n>`, with the Pokémon they lead to and whether it's shiny,
  * so they work however old the message is. The forms select is `pokedex:form:<s|n>`, with the form as its value.
  */
 export const POKEDEX_CUSTOM_ID_PREFIX = 'pokedex:';
@@ -75,14 +71,19 @@ const TYPE_COLORS: Record<string, number> = {
 
 const STATS = ['hp', 'attack', 'defense', 'special-attack', 'special-defense', 'speed'] as const;
 
-export type PokedexAction = 'prev' | 'next' | 'shiny';
+const BUTTONS_PER_ROW = 5;
+/** Two rows of evolutions, more than any Pokémon has: Eevee has nine with itself. */
+const MAX_EVOLUTION_BUTTONS = 10;
+
+export type PokedexAction = 'prev' | 'next' | 'shiny' | 'evo';
+const ACTIONS: PokedexAction[] = ['prev', 'next', 'shiny', 'evo'];
 
 export const pokedexCustomId = (action: PokedexAction, slug: string, shiny: boolean) => `${POKEDEX_CUSTOM_ID_PREFIX}${action}:${slug}:${shiny ? 's' : 'n'}`;
 
 /** The Pokémon and shininess a button leads to, or null if it isn't one. */
 export function parsePokedexCustomId(customId: string): { slug: string; shiny: boolean } | null {
   const [prefix, action, slug, shiny, ...rest] = customId.split(':');
-  if (`${prefix}:` !== POKEDEX_CUSTOM_ID_PREFIX || !['prev', 'next', 'shiny'].includes(action ?? '') || !slug || rest.length > 0) return null;
+  if (`${prefix}:` !== POKEDEX_CUSTOM_ID_PREFIX || !ACTIONS.includes(action as PokedexAction) || !slug || rest.length > 0) return null;
   if (shiny !== 's' && shiny !== 'n') return null;
   return { slug, shiny: shiny === 's' };
 }
@@ -119,13 +120,13 @@ function evolutionStages(chain: ApiEvolutionLink): { id: number; slug: string }[
 }
 
 /** The buttons to the previous and next Pokémon and to the shiny picture, and the forms select if there are forms. */
-function buildControls(match: PokedexMatch, shiny: boolean, hasShiny: boolean, language: string, t: Translate): ActionRowBuilder<ButtonBuilder | StringSelectMenuBuilder>[] {
+function buildControls(match: PokedexMatch, shiny: boolean, hasShiny: boolean, language: string, t: Translate) {
   const { species } = match;
   const previous = speciesById(species.id - 1);
   const next = speciesById(species.id + 1);
   const slug = matchSlug(match);
 
-  const buttons = new ActionRowBuilder<ButtonBuilder | StringSelectMenuBuilder>().addComponents(
+  const navigation = new ActionRowBuilder<ButtonBuilder>().addComponents(
     new ButtonBuilder()
       .setCustomId(pokedexCustomId('prev', previous?.slug ?? slug, shiny))
       .setStyle(ButtonStyle.Secondary)
@@ -145,10 +146,10 @@ function buildControls(match: PokedexMatch, shiny: boolean, hasShiny: boolean, l
       .setLabel(next ? formatDexNumber(next.id) : formatDexNumber(species.id))
       .setDisabled(!next),
   );
-  if (species.forms.length === 0) return [buttons];
+  if (species.forms.length === 0) return { navigation, forms: [] };
 
   const options = [{ slug: species.slug, name: nameIn(species.names, language) }, ...species.forms.map((form) => ({ slug: form.slug, name: nameIn(form.names, language) }))];
-  const forms = new ActionRowBuilder<ButtonBuilder | StringSelectMenuBuilder>().addComponents(
+  const forms = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
     new StringSelectMenuBuilder()
       .setCustomId(`${POKEDEX_FORM_SELECT_ID}${shiny ? 's' : 'n'}`)
       .setPlaceholder(t('pokedex.forms'))
@@ -156,12 +157,33 @@ function buildControls(match: PokedexMatch, shiny: boolean, hasShiny: boolean, l
         options.slice(0, MAX_FORMS).map((option) => ({ label: option.name.slice(0, 100), value: option.slug, default: option.slug === slug })),
       ),
   );
-  return [buttons, forms];
+  return { navigation, forms: [forms] };
+}
+
+/** A button for each Pokémon in the evolution chain, five to a row, with the one shown highlighted. */
+function buildEvolutionButtons(
+  chain: { id: number; slug: string }[],
+  match: PokedexMatch,
+  shiny: boolean,
+  name: (entry: { id: number; slug: string }) => string,
+): ActionRowBuilder<ButtonBuilder>[] {
+  const buttons = chain.slice(0, MAX_EVOLUTION_BUTTONS).map((entry) => {
+    const current = entry.id === match.species.id && !match.form;
+    return new ButtonBuilder()
+      .setCustomId(pokedexCustomId('evo', entry.slug, shiny))
+      .setStyle(current ? ButtonStyle.Primary : ButtonStyle.Secondary)
+      .setLabel(name(entry).slice(0, 80))
+      .setDisabled(current);
+  });
+  const rows: ActionRowBuilder<ButtonBuilder>[] = [];
+  for (let index = 0; index < buttons.length; index += BUTTONS_PER_ROW) {
+    rows.push(new ActionRowBuilder<ButtonBuilder>().addComponents(buttons.slice(index, index + BUTTONS_PER_ROW)));
+  }
+  return rows;
 }
 
 /**
- * Build a Pokédex entry: its kind and Pokédex text, a card with the artwork, types, base stats and evolutions,
- * its height, weight and abilities, and the controls.
+ * Build a Pokédex entry: a card with everything on it, the buttons to the previous and next Pokémon and to its evolutions, and its forms.
  * @param match The species or form to show.
  * @param shiny Whether to show the shiny pictures.
  * @param language The language of the names and texts, like `de`.
@@ -211,25 +233,9 @@ export async function buildPokedexEntry(match: PokedexMatch, shiny: boolean, lan
     ),
   ]);
 
-  const toHex = (color: number) => `#${color.toString(16).padStart(6, '0')}`;
-  const card = renderPokedexCard({
-    name,
-    number,
-    artwork,
-    types: types.map((type) => ({ name: type.name, color: toHex(type.color) })),
-    stats,
-    totalLabel: t('pokedex.stats.total'),
-    evolution,
-    evolutionLabel: t('pokedex.evolution.title'),
-  });
-
   const kind = genus(species, language);
   const rarity = species.is_mythical ? t('pokedex.mythical') : species.is_legendary ? t('pokedex.legendary') : null;
   const entry = flavorText(species, language);
-  const header = [t('pokedex.title', { name, number }), kind || rarity ? `-# ${[kind, rarity].filter(Boolean).join(' · ')}` : null, entry ? `> ${entry}` : null]
-    .filter(Boolean)
-    .join('\n');
-
   const abilities = [...pokemon.abilities]
     .sort((a, b) => a.slot - b.slot)
     .map((ability) => {
@@ -237,32 +243,44 @@ export async function buildPokedexEntry(match: PokedexMatch, shiny: boolean, lan
       return ability.is_hidden ? t('pokedex.hiddenAbility', { name: abilityName }) : abilityName;
     });
   const details = [
-    t('pokedex.size', { height: format(pokemon.height / 10), weight: format(pokemon.weight / 10) }),
-    t('pokedex.abilities', { abilities: abilities.join(', ') }),
-    evolves ? null : t('pokedex.evolution.none'),
-  ]
-    .filter(Boolean)
-    .join('\n');
+    { label: t('pokedex.details.height'), value: `${format(pokemon.height / 10)} m` },
+    { label: t('pokedex.details.weight'), value: `${format(pokemon.weight / 10)} kg` },
+    { label: t('pokedex.details.abilities'), value: abilities.join(', ') },
+  ];
+
+  const toHex = (color: number) => `#${color.toString(16).padStart(6, '0')}`;
+  const card = renderPokedexCard({
+    name,
+    number,
+    genus: [kind, rarity].filter(Boolean).join(' · ') || null,
+    artwork,
+    types: types.map((type) => ({ name: type.name, color: toHex(type.color) })),
+    stats,
+    totalLabel: t('pokedex.stats.total'),
+    entry,
+    details,
+    evolution,
+    evolutionLabel: t('pokedex.evolution.title'),
+  });
 
   // The card is only pixels, so its description has everything on it for screen readers
   const description = t('pokedex.altText', {
-    name,
+    name: `${name} ${number}`,
+    genus: kind ?? '',
     types: types.map((type) => type.name).join(', '),
     stats: [...stats.map((stat) => `${stat.label} ${stat.value}`), `${t('pokedex.stats.total')} ${total}`].join(', '),
-    evolution: evolves ? stages.map((stage) => stage.map(speciesName).join(' / ')).join(' → ') : t('pokedex.evolution.noneShort'),
+    details: details.map((detail) => `${detail.label} ${detail.value}`).join(', '),
+    evolution: evolves ? stages.map((stage) => stage.map(speciesName).join(' / ')).join(' → ') : t('pokedex.evolution.none'),
+    entry: entry ?? '',
   });
 
-  // The accent is the color of its first type, like the games' Pokédex
-  const container = new ContainerBuilder()
-    .setAccentColor(types[0]?.color ?? ThemeColors.info)
-    .addTextDisplayComponents(new TextDisplayBuilder().setContent(header))
-    .addMediaGalleryComponents(new MediaGalleryBuilder().addItems((item) => item.setURL('attachment://pokedex.png').setDescription(description.slice(0, 1024))))
-    .addTextDisplayComponents(new TextDisplayBuilder().setContent(details))
-    .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large))
-    .addActionRowComponents(...buildControls(match, showShiny, Boolean(shinyPicture), language, t));
+  // Shown without a container around it, the card already is one, like the leaderboard
+  const image = new MediaGalleryBuilder().addItems((item) => item.setURL('attachment://pokedex.png').setDescription(description.slice(0, 1024)));
+  const { navigation, forms } = buildControls(match, showShiny, Boolean(shinyPicture), language, t);
+  const evolutionButtons = evolves ? buildEvolutionButtons(stages.flat(), match, showShiny, speciesName) : [];
 
   return {
-    components: [container],
+    components: [image, navigation, ...evolutionButtons, ...forms],
     files: [new AttachmentBuilder(card, { name: 'pokedex.png' })],
     flags: [MessageFlags.IsComponentsV2],
     allowedMentions: { parse: [] },
