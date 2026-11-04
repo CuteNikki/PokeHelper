@@ -5,6 +5,7 @@ import { createCanvas } from '@napi-rs/canvas';
 
 import { avatarGif, bannerGif, iconPng } from './assets';
 import { TAU } from './draw';
+import { overviewGif } from './overview';
 import { avatar, AVATAR_SIZE, BANNER_H, BANNER_W, banner } from './scenes';
 import { THEMES, type ThemeName } from './themes';
 import type { Theme } from './themes/types';
@@ -67,6 +68,13 @@ for (const name of (names.length > 0 ? names : Object.keys(THEMES)) as ThemeName
   await Bun.write(join(folder, 'icon.png'), iconPng(theme));
   await Bun.write(join(folder, 'preview.png'), preview(theme));
   console.log(`${name}: avatar ${megabytes(avatarFile.length)}, banner ${megabytes(bannerFile.length)}, in art/out/${name}`);
+}
+
+// Every theme in one GIF, to share with people who can't open the page below. Only when all of them were rendered
+if (names.length === 0) {
+  const overview = overviewGif(Object.keys(THEMES) as ThemeName[]);
+  await Bun.write(join(OUT, 'overview.gif'), overview);
+  console.log(`All themes in one GIF: art/out/overview.gif, ${megabytes(overview.length)}`);
 }
 
 // A page with every theme rendered so far, animated as on Discord: a profile popup, and the avatar at the size it has in chat
