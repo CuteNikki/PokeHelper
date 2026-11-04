@@ -187,6 +187,12 @@ function buildControls(match: PokedexMatch, view: PokedexView, hasShiny: boolean
       .setLabel(formatDexNumber(previous?.id ?? species.id))
       .setDisabled(!previous),
     new ButtonBuilder()
+      .setCustomId(pokedexCustomId('next', next?.slug ?? slug, view))
+      .setStyle(ButtonStyle.Secondary)
+      .setEmoji(t('pagination.next.icon'))
+      .setLabel(formatDexNumber(next?.id ?? species.id))
+      .setDisabled(!next),
+    new ButtonBuilder()
       .setCustomId(pokedexCustomId('search', slug, view))
       .setStyle(ButtonStyle.Secondary)
       .setEmoji('🔍')
@@ -197,12 +203,6 @@ function buildControls(match: PokedexMatch, view: PokedexView, hasShiny: boolean
       .setEmoji('✨')
       .setLabel(t(view.shiny ? 'pokedex.shiny.hide' : 'pokedex.shiny.show'))
       .setDisabled(!hasShiny),
-    new ButtonBuilder()
-      .setCustomId(pokedexCustomId('next', next?.slug ?? slug, view))
-      .setStyle(ButtonStyle.Secondary)
-      .setEmoji(t('pagination.next.icon'))
-      .setLabel(formatDexNumber(next?.id ?? species.id))
-      .setDisabled(!next),
   );
   if (species.forms.length === 0) return { navigation, forms: [] };
 
