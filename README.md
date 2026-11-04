@@ -2,7 +2,7 @@
 
 _A Pokémon themed Discord bot_
 
-**Poke Helper** is a Discord bot made for a Pokémon community server. It runs the server's counting game, levels, birthdays and role menus, in English and German.
+**Poke Helper** is a Discord bot made for a Pokémon community server. It runs the server's counting game, levels, birthdays, role menus, temporary voice channels and server logs, and has a Pokédex, in English and German.
 
 ## ✨ Features
 
@@ -36,9 +36,35 @@ _A Pokémon themed Discord bot_
 - Your own title and description, and roles members need to use a menu
 - Every change shows up in the posted menu right away, and deleted roles are taken out by themselves
 
+### 📖 Pokédex
+
+- Look up any Pokémon by name or number, with suggestions while typing
+- A card with its picture, types, stats and evolutions, or a text version for screen readers
+- Shiny pictures, and buttons to go to the previous, next or another Pokémon without running the command again
+- Names, pictures and details come from [PokéAPI](https://pokeapi.co/), so nothing has to be downloaded first
+
+### 🔊 Temporary Voice Channels
+
+- Join a channel to get a voice channel of your own, deleted once everyone left
+- Several join channels per server, each with its own category and name
+- Owners lock, hide, rename and limit their channel, let people in, keep them out or kick them, all from a panel in the channel
+- Moderators chosen by the owner can let people in, keep them out, kick them and change the limit, but not rename the channel
+- Owners can hand their channel over, and it passes to someone still there when the owner leaves
+
+### 📜 Server Logs
+
+- Messages, members, moderation, roles, channels, the server, emojis, threads, invites and voice
+- A log channel for each group, or one default channel for all of them, and every event turned on or off on its own
+- Who did it, from the audit log, with the reason they gave
+- Edits with what changed crossed out and underlined, and long messages and bulk deletes as a file to read right in Discord
+- A Copy IDs button with every ID of an entry, as text can't be selected on phones
+- Channels and roles to leave out, like staff channels
+
 ### ⚙️ And more
 
 - Interactive settings panels instead of a long list of config commands
+- Every feature can be turned off in its settings, without losing them
+- `/help` lists the commands by category, and only the ones of features that are turned on
 - English and German, following each member's Discord language
 - Data of a server is deleted 30 days after the bot leaves it
 
@@ -50,14 +76,19 @@ _A Pokémon themed Discord bot_
 | `/rank`             | Your rank card or someone else's                       |
 | `/leaderboard`      | The server's level leaderboard, all time or weekly     |
 | `/birthday`         | Your birthday, timezone and where it gets announced    |
+| `/pokedex`          | Look up a Pokémon                                      |
+| `/voice`            | The control panel of your temporary voice channel      |
+| `/help`             | All commands, by category                              |
 | `/botinfo`          | Bot status, host stats and versions                    |
 | `/counting-config`  | Set up the counting game and change its settings       |
 | `/leveling-config`  | Change leveling settings, rewards and multipliers      |
 | `/birthday-config`  | Set the birthday channel and role                      |
 | `/role-menu-config` | Create role menus and change them                      |
-| `/dev`              | Reload and register commands, only in the dev server   |
+| `/voice-config`     | Set up join channels for temporary voice channels      |
+| `/logs-config`      | Set up the log channels and which events are logged    |
+| `/dev`              | Reload, register, restart and preview logs, dev server |
 
-The config commands need the **Manage Server** permission.
+The config commands need the **Manage Server** permission, `/counting-config` and `/voice-config` need **Manage Channels**.
 
 ## 🛠️ Tech Stack
 
@@ -72,9 +103,11 @@ The config commands need the **Manage Server** permission.
 
 ### 1. Create the bot
 
-[Create a Discord application](https://discord.com/developers/applications) and enable the privileged **Message Content** intent.
+[Create a Discord application](https://discord.com/developers/applications) and enable the privileged **Message Content** and **Server Members** intents. Server Members is needed for the member logs, like joins, leaves and role changes.
 
 When inviting the bot, give it these permissions: View Channels, Send Messages, Attach Files, Add Reactions, Read Message History and Manage Roles. For role rewards, the bot's role has to be above the roles it gives out.
+
+For temporary voice channels it also needs Manage Channels, Connect and Move Members, and for server logs View Audit Log, to say who did what.
 
 ### 2. Install dependencies
 
@@ -130,7 +163,7 @@ bun run register
 bun run dev
 ```
 
-After that, `/dev reload` and `/dev register` pick up changes without restarting.
+After that, `/dev reload` and `/dev register` pick up changes without restarting, and `/dev restart` restarts the bot for everything else.
 
 ### 🐳 Docker
 
