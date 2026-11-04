@@ -316,7 +316,7 @@
   },
   "tempVoice": {
     "panel": {
-      "title": "### Dein Sprachkanal 🔊",
+      "title": "### Sprachkanal-Steuerung 🔊",
       "owner": "Gehört {{owner}}",
       "ownerAway": "(kurz weg)",
       "people_one": "{{count}} Person hier",
@@ -333,8 +333,8 @@
       "blockPlaceholder": "Wähl, wen du aussperrst",
       "memberPlaceholder": "Rauswerfen, aussperren oder übergeben",
       "nobodyHere": "Sonst ist noch niemand hier",
-      "lockedDescription": "Nur wen du reinlässt, kann beitreten",
-      "hiddenDescription": "Nur wen du reinlässt, kann ihn sehen",
+      "lockedDescription": "Nur wer reingelassen wird, kann beitreten",
+      "hiddenDescription": "Nur wer reingelassen wird, kann ihn sehen",
       "name": "Name",
       "nameDescription": "Wie der Kanal heißt",
       "limit": "Limit",
@@ -344,7 +344,7 @@
       "noLimit": "Kein Limit",
       "moderators": "Moderatoren",
       "moderatorsDescription": "Sie können Leute reinlassen, aussperren, rauswerfen und das Limit setzen, aber den Kanal nicht umbenennen, abschließen, verstecken oder löschen",
-      "moderatorsPlaceholder": "Wähl, wer dir hilft"
+      "moderatorsPlaceholder": "Wähl, wer dem Besitzer hilft"
     },
     "announce": {
       "changed": "{{user}} hat den Kanal geändert:",

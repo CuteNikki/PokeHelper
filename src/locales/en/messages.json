@@ -698,7 +698,7 @@
   },
   "tempVoice": {
     "panel": {
-      "title": "### Your Voice Channel 🔊",
+      "title": "### Voice Channel Controls 🔊",
       "owner": "Owned by {{owner}}",
       "ownerAway": "(stepped out)",
       "people_one": "{{count}} person here",
@@ -715,8 +715,8 @@
       "blockPlaceholder": "Pick who to keep out",
       "memberPlaceholder": "Kick, keep out or hand over",
       "nobodyHere": "Nobody else is here yet",
-      "lockedDescription": "Only people you let in can join",
-      "hiddenDescription": "Only people you let in can see it",
+      "lockedDescription": "Only people who are let in can join",
+      "hiddenDescription": "Only people who are let in can see it",
       "name": "Name",
       "nameDescription": "What the channel is called",
       "limit": "User limit",
@@ -726,7 +726,7 @@
       "noLimit": "No limit",
       "moderators": "Moderators",
       "moderatorsDescription": "They can let people in, keep them out, kick them and set the limit, but can't rename, lock, hide or delete it",
-      "moderatorsPlaceholder": "Pick who helps you"
+      "moderatorsPlaceholder": "Pick who helps the owner"
     },
     "announce": {
       "changed": "{{user}} changed this channel:",
