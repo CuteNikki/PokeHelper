@@ -23,13 +23,13 @@ export default new Event({
     await sendLog(guild, event, (t) => ({
       kind: event === 'voiceJoined' ? 'created' : event === 'voiceLeft' ? 'deleted' : 'updated',
       label: t(`logs.labels.${event}`),
-      where: event === 'voiceMoved' ? null : channelRef(guild, (after.channelId ?? before.channelId)!),
+      where:
+        event === 'voiceMoved'
+          ? { from: channelRef(guild, before.channelId!), to: channelRef(guild, after.channelId!) }
+          : channelRef(guild, (after.channelId ?? before.channelId)!),
       about: 'user',
       subject: userSubject(member.user),
       thumbnail: avatarOf(member),
-      details: [
-        event === 'voiceMoved' ? `${t('logs.from')}: ${channelRef(guild, before.channelId!)}\n${t('logs.to')}: ${channelRef(guild, after.channelId!)}` : null,
-      ],
       // Moved, where from and where to, in that order
       ids: { user: member.id, channel: [before.channelId, after.channelId].filter((id): id is string => id !== null) },
     }));

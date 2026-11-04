@@ -274,10 +274,10 @@ export function previewEntries(member: GuildMember, channelId: string, t: Transl
     {
       kind: 'updated',
       label: t('logs.labels.voiceMoved'),
+      where: { from: where, to: channelRef(guild, movedTo) },
       about: 'user',
       subject,
       thumbnail,
-      details: [`${t('logs.from')}: ${where}\n${t('logs.to')}: ${channelRef(guild, movedTo)}`],
       ids: { user: member.id, channel: [channelId, movedTo] },
     },
   ];

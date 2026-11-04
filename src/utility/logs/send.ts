@@ -73,8 +73,8 @@ export interface LogEntry {
   kind: LogKind;
   /** Like `Message edited ✏️`, the title at the top. */
   label: string;
-  /** Where it happened, after the label, like a channel. */
-  where?: string | null;
+  /** Where it happened, like a channel, or where from and to, like a move between voice channels. */
+  where?: string | { from: string; to: string } | null;
   /** What the subject is, said in front of it like In and By, so a bare name like an invite code isn't left without context. */
   about: LogSubject;
   /** Who or what it's about, like a member's name, under the title. */
@@ -114,7 +114,8 @@ export function buildLogEntry(entry: LogEntry, t: Translate, doer?: User | null)
     [
       `### ${entry.label}`,
       `**${t(`logs.about.${entry.about}`)}** ${entry.subject}`,
-      entry.where ? `**${t('logs.in')}** ${entry.where}` : null,
+      typeof entry.where === 'string' ? `**${t('logs.in')}** ${entry.where}` : null,
+      entry.where && typeof entry.where === 'object' ? `**${t('logs.from')}** ${entry.where.from}\n**${t('logs.to')}** ${entry.where.to}` : null,
       entry.by ? `**${t('logs.byLabel')}** ${userSubject(doer, entry.by.id)}` : null,
       // When it happened, as Discord only shows the time of the first of several messages in a row
       `-# ${time(new Date(), TimestampStyles.LongDateTime)}`,
