@@ -620,6 +620,37 @@
       "discordJs": "> **Discord.JS:** v{{version}}"
     }
   },
+  "pokedex": {
+    "title": "## {{name}} {{number}}",
+    "legendary": "Legendary",
+    "mythical": "Mythical",
+    "size": "**Height** {{height}} m · **Weight** {{weight}} kg",
+    "abilities": "**Abilities** {{abilities}}",
+    "hiddenAbility": "{{name}} (hidden)",
+    "stats": {
+      "title": "**Base stats**",
+      "hp": "HP",
+      "attack": "Attack",
+      "defense": "Defense",
+      "special-attack": "Sp. Atk",
+      "special-defense": "Sp. Def",
+      "speed": "Speed",
+      "total": "Total"
+    },
+    "evolution": {
+      "title": "**Evolution**",
+      "none": "Doesn't evolve"
+    },
+    "shiny": {
+      "show": "Shiny",
+      "hide": "Normal"
+    },
+    "forms": "Other forms",
+    "picture": "Official artwork of {{name}}",
+    "pictureShiny": "Official artwork of shiny {{name}}",
+    "notFound": "I couldn't find a Pokémon called **{{name}}**. Pick one of the suggestions, or try its number.",
+    "unavailable": "The Pokédex can't be reached right now. Try again in a bit."
+  },
   "locale": "en-US",
   "number": {
     "thousand": "k",

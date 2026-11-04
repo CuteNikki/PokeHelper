@@ -152,5 +152,15 @@
         "description": "Zeig den Rang als Text statt als Bild, z. B. für Screenreader"
       }
     }
+  },
+  "pokedex": {
+    "name": "pokedex",
+    "description": "Schlag ein Pokémon nach: Typen, Werte, Fähigkeiten und Entwicklungen",
+    "options": {
+      "pokemon": {
+        "name": "pokemon",
+        "description": "Das Pokémon, mit Namen oder Pokédex-Nummer"
+      }
+    }
   }
 }

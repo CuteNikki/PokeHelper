@@ -242,6 +242,37 @@
       "success": "Das Zählspiel und seine Statistiken sind weg. Mit `/zählen-einstellungen einrichten` kannst du ein neues starten."
     }
   },
+  "pokedex": {
+    "title": "## {{name}} {{number}}",
+    "legendary": "Legendär",
+    "mythical": "Mysteriös",
+    "size": "**Größe** {{height}} m · **Gewicht** {{weight}} kg",
+    "abilities": "**Fähigkeiten** {{abilities}}",
+    "hiddenAbility": "{{name}} (versteckt)",
+    "stats": {
+      "title": "**Basiswerte**",
+      "hp": "KP",
+      "attack": "Angriff",
+      "defense": "Vert.",
+      "special-attack": "Sp.-Ang.",
+      "special-defense": "Sp.-Vert.",
+      "speed": "Init.",
+      "total": "Gesamt"
+    },
+    "evolution": {
+      "title": "**Entwicklung**",
+      "none": "Entwickelt sich nicht"
+    },
+    "shiny": {
+      "show": "Schillernd",
+      "hide": "Normal"
+    },
+    "forms": "Andere Formen",
+    "picture": "Offizielles Artwork von {{name}}",
+    "pictureShiny": "Offizielles Artwork von schillerndem {{name}}",
+    "notFound": "Ich hab kein Pokémon namens **{{name}}** gefunden. Nimm einen der Vorschläge oder probier die Nummer.",
+    "unavailable": "Der Pokédex ist gerade nicht erreichbar. Versuch es gleich nochmal."
+  },
   "locale": "de-DE",
   "leveling": {
     "levelUp": {
