@@ -46,12 +46,18 @@ describe('themeOn', () => {
     expect(on('2026-06-15')).toBe('pride');
   });
 
-  test('has Easter from Good Friday to Easter Monday, whenever Easter is', () => {
-    expect(on('2026-04-02')).toBe('spring');
-    expect(on('2026-04-03')).toBe('easter');
+  test('has Easter from Palm Sunday to Easter Monday, whenever Easter is', () => {
+    expect(on('2026-03-28')).toBe('spring');
+    expect(on('2026-03-29')).toBe('easter');
     expect(on('2026-04-06')).toBe('easter');
     expect(on('2026-04-07')).toBe('spring');
-    expect(on('2027-03-26')).toBe('easter');
+    expect(on('2027-03-21')).toBe('easter');
+  });
+
+  test('has Easter over the look between the seasons, when Easter is as early as can be', () => {
+    // Easter was on March 22 in 2285, its earliest day, so Palm Sunday was on March 15
+    expect(on('2285-03-14')).toBe('standard');
+    expect(on('2285-03-15')).toBe('easter');
   });
 
   test("has the bot's birthday over everything, on its day each year", () => {

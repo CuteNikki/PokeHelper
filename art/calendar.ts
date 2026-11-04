@@ -39,8 +39,8 @@ export function themeOn(date: Date, birthday: Date | null): ThemeName {
   if (birthday && birthday.getUTCMonth() + 1 === month && birthday.getUTCDate() === day) return 'birthday';
   if ((month === 12 && day === 31) || (month === 1 && day === 1)) return 'newYear';
   if (month === 2 && day >= 13 && day <= 15) return 'valentines';
-  // Good Friday to Easter Monday
-  if (today >= easter - 2 * DAY && today <= easter + DAY) return 'easter';
+  // Holy Week, from Palm Sunday, and Easter Monday
+  if (today >= easter - 7 * DAY && today <= easter + DAY) return 'easter';
   if (month === 10) return 'halloween';
   if (month === 12) return 'christmas';
   if (month === 6) return 'pride';

@@ -79,7 +79,7 @@ With `PROFILE_THEMES=on`, the bot changes its animated avatar and banner by itse
 | The day the bot was made, every year | Birthday        |
 | December 31 and January 1            | New Year        |
 | February 13 to 15                    | Valentine's Day |
-| Good Friday to Easter Monday         | Easter          |
+| Palm Sunday to Easter Monday         | Easter          |
 | June                                 | Pride           |
 | October                              | Halloween       |
 | December                             | Christmas       |
