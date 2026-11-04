@@ -36,9 +36,7 @@ export function whoDid(guildId: string, actions: AuditLogEvent | AuditLogEvent[]
   const find = () =>
     [...(recent.get(guildId) ?? [])]
       .reverse()
-      .find(
-        (entry) => types.has(entry.action) && (targetId === null || entry.targetId === targetId) && Date.now() - entry.createdTimestamp < MATCH,
-      );
+      .find((entry) => types.has(entry.action) && (targetId === null || entry.targetId === targetId) && Date.now() - entry.createdTimestamp < MATCH);
   const toDoer = (entry: GuildAuditLogsEntry | undefined): Doer | null => (entry?.executorId ? { id: entry.executorId, reason: entry.reason } : null);
 
   const found = find();

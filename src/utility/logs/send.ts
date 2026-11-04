@@ -102,7 +102,8 @@ function buildEntry(entry: LogEntry) {
 }
 
 /** Whether a channel is one of the server's log channels, whose own messages aren't logged. */
-export const isLogChannel = (config: GuildLogs, channelId: string) => LOG_GROUPS.some((group) => config[CHANNEL_FIELDS[group]] === channelId);
+export const isLogChannel = (config: GuildLogs, channelId: string) =>
+  config.defaultChannelId === channelId || LOG_GROUPS.some((group) => config[CHANNEL_FIELDS[group]] === channelId);
 
 /** Whether things in a channel aren't logged: it, its category, or the channel of its thread is ignored, or it's a log channel. */
 export function isIgnoredChannel(config: GuildLogs, guild: Guild, channelId: string | null): boolean {

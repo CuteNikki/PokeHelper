@@ -1022,6 +1022,10 @@
         "label": "Enabled",
         "description": "Whether anything is logged. Turned off, every group keeps its channel and switches"
       },
+      "defaultChannel": {
+        "label": "Default log channel",
+        "description": "Where every group without a log channel of its own is logged. Without one, they aren't logged"
+      },
       "ignoredChannels": {
         "label": "Ignored channels",
         "description": "Messages and voice in these channels aren't logged. Categories cover the channels in them"
@@ -1032,7 +1036,7 @@
       },
       "channel": {
         "label": "Log channel",
-        "description": "Where this group is logged. Without one, it isn’t logged"
+        "description": "Where this group is logged. Without one, it goes to the default log channel"
       },
       "events": {
         "messageEdited": {

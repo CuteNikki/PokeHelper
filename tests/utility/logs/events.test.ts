@@ -12,6 +12,7 @@ beforeAll(() => initI18Next());
 const config = (changes: Partial<GuildLogs> = {}): GuildLogs => ({
   guildId: '1',
   enabled: true,
+  defaultChannelId: null,
   messagesChannelId: '10',
   membersChannelId: null,
   moderationChannelId: '10',
@@ -35,6 +36,11 @@ describe('logChannelOf', () => {
     expect(logChannelOf(config(), 'memberJoined')).toBeNull();
   });
 
+  test('logs a group without its own channel in the default one, and one with its own channel there', () => {
+    expect(logChannelOf(config({ defaultChannelId: '20' }), 'memberJoined')).toBe('20');
+    expect(logChannelOf(config({ defaultChannelId: '20' }), 'messageDeleted')).toBe('10');
+  });
+
   test("doesn't log an event that's turned off, or anything when logs are off", () => {
     expect(logChannelOf(config({ disabledEvents: ['messageDeleted'] }), 'messageDeleted')).toBeNull();
     expect(logChannelOf(config({ disabledEvents: ['messageDeleted'] }), 'messageEdited')).toBe('10');
@@ -55,6 +61,7 @@ test('every event is in exactly one group, and has texts for its switch', () => 
 test("a log channel's own messages aren't logged", () => {
   expect(isLogChannel(config(), '10')).toBe(true);
   expect(isLogChannel(config(), '11')).toBe(false);
+  expect(isLogChannel(config({ defaultChannelId: '20' }), '20')).toBe(true);
 });
 
 test('roleListChanges says which roles were given and taken', () => {

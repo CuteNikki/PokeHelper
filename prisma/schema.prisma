@@ -414,7 +414,9 @@ model GuildLogs {
   guild   Guild  @relation("GuildLogs", fields: [guildId], references: [guildId], onDelete: Cascade)
 
   enabled             Boolean  @default(true)
-  // The channel of each group of logs. Null leaves the group out
+  // Where groups without a channel of their own are logged. Null leaves them out
+  defaultChannelId    String?
+  // The channel of each group of logs. Null uses the default one
   messagesChannelId   String?
   membersChannelId    String?
   moderationChannelId String?

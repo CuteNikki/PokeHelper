@@ -3,7 +3,7 @@ import { ChannelType } from 'discord.js';
 import { getOrCreateGuildLogs, updateGuildLogs, type GuildLogs } from 'database/logs';
 
 import type { Translate } from 'utility/i18next';
-import { CHANNEL_FIELDS, LOG_EVENTS, LOG_GROUPS, type LogEvent, type LogGroup } from 'utility/logs/events';
+import { CHANNEL_FIELDS, groupChannelOf, LOG_EVENTS, LOG_GROUPS, type LogEvent, type LogGroup } from 'utility/logs/events';
 import { forgetLogConfig, LOG_CHANNEL_PERMISSIONS } from 'utility/logs/send';
 import { createSettingsPanel, type Setting } from 'utility/settings';
 
@@ -49,8 +49,8 @@ function groupSettings(group: LogGroup): Setting<GuildLogs>[] {
       description: (t: Translate) => t(`logs.settings.events.${event}.description`),
       get: (config) => !config.disabledEvents.includes(event),
       set: (guildId, on) => setEvent(guildId, event, on),
-      // Without a channel, the group isn't logged at all, so its switches wouldn't do anything
-      hidden: (config) => !config[field],
+      // Without its own channel or a default one, the group isn't logged at all, so its switches wouldn't do anything
+      hidden: (config) => !groupChannelOf(config, group),
     })),
   ];
 }
@@ -85,6 +85,17 @@ export const logSettings = createSettingsPanel<GuildLogs>({
       description: (t) => t('logs.settings.enabled.description'),
       get: (config) => config.enabled,
       set: (guildId, enabled) => updateGuildLogs(guildId, { enabled }),
+    },
+    {
+      type: 'channel',
+      key: 'defaultChannel',
+      category: 'general',
+      channelTypes: [ChannelType.GuildText, ChannelType.GuildAnnouncement],
+      botPermissions: LOG_CHANNEL_PERMISSIONS,
+      label: (t) => t('logs.settings.defaultChannel.label'),
+      description: (t) => t('logs.settings.defaultChannel.description'),
+      get: (config) => config.defaultChannelId,
+      set: (guildId, defaultChannelId) => updateGuildLogs(guildId, { defaultChannelId }),
     },
     {
       type: 'channels',

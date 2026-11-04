@@ -27,8 +27,11 @@ export const CHANNEL_FIELDS = {
   voice: 'voiceChannelId',
 } as const satisfies Record<LogGroup, keyof GuildLogs>;
 
-/** The channel an event is logged in, or null if it isn't logged: logs are off, its group has no channel, or it's turned off. */
+/** Where a group is logged: its own channel, or the default one. Null if there's neither. */
+export const groupChannelOf = (config: GuildLogs, group: LogGroup): string | null => config[CHANNEL_FIELDS[group]] ?? config.defaultChannelId;
+
+/** The channel an event is logged in, or null if it isn't logged: logs are off, its group has no channel and there's no default, or it's off. */
 export function logChannelOf(config: GuildLogs, event: LogEvent): string | null {
   if (!config.enabled || config.disabledEvents.includes(event)) return null;
-  return config[CHANNEL_FIELDS[groupOf(event)]];
+  return groupChannelOf(config, groupOf(event));
 }

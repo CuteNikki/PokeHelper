@@ -640,6 +640,10 @@
         "label": "Aktiviert",
         "description": "Ob überhaupt etwas geloggt wird. Ausgeschaltet behält jede Gruppe ihren Kanal und ihre Schalter"
       },
+      "defaultChannel": {
+        "label": "Standard-Log-Kanal",
+        "description": "Wohin jede Gruppe ohne eigenen Log-Kanal geloggt wird. Ohne werden sie nicht geloggt"
+      },
       "ignoredChannels": {
         "label": "Ignorierte Kanäle",
         "description": "Nachrichten und Sprachkanäle hier werden nicht geloggt. Kategorien gelten für ihre Kanäle"
@@ -650,7 +654,7 @@
       },
       "channel": {
         "label": "Log-Kanal",
-        "description": "Wohin diese Gruppe geloggt wird. Ohne wird sie nicht geloggt"
+        "description": "Wohin diese Gruppe geloggt wird. Ohne landet sie im Standard-Log-Kanal"
       },
       "events": {
         "messageEdited": {
