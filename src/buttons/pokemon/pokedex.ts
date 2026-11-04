@@ -12,6 +12,6 @@ export default new Button({
   async execute(interaction) {
     const parsed = parsePokedexCustomId(interaction.customId);
     if (!parsed) return sendError(interaction, getTranslate(interaction.locale)('system.outdated'));
-    return updatePokedexEntry(interaction, parsed.slug, parsed.shiny);
+    return updatePokedexEntry(interaction, parsed.slug, parsed.view);
   },
 });

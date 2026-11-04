@@ -26,7 +26,8 @@ export default new Command({
     .setDescription('Look up a Pokémon: its types, stats, abilities and evolutions')
     .addStringOption((option) =>
       option.setName('pokemon').setDescription('The Pokémon, by name or Pokédex number').setAutocomplete(true).setMaxLength(100).setRequired(true),
-    ),
+    )
+    .addBooleanOption((option) => option.setName('text').setDescription('Show it as text instead of a picture, like for screen readers').setRequired(false)),
 
   async autocomplete(interaction) {
     const language = resolveLanguage(interaction.locale);
@@ -51,7 +52,9 @@ export default new Command({
       await loadPokedexData();
       // What's typed doesn't have to be one of the suggestions, so it's looked up by any name or number
       const match = findPokemon(input);
-      const entry = match ? await buildPokedexEntry(match, false, resolveLanguage(interaction.locale), t) : null;
+      const entry = match
+        ? await buildPokedexEntry(match, { shiny: false, text: interaction.options.getBoolean('text') ?? false }, resolveLanguage(interaction.locale), t)
+        : null;
       if (!entry) return fail(interaction, t('pokedex.notFound', { name: input }));
       return sendResponse(interaction, entry);
     } catch (error) {

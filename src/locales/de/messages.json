@@ -253,7 +253,8 @@
       "special-attack": "Sp.-Ang.",
       "special-defense": "Sp.-Vert.",
       "speed": "Init.",
-      "total": "Gesamt"
+      "total": "Gesamt",
+      "title": "Basiswerte"
     },
     "evolution": {
       "title": "Entwicklung",
@@ -270,7 +271,8 @@
     "details": {
       "height": "Größe",
       "weight": "Gewicht",
-      "abilities": "Fähigkeiten"
+      "abilities": "Fähigkeiten",
+      "type": "Typ"
     }
   },
   "locale": "de-DE",

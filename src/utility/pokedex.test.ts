@@ -65,20 +65,34 @@ test('formatDexNumber pads to four digits like the games', () => {
 
 describe('custom IDs', () => {
   test('a button leads back to the Pokémon and shininess it was made with', () => {
-    expect(parsePokedexCustomId(pokedexCustomId('next', 'raichu-alola', true))).toEqual({ slug: 'raichu-alola', shiny: true });
-    expect(parsePokedexCustomId(pokedexCustomId('shiny', 'pikachu', false))).toEqual({ slug: 'pikachu', shiny: false });
-    expect(parsePokedexCustomId(pokedexCustomId('evo', 'raichu', false))).toEqual({ slug: 'raichu', shiny: false });
+    expect(parsePokedexCustomId(pokedexCustomId('next', 'raichu-alola', { shiny: true, text: false }))).toEqual({
+      slug: 'raichu-alola',
+      view: { shiny: true, text: false },
+    });
+    expect(parsePokedexCustomId(pokedexCustomId('shiny', 'pikachu', { shiny: false, text: true }))).toEqual({
+      slug: 'pikachu',
+      view: { shiny: false, text: true },
+    });
+    expect(parsePokedexCustomId(pokedexCustomId('evo', 'raichu', { shiny: false, text: false }))).toEqual({
+      slug: 'raichu',
+      view: { shiny: false, text: false },
+    });
+  });
+
+  test('buttons from before the text mode still work, and show the card', () => {
+    expect(parsePokedexCustomId('pokedex:next:pikachu:s')).toEqual({ slug: 'pikachu', view: { shiny: true, text: false } });
   });
 
   test("other or broken custom IDs aren't taken", () => {
     expect(parsePokedexCustomId('pokedex:form:s')).toBeNull();
     expect(parsePokedexCustomId('pokedex:next:pikachu:x')).toBeNull();
+    expect(parsePokedexCustomId('pokedex:next:pikachu:n:x')).toBeNull();
     expect(parsePokedexCustomId('lb:next:1:desc:a:i')).toBeNull();
   });
 
-  test('the forms select keeps whether the pictures are shiny', () => {
-    expect(parsePokedexFormSelectId('pokedex:form:s')).toEqual({ shiny: true });
-    expect(parsePokedexFormSelectId('pokedex:form:n')).toEqual({ shiny: false });
+  test('the forms select keeps the view', () => {
+    expect(parsePokedexFormSelectId('pokedex:form:s:t')).toEqual({ shiny: true, text: true });
+    expect(parsePokedexFormSelectId('pokedex:form:n')).toEqual({ shiny: false, text: false });
     expect(parsePokedexFormSelectId('pokedex:next:pikachu:n')).toBeNull();
   });
 });

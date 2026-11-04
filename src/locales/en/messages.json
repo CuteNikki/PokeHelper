@@ -631,7 +631,8 @@
       "special-attack": "Sp. Atk",
       "special-defense": "Sp. Def",
       "speed": "Speed",
-      "total": "Total"
+      "total": "Total",
+      "title": "Base stats"
     },
     "evolution": {
       "title": "Evolution",
@@ -648,7 +649,8 @@
     "details": {
       "height": "Height",
       "weight": "Weight",
-      "abilities": "Abilities"
+      "abilities": "Abilities",
+      "type": "Type"
     }
   },
   "locale": "en-US",

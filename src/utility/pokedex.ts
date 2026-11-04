@@ -4,10 +4,14 @@ import {
   ButtonBuilder,
   ButtonStyle,
   type ButtonInteraction,
+  ContainerBuilder,
   MediaGalleryBuilder,
   MessageFlags,
+  SeparatorBuilder,
+  SeparatorSpacingSize,
   StringSelectMenuBuilder,
   type StringSelectMenuInteraction,
+  TextDisplayBuilder,
 } from 'discord.js';
 
 import { getTranslate, resolveLanguage, type Translate } from 'utility/i18next';
@@ -38,9 +42,16 @@ import {
 import { sendError, type ResponsePayload } from 'utility/response';
 import { ThemeColors } from 'utility/theme';
 
+/** How an entry is shown. Its buttons and select keep it, so paging through stays the same. */
+export interface PokedexView {
+  shiny: boolean;
+  /** Shown as text instead of a card, like for screen readers. */
+  text: boolean;
+}
+
 /**
- * Custom IDs of the entry's buttons are `pokedex:<prev|next|shiny|evo>:<slug>:<s|n>`, with the Pokémon they lead to and whether it's shiny,
- * so they work however old the message is. The forms select is `pokedex:form:<s|n>`, with the form as its value.
+ * Custom IDs of the entry's buttons are `pokedex:<prev|next|shiny|evo>:<slug>:<s|n>:<i|t>`, with the Pokémon they lead to and the view,
+ * so they work however old the message is. The forms select is `pokedex:form:<s|n>:<i|t>`, with the form as its value.
  */
 export const POKEDEX_CUSTOM_ID_PREFIX = 'pokedex:';
 export const POKEDEX_FORM_SELECT_ID = `${POKEDEX_CUSTOM_ID_PREFIX}form:`;
@@ -78,28 +89,41 @@ const MAX_EVOLUTION_BUTTONS = 10;
 export type PokedexAction = 'prev' | 'next' | 'shiny' | 'evo';
 const ACTIONS: PokedexAction[] = ['prev', 'next', 'shiny', 'evo'];
 
-export const pokedexCustomId = (action: PokedexAction, slug: string, shiny: boolean) => `${POKEDEX_CUSTOM_ID_PREFIX}${action}:${slug}:${shiny ? 's' : 'n'}`;
+const encodeView = (view: PokedexView) => `${view.shiny ? 's' : 'n'}:${view.text ? 't' : 'i'}`;
 
-/** The Pokémon and shininess a button leads to, or null if it isn't one. */
-export function parsePokedexCustomId(customId: string): { slug: string; shiny: boolean } | null {
-  const [prefix, action, slug, shiny, ...rest] = customId.split(':');
-  if (`${prefix}:` !== POKEDEX_CUSTOM_ID_PREFIX || !ACTIONS.includes(action as PokedexAction) || !slug || rest.length > 0) return null;
-  if (shiny !== 's' && shiny !== 'n') return null;
-  return { slug, shiny: shiny === 's' };
+/** The view in a custom ID. Buttons from before the text mode have no mode and showed the card. */
+function decodeView(shiny: string | undefined, mode: string | undefined): PokedexView | null {
+  if ((shiny !== 's' && shiny !== 'n') || (mode !== undefined && mode !== 'i' && mode !== 't')) return null;
+  return { shiny: shiny === 's', text: mode === 't' };
 }
 
-/** Whether the forms select it's from shows shiny pictures, or null if it isn't one. */
-export function parsePokedexFormSelectId(customId: string): { shiny: boolean } | null {
+export const pokedexCustomId = (action: PokedexAction, slug: string, view: PokedexView) => `${POKEDEX_CUSTOM_ID_PREFIX}${action}:${slug}:${encodeView(view)}`;
+
+/** The Pokémon and view a button leads to, or null if it isn't one. */
+export function parsePokedexCustomId(customId: string): { slug: string; view: PokedexView } | null {
+  const [prefix, action, slug, shiny, mode, ...rest] = customId.split(':');
+  if (`${prefix}:` !== POKEDEX_CUSTOM_ID_PREFIX || !ACTIONS.includes(action as PokedexAction) || !slug || rest.length > 0) return null;
+  const view = decodeView(shiny, mode);
+  return view ? { slug, view } : null;
+}
+
+/** The view of the entry the forms select is on, or null if it isn't one. */
+export function parsePokedexFormSelectId(customId: string): PokedexView | null {
   if (!customId.startsWith(POKEDEX_FORM_SELECT_ID)) return null;
-  const shiny = customId.slice(POKEDEX_FORM_SELECT_ID.length);
-  return shiny === 's' || shiny === 'n' ? { shiny: shiny === 's' } : null;
+  const [shiny, mode, ...rest] = customId.slice(POKEDEX_FORM_SELECT_ID.length).split(':');
+  return rest.length > 0 ? null : decodeView(shiny, mode);
 }
 
 /** The newest Pokédex entry in the language, or English. Text from the old games has hard line breaks and hyphens, which are joined. */
 function flavorText(species: ApiSpecies, language: string): string | null {
   const latest = (lang: string) => species.flavor_text_entries.findLast((entry) => entry.language.name === lang)?.flavor_text;
   const text = latest(language) ?? latest('en');
-  return text ? text.replace(/\u00ad\s+/g, '').replace(/\s+/g, ' ').trim() : null;
+  return text
+    ? text
+        .replace(/\u00ad\s+/g, '')
+        .replace(/\s+/g, ' ')
+        .trim()
+    : null;
 }
 
 /** A species' kind in the language, or English, like "Mouse Pokémon". */
@@ -119,8 +143,8 @@ function evolutionStages(chain: ApiEvolutionLink): { id: number; slug: string }[
   return stages;
 }
 
-/** The buttons to the previous and next Pokémon and to the shiny picture, and the forms select if there are forms. */
-function buildControls(match: PokedexMatch, shiny: boolean, hasShiny: boolean, language: string, t: Translate) {
+/** The buttons to the previous and next Pokémon and to the shiny pictures, and the forms select if there are forms. */
+function buildControls(match: PokedexMatch, view: PokedexView, hasShiny: boolean, language: string, t: Translate) {
   const { species } = match;
   const previous = speciesById(species.id - 1);
   const next = speciesById(species.id + 1);
@@ -128,34 +152,42 @@ function buildControls(match: PokedexMatch, shiny: boolean, hasShiny: boolean, l
 
   const navigation = new ActionRowBuilder<ButtonBuilder>().addComponents(
     new ButtonBuilder()
-      .setCustomId(pokedexCustomId('prev', previous?.slug ?? slug, shiny))
+      .setCustomId(pokedexCustomId('prev', previous?.slug ?? slug, view))
       .setStyle(ButtonStyle.Secondary)
       .setEmoji(t('pagination.previous.icon'))
-      .setLabel(previous ? formatDexNumber(previous.id) : formatDexNumber(species.id))
+      .setLabel(formatDexNumber(previous?.id ?? species.id))
       .setDisabled(!previous),
+  );
+  // Text has no pictures to make shiny
+  if (!view.text) {
+    navigation.addComponents(
+      new ButtonBuilder()
+        .setCustomId(pokedexCustomId('shiny', slug, { ...view, shiny: !view.shiny }))
+        .setStyle(view.shiny ? ButtonStyle.Primary : ButtonStyle.Secondary)
+        .setEmoji('✨')
+        .setLabel(t(view.shiny ? 'pokedex.shiny.hide' : 'pokedex.shiny.show'))
+        .setDisabled(!hasShiny),
+    );
+  }
+  navigation.addComponents(
     new ButtonBuilder()
-      .setCustomId(pokedexCustomId('shiny', slug, !shiny))
-      .setStyle(shiny ? ButtonStyle.Primary : ButtonStyle.Secondary)
-      .setEmoji('✨')
-      .setLabel(t(shiny ? 'pokedex.shiny.hide' : 'pokedex.shiny.show'))
-      .setDisabled(!hasShiny),
-    new ButtonBuilder()
-      .setCustomId(pokedexCustomId('next', next?.slug ?? slug, shiny))
+      .setCustomId(pokedexCustomId('next', next?.slug ?? slug, view))
       .setStyle(ButtonStyle.Secondary)
       .setEmoji(t('pagination.next.icon'))
-      .setLabel(next ? formatDexNumber(next.id) : formatDexNumber(species.id))
+      .setLabel(formatDexNumber(next?.id ?? species.id))
       .setDisabled(!next),
   );
   if (species.forms.length === 0) return { navigation, forms: [] };
 
-  const options = [{ slug: species.slug, name: nameIn(species.names, language) }, ...species.forms.map((form) => ({ slug: form.slug, name: nameIn(form.names, language) }))];
+  const options = [
+    { slug: species.slug, name: nameIn(species.names, language) },
+    ...species.forms.map((form) => ({ slug: form.slug, name: nameIn(form.names, language) })),
+  ];
   const forms = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
     new StringSelectMenuBuilder()
-      .setCustomId(`${POKEDEX_FORM_SELECT_ID}${shiny ? 's' : 'n'}`)
+      .setCustomId(`${POKEDEX_FORM_SELECT_ID}${encodeView(view)}`)
       .setPlaceholder(t('pokedex.forms'))
-      .addOptions(
-        options.slice(0, MAX_FORMS).map((option) => ({ label: option.name.slice(0, 100), value: option.slug, default: option.slug === slug })),
-      ),
+      .addOptions(options.slice(0, MAX_FORMS).map((option) => ({ label: option.name.slice(0, 100), value: option.slug, default: option.slug === slug }))),
   );
   return { navigation, forms: [forms] };
 }
@@ -164,13 +196,13 @@ function buildControls(match: PokedexMatch, shiny: boolean, hasShiny: boolean, l
 function buildEvolutionButtons(
   chain: { id: number; slug: string }[],
   match: PokedexMatch,
-  shiny: boolean,
+  view: PokedexView,
   name: (entry: { id: number; slug: string }) => string,
 ): ActionRowBuilder<ButtonBuilder>[] {
   const buttons = chain.slice(0, MAX_EVOLUTION_BUTTONS).map((entry) => {
     const current = entry.id === match.species.id && !match.form;
     return new ButtonBuilder()
-      .setCustomId(pokedexCustomId('evo', entry.slug, shiny))
+      .setCustomId(pokedexCustomId('evo', entry.slug, view))
       .setStyle(current ? ButtonStyle.Primary : ButtonStyle.Secondary)
       .setLabel(name(entry).slice(0, 80))
       .setDisabled(current);
@@ -183,14 +215,15 @@ function buildEvolutionButtons(
 }
 
 /**
- * Build a Pokédex entry: a card with everything on it, the buttons to the previous and next Pokémon and to its evolutions, and its forms.
+ * Build a Pokédex entry: a card with everything on it, or the same as text, then the buttons to the previous and next Pokémon
+ * and to its evolutions, and its forms.
  * @param match The species or form to show.
- * @param shiny Whether to show the shiny pictures.
+ * @param view Whether to show the shiny pictures, and whether to show text instead of the card.
  * @param language The language of the names and texts, like `de`.
  * @throws {PokeApiError} When PokéAPI can't be reached.
  * @returns The entry, or null when PokéAPI doesn't know the Pokémon.
  */
-export async function buildPokedexEntry(match: PokedexMatch, shiny: boolean, language: string, t: Translate): Promise<ResponsePayload | null> {
+export async function buildPokedexEntry(match: PokedexMatch, view: PokedexView, language: string, t: Translate): Promise<ResponsePayload | null> {
   const [pokemon, species] = await Promise.all([getPokemon(matchSlug(match)), getSpecies(match.species.id)]);
   if (!pokemon || !species) return null;
   const chain = species.evolution_chain ? await getEvolutionChain(species.evolution_chain.url) : null;
@@ -204,8 +237,8 @@ export async function buildPokedexEntry(match: PokedexMatch, shiny: boolean, lan
   const normalPicture = artworks?.front_default ?? pokemon.sprites.front_default;
   const shinyPicture = artworks?.front_shiny ?? pokemon.sprites.front_shiny;
   // Not every form has a shiny picture
-  const showShiny = shiny && Boolean(shinyPicture);
-  const picture = showShiny ? shinyPicture : normalPicture;
+  const shownView = { ...view, shiny: view.shiny && Boolean(shinyPicture) };
+  const picture = shownView.shiny ? shinyPicture : normalPicture;
 
   const types = [...pokemon.types]
     .sort((a, b) => a.slot - b.slot)
@@ -217,24 +250,9 @@ export async function buildPokedexEntry(match: PokedexMatch, shiny: boolean, lan
   const evolves = stages.length > 1;
   const speciesName = (entry: { id: number; slug: string }) => nameIn(speciesById(entry.id)?.names, language) || entry.slug;
 
-  // All pictures are loaded at the same time, from the cache when they were shown before
-  const [artwork, evolution] = await Promise.all([
-    picture ? getImage(picture) : null,
-    Promise.all(
-      (evolves ? stages : []).map((stage) =>
-        Promise.all(
-          stage.map(async (entry) => ({
-            name: speciesName(entry),
-            image: await getImage(artworkUrl(entry.id, showShiny)),
-            current: entry.id === match.species.id,
-          })),
-        ),
-      ),
-    ),
-  ]);
-
-  const kind = genus(species, language);
-  const rarity = species.is_mythical ? t('pokedex.mythical') : species.is_legendary ? t('pokedex.legendary') : null;
+  const kind = [genus(species, language), species.is_mythical ? t('pokedex.mythical') : species.is_legendary ? t('pokedex.legendary') : null]
+    .filter(Boolean)
+    .join(' · ');
   const entry = flavorText(species, language);
   const abilities = [...pokemon.abilities]
     .sort((a, b) => a.slot - b.slot)
@@ -247,58 +265,97 @@ export async function buildPokedexEntry(match: PokedexMatch, shiny: boolean, lan
     { label: t('pokedex.details.weight'), value: `${format(pokemon.weight / 10)} kg` },
     { label: t('pokedex.details.abilities'), value: abilities.join(', ') },
   ];
+  const statsText = [...stats.map((stat) => `${stat.label} ${stat.value}`), `${t('pokedex.stats.total')} ${total}`];
+  const evolutionText = evolves ? stages.map((stage) => stage.map(speciesName).join(' / ')).join(' → ') : t('pokedex.evolution.none');
 
-  const toHex = (color: number) => `#${color.toString(16).padStart(6, '0')}`;
-  const card = renderPokedexCard({
-    name,
-    number,
-    genus: [kind, rarity].filter(Boolean).join(' · ') || null,
-    artwork,
-    types: types.map((type) => ({ name: type.name, color: toHex(type.color) })),
-    stats,
-    totalLabel: t('pokedex.stats.total'),
-    entry,
-    details,
-    evolution,
-    evolutionLabel: t('pokedex.evolution.title'),
-  });
+  // The accent is the color of its first type, like the games' Pokédex
+  const container = new ContainerBuilder().setAccentColor(types[0]?.color ?? ThemeColors.info);
+  const files: AttachmentBuilder[] = [];
 
-  // The card is only pixels, so its description has everything on it for screen readers
-  const description = t('pokedex.altText', {
-    name: `${name} ${number}`,
-    genus: kind ?? '',
-    types: types.map((type) => type.name).join(', '),
-    stats: [...stats.map((stat) => `${stat.label} ${stat.value}`), `${t('pokedex.stats.total')} ${total}`].join(', '),
-    details: details.map((detail) => `${detail.label} ${detail.value}`).join(', '),
-    evolution: evolves ? stages.map((stage) => stage.map(speciesName).join(' / ')).join(' → ') : t('pokedex.evolution.none'),
-    entry: entry ?? '',
-  });
+  if (view.text) {
+    const lines = [
+      `## ${name} ${number}`,
+      kind ? `-# ${kind}` : null,
+      entry ? `> ${entry}` : null,
+      `**${t('pokedex.details.type')}** ${types.map((type) => type.name).join(', ')}`,
+      // Height and weight share a line, the abilities get their own
+      details
+        .slice(0, 2)
+        .map((detail) => `**${detail.label}** ${detail.value}`)
+        .join(' · '),
+      ...details.slice(2).map((detail) => `**${detail.label}** ${detail.value}`),
+      `**${t('pokedex.stats.title')}** ${statsText.join(' · ')}`,
+      `**${t('pokedex.evolution.title')}** ${evolutionText}`,
+    ];
+    container.addTextDisplayComponents(new TextDisplayBuilder().setContent(lines.filter(Boolean).join('\n')));
+  } else {
+    // All pictures are loaded at the same time, from the cache when they were shown before
+    const [artwork, evolution] = await Promise.all([
+      picture ? getImage(picture) : null,
+      Promise.all(
+        (evolves ? stages : []).map((stage) =>
+          Promise.all(
+            stage.map(async (member) => ({
+              name: speciesName(member),
+              image: await getImage(artworkUrl(member.id, shownView.shiny)),
+              current: member.id === match.species.id,
+            })),
+          ),
+        ),
+      ),
+    ]);
 
-  // Shown without a container around it, the card already is one, like the leaderboard
-  const image = new MediaGalleryBuilder().addItems((item) => item.setURL('attachment://pokedex.png').setDescription(description.slice(0, 1024)));
-  const { navigation, forms } = buildControls(match, showShiny, Boolean(shinyPicture), language, t);
-  const evolutionButtons = evolves ? buildEvolutionButtons(stages.flat(), match, showShiny, speciesName) : [];
+    const toHex = (color: number) => `#${color.toString(16).padStart(6, '0')}`;
+    const card = renderPokedexCard({
+      name,
+      number,
+      genus: kind || null,
+      artwork,
+      types: types.map((type) => ({ name: type.name, color: toHex(type.color) })),
+      stats,
+      totalLabel: t('pokedex.stats.total'),
+      entry,
+      details,
+      evolution,
+      evolutionLabel: t('pokedex.evolution.title'),
+    });
+    files.push(new AttachmentBuilder(card, { name: 'pokedex.png' }));
 
-  return {
-    components: [image, navigation, ...evolutionButtons, ...forms],
-    files: [new AttachmentBuilder(card, { name: 'pokedex.png' })],
-    flags: [MessageFlags.IsComponentsV2],
-    allowedMentions: { parse: [] },
-  };
+    // The card is only pixels, so its description has everything on it for screen readers
+    const description = t('pokedex.altText', {
+      name: `${name} ${number}`,
+      genus: kind,
+      types: types.map((type) => type.name).join(', '),
+      stats: statsText.join(', '),
+      details: details.map((detail) => `${detail.label} ${detail.value}`).join(', '),
+      evolution: evolutionText,
+      entry: entry ?? '',
+    });
+    container.addMediaGalleryComponents(
+      new MediaGalleryBuilder().addItems((item) => item.setURL('attachment://pokedex.png').setDescription(description.slice(0, 1024))),
+    );
+  }
+
+  const { navigation, forms } = buildControls(match, shownView, Boolean(shinyPicture), language, t);
+  const evolutionButtons = evolves ? buildEvolutionButtons(stages.flat(), match, shownView, speciesName) : [];
+  container.addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large)).addActionRowComponents(navigation, ...evolutionButtons);
+  if (forms.length > 0) container.addActionRowComponents(...forms);
+
+  return { components: [container], files, flags: [MessageFlags.IsComponentsV2], allowedMentions: { parse: [] } };
 }
 
 /**
  * Show another entry on the message a button or select is on, for its buttons and select.
  * Errors are sent to only whoever pressed, so the entry stays as it was.
  */
-export async function updatePokedexEntry(interaction: ButtonInteraction | StringSelectMenuInteraction, slug: string, shiny: boolean): Promise<unknown> {
+export async function updatePokedexEntry(interaction: ButtonInteraction | StringSelectMenuInteraction, slug: string, view: PokedexView): Promise<unknown> {
   const t = getTranslate(interaction.locale);
   await interaction.deferUpdate();
   try {
     await loadPokedexData();
     const match = findBySlug(slug);
     if (!match) return sendError(interaction, t('system.outdated'));
-    const entry = await buildPokedexEntry(match, shiny, resolveLanguage(interaction.locale), t);
+    const entry = await buildPokedexEntry(match, view, resolveLanguage(interaction.locale), t);
     if (!entry) return sendError(interaction, t('system.outdated'));
     return await interaction.editReply(entry);
   } catch (error) {

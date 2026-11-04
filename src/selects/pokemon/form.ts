@@ -12,10 +12,10 @@ export default new SelectMenu({
   includesCustomId: true,
   isAuthorOnly: true,
   async execute(interaction) {
-    const parsed = parsePokedexFormSelectId(interaction.customId);
+    const view = parsePokedexFormSelectId(interaction.customId);
     const slug = interaction.isStringSelectMenu() ? interaction.values[0] : undefined;
-    if (!parsed || !slug) return sendError(interaction, getTranslate(interaction.locale)('system.outdated'));
+    if (!view || !slug) return sendError(interaction, getTranslate(interaction.locale)('system.outdated'));
     // Only string selects have this custom ID
-    return updatePokedexEntry(interaction as StringSelectMenuInteraction, slug, parsed.shiny);
+    return updatePokedexEntry(interaction as StringSelectMenuInteraction, slug, view);
   },
 });

@@ -160,6 +160,10 @@
       "pokemon": {
         "name": "pokemon",
         "description": "Das Pokémon, mit Namen oder Pokédex-Nummer"
+      },
+      "text": {
+        "name": "text",
+        "description": "Zeig es als Text statt als Bild, zum Beispiel für Screenreader"
       }
     }
   }
