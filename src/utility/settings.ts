@@ -669,6 +669,20 @@ function textModal<C>(
 }
 
 /**
+ * An On/Off row that looks like a boolean setting, for messages that aren't settings panels, like the list of role menus.
+ * @param customId What the button does, which its handler toggles.
+ */
+export function buildSwitchSection(label: string, description: string, on: boolean, customId: string, t: Translate): SectionBuilder {
+  return new SectionBuilder().addTextDisplayComponents(new TextDisplayBuilder().setContent(`**${label}**\n-# ${description}`)).setButtonAccessory(
+    new ButtonBuilder()
+      .setCustomId(customId)
+      .setLabel(t(on ? 'state.on' : 'state.off'))
+      .setEmoji(on ? '✅' : '✖️')
+      .setStyle(on ? ButtonStyle.Success : ButtonStyle.Secondary),
+  );
+}
+
+/**
  * Create a settings panel: an interactive message where each setting can be changed in place,
  * with buttons that toggle booleans or cycle choices, selects for channels and roles, and lists of entries with values.
  *

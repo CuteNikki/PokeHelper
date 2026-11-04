@@ -18,6 +18,10 @@ import {
 
 import type { ExtendedClient } from 'classes/base/client';
 
+import { getCounting } from 'database/counting';
+import { getFeatureSwitches } from 'database/features';
+import { getGuildLevelingConfiguration } from 'database/leveling';
+
 import type { Translate } from 'utility/i18next';
 import type { ResponsePayload } from 'utility/response';
 import { ThemeColors } from 'utility/theme';
@@ -74,10 +78,24 @@ function isUsableHere(command: ApplicationCommand, interaction: Interaction): bo
   return true;
 }
 
+/**
+ * The categories whose commands for everyone are left out, as their feature is turned off in this server.
+ * Their settings commands are still listed, to turn them back on.
+ */
+async function turnedOffCategories(guildId: string | null): Promise<Set<string>> {
+  if (!guildId) return new Set();
+  const [switches, leveling, counting] = await Promise.all([getFeatureSwitches(guildId), getGuildLevelingConfiguration(guildId), getCounting(guildId)]);
+  const off = new Set<string>();
+  if (!leveling?.enabled) off.add('leveling');
+  if (counting && !counting.enabled) off.add('counting');
+  if (!switches.tempVoiceEnabled) off.add('temp-voice');
+  return off;
+}
+
 /** The commands usable here, as lines by category, in the order the categories are shown. */
 async function getCategories(interaction: Interaction): Promise<[string, string[]][]> {
   const client = interaction.client as ExtendedClient;
-  const commands = await getRegisteredCommands(interaction);
+  const [commands, off] = await Promise.all([getRegisteredCommands(interaction), turnedOffCategories(interaction.guildId)]);
 
   // Grouped by the folder each command is in, the ones for everyone first and those that need a permission, like settings, after them
   const forEveryoneFirst = (a: ApplicationCommand, b: ApplicationCommand) =>
@@ -86,6 +104,7 @@ async function getCategories(interaction: Interaction): Promise<[string, string[
   for (const command of [...commands.values()].sort(forEveryoneFirst)) {
     const loaded = client.commands.get(command.name);
     if (!loaded || loaded.options.devOnly || !isUsableHere(command, interaction)) continue;
+    if (off.has(loaded.category) && !command.defaultMemberPermissions) continue;
     categories.set(loaded.category, [...(categories.get(loaded.category) ?? []), ...commandLines(command, interaction.locale)]);
   }
 

@@ -7,18 +7,20 @@ import {
   ContainerBuilder,
   messageLink,
   MessageFlags,
+  SeparatorBuilder,
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder,
   TextDisplayBuilder,
   type Guild,
 } from 'discord.js';
 
+import { getFeatureSwitches } from 'database/features';
 import { getRoleMenu, getRoleMenus, setRoleMenuRole, updateRoleMenu, type RoleMenu } from 'database/roleMenu';
 
 import type { Translate } from 'utility/i18next';
 import type { ResponsePayload } from 'utility/response';
 import { MAX_MENU_ROLES, MAX_ROLE_MENUS, moveRoleMenu, parseEmoji, ROLE_MENU_CHANNEL_PERMISSIONS, syncRoleMenuMessage } from 'utility/roleMenu';
-import { createSettingsPanel, formatPermissions, missingBotPermissions, type SettingsPanel } from 'utility/settings';
+import { buildSwitchSection, createSettingsPanel, formatPermissions, missingBotPermissions, type SettingsPanel } from 'utility/settings';
 import { ThemeColors } from 'utility/theme';
 
 /** Each menu has its own panel, with the menu's ID after this. */
@@ -27,6 +29,8 @@ export const ROLE_MENU_PANEL_PREFIX = 'rolemenu-';
 export const ROLE_MENU_CUSTOM_ID = {
   open: 'rolemenu:open',
   list: 'rolemenu:list',
+  /** Turns all menus on or off at once. */
+  toggle: 'rolemenu:toggle',
   repost: 'rolemenu:repost:',
   delete: 'rolemenu:delete:',
   confirmDelete: 'rolemenu:confirm-delete:',
@@ -210,11 +214,18 @@ export function getRoleMenuSettings(menuId: string): SettingsPanel {
 
 /** The list of a server's role menus, with a select to open one. */
 export async function renderRoleMenuList(guild: Guild, t: Translate): Promise<ResponsePayload> {
-  const menus = await getRoleMenus(guild.id);
-  const container = new ContainerBuilder().setAccentColor(ThemeColors.info);
+  const [menus, { roleMenusEnabled }] = await Promise.all([getRoleMenus(guild.id), getFeatureSwitches(guild.id)]);
+  // The switch for all menus at once, above the list, as each menu has its own too
+  const container = new ContainerBuilder()
+    .setAccentColor(ThemeColors.info)
+    .addTextDisplayComponents(new TextDisplayBuilder().setContent(t('roleMenu.list.title')))
+    .addSectionComponents(
+      buildSwitchSection(t('roleMenu.list.enabled.label'), t('roleMenu.list.enabled.description'), roleMenusEnabled, ROLE_MENU_CUSTOM_ID.toggle, t),
+    )
+    .addSeparatorComponents(new SeparatorBuilder());
 
   if (menus.length === 0) {
-    container.addTextDisplayComponents(new TextDisplayBuilder().setContent(`${t('roleMenu.list.title')}\n${t('roleMenu.list.none')}`));
+    container.addTextDisplayComponents(new TextDisplayBuilder().setContent(t('roleMenu.list.none')));
     return { components: [container], flags: [MessageFlags.IsComponentsV2] };
   }
 
@@ -227,9 +238,7 @@ export async function renderRoleMenuList(guild: Guild, t: Translate): Promise<Re
   );
   container
     .addTextDisplayComponents(
-      new TextDisplayBuilder().setContent(
-        [t('roleMenu.list.title'), `-# ${t('roleMenu.list.count', { count: menus.length, max: MAX_ROLE_MENUS })}`, ...lines].join('\n'),
-      ),
+      new TextDisplayBuilder().setContent([`-# ${t('roleMenu.list.count', { count: menus.length, max: MAX_ROLE_MENUS })}`, ...lines].join('\n')),
     )
     .addActionRowComponents(
       new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(

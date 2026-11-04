@@ -13,6 +13,7 @@ import {
   type VoiceChannel,
 } from 'discord.js';
 
+import { getFeatureSwitches } from 'database/features';
 import {
   createTempVoiceChannel,
   deleteTempVoiceChannel,
@@ -196,6 +197,8 @@ export function createTempChannel(member: GuildMember, creator: TempVoiceCreator
   return queue.run(`member:${member.guild.id}:${member.id}`, async () => {
     const { guild } = member;
     if (member.voice.channelId !== creator.channelId) return;
+    // Turned off, for the server or this join channel, joining it does nothing. Channels already made keep working
+    if (!creator.enabled || !(await getFeatureSwitches(guild.id)).tempVoiceEnabled) return;
 
     for (const own of await getOwnedTempVoiceChannels(guild.id, member.id)) {
       const channel = guild.channels.cache.get(own.channelId);

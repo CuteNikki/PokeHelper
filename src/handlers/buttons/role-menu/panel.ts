@@ -2,7 +2,8 @@ import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ContainerBuilder, Message
 
 import { Button } from 'classes/base/button';
 
-import { getRoleMenu } from 'database/roleMenu';
+import { getFeatureSwitches, setFeatureSwitch } from 'database/features';
+import { getRoleMenu, getRoleMenus } from 'database/roleMenu';
 
 import { getRoleMenuSettings, renderRoleMenuList, ROLE_MENU_CUSTOM_ID, roleMenuName } from 'settings/roleMenu';
 
@@ -31,6 +32,16 @@ export default new Button({
 
     if (customId === ROLE_MENU_CUSTOM_ID.list) {
       return interaction.update(await renderRoleMenuList(interaction.guild, t));
+    }
+
+    if (customId === ROLE_MENU_CUSTOM_ID.toggle) {
+      // Updating every posted menu can take a moment
+      await interaction.deferUpdate();
+      const { roleMenusEnabled } = await getFeatureSwitches(interaction.guildId);
+      await setFeatureSwitch(interaction.guildId, 'roleMenusEnabled', !roleMenusEnabled);
+      // The posted menus show their buttons turned off, or on again
+      for (const menu of await getRoleMenus(interaction.guildId)) await syncRoleMenuMessage(interaction.guild, menu.id);
+      return interaction.editReply(await renderRoleMenuList(interaction.guild, t));
     }
 
     const action = MENU_ACTIONS.find((prefix) => customId.startsWith(prefix));

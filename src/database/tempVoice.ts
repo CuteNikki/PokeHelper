@@ -23,7 +23,7 @@ export async function createTempVoiceCreator(guildId: string, channelId: string)
   return prisma.tempVoiceCreator.create({ data: { guildId, channelId } });
 }
 
-export const updateTempVoiceCreator = async (id: string, data: Partial<Pick<TempVoiceCreator, 'channelId' | 'categoryId' | 'namePrefix'>>) =>
+export const updateTempVoiceCreator = async (id: string, data: Partial<Pick<TempVoiceCreator, 'channelId' | 'categoryId' | 'namePrefix' | 'enabled'>>) =>
   prisma.tempVoiceCreator.update({ where: { id }, data });
 
 /** Stop a channel being a join-to-create channel. The channels made with it stay until they're empty. */

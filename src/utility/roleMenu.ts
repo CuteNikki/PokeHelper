@@ -13,6 +13,7 @@ import {
   type PermissionsString,
 } from 'discord.js';
 
+import { getFeatureSwitches } from 'database/features';
 import { deleteRoleMenu as deleteRoleMenuFromDatabase, getRoleMenu, removeRoleFromMenus, updateRoleMenu, type RoleMenu } from 'database/roleMenu';
 
 import { getTranslate, type Translate } from 'utility/i18next';
@@ -105,7 +106,9 @@ async function syncNow(guild: Guild, menuId: string, force: boolean) {
       if (menu.roles.length === 0) return;
     }
 
-    const payload = buildRoleMenuMessage(menu, getTranslate(guild.preferredLocale));
+    // Role menus turned off for the server show as turned off, like a single menu that is
+    const { roleMenusEnabled } = await getFeatureSwitches(guild.id);
+    const payload = buildRoleMenuMessage({ ...menu, enabled: menu.enabled && roleMenusEnabled }, getTranslate(guild.preferredLocale));
     const message = menu.messageId && !force ? await fetchMenuMessage(guild, menu.channelId, menu.messageId) : null;
     if (message) {
       await message.edit(payload);

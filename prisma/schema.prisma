@@ -47,6 +47,10 @@ model Guild {
   // State
   leftAt DateTime? // when the bot was removed from the guild, after which its data is deleted unless the bot is added back
 
+  // Switches for all role menus and all voice channels at once. Each menu and join channel also has its own
+  roleMenusEnabled Boolean @default(true)
+  tempVoiceEnabled Boolean @default(true)
+
   // Configuration
   counting          GuildCounting?      @relation("GuildCounting")
   birthday          GuildBirthday?      @relation("GuildBirthday")
@@ -99,6 +103,8 @@ model GuildCounting {
   Guild   Guild  @relation("GuildCounting", fields: [guildId], references: [guildId], onDelete: Cascade)
 
   // Configuration
+  // Turned off, messages in the channel are left alone, and they aren't checked when it's turned back on
+  enabled            Boolean @default(true)
   maxLives           Int? // lives per run, null for unlimited where wrong numbers are only removed. 1 resets on the first wrong number
   regenerateLives    Boolean @default(false) // whether milestones give back a life
   allowMath          Boolean @default(false)
@@ -342,6 +348,8 @@ model TempVoiceCreator {
   categoryId String?
   // What the names of the new channels start with, so they look alike. Owners only name what comes after it
   namePrefix String  @default("")
+  // Turned off, joining it does nothing, without losing its settings
+  enabled    Boolean @default(true)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

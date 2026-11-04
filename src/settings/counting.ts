@@ -15,6 +15,10 @@ const UNLIMITED = 'unlimited';
 /** Change counting settings through the queue, so they can't change while a message is being checked. */
 const update = (guildId: string, query: Partial<GuildCounting>) => runCountingTask(guildId, () => updateCounting(guildId, query));
 
+/** Turn counting on or off. Turned back on, it starts checking from now, so what was said while it was off is left alone. */
+export const setCountingEnabled = (guildId: string, enabled: boolean) =>
+  update(guildId, enabled ? { enabled, lastCheckedMessageId: SnowflakeUtil.generate().toString() } : { enabled });
+
 export const countingSettings = createSettingsPanel<GuildCounting>({
   id: 'counting',
   title: (t) => t('counting.settings.title'),
@@ -22,6 +26,15 @@ export const countingSettings = createSettingsPanel<GuildCounting>({
   load: getCounting,
   notConfigured: (t) => t('counting.none'),
   settings: [
+    {
+      type: 'boolean',
+      key: 'enabled',
+      defaultValue: true,
+      label: (t) => t('counting.settings.enabled.label'),
+      description: (t) => t('counting.settings.enabled.description'),
+      get: (config) => config.enabled,
+      set: (guildId, enabled) => setCountingEnabled(guildId, enabled),
+    },
     {
       type: 'channel',
       key: 'channel',

@@ -401,6 +401,10 @@
     },
     "settings": {
       "title": "### Counting Settings ⚙️",
+      "enabled": {
+        "label": "Enabled",
+        "description": "Whether counting is on. Turned off, messages in the channel are left alone, and they aren't checked when it's turned back on"
+      },
       "channel": {
         "label": "Channel",
         "description": "The channel where the counting happens. Messages already in a new channel are left alone."
@@ -490,6 +494,10 @@
     },
     "list": {
       "title": "### Role Menus 🎭",
+      "enabled": {
+        "label": "Role menus",
+        "description": "Whether members can pick roles from any of the menus. Each menu can also be turned off on its own"
+      },
       "count": "{{count}}/{{max}} menus",
       "none": "There are no role menus here yet. Create one with `/role-menu-config create`.",
       "item": "- **{{name}}** in {{channel}} · {{roles}}",
@@ -770,6 +778,10 @@
     },
     "config": {
       "title": "### Join Channel Settings 🔊",
+      "enabled": {
+        "label": "Enabled",
+        "description": "Whether joining this channel gives you a voice channel of your own. Channels already made keep working"
+      },
       "notFound": "That join channel doesn't exist anymore.",
       "missingChannel": "Deleted channel",
       "status": {
@@ -778,7 +790,8 @@
         "noCategory": "New channels are made outside of any category.",
         "noCategoryShort": "no category",
         "missingPermissions": "I can't make channels there, I'm missing these permissions: {{permissions}}",
-        "ready": "Joining {{channel}} gives you a voice channel of your own."
+        "ready": "Joining {{channel}} gives you a voice channel of your own.",
+        "off": "Turned off, joining it does nothing right now."
       },
       "channel": {
         "label": "Join channel",
@@ -804,6 +817,10 @@
       "isTemporary": "Someone's own voice channel can't be a join channel.",
       "list": {
         "title": "### Join Channels 🔊",
+        "enabled": {
+          "label": "Voice channels",
+          "description": "Whether joining any of the join channels gives you a voice channel. Each can also be turned off on its own"
+        },
         "count": "{{count}}/{{max}} join channels",
         "none": "There are no join channels here yet. Make one with `/voice-config create`.",
         "item": "- {{channel}} · new channels in {{category}}",

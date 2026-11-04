@@ -166,6 +166,10 @@
     },
     "settings": {
       "title": "### Zähl-Einstellungen ⚙️",
+      "enabled": {
+        "label": "Aktiviert",
+        "description": "Ob Zählen an ist. Ausgeschaltet bleiben Nachrichten im Kanal in Ruhe und werden beim Wiedereinschalten nicht geprüft"
+      },
       "channel": {
         "label": "Kanal",
         "description": "Der Kanal, in dem gezählt wird. Nachrichten, die schon in einem neuen Kanal sind, bleiben in Ruhe."
@@ -392,6 +396,10 @@
     },
     "config": {
       "title": "### Beitrittskanal-Einstellungen 🔊",
+      "enabled": {
+        "label": "Aktiviert",
+        "description": "Ob man über diesen Kanal einen eigenen Sprachkanal bekommt. Schon erstellte Kanäle funktionieren weiter"
+      },
       "notFound": "Diesen Beitrittskanal gibt es nicht mehr.",
       "missingChannel": "Gelöschter Kanal",
       "status": {
@@ -400,7 +408,8 @@
         "noCategory": "Neue Kanäle landen außerhalb jeder Kategorie.",
         "noCategoryShort": "keiner Kategorie",
         "missingPermissions": "Ich kann dort keine Kanäle erstellen, mir fehlen diese Berechtigungen: {{permissions}}",
-        "ready": "Wer {{channel}} beitritt, bekommt einen eigenen Sprachkanal."
+        "ready": "Wer {{channel}} beitritt, bekommt einen eigenen Sprachkanal.",
+        "off": "Ausgeschaltet, beitreten macht gerade nichts."
       },
       "channel": {
         "label": "Beitrittskanal",
@@ -426,6 +435,10 @@
       "isTemporary": "Ein eigener Sprachkanal kann kein Beitrittskanal sein.",
       "list": {
         "title": "### Beitrittskanäle 🔊",
+        "enabled": {
+          "label": "Sprachkanäle",
+          "description": "Ob man über die Beitrittskanäle einen Sprachkanal bekommt. Jeder lässt sich auch einzeln ausschalten"
+        },
         "count": "{{count}}/{{max}} Beitrittskanäle",
         "none": "Hier gibt es noch keine Beitrittskanäle. Erstell einen mit `/sprachkanal-einstellungen erstellen`.",
         "item": "- {{channel}} · neue Kanäle in {{category}}",
@@ -563,6 +576,10 @@
     },
     "list": {
       "title": "### Rollenmenüs 🎭",
+      "enabled": {
+        "label": "Rollenmenüs",
+        "description": "Ob man sich aus den Menüs Rollen aussuchen kann. Jedes Menü lässt sich auch einzeln ausschalten"
+      },
       "count": "{{count}}/{{max}} Menüs",
       "none": "Hier gibt es noch keine Rollenmenüs. Erstell eins mit `/rollenmenü-einstellungen erstellen`.",
       "item": "- **{{name}}** in {{channel}} · {{roles}}",

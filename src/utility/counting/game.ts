@@ -76,7 +76,7 @@ const deleteMessage = (message: Message) =>
  */
 export async function handleCountingMessage(client: Client, message: Message<true>) {
   let counting = await getCounting(message.guildId);
-  if (!counting || counting.channelId !== message.channelId) return;
+  if (!counting?.enabled || counting.channelId !== message.channelId) return;
 
   counting = await ensureCountingSynced(client, counting);
   // Catching up may have checked this message already, if it was sent before the catch-up fetched the channel
@@ -154,7 +154,8 @@ export async function syncAllCountings(client: Client) {
         runCountingTask(counting.guildId, async () => {
           // Read again inside the queue, the configuration may have changed while waiting
           const current = await getCounting(counting.guildId);
-          if (current) await ensureCountingSynced(client, current);
+          // A game that's turned off doesn't catch up, as messages there are left alone
+          if (current?.enabled) await ensureCountingSynced(client, current);
         }).catch(logFailure(`Failed to catch up on counting in guild ${counting.guildId}`)),
       ),
   );
@@ -267,7 +268,7 @@ export async function handleChangedCount(message: Message | PartialMessage, edit
   if (!message.guildId) return;
 
   const counting = await getCounting(message.guildId);
-  if (!counting || message.channelId !== counting.channelId || counting.lastNumberMessageId !== message.id || !counting.lastNumberByUserId) return;
+  if (!counting?.enabled || message.channelId !== counting.channelId || counting.lastNumberMessageId !== message.id || !counting.lastNumberByUserId) return;
 
   if (edited) {
     const current = message.partial ? await message.fetch().catch(() => null) : message;

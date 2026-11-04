@@ -2,6 +2,7 @@ import { MessageFlags, roleMention } from 'discord.js';
 
 import { Button } from 'classes/base/button';
 
+import { getFeatureSwitches } from 'database/features';
 import { getRoleMenuByMessageId } from 'database/roleMenu';
 
 import { getTranslate } from 'utility/i18next';
@@ -32,7 +33,7 @@ export default new Button({
     }
 
     // A menu that's off has its buttons disabled, but a message that couldn't be updated may still have them working
-    if (!menu.enabled) {
+    if (!menu.enabled || !(await getFeatureSwitches(interaction.guildId)).roleMenusEnabled) {
       return reply(t('roleMenu.select.disabled'), 'error');
     }
 

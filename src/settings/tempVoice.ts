@@ -6,12 +6,14 @@ import {
   ChannelType,
   ContainerBuilder,
   MessageFlags,
+  SeparatorBuilder,
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder,
   TextDisplayBuilder,
   type Guild,
 } from 'discord.js';
 
+import { getFeatureSwitches } from 'database/features';
 import {
   getTempVoiceChannel,
   getTempVoiceCreator,
@@ -23,7 +25,7 @@ import {
 
 import type { Translate } from 'utility/i18next';
 import type { ResponsePayload } from 'utility/response';
-import { createSettingsPanel, formatPermissions, type SettingsPanel } from 'utility/settings';
+import { buildSwitchSection, createSettingsPanel, formatPermissions, type SettingsPanel } from 'utility/settings';
 import { creatorCategory, missingCreatorPermissions, TEMP_VOICE_PERMISSIONS } from 'utility/tempVoice/channel';
 import { ThemeColors } from 'utility/theme';
 
@@ -33,6 +35,8 @@ export const TEMP_VOICE_PANEL_PREFIX = 'voice-';
 export const TEMP_VOICE_CONFIG_ID = {
   open: 'voicecfg:open',
   list: 'voicecfg:list',
+  /** Turns all join channels on or off at once. */
+  toggle: 'voicecfg:toggle',
   delete: 'voicecfg:delete:',
   confirmDelete: 'voicecfg:confirm-delete:',
   back: 'voicecfg:back:',
@@ -55,6 +59,7 @@ function status(creator: TempVoiceCreator, guild: Guild, t: Translate): string {
   const where = category ? t('tempVoice.config.status.category', { category: channelMention(category.id) }) : t('tempVoice.config.status.noCategory');
   const missing = missingCreatorPermissions(guild, creator);
   if (missing.length > 0) return `${where}\n⚠️ ${t('tempVoice.config.status.missingPermissions', { permissions: formatPermissions(missing, t) })}`;
+  if (!creator.enabled) return `${where}\n${t('tempVoice.config.status.off')}`;
   return `${where}\n${t('tempVoice.config.status.ready', { channel: channelMention(creator.channelId) })}`;
 }
 
@@ -80,6 +85,15 @@ export function getTempVoiceSettings(creatorId: string): SettingsPanel {
       new ButtonBuilder().setCustomId(TEMP_VOICE_CONFIG_ID.list).setLabel(t('tempVoice.config.back')).setStyle(ButtonStyle.Secondary),
     ],
     settings: [
+      {
+        type: 'boolean',
+        key: 'enabled',
+        defaultValue: true,
+        label: (t) => t('tempVoice.config.enabled.label'),
+        description: (t) => t('tempVoice.config.enabled.description'),
+        get: (creator) => creator.enabled,
+        set: (_guildId, enabled) => updateTempVoiceCreator(creatorId, { enabled }),
+      },
       {
         type: 'channel',
         key: 'channel',
@@ -125,11 +139,24 @@ export function getTempVoiceSettings(creatorId: string): SettingsPanel {
 
 /** The list of a server's join channels, with a select to open one. */
 export async function renderTempVoiceList(guild: Guild, t: Translate): Promise<ResponsePayload> {
-  const creators = await getTempVoiceCreators(guild.id);
-  const container = new ContainerBuilder().setAccentColor(ThemeColors.info);
+  const [creators, { tempVoiceEnabled }] = await Promise.all([getTempVoiceCreators(guild.id), getFeatureSwitches(guild.id)]);
+  // The switch for all join channels at once, above the list, as each has its own too
+  const container = new ContainerBuilder()
+    .setAccentColor(ThemeColors.info)
+    .addTextDisplayComponents(new TextDisplayBuilder().setContent(t('tempVoice.config.list.title')))
+    .addSectionComponents(
+      buildSwitchSection(
+        t('tempVoice.config.list.enabled.label'),
+        t('tempVoice.config.list.enabled.description'),
+        tempVoiceEnabled,
+        TEMP_VOICE_CONFIG_ID.toggle,
+        t,
+      ),
+    )
+    .addSeparatorComponents(new SeparatorBuilder());
 
   if (creators.length === 0) {
-    container.addTextDisplayComponents(new TextDisplayBuilder().setContent(`${t('tempVoice.config.list.title')}\n${t('tempVoice.config.list.none')}`));
+    container.addTextDisplayComponents(new TextDisplayBuilder().setContent(t('tempVoice.config.list.none')));
     return { components: [container], flags: [MessageFlags.IsComponentsV2] };
   }
 
@@ -143,9 +170,7 @@ export async function renderTempVoiceList(guild: Guild, t: Translate): Promise<R
   container
     .addTextDisplayComponents(
       new TextDisplayBuilder().setContent(
-        [t('tempVoice.config.list.title'), `-# ${t('tempVoice.config.list.count', { count: creators.length, max: MAX_TEMP_VOICE_CREATORS })}`, ...lines].join(
-          '\n',
-        ),
+        [`-# ${t('tempVoice.config.list.count', { count: creators.length, max: MAX_TEMP_VOICE_CREATORS })}`, ...lines].join('\n'),
       ),
     )
     .addActionRowComponents(

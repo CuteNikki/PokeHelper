@@ -2,6 +2,7 @@ import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ContainerBuilder, Message
 
 import { Button } from 'classes/base/button';
 
+import { getFeatureSwitches, setFeatureSwitch } from 'database/features';
 import { deleteTempVoiceCreator, getTempVoiceCreator } from 'database/tempVoice';
 
 import { creatorName, getTempVoiceSettings, renderTempVoiceList, TEMP_VOICE_CONFIG_ID } from 'settings/tempVoice';
@@ -29,6 +30,12 @@ export default new Button({
     const { customId } = interaction;
 
     if (customId === TEMP_VOICE_CONFIG_ID.list) return interaction.update(await renderTempVoiceList(interaction.guild, t));
+
+    if (customId === TEMP_VOICE_CONFIG_ID.toggle) {
+      const { tempVoiceEnabled } = await getFeatureSwitches(interaction.guildId);
+      await setFeatureSwitch(interaction.guildId, 'tempVoiceEnabled', !tempVoiceEnabled);
+      return interaction.update(await renderTempVoiceList(interaction.guild, t));
+    }
 
     const action = ACTIONS.find((prefix) => customId.startsWith(prefix));
     if (!action) return sendError(interaction, t('system.outdated'));

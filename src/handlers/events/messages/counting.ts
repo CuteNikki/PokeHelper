@@ -15,7 +15,7 @@ export default new Event({
 
     // Filter out other channels before queueing, so only counting messages wait on each other
     const counting = await getCounting(message.guildId);
-    if (!counting || message.channelId !== counting.channelId) return;
+    if (!counting?.enabled || message.channelId !== counting.channelId) return;
 
     await runCountingTask(message.guildId, () => handleCountingMessage(client, message));
   },

@@ -15,7 +15,7 @@ export default new Event({
 
     // Filtered before queueing, so edits and deletes elsewhere, like link previews loading, don't wait behind the counting game
     const counting = await getCounting(guildId);
-    if (!counting || message.channelId !== counting.channelId) return;
+    if (!counting?.enabled || message.channelId !== counting.channelId) return;
 
     await runCountingTask(guildId, () => handleChangedCount(message, false));
   },
