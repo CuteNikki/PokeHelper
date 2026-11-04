@@ -190,7 +190,7 @@ Translations live in `src/locales/<language>/messages.json`. English is the sour
 
 ## 🤝 Contributing
 
-Contributions, issues and feature requests are welcome. Feel free to [open an issue](https://github.com/CuteNikki/poke-helper/issues) or a [pull request](https://github.com/CuteNikki/poke-helper/pulls).
+Contributions, issues and feature requests are welcome. Feel free to [open an issue](https://github.com/CuteNikki/PokeHelper/issues) or a [pull request](https://github.com/CuteNikki/PokeHelper/pulls).
 
 ## ⭐ Show your Support
 

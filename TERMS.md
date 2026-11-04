@@ -9,7 +9,7 @@ These terms apply to using **Poke Helper** ("the bot"), whether in a server, as 
 - Follow [Discord's Terms of Service](https://discord.com/terms) and [Community Guidelines](https://discord.com/guidelines) when using the bot.
 - Don't use the bot to harass anyone, to spam, or for anything illegal.
 - Don't try to break, overload or abuse the bot, like by sending commands in bulk or looking for ways around its limits.
-- Don't use bugs to your advantage, like to gain XP or counting stats. If you find one, please [report it](https://github.com/CuteNikki/poke-helper/issues).
+- Don't use bugs to your advantage, like to gain XP or counting stats. If you find one, please [report it](https://github.com/CuteNikki/PokeHelper/issues).
 
 ## Server staff
 
@@ -41,4 +41,4 @@ These terms may change as the bot does. The date at the top says when they last 
 
 ## Contact
 
-Questions about these terms can be asked by [opening an issue](https://github.com/CuteNikki/poke-helper/issues).
+Questions about these terms can be asked by [opening an issue](https://github.com/CuteNikki/PokeHelper/issues).

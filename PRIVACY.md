@@ -47,7 +47,7 @@ The bot uses [PokéAPI](https://pokeapi.co/) for Pokémon names, pictures and de
 
 ## Your rights
 
-You can ask to see the data stored about you, or to have it deleted, at any time. [Open an issue](https://github.com/CuteNikki/poke-helper/issues) or contact the developer on Discord. Deleting your data resets your XP and counting stats in every server.
+You can ask to see the data stored about you, or to have it deleted, at any time. [Open an issue](https://github.com/CuteNikki/PokeHelper/issues) or contact the developer on Discord. Deleting your data resets your XP and counting stats in every server.
 
 ## Children
 
@@ -59,4 +59,4 @@ This policy may change as the bot does. The date at the top says when it last ch
 
 ## Contact
 
-Questions about this policy can be asked by [opening an issue](https://github.com/CuteNikki/poke-helper/issues).
+Questions about this policy can be asked by [opening an issue](https://github.com/CuteNikki/PokeHelper/issues).
