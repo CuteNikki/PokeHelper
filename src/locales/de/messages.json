@@ -242,6 +242,19 @@
       "success": "Das Zählspiel und seine Statistiken sind weg. Mit `/zählen-einstellungen einrichten` kannst du ein neues starten."
     }
   },
+  "help": {
+    "title": "## Befehle 📖",
+    "categories": {
+      "pokemon": "Pokémon",
+      "leveling": "Leveling",
+      "birthday": "Geburtstage",
+      "counting": "Zählen",
+      "role-menu": "Rollenmenüs",
+      "general": "Allgemein",
+      "settings": "Servereinstellungen"
+    },
+    "unavailable": "Die Befehle können gerade nicht angezeigt werden. Versuch es gleich nochmal."
+  },
   "pokedex": {
     "legendary": "Legendär",
     "mythical": "Mysteriös",

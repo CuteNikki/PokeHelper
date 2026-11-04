@@ -27,6 +27,7 @@ export async function loadCommands(client: ExtendedClient) {
       const command = ((await import(`${filePath}?update=${Date.now()}`)) as { default: unknown }).default;
 
       if (isValidCommand(command)) {
+        command.category = filePath.split('/').at(-2) ?? '';
         // Add the command to the commands collection of the client
         client.commands.set(command.options.data.name, command);
 

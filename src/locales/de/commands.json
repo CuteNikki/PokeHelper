@@ -166,5 +166,9 @@
         "description": "Zeig es als Text statt als Bild, zum Beispiel für Screenreader"
       }
     }
+  },
+  "help": {
+    "name": "hilfe",
+    "description": "Alle Befehle, die du hier benutzen kannst"
   }
 }

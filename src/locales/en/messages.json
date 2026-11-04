@@ -620,6 +620,19 @@
       "discordJs": "> **Discord.JS:** v{{version}}"
     }
   },
+  "help": {
+    "title": "## Commands 📖",
+    "categories": {
+      "pokemon": "Pokémon",
+      "leveling": "Leveling",
+      "birthday": "Birthdays",
+      "counting": "Counting",
+      "role-menu": "Role menus",
+      "general": "General",
+      "settings": "Server settings"
+    },
+    "unavailable": "The commands can't be listed right now. Try again in a bit."
+  },
   "pokedex": {
     "legendary": "Legendary",
     "mythical": "Mythical",

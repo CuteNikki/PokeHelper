@@ -33,6 +33,9 @@ type ResolveInteraction<T extends ApplicationCommandType> = T extends Applicatio
  *  - `ApplicationCommandType.User` for user context menu commands.
  */
 export class Command<T extends ApplicationCommandType = ApplicationCommandType.ChatInput> {
+  /** The folder the command is in, like `leveling`, which /help groups the commands by. Set when it's loaded. */
+  category = '';
+
   /**
    * Creates an instance of the command with the specified options.
    *
