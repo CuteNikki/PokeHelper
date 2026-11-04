@@ -14,10 +14,20 @@ import { loadSelectMenus } from 'loading/selects';
 import { initI18Next } from 'utility/i18next';
 import { logger, table } from 'utility/logger';
 import { measure } from 'utility/measure';
+import { isRenameLimit } from 'utility/tempVoice/channel';
 
 const client = new ExtendedClient({
-  intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildMessageReactions],
+  intents: [
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.MessageContent,
+    GatewayIntentBits.GuildMessageReactions,
+    // Who joins and leaves voice channels, for temporary voice channels
+    GatewayIntentBits.GuildVoiceStates,
+  ],
   partials: [Partials.Message, Partials.Reaction, Partials.User, Partials.GuildMember, Partials.Channel],
+  // Renaming a channel too often is answered right away with a time to try again, instead of waiting minutes
+  rest: { rejectOnRateLimit: isRenameLimit },
 });
 
 await initI18Next();

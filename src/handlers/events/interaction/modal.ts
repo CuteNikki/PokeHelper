@@ -11,6 +11,8 @@ import { logger } from 'utility/logger';
 import { handlePokedexSearchModal, POKEDEX_SEARCH_MODAL_PREFIX } from 'utility/pokedex/entry';
 import { sendError } from 'utility/response';
 import { SETTINGS_CUSTOM_ID_PREFIX } from 'utility/settings';
+import { handleTempVoiceModal } from 'utility/tempVoice/controls';
+import { TEMP_VOICE_EDIT_MODAL_PREFIX } from 'utility/tempVoice/panel';
 
 /**
  * Popups are handled by their custom ID, like buttons, instead of being waited for where they were shown,
@@ -26,6 +28,7 @@ export default new Event({
       if (interaction.customId.startsWith(SETTINGS_CUSTOM_ID_PREFIX)) await handleSettingsModal(interaction);
       else if (interaction.customId.startsWith(LEADERBOARD_PAGE_MODAL_PREFIX)) await handleLeaderboardPageModal(interaction);
       else if (interaction.customId.startsWith(POKEDEX_SEARCH_MODAL_PREFIX)) await handlePokedexSearchModal(interaction);
+      else if (interaction.customId.startsWith(TEMP_VOICE_EDIT_MODAL_PREFIX)) await handleTempVoiceModal(interaction);
       else await sendError(interaction, getTranslate(interaction.locale)('system.outdated'));
     } catch (error) {
       logger.error(error, `Failed to handle the popup ${interaction.customId}`);

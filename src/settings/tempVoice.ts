@@ -1,0 +1,163 @@
+import {
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+  channelMention,
+  ChannelType,
+  ContainerBuilder,
+  MessageFlags,
+  StringSelectMenuBuilder,
+  StringSelectMenuOptionBuilder,
+  TextDisplayBuilder,
+  type Guild,
+} from 'discord.js';
+
+import {
+  getTempVoiceChannel,
+  getTempVoiceCreator,
+  getTempVoiceCreatorByChannel,
+  getTempVoiceCreators,
+  updateTempVoiceCreator,
+  type TempVoiceCreator,
+} from 'database/tempVoice';
+
+import type { Translate } from 'utility/i18next';
+import type { ResponsePayload } from 'utility/response';
+import { createSettingsPanel, formatPermissions, type SettingsPanel } from 'utility/settings';
+import { creatorCategory, missingCreatorPermissions, TEMP_VOICE_PERMISSIONS } from 'utility/tempVoice/channel';
+import { ThemeColors } from 'utility/theme';
+
+/** Each join channel has its own panel, with its ID after this. */
+export const TEMP_VOICE_PANEL_PREFIX = 'voice-';
+/** Custom IDs of the buttons and selects around the panels, like `voicecfg:delete:<join channel>`. */
+export const TEMP_VOICE_CONFIG_ID = {
+  open: 'voicecfg:open',
+  list: 'voicecfg:list',
+  delete: 'voicecfg:delete:',
+  confirmDelete: 'voicecfg:confirm-delete:',
+  back: 'voicecfg:back:',
+} as const;
+
+/** The most join channels a server can have. */
+export const MAX_TEMP_VOICE_CREATORS = 10;
+const MAX_PREFIX_LENGTH = 20;
+
+/** How a join channel is called for admins: by its channel's name. */
+export const creatorName = (creator: TempVoiceCreator, guild: Guild, t: Translate) => {
+  const channel = guild.channels.cache.get(creator.channelId);
+  return channel ? `🔊 ${channel.name}` : t('tempVoice.config.missingChannel');
+};
+
+/** Where its channels go and whether the bot can make them there, or what's wrong. */
+function status(creator: TempVoiceCreator, guild: Guild, t: Translate): string {
+  if (!guild.channels.cache.has(creator.channelId)) return `⚠️ ${t('tempVoice.config.status.missingChannel')}`;
+  const category = creatorCategory(guild, creator);
+  const where = category ? t('tempVoice.config.status.category', { category: channelMention(category.id) }) : t('tempVoice.config.status.noCategory');
+  const missing = missingCreatorPermissions(guild, creator);
+  if (missing.length > 0) return `${where}\n⚠️ ${t('tempVoice.config.status.missingPermissions', { permissions: formatPermissions(missing, t) })}`;
+  return `${where}\n${t('tempVoice.config.status.ready', { channel: channelMention(creator.channelId) })}`;
+}
+
+/** The settings panel of one join channel. */
+export function getTempVoiceSettings(creatorId: string): SettingsPanel {
+  return createSettingsPanel<TempVoiceCreator>({
+    id: `${TEMP_VOICE_PANEL_PREFIX}${creatorId}`,
+    title: (t) => t('tempVoice.config.title'),
+    permissions: ['ManageChannels'],
+    // The panel's custom IDs carry the join channel's ID, so make sure it's one of this server
+    load: async (guildId) => {
+      const creator = await getTempVoiceCreator(creatorId);
+      return creator?.guildId === guildId ? creator : null;
+    },
+    notConfigured: (t) => t('tempVoice.config.notFound'),
+    header: (creator, { guild }, t) => (guild ? `**${creatorName(creator, guild, t)}**\n${status(creator, guild, t)}` : null),
+    footer: (creator, t) => [
+      new ButtonBuilder()
+        .setCustomId(`${TEMP_VOICE_CONFIG_ID.delete}${creator.id}`)
+        .setLabel(t('tempVoice.config.delete'))
+        .setEmoji('🗑️')
+        .setStyle(ButtonStyle.Danger),
+      new ButtonBuilder().setCustomId(TEMP_VOICE_CONFIG_ID.list).setLabel(t('tempVoice.config.back')).setStyle(ButtonStyle.Secondary),
+    ],
+    settings: [
+      {
+        type: 'channel',
+        key: 'channel',
+        channelTypes: [ChannelType.GuildVoice],
+        required: true,
+        // To move people out of it into their channel
+        botPermissions: ['ViewChannel', 'MoveMembers'],
+        label: (t) => t('tempVoice.config.channel.label'),
+        description: (t) => t('tempVoice.config.channel.description'),
+        get: (creator) => creator.channelId,
+        set: async (_guildId, channelId) => {
+          if (!channelId) return;
+          // A channel can only be one join channel, and a temporary channel can't become one
+          const [other, temporary] = await Promise.all([getTempVoiceCreatorByChannel(channelId), getTempVoiceChannel(channelId)]);
+          if ((other && other.id !== creatorId) || temporary) return;
+          await updateTempVoiceCreator(creatorId, { channelId });
+        },
+      },
+      {
+        type: 'channel',
+        key: 'category',
+        channelTypes: [ChannelType.GuildCategory],
+        botPermissions: TEMP_VOICE_PERMISSIONS,
+        label: (t) => t('tempVoice.config.category.label'),
+        description: (t) => t('tempVoice.config.category.description'),
+        get: (creator) => creator.categoryId,
+        set: (_guildId, categoryId) => updateTempVoiceCreator(creatorId, { categoryId }),
+      },
+      {
+        type: 'text',
+        key: 'prefix',
+        maxLength: MAX_PREFIX_LENGTH,
+        label: (t) => t('tempVoice.config.prefix.label'),
+        description: (t) => t('tempVoice.config.prefix.description'),
+        placeholder: (t) => t('tempVoice.config.prefix.placeholder'),
+        get: (creator) => creator.namePrefix || null,
+        // Kept as typed, so a space at the end separates it from the name
+        set: (_guildId, prefix) => updateTempVoiceCreator(creatorId, { namePrefix: prefix ?? '' }),
+      },
+    ],
+  });
+}
+
+/** The list of a server's join channels, with a select to open one. */
+export async function renderTempVoiceList(guild: Guild, t: Translate): Promise<ResponsePayload> {
+  const creators = await getTempVoiceCreators(guild.id);
+  const container = new ContainerBuilder().setAccentColor(ThemeColors.info);
+
+  if (creators.length === 0) {
+    container.addTextDisplayComponents(new TextDisplayBuilder().setContent(`${t('tempVoice.config.list.title')}\n${t('tempVoice.config.list.none')}`));
+    return { components: [container], flags: [MessageFlags.IsComponentsV2] };
+  }
+
+  const lines = creators.map((creator) => {
+    const category = creatorCategory(guild, creator);
+    return t('tempVoice.config.list.item', {
+      channel: channelMention(creator.channelId),
+      category: category ? channelMention(category.id) : t('tempVoice.config.status.noCategoryShort'),
+    });
+  });
+  container
+    .addTextDisplayComponents(
+      new TextDisplayBuilder().setContent(
+        [t('tempVoice.config.list.title'), `-# ${t('tempVoice.config.list.count', { count: creators.length, max: MAX_TEMP_VOICE_CREATORS })}`, ...lines].join(
+          '\n',
+        ),
+      ),
+    )
+    .addActionRowComponents(
+      new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
+        new StringSelectMenuBuilder()
+          .setCustomId(TEMP_VOICE_CONFIG_ID.open)
+          .setPlaceholder(t('tempVoice.config.list.placeholder'))
+          .addOptions(
+            creators.map((creator) => new StringSelectMenuOptionBuilder().setLabel(creatorName(creator, guild, t).slice(0, 100)).setValue(creator.id)),
+          ),
+      ),
+    );
+
+  return { components: [container], flags: [MessageFlags.IsComponentsV2], allowedMentions: { parse: [] } };
+}

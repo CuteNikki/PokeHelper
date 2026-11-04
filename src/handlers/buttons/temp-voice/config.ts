@@ -1,0 +1,76 @@
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ContainerBuilder, MessageFlags, TextDisplayBuilder } from 'discord.js';
+
+import { Button } from 'classes/base/button';
+
+import { deleteTempVoiceCreator, getTempVoiceCreator } from 'database/tempVoice';
+
+import { creatorName, getTempVoiceSettings, renderTempVoiceList, TEMP_VOICE_CONFIG_ID } from 'settings/tempVoice';
+
+import { getTranslate } from 'utility/i18next';
+import { createResponse, sendError } from 'utility/response';
+import { settingsContext } from 'utility/settings';
+import { ThemeColors } from 'utility/theme';
+
+/** The buttons that act on one join channel, followed by its ID. */
+const ACTIONS = [TEMP_VOICE_CONFIG_ID.delete, TEMP_VOICE_CONFIG_ID.confirmDelete, TEMP_VOICE_CONFIG_ID.back];
+
+/**
+ * The buttons around the join channel settings: back to the list, and deleting one.
+ * Everything they need is in their custom ID, so they never stop working, also the confirmation for deleting.
+ */
+export default new Button({
+  customId: 'voicecfg:',
+  includesCustomId: true,
+  permissions: ['ManageChannels'],
+  cooldown: 1,
+  async execute(interaction) {
+    if (!interaction.inCachedGuild()) return;
+    const t = getTranslate(interaction.locale);
+    const { customId } = interaction;
+
+    if (customId === TEMP_VOICE_CONFIG_ID.list) return interaction.update(await renderTempVoiceList(interaction.guild, t));
+
+    const action = ACTIONS.find((prefix) => customId.startsWith(prefix));
+    if (!action) return sendError(interaction, t('system.outdated'));
+    const creator = await getTempVoiceCreator(customId.slice(action.length));
+    if (creator?.guildId !== interaction.guildId) return interaction.update(createResponse(t('tempVoice.config.notFound'), 'error'));
+
+    switch (action) {
+      case TEMP_VOICE_CONFIG_ID.delete:
+        return interaction.update({
+          components: [
+            new ContainerBuilder()
+              .setAccentColor(ThemeColors.warning)
+              .addTextDisplayComponents(
+                new TextDisplayBuilder().setContent(t('tempVoice.config.deleteQuestion', { name: creatorName(creator, interaction.guild, t) })),
+              )
+              .addActionRowComponents(
+                new ActionRowBuilder<ButtonBuilder>().addComponents(
+                  new ButtonBuilder()
+                    .setCustomId(`${TEMP_VOICE_CONFIG_ID.confirmDelete}${creator.id}`)
+                    .setLabel(t('tempVoice.config.deleteConfirm'))
+                    .setStyle(ButtonStyle.Danger),
+                  new ButtonBuilder()
+                    .setCustomId(`${TEMP_VOICE_CONFIG_ID.back}${creator.id}`)
+                    .setLabel(t('tempVoice.config.deleteCancel'))
+                    .setStyle(ButtonStyle.Secondary),
+                ),
+              ),
+          ],
+          flags: [MessageFlags.IsComponentsV2],
+        });
+
+      case TEMP_VOICE_CONFIG_ID.confirmDelete: {
+        await interaction.deferUpdate();
+        // The channel itself stays, it's only no longer a join channel. Channels made with it stay until they're empty
+        await deleteTempVoiceCreator(creator.id);
+        const success = createResponse(t('tempVoice.config.deleted'), 'success');
+        const list = await renderTempVoiceList(interaction.guild, t);
+        return interaction.editReply({ ...list, components: [...(success.components ?? []), ...(list.components ?? [])] });
+      }
+
+      case TEMP_VOICE_CONFIG_ID.back:
+        return interaction.update(await getTempVoiceSettings(creator.id).render(settingsContext(interaction), t));
+    }
+  },
+});

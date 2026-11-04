@@ -631,6 +631,7 @@
       "birthday": "Birthdays and their announcements",
       "counting": "The counting game",
       "role-menu": "Roles to pick for yourself",
+      "temp-voice": "Voice channels of your own",
       "general": "About the bot",
       "settings": "Set up the bot for this server"
     },
@@ -640,6 +641,7 @@
       "birthday": "Birthdays",
       "counting": "Counting",
       "role-menu": "Role menus",
+      "temp-voice": "Voice channels",
       "general": "General",
       "settings": "Server settings"
     },
@@ -686,6 +688,125 @@
       "title": "Look up a Pokémon",
       "label": "Name or Pokédex number",
       "placeholder": "Pikachu, Mega Charizard X, 25..."
+    }
+  },
+  "tempVoice": {
+    "panel": {
+      "title": "### Your voice channel 🔊",
+      "owner": "**Owner:** {{owner}}",
+      "ownerAway": "(stepped out)",
+      "people_one": "**People:** {{count}}",
+      "people_other": "**People:** {{count}}",
+      "peopleLimit_one": "**People:** {{count}} of {{limit}}",
+      "peopleLimit_other": "**People:** {{count}} of {{limit}}",
+      "locked": "**Lock:** Closed",
+      "unlocked": "**Lock:** Open",
+      "hidden": "**Visibility:** Hidden",
+      "shown": "**Visibility:** Shown",
+      "lock": "Lock",
+      "unlock": "Unlock",
+      "hide": "Hide",
+      "show": "Show",
+      "edit": "Name & limit",
+      "delete": "Delete",
+      "allowed": "LET IN",
+      "blocked": "KEPT OUT",
+      "someone": "SOMEONE HERE",
+      "allowPlaceholder": "Pick who to let in",
+      "blockPlaceholder": "Pick who to keep out",
+      "memberPlaceholder": "Kick, keep out or hand over",
+      "nobodyHere": "Nobody else is here yet"
+    },
+    "announce": {
+      "changed": "{{user}} changed this channel:",
+      "renamed": "renamed it to **{{name}}**",
+      "limit_one": "set the limit to {{count}} person",
+      "limit_other": "set the limit to {{count}} people",
+      "noLimit": "removed the limit",
+      "locked": "locked it",
+      "unlocked": "unlocked it",
+      "hidden": "hid it",
+      "shown": "made it visible again",
+      "allowed": "let in {{users}}",
+      "blocked": "kept out {{users}}",
+      "unallowed": "stopped letting in {{users}}",
+      "unblocked": "stopped keeping out {{users}}",
+      "ownerLeft": "{{old}} left a while ago, so this channel is {{new}}'s now.",
+      "handedOver": "{{old}} handed this channel to {{new}}.",
+      "tookOver": "{{new}} took over this channel from {{old}}.",
+      "gaveAway": "{{user}} gave this channel to {{new}}, it was {{old}}'s.",
+      "kicked": "{{user}} kicked {{target}}.",
+      "deleted": "🗑️ {{user}} deleted this channel. It's going away in a moment."
+    },
+    "controls": {
+      "gone": "This channel doesn't exist anymore.",
+      "notOwner": "Only {{owner}} can change this channel.",
+      "renameLimit": "Discord only lets a channel be renamed so often. Try again {{time}}.",
+      "notInOne": "You're not in a voice channel of your own right now.",
+      "notInOneJoin": "You're not in a voice channel of your own right now. Join {{channels}} to get one."
+    },
+    "edit": {
+      "title": "Name and limit",
+      "name": "Name (empty for your name)",
+      "limit": "User limit (empty for none)",
+      "invalidLimit": "The limit needs to be a number up to 99, or empty for no limit."
+    },
+    "member": {
+      "question": "What about {{user}}?",
+      "handover": "Hand over the channel",
+      "kick": "Kick",
+      "keepout": "Keep out",
+      "alreadyLeft": "They've left already.",
+      "kicked": "Kicked {{user}}. To keep them from coming back, use Keep out.",
+      "ownerCantBeBlocked": "The owner can't be kept out.",
+      "staffCantBeBlocked": "Moderators can join any channel, so they can't be kept out.",
+      "blocked": "{{user}} is kept out of this channel now.",
+      "cantTakeOver": "They've left, so they can't have it.",
+      "alreadyOwner": "It's {{user}}'s already.",
+      "changedMeanwhile": "This channel changed hands or was deleted in the meantime.",
+      "handedOver": "It's {{user}}'s channel now."
+    },
+    "config": {
+      "title": "### Join Channel Settings 🔊",
+      "notFound": "That join channel doesn't exist anymore.",
+      "missingChannel": "Deleted channel",
+      "status": {
+        "missingChannel": "The voice channel was deleted. Pick another one below.",
+        "category": "New channels are made in {{category}}.",
+        "noCategory": "New channels are made outside of any category.",
+        "noCategoryShort": "no category",
+        "missingPermissions": "I can't make channels there, I'm missing these permissions: {{permissions}}",
+        "ready": "Joining {{channel}} gives you a voice channel of your own."
+      },
+      "channel": {
+        "label": "Join channel",
+        "description": "The voice channel people join to get a channel of their own"
+      },
+      "category": {
+        "label": "Category",
+        "description": "Where the new channels go. Without one, they go in the same category as the join channel"
+      },
+      "prefix": {
+        "label": "Name prefix",
+        "description": "What the names of the new channels start with, so they look alike, like 🔊︱. Owners only name what comes after it",
+        "placeholder": "🔊︱"
+      },
+      "delete": "Remove",
+      "back": "All join channels",
+      "deleteQuestion": "Stop {{name}} from being a join channel? The channel itself stays, and the channels made with it stay until they're empty.",
+      "deleteConfirm": "Remove",
+      "deleteCancel": "Cancel",
+      "deleted": "It's not a join channel anymore.",
+      "maximum": "A server can have up to {{max}} join channels.",
+      "alreadyJoin": "{{channel}} is a join channel already.",
+      "isTemporary": "Someone's own voice channel can't be a join channel.",
+      "list": {
+        "title": "### Join Channels 🔊",
+        "count": "{{count}}/{{max}} join channels",
+        "none": "There are no join channels here yet. Make one with `/voice-config create`.",
+        "item": "- {{channel}} · new channels in {{category}}",
+        "placeholder": "Pick a join channel to change it"
+      }
     }
   },
   "locale": "en-US",

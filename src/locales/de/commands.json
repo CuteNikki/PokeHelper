@@ -170,5 +170,35 @@
   "help": {
     "name": "hilfe",
     "description": "Alle Befehle, die du hier benutzen kannst"
+  },
+  "voice": {
+    "name": "sprachkanal",
+    "description": "Ändere deinen eigenen Sprachkanal, in dem du gerade bist"
+  },
+  "voice-config": {
+    "name": "sprachkanal-einstellungen",
+    "description": "Richte die Kanäle ein, über die man einen eigenen Sprachkanal bekommt",
+    "options": {
+      "create": {
+        "name": "erstellen",
+        "description": "Mach einen Sprachkanal zu einem, über den man einen eigenen bekommt",
+        "options": {
+          "channel": {
+            "name": "kanal",
+            "description": "Der Sprachkanal, dem man beitritt"
+          }
+        }
+      },
+      "settings": {
+        "name": "einstellungen",
+        "description": "Ändere einen Beitrittskanal oder sieh dir alle an",
+        "options": {
+          "channel": {
+            "name": "kanal",
+            "description": "Der Beitrittskanal, den du ändern willst. Lass ihn weg, um alle zu sehen"
+          }
+        }
+      }
+    }
   }
 }

@@ -15,19 +15,23 @@ import { countingSettings } from 'settings/counting';
 import { levelingSettings } from 'settings/leveling';
 import { myBirthdaySettings } from 'settings/myBirthday';
 import { getRoleMenuSettings, ROLE_MENU_PANEL_PREFIX } from 'settings/roleMenu';
+import { getTempVoiceSettings, TEMP_VOICE_PANEL_PREFIX } from 'settings/tempVoice';
 
 import { createResponse, sendError } from 'utility/response';
 import { parseSettingsCustomId, settingsContext, type SettingsInput, type SettingsModal, type SettingsPanel } from 'utility/settings';
 
-/** Every settings panel, so their buttons and selects can find them by ID. Role menus each have their own, found by their ID. */
+/** Every settings panel, so their buttons and selects can find them by ID. Role menus and join channels each have their own, found by their ID. */
 const panels: SettingsPanel[] = [countingSettings, levelingSettings, birthdaySettings, myBirthdaySettings];
 
 const MODAL_INPUT_ID = 'value';
 /** The most characters typed into a popup, unless it says otherwise. */
 const DEFAULT_INPUT_LENGTH = 20;
 
-export const getSettingsPanel = (id: string) =>
-  id.startsWith(ROLE_MENU_PANEL_PREFIX) ? getRoleMenuSettings(id.slice(ROLE_MENU_PANEL_PREFIX.length)) : panels.find((panel) => panel.id === id);
+export function getSettingsPanel(id: string) {
+  if (id.startsWith(ROLE_MENU_PANEL_PREFIX)) return getRoleMenuSettings(id.slice(ROLE_MENU_PANEL_PREFIX.length));
+  if (id.startsWith(TEMP_VOICE_PANEL_PREFIX)) return getTempVoiceSettings(id.slice(TEMP_VOICE_PANEL_PREFIX.length));
+  return panels.find((panel) => panel.id === id);
+}
 
 type PanelInteraction = ButtonInteraction | AnySelectMenuInteraction | ModalSubmitInteraction;
 

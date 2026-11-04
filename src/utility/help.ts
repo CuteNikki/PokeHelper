@@ -28,7 +28,7 @@ export const HELP_CATEGORY_SELECT_ID = 'help:category';
 export const HELP_OVERVIEW = 'overview';
 
 /** The order of the categories, by the folder their commands are in. Others come after them. */
-const CATEGORY_ORDER = ['pokemon', 'leveling', 'birthday', 'counting', 'role-menu', 'general'];
+const CATEGORY_ORDER = ['pokemon', 'leveling', 'birthday', 'counting', 'role-menu', 'temp-voice', 'general'];
 /** The commands that need a permission are listed apart from the others, under this. */
 const SETTINGS_CATEGORY = 'settings';
 

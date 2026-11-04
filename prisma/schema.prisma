@@ -48,10 +48,13 @@ model Guild {
   leftAt DateTime? // when the bot was removed from the guild, after which its data is deleted unless the bot is added back
 
   // Configuration
-  counting          GuildCounting?     @relation("GuildCounting")
-  birthday          GuildBirthday?     @relation("GuildBirthday")
-  leveling          GuildLeveling?     @relation("GuildLeveling")
+  counting          GuildCounting?      @relation("GuildCounting")
+  birthday          GuildBirthday?      @relation("GuildBirthday")
+  leveling          GuildLeveling?      @relation("GuildLeveling")
   reactionRoleMenus ReactionRoleMenu[]
+  tempVoiceCreators TempVoiceCreator[]
+  tempVoiceChannels TempVoiceChannel[]
+  tempVoiceSettings TempVoiceSettings[]
   birthdayRoles     BirthdayRole[]
   levels            Level[]
   levelsWeekly      WeeklyLevel[]
@@ -328,4 +331,67 @@ model LevelingMultiplier {
 enum MultiplierTarget {
   channel
   role
+}
+
+// A join-to-create channel: joining it gives you a voice channel of your own, which is deleted once everyone has left
+model TempVoiceCreator {
+  id         String  @id @default(cuid())
+  // The voice channel to join
+  channelId  String  @unique
+  // Where the new channels go. Null for the same category as the join channel
+  categoryId String?
+  // What the names of the new channels start with, so they look alike. Owners only name what comes after it
+  namePrefix String  @default("")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  guildId  String
+  guild    Guild              @relation(fields: [guildId], references: [guildId], onDelete: Cascade)
+  channels TempVoiceChannel[]
+
+  @@index([guildId])
+}
+
+// A voice channel someone got by joining a join-to-create channel. Its permissions are always worked out from this, never read back
+model TempVoiceChannel {
+  channelId      String   @id
+  ownerId        String
+  // The control panel in the channel's chat, edited as the channel changes
+  panelMessageId String?
+  // Kept from the join channel it was made with, which may be deleted or changed meanwhile
+  namePrefix     String   @default("")
+  locked         Boolean  @default(false)
+  hidden         Boolean  @default(false)
+  // Members let in even while it's locked or hidden
+  allowed        String[] @default([])
+  // Members who can't see or join it
+  blocked        String[] @default([])
+  createdAt      DateTime @default(now())
+
+  guildId   String
+  guild     Guild             @relation(fields: [guildId], references: [guildId], onDelete: Cascade)
+  creatorId String?
+  creator   TempVoiceCreator? @relation(fields: [creatorId], references: [id], onDelete: SetNull)
+
+  @@index([guildId, ownerId])
+}
+
+// How someone left their last voice channel on a server, so their next one there starts the same
+model TempVoiceSettings {
+  userId    String
+  // What they call it, after the join channel's prefix. Null for their display name
+  name      String?
+  // 0 for no limit
+  userLimit Int      @default(0)
+  locked    Boolean  @default(false)
+  hidden    Boolean  @default(false)
+  allowed   String[] @default([])
+  blocked   String[] @default([])
+  updatedAt DateTime @updatedAt
+
+  guildId String
+  guild   Guild  @relation(fields: [guildId], references: [guildId], onDelete: Cascade)
+
+  @@id([guildId, userId])
 }

@@ -253,6 +253,7 @@
       "birthday": "Geburtstage und ihre Ankündigungen",
       "counting": "Das Zählspiel",
       "role-menu": "Rollen, die du dir selbst aussuchst",
+      "temp-voice": "Eigene Sprachkanäle",
       "general": "Über den Bot",
       "settings": "Richte den Bot für diesen Server ein"
     },
@@ -262,6 +263,7 @@
       "birthday": "Geburtstage",
       "counting": "Zählen",
       "role-menu": "Rollenmenüs",
+      "temp-voice": "Sprachkanäle",
       "general": "Allgemein",
       "settings": "Servereinstellungen"
     },
@@ -308,6 +310,125 @@
       "title": "Pokémon nachschlagen",
       "label": "Name oder Pokédex-Nummer",
       "placeholder": "Pikachu, Mega-Glurak X, 25..."
+    }
+  },
+  "tempVoice": {
+    "panel": {
+      "title": "### Dein Sprachkanal 🔊",
+      "owner": "**Besitzer:** {{owner}}",
+      "ownerAway": "(kurz weg)",
+      "people_one": "**Leute:** {{count}}",
+      "people_other": "**Leute:** {{count}}",
+      "peopleLimit_one": "**Leute:** {{count}} von {{limit}}",
+      "peopleLimit_other": "**Leute:** {{count}} von {{limit}}",
+      "locked": "**Schloss:** Zu",
+      "unlocked": "**Schloss:** Offen",
+      "hidden": "**Sichtbarkeit:** Versteckt",
+      "shown": "**Sichtbarkeit:** Sichtbar",
+      "lock": "Abschließen",
+      "unlock": "Aufschließen",
+      "hide": "Verstecken",
+      "show": "Zeigen",
+      "edit": "Name & Limit",
+      "delete": "Löschen",
+      "allowed": "REINGELASSEN",
+      "blocked": "AUSGESPERRT",
+      "someone": "JEMAND HIER",
+      "allowPlaceholder": "Wähl, wen du reinlässt",
+      "blockPlaceholder": "Wähl, wen du aussperrst",
+      "memberPlaceholder": "Rauswerfen, aussperren oder übergeben",
+      "nobodyHere": "Sonst ist noch niemand hier"
+    },
+    "announce": {
+      "changed": "{{user}} hat den Kanal geändert:",
+      "renamed": "umbenannt in **{{name}}**",
+      "limit_one": "Limit auf {{count}} Person gesetzt",
+      "limit_other": "Limit auf {{count}} Leute gesetzt",
+      "noLimit": "Limit entfernt",
+      "locked": "abgeschlossen",
+      "unlocked": "aufgeschlossen",
+      "hidden": "versteckt",
+      "shown": "wieder sichtbar gemacht",
+      "allowed": "{{users}} reingelassen",
+      "blocked": "{{users}} ausgesperrt",
+      "unallowed": "{{users}} nicht mehr reingelassen",
+      "unblocked": "{{users}} nicht mehr ausgesperrt",
+      "ownerLeft": "{{old}} ist schon eine Weile weg, also gehört der Kanal jetzt {{new}}.",
+      "handedOver": "{{old}} hat den Kanal an {{new}} übergeben.",
+      "tookOver": "{{new}} hat den Kanal von {{old}} übernommen.",
+      "gaveAway": "{{user}} hat den Kanal an {{new}} gegeben, er gehörte {{old}}.",
+      "kicked": "{{user}} hat {{target}} rausgeworfen.",
+      "deleted": "🗑️ {{user}} hat den Kanal gelöscht. Er verschwindet gleich."
+    },
+    "controls": {
+      "gone": "Diesen Kanal gibt es nicht mehr.",
+      "notOwner": "Nur {{owner}} kann diesen Kanal ändern.",
+      "renameLimit": "Discord lässt einen Kanal nur ab und zu umbenennen. Versuch es {{time}} nochmal.",
+      "notInOne": "Du bist gerade in keinem eigenen Sprachkanal.",
+      "notInOneJoin": "Du bist gerade in keinem eigenen Sprachkanal. Geh in {{channels}}, um einen zu bekommen."
+    },
+    "edit": {
+      "title": "Name und Limit",
+      "name": "Name (leer für deinen Namen)",
+      "limit": "Limit (leer für keins)",
+      "invalidLimit": "Das Limit muss eine Zahl bis 99 sein, oder leer für keins."
+    },
+    "member": {
+      "question": "Was ist mit {{user}}?",
+      "handover": "Kanal übergeben",
+      "kick": "Rauswerfen",
+      "keepout": "Aussperren",
+      "alreadyLeft": "Die Person ist schon weg.",
+      "kicked": "{{user}} rausgeworfen. Damit die Person nicht wiederkommt, nimm Aussperren.",
+      "ownerCantBeBlocked": "Den Besitzer kannst du nicht aussperren.",
+      "staffCantBeBlocked": "Moderatoren kommen in jeden Kanal, also kannst du sie nicht aussperren.",
+      "blocked": "{{user}} ist jetzt aus dem Kanal ausgesperrt.",
+      "cantTakeOver": "Die Person ist schon weg, also kann sie ihn nicht bekommen.",
+      "alreadyOwner": "Der Kanal gehört schon {{user}}.",
+      "changedMeanwhile": "Der Kanal hat in der Zwischenzeit den Besitzer gewechselt oder wurde gelöscht.",
+      "handedOver": "Der Kanal gehört jetzt {{user}}."
+    },
+    "config": {
+      "title": "### Beitrittskanal-Einstellungen 🔊",
+      "notFound": "Diesen Beitrittskanal gibt es nicht mehr.",
+      "missingChannel": "Gelöschter Kanal",
+      "status": {
+        "missingChannel": "Der Sprachkanal wurde gelöscht. Wähl unten einen anderen.",
+        "category": "Neue Kanäle landen in {{category}}.",
+        "noCategory": "Neue Kanäle landen außerhalb jeder Kategorie.",
+        "noCategoryShort": "keiner Kategorie",
+        "missingPermissions": "Ich kann dort keine Kanäle erstellen, mir fehlen diese Berechtigungen: {{permissions}}",
+        "ready": "Wer {{channel}} beitritt, bekommt einen eigenen Sprachkanal."
+      },
+      "channel": {
+        "label": "Beitrittskanal",
+        "description": "Der Sprachkanal, dem man beitritt, um einen eigenen Kanal zu bekommen"
+      },
+      "category": {
+        "label": "Kategorie",
+        "description": "Wo die neuen Kanäle landen. Ohne landen sie in der Kategorie des Beitrittskanals"
+      },
+      "prefix": {
+        "label": "Namensanfang",
+        "description": "Womit die Namen der neuen Kanäle anfangen, damit sie gleich aussehen, wie 🔊︱. Besitzer benennen nur, was danach kommt",
+        "placeholder": "🔊︱"
+      },
+      "delete": "Entfernen",
+      "back": "Alle Beitrittskanäle",
+      "deleteQuestion": "{{name}} soll kein Beitrittskanal mehr sein? Der Kanal selbst bleibt, und die damit erstellten Kanäle bleiben, bis sie leer sind.",
+      "deleteConfirm": "Entfernen",
+      "deleteCancel": "Abbrechen",
+      "deleted": "Das ist jetzt kein Beitrittskanal mehr.",
+      "maximum": "Ein Server kann bis zu {{max}} Beitrittskanäle haben.",
+      "alreadyJoin": "{{channel}} ist schon ein Beitrittskanal.",
+      "isTemporary": "Ein eigener Sprachkanal kann kein Beitrittskanal sein.",
+      "list": {
+        "title": "### Beitrittskanäle 🔊",
+        "count": "{{count}}/{{max}} Beitrittskanäle",
+        "none": "Hier gibt es noch keine Beitrittskanäle. Erstell einen mit `/sprachkanal-einstellungen erstellen`.",
+        "item": "- {{channel}} · neue Kanäle in {{category}}",
+        "placeholder": "Wähl einen Beitrittskanal aus, um ihn zu ändern"
+      }
     }
   },
   "locale": "de-DE",
