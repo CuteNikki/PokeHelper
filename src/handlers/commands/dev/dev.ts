@@ -11,6 +11,9 @@ import { t } from 'i18next';
 import type { ExtendedClient } from 'classes/base/client';
 import { Command } from 'classes/base/command';
 
+import { THEMES } from 'art/themes';
+
+import { updateBotProfile } from 'database/botProfile';
 import { prisma } from 'database/index';
 
 import { registerCommands } from 'utility/commandRegistration';
@@ -18,6 +21,7 @@ import { logger } from 'utility/logger';
 import { changedSinceStart, reload, RELOAD_TARGETS, type ReloadTarget } from 'utility/reload';
 import { logTranslate } from 'utility/logs/send';
 import { sendPreview } from 'utility/logs/preview';
+import { isThemeName, profileThemesEnabled, syncProfileTheme } from 'utility/profileTheme';
 import { createResponse } from 'utility/response';
 
 export default new Command({
@@ -43,7 +47,19 @@ export default new Command({
     )
     .addSubcommand((cmd) => cmd.setName('register').setDescription('Reload the commands and register them with Discord'))
     .addSubcommand((cmd) => cmd.setName('restart').setDescription('Restart the bot, for changes a reload does not pick up'))
-    .addSubcommand((cmd) => cmd.setName('log-preview').setDescription('Post sample log entries here, to see how logs look')),
+    .addSubcommand((cmd) => cmd.setName('log-preview').setDescription('Post sample log entries here, to see how logs look'))
+    .addSubcommand((cmd) =>
+      cmd
+        .setName('profile-theme')
+        .setDescription("Put a theme on the bot's avatar and banner now, or go back to the calendar")
+        .addStringOption((option) =>
+          option
+            .setName('theme')
+            .setDescription('The theme, or auto for the one of the day')
+            .setRequired(true)
+            .addChoices({ name: 'auto', value: 'auto' }, ...Object.keys(THEMES).map((name) => ({ name, value: name }))),
+        ),
+    ),
   async execute(interaction) {
     if (!interaction.inCachedGuild()) return;
 
@@ -56,6 +72,8 @@ export default new Command({
         return handleRestart(interaction);
       case 'log-preview':
         return handleLogPreview(interaction);
+      case 'profile-theme':
+        return handleProfileTheme(interaction);
     }
   },
 });
@@ -116,4 +134,21 @@ async function handleLogPreview(interaction: ChatInputCommandInteraction<'cached
   if (!interaction.channel?.isSendable()) return interaction.editReply(createResponse("I can't post in this channel.", 'error'));
   await sendPreview(interaction.channel, interaction.member, logTranslate(interaction.guild));
   return interaction.editReply(createResponse('Posted the sample log entries.', 'success'));
+}
+
+/** What happened to the avatar or banner, for the answer. */
+const SYNC_TEXT = { changed: 'changed', unchanged: 'already wearing it', tooSoon: 'changed too recently, tried again within 15 minutes' } as const;
+
+/** Put a theme on the profile right away, or go back to the calendar. It stays until changed again, also across restarts. */
+async function handleProfileTheme(interaction: ChatInputCommandInteraction<'cached'>) {
+  await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
+  const choice = interaction.options.getString('theme', true);
+  await updateBotProfile({ override: isThemeName(choice) ? choice : null });
+  const result = await syncProfileTheme(interaction.client);
+  const lines = [
+    `Wearing the **${result.theme}** theme${isThemeName(choice) ? ' until set back to auto' : ', the one of the day'}.`,
+    `Avatar: ${SYNC_TEXT[result.avatar]}. Banner: ${SYNC_TEXT[result.banner]}.`,
+    profileThemesEnabled() ? null : '-# PROFILE_THEMES is off here, so it only changes when you use this command.',
+  ];
+  return interaction.editReply(createResponse(lines.filter(Boolean).join('\n'), 'success'));
 }

@@ -65,6 +65,7 @@ _A Pokémon themed Discord bot_
 
 - Interactive settings panels instead of a long list of config commands
 - Every feature can be turned off in its settings, without losing them
+- An animated mascot as avatar and banner, which changes with the seasons and holidays, like a witch hat in October
 - `/help` lists the commands by category, and only the ones of features that are turned on
 - English and German, following each member's Discord language
 - Data of a server is deleted 30 days after the bot leaves it
@@ -143,12 +144,13 @@ GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO "myuser";
 
 Copy `.env.example` to `.env` and fill it in:
 
-| Variable        | Description                                                              |
-| --------------- | ------------------------------------------------------------------------ |
-| `DISCORD_TOKEN` | The bot token                                                            |
-| `DISCORD_ID`    | The application ID                                                       |
-| `DEV_GUILD_ID`  | Server where `/dev` is registered, only visible there                    |
-| `DATABASE_URL`  | Like `postgresql://myuser:mypass@localhost:5432/mydb` for a local server |
+| Variable         | Description                                                                                               |
+| ---------------- | --------------------------------------------------------------------------------------------------------- |
+| `DISCORD_TOKEN`  | The bot token                                                                                             |
+| `DISCORD_ID`     | The application ID                                                                                        |
+| `DEV_GUILD_ID`   | Server where `/dev` is registered, only visible there                                                     |
+| `DATABASE_URL`   | Like `postgresql://myuser:mypass@localhost:5432/mydb` for a local server                                  |
+| `PROFILE_THEMES` | `on` to change the avatar and banner with the seasons and holidays by itself. Only on one copy of the bot |
 
 ### 5. Create the tables
 

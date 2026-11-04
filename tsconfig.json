@@ -35,7 +35,8 @@
       "loading/*": ["./src/loading/*"],
       "locales/*": ["./src/locales/*"],
       "settings/*": ["./src/settings/*"],
-      "types/*": ["./src/types/*"]
+      "types/*": ["./src/types/*"],
+      "art/*": ["./art/*"]
     }
   }
 }

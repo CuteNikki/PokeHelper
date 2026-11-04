@@ -4,6 +4,7 @@ import { Event } from 'classes/base/event';
 
 import { runBirthdayJob } from 'utility/birthday/job';
 import { runWeeklyResetJob } from 'utility/leveling/weeklyReset';
+import { runProfileThemeJob } from 'utility/profileTheme';
 import { scheduleJob } from 'utility/scheduler';
 
 /** How often the jobs check what's due. Often enough that birthdays are on time, rarely enough to stay cheap. */
@@ -16,5 +17,6 @@ export default new Event({
   execute(_, client) {
     scheduleJob('birthdays', JOB_INTERVAL, () => runBirthdayJob(client));
     scheduleJob('weekly XP reset', JOB_INTERVAL, () => runWeeklyResetJob(client));
+    scheduleJob('profile theme', JOB_INTERVAL, () => runProfileThemeJob(client));
   },
 });

@@ -432,3 +432,17 @@ model GuildLogs {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+// The bot's own profile: which theme its avatar and banner wear, so they're only uploaded again when the theme changes.
+// A single row, with the id 1
+model BotProfile {
+  id Int @id @default(1)
+
+  // The theme of the avatar and of the banner on Discord right now. Kept apart, as one can be uploaded while the other has to wait
+  avatarTheme String?
+  bannerTheme String?
+  // A theme picked by hand with /dev, worn instead of the one of the day. Null to follow the calendar
+  override    String?
+
+  updatedAt DateTime @updatedAt
+}
