@@ -15,12 +15,18 @@ describe('themeOn', () => {
   test('has a season for every ordinary day', () => {
     expect(on('2026-01-20')).toBe('winter');
     expect(on('2026-03-20')).toBe('spring');
-    expect(on('2026-07-15')).toBe('summer');
+    expect(on('2026-07-20')).toBe('summer');
     expect(on('2026-09-20')).toBe('autumn');
     expect(on('2026-11-15')).toBe('autumn');
   });
 
-  test('has its own look between the seasons, in the first half of March and September', () => {
+  test('has its own look between the seasons, in the first half of January, March, July and September', () => {
+    expect(on('2027-01-02')).toBe('standard');
+    expect(on('2027-01-15')).toBe('standard');
+    expect(on('2027-01-16')).toBe('winter');
+    expect(on('2027-07-02')).toBe('standard');
+    expect(on('2027-07-15')).toBe('standard');
+    expect(on('2027-07-16')).toBe('summer');
     expect(on('2027-03-01')).toBe('standard');
     expect(on('2027-03-15')).toBe('standard');
     expect(on('2027-03-16')).toBe('spring');
@@ -36,7 +42,6 @@ describe('themeOn', () => {
     expect(on('2026-12-30')).toBe('christmas');
     expect(on('2026-12-31')).toBe('newYear');
     expect(on('2027-01-01')).toBe('newYear');
-    expect(on('2027-01-02')).toBe('winter');
     expect(on('2026-02-14')).toBe('valentines');
     expect(on('2026-06-15')).toBe('pride');
   });

@@ -45,8 +45,8 @@ export function themeOn(date: Date, birthday: Date | null): ThemeName {
   if (month === 12) return 'christmas';
   if (month === 6) return 'pride';
 
-  // The bot's own look in between, where one season turns into the next
-  if ((month === 3 || month === 9) && day <= 15) return 'standard';
+  // The bot's own look between the seasons, in the first half of the month each one starts, or right after the holiday that starts it
+  if ([1, 3, 7, 9].includes(month) && day <= 15) return 'standard';
 
   if (month <= 2) return 'winter';
   if (month <= 5) return 'spring';

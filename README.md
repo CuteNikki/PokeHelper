@@ -83,10 +83,12 @@ With `PROFILE_THEMES=on`, the bot changes its animated avatar and banner by itse
 | June                                 | Pride           |
 | October                              | Halloween       |
 | December                             | Christmas       |
-| January and February                 | Winter          |
+| January 2 to 15                      | Standard        |
+| January 16 to February 28            | Winter          |
 | March 1 to 15                        | Standard        |
 | March 16 to May 31                   | Spring          |
-| July and August                      | Summer          |
+| July 2 to 15                         | Standard        |
+| July 16 to August 31                 | Summer          |
 | September 1 to 15                    | Standard        |
 | September 16 to 30, and November     | Autumn          |
 
