@@ -79,7 +79,8 @@ export default new Event({
         about: 'user',
         subject,
         thumbnail,
-        details: [after.avatar ? null : t('logs.avatarRemoved')],
+        // Like a profile's avatar: changed, with the new one as the picture, or removed
+        details: [`**${t('logs.avatar')}** ${t(after.avatar ? 'logs.avatarChanged' : 'logs.avatarRemoved')}`],
         ids,
       }));
     }

@@ -31,25 +31,20 @@ function changed(label: string, before: Value, after: Value, t: Translate, menti
   return oldNew(label, format(before), format(after), t);
 }
 
-/** Permissions by their names in the server's language. */
-const permissionNames = (permissions: PermissionsString[], t: Translate) => permissions.map((permission) => t(`permission.${permission}`)).join(', ');
+/** Permissions under a bold heading, one on each line in the server's language, like the roles someone was given. */
+const permissionList = (heading: string, permissions: PermissionsString[], t: Translate) =>
+  [`**${heading}**`, ...permissions.map((permission) => t(`permission.${permission}`))].join('\n');
 
-/** The permissions given and taken between two sets, as lines like `Added: Kick Members`, or none if they're the same. */
-/** The texts that say which way permissions changed. */
-type PermissionLabel = 'added' | 'removed' | 'nowAllowed' | 'noLongerAllowed' | 'nowDenied' | 'noLongerDenied';
-
-function permissionChanges(
-  before: bigint,
-  after: bigint,
-  t: Translate,
-  labels: { added: PermissionLabel; removed: PermissionLabel } = { added: 'added', removed: 'removed' },
-) {
+/**
+ * The permissions given and taken between two sets, as a block for each way they changed, like `**Permissions added**` and the
+ * permissions under it, or none if they're the same.
+ */
+function permissionChanges(before: bigint, after: bigint, t: Translate, headings: { added: string; removed: string }) {
   const added = new PermissionsBitField(after & ~before).toArray();
   const removed = new PermissionsBitField(before & ~after).toArray();
-  return [
-    added.length > 0 ? `${t(`logs.changes.${labels.added}`)}: ${permissionNames(added, t)}` : null,
-    removed.length > 0 ? `${t(`logs.changes.${labels.removed}`)}: ${permissionNames(removed, t)}` : null,
-  ].filter((line): line is string => line !== null);
+  return [added.length > 0 ? permissionList(headings.added, added, t) : null, removed.length > 0 ? permissionList(headings.removed, removed, t) : null].filter(
+    (block): block is string => block !== null,
+  );
 }
 
 /** What changed about who can do what in a channel: a block for each role or member whose permissions there changed. */
@@ -62,14 +57,16 @@ function overwriteChanges(before: GuildBasedChannel, after: GuildBasedChannel, t
     const was = old.get(id);
     const is = current.get(id);
     const who = (is ?? was)!.type === OverwriteType.Role ? (id === after.guild.id ? code('@everyone') : roleRef(after.guild, id)) : userRef(after.guild, id);
-    const lines = [
+    blocks.push(
       ...permissionChanges(was?.allow.bitfield ?? 0n, is?.allow.bitfield ?? 0n, t, {
-        added: 'nowAllowed',
-        removed: 'noLongerAllowed',
+        added: t('logs.changes.nowAllowedFor', { who }),
+        removed: t('logs.changes.noLongerAllowedFor', { who }),
       }),
-      ...permissionChanges(was?.deny.bitfield ?? 0n, is?.deny.bitfield ?? 0n, t, { added: 'nowDenied', removed: 'noLongerDenied' }),
-    ];
-    if (lines.length > 0) blocks.push([`**${t('logs.changes.permissionsFor', { who })}**`, ...lines].join('\n'));
+      ...permissionChanges(was?.deny.bitfield ?? 0n, is?.deny.bitfield ?? 0n, t, {
+        added: t('logs.changes.nowDeniedFor', { who }),
+        removed: t('logs.changes.noLongerDeniedFor', { who }),
+      }),
+    );
   }
   return blocks;
 }
@@ -91,14 +88,16 @@ export function channelChanges(before: GuildBasedChannel, after: GuildBasedChann
 
 /** What changed about a role. */
 export function roleChanges(before: Role, after: Role, t: Translate): string[] {
-  const permissions = permissionChanges(before.permissions.bitfield, after.permissions.bitfield, t);
   const lines = [
     changed(t('logs.changes.name'), before.name, after.name, t),
     changed(t('logs.changes.color'), before.hexColor, after.hexColor, t),
     changed(t('logs.changes.hoist'), before.hoist, after.hoist, t),
     changed(t('logs.changes.mentionable'), before.mentionable, after.mentionable, t),
     changed(t('logs.changes.icon'), before.icon ?? before.unicodeEmoji, after.icon ?? after.unicodeEmoji, t),
-    permissions.length > 0 ? [`**${t('logs.changes.permissions')}**`, ...permissions].join('\n') : null,
+    ...permissionChanges(before.permissions.bitfield, after.permissions.bitfield, t, {
+      added: t('logs.changes.permissionsAdded'),
+      removed: t('logs.changes.permissionsRemoved'),
+    }),
   ];
   return lines.filter((line): line is string => line !== null);
 }

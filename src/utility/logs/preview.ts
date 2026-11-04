@@ -210,7 +210,7 @@ export function previewEntries(member: GuildMember, channelId: string, t: Transl
         [
           oldNew(t('logs.changes.name'), code('test'), code('testing'), t),
           oldNew(t('logs.changes.slowmode'), none, code('5'), t),
-          `**${t('logs.changes.permissionsFor', { who: code('@everyone') })}**\n${t('logs.changes.nowDenied')}: ${t('permission.SendMessages')}, ${t('permission.AddReactions')}`,
+          `**${t('logs.changes.nowDeniedFor', { who: code('@everyone') })}**\n${t('permission.SendMessages')}\n${t('permission.AddReactions')}`,
         ].join('\n\n'),
       ],
       ids: { channel: channelId },
@@ -224,7 +224,8 @@ export function previewEntries(member: GuildMember, channelId: string, t: Transl
       details: [
         [
           oldNew(t('logs.changes.color'), code('#ff9900'), code('#ffb347'), t),
-          `**${t('logs.changes.permissions')}**\n${t('logs.changes.added')}: ${t('permission.ManageMessages')}\n${t('logs.changes.removed')}: ${t('permission.MentionEveryone')}`,
+          `**${t('logs.changes.permissionsAdded')}**\n${t('permission.ManageMessages')}\n${t('permission.ManageThreads')}`,
+          `**${t('logs.changes.permissionsRemoved')}**\n${t('permission.MentionEveryone')}`,
         ].join('\n\n'),
       ],
       ids: { ...(roles[0] ? { role: roles[0].id } : {}) },
