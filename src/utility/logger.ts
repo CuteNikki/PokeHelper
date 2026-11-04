@@ -1,3 +1,5 @@
+import { inspect } from 'node:util';
+
 import pino from 'pino';
 
 const customLevels = {
@@ -28,11 +30,32 @@ const customLevelsStr = Object.entries(customLevels)
  * The log level can be set to 'debug' or 'info' based on the command line argument.
  * @module logger
  */
+/** How deep causes of errors, and objects that aren't errors, are written out. */
+const ERROR_DEPTH = 3;
+
+/**
+ * Anything thrown, as something that can always be written to the log. Errors keep their type, message, stack and the details
+ * Discord and the database add, and their cause. Anything else, like a connection's error event that points back at the connection,
+ * is described instead of written out field by field, which fails on references back to itself and hides what went wrong.
+ */
+export function serializeError(value: unknown, depth = 0): Record<string, unknown> {
+  if (!(value instanceof Error)) {
+    return { type: value?.constructor?.name ?? typeof value, message: inspect(value, { depth: ERROR_DEPTH, breakLength: Infinity }) };
+  }
+  const details: Record<string, unknown> = { type: value.constructor.name, message: value.message, stack: value.stack };
+  for (const key of ['code', 'status', 'method', 'url'] as const) {
+    if (key in value) details[key] = (value as unknown as Record<string, unknown>)[key];
+  }
+  if (value.cause !== undefined && depth < ERROR_DEPTH) details.cause = serializeError(value.cause, depth + 1);
+  return details;
+}
+
 export const logger = pino(
   {
     level: process.argv.includes('--debug') ? 'debug' : 'info',
     customLevels: customLevels,
     useOnlyCustomLevels: true,
+    serializers: { err: (value: unknown) => serializeError(value) },
   },
   pino.transport({
     targets: [
