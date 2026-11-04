@@ -651,7 +651,8 @@
       "weight": "Weight",
       "abilities": "Abilities",
       "type": "Type"
-    }
+    },
+    "shinyName": "Shiny {{name}}"
   },
   "locale": "en-US",
   "number": {

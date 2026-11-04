@@ -305,9 +305,10 @@ export async function buildPokedexEntry(match: PokedexMatch, view: PokedexView, 
       ),
     ]);
 
+    const cardName = shownView.shiny ? t('pokedex.shinyName', { name }) : name;
     const toHex = (color: number) => `#${color.toString(16).padStart(6, '0')}`;
     const card = renderPokedexCard({
-      name,
+      name: cardName,
       number,
       genus: kind || null,
       artwork,
@@ -323,7 +324,7 @@ export async function buildPokedexEntry(match: PokedexMatch, view: PokedexView, 
 
     // The card is only pixels, so its description has everything on it for screen readers
     const description = t('pokedex.altText', {
-      name: `${name} ${number}`,
+      name: `${cardName} ${number}`,
       genus: kind,
       types: types.map((type) => type.name).join(', '),
       stats: statsText.join(', '),

@@ -273,7 +273,8 @@
       "weight": "Gewicht",
       "abilities": "Fähigkeiten",
       "type": "Typ"
-    }
+    },
+    "shinyName": "Schillerndes {{name}}"
   },
   "locale": "de-DE",
   "leveling": {
