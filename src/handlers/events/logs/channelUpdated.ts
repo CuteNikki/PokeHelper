@@ -15,6 +15,7 @@ export default new Event({
       event: 'channels',
       kind: 'updated',
       label: (t) => t('logs.labels.channelUpdated'),
+      about: 'channel',
       subject: channelSubject(after.id, after.name),
       details: (t) => [channelChanges(before, after, t).join('\n\n') || null],
       id: ['channel', after.id],

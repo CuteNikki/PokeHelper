@@ -23,6 +23,7 @@ export default new Event({
     await sendLog(guild, 'messagesBulkDeleted', (t) => ({
       kind: 'deleted',
       label: t('logs.labels.messagesBulkDeleted', { count: messages.size }),
+      about: 'channel',
       subject: channelSubject(channel.id, channel.name),
       by: doer,
       details: [seen.length < messages.size ? `-# ${t('logs.bulkNotSeen', { count: messages.size - seen.length })}` : null],

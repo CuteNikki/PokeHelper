@@ -29,6 +29,7 @@ export default new Event({
         label: t('logs.labels.messageDeleted'),
         where: channelRef(guild, message.channelId),
         // Sent before the bot started, so it never saw who sent it or what it said
+        about: 'user',
         subject: message.author ? userSubject(message.author) : t('logs.unknownAuthor'),
         thumbnail: avatarOf(message.member ?? message.author),
         by: doer,

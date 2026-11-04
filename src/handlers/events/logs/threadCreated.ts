@@ -20,6 +20,7 @@ export default new Event({
       kind: 'created',
       label: t('logs.labels.threadCreated'),
       where: thread.parentId ? channelRef(thread.guild, thread.parentId) : null,
+      about: 'thread',
       subject: channelSubject(thread.id, thread.name),
       thumbnail: avatarOf(owner),
       by: owner ? { id: owner.id, reason: null } : null,

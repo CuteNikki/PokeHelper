@@ -13,6 +13,7 @@ export default new Event({
       event: 'emojis',
       kind: 'created',
       label: (t) => t('logs.labels.emojiCreated'),
+      about: 'emoji',
       subject: `${emoji.toString()} ${code(`:${emoji.name}:`)}`,
       thumbnail: emoji.imageURL({ size: 128 }),
       id: ['emoji', emoji.id],

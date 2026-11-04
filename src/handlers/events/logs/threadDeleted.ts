@@ -13,6 +13,7 @@ export default new Event({
       event: 'threads',
       kind: 'deleted',
       label: (t) => t('logs.labels.threadDeleted'),
+      about: 'thread',
       subject: code(`#${thread.name}`),
       where: thread.parentId ? channelRef(thread.guild, thread.parentId) : null,
       id: ['channel', thread.id],

@@ -721,6 +721,16 @@
       "nothing": "Es gibt nichts zurückzusetzen, Logs wurden hier noch nicht eingerichtet.",
       "success": "Die Log-Einstellungen sind zurückgesetzt. Nutz `/logs-einstellungen einstellungen`, um sie neu einzurichten."
     },
+    "about": {
+      "user": "Nutzer",
+      "channel": "Kanal",
+      "thread": "Thread",
+      "role": "Rolle",
+      "emoji": "Emoji",
+      "sticker": "Sticker",
+      "invite": "Einladung",
+      "server": "Server"
+    },
     "in": "In",
     "byLabel": "Von",
     "from": "Von",

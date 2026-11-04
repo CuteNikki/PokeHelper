@@ -14,6 +14,7 @@ export default new Event({
       kind: 'deleted',
       label: (t) => t('logs.labels.emojiDeleted'),
       // A deleted emoji can't be shown anymore, so a link to its picture says which it was
+      about: 'emoji',
       subject: code(`:${emoji.name}:`),
       thumbnail: emoji.imageURL({ size: 128 }),
       id: ['emoji', emoji.id],

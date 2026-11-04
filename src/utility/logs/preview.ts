@@ -31,6 +31,7 @@ export function previewEntries(member: GuildMember, channelId: string, t: Transl
   // Real roles where the server has them, so their mentions show as they would
   const roles = [...guild.roles.cache.values()].filter((role) => role.id !== guild.id && !role.managed).slice(0, 3);
   const role = (index: number, fallback: string) => (roles[index] ? roleSubject(roles[index].id, roles[index].name) : code(`@${fallback}`));
+  const emoji = guild.emojis.cache.first();
 
   const shortEdit = editedText('i founf the command, its called piku', 'i found the command, it’s called pokedex', '1', t);
   const longEdit = editedText(LONG_TEXT, LONG_TEXT.replace('Line 20', 'Line twenty'), '2', t);
@@ -52,6 +53,7 @@ export function previewEntries(member: GuildMember, channelId: string, t: Transl
       kind: 'updated',
       label: t('logs.labels.messageEdited'),
       where,
+      about: 'user',
       subject,
       thumbnail,
       details: shortEdit.details,
@@ -62,6 +64,7 @@ export function previewEntries(member: GuildMember, channelId: string, t: Transl
       kind: 'updated',
       label: t('logs.labels.messageEdited'),
       where,
+      about: 'user',
       subject,
       thumbnail,
       details: longEdit.details,
@@ -73,6 +76,7 @@ export function previewEntries(member: GuildMember, channelId: string, t: Transl
       kind: 'deleted',
       label: t('logs.labels.messageDeleted'),
       where,
+      about: 'user',
       subject,
       thumbnail,
       by,
@@ -83,6 +87,7 @@ export function previewEntries(member: GuildMember, channelId: string, t: Transl
     {
       kind: 'deleted',
       label: t('logs.labels.messagesBulkDeleted', { count: 5 }),
+      about: 'channel',
       subject: where,
       by,
       details: [`-# ${t('logs.bulkNotSeen', { count: 1 })}`],
@@ -92,6 +97,7 @@ export function previewEntries(member: GuildMember, channelId: string, t: Transl
     {
       kind: 'updated',
       label: t('logs.labels.rolesChanged'),
+      about: 'user',
       subject,
       thumbnail,
       by,
@@ -101,6 +107,7 @@ export function previewEntries(member: GuildMember, channelId: string, t: Transl
     {
       kind: 'created',
       label: t('logs.labels.rolesAdded', { count: 1 }),
+      about: 'user',
       subject,
       thumbnail,
       by,
@@ -110,6 +117,7 @@ export function previewEntries(member: GuildMember, channelId: string, t: Transl
     {
       kind: 'updated',
       label: t('logs.labels.memberNickname'),
+      about: 'user',
       subject,
       thumbnail,
       by,
@@ -119,6 +127,7 @@ export function previewEntries(member: GuildMember, channelId: string, t: Transl
     {
       kind: 'updated',
       label: t('logs.labels.profile'),
+      about: 'user',
       subject,
       thumbnail,
       details: [
@@ -129,6 +138,7 @@ export function previewEntries(member: GuildMember, channelId: string, t: Transl
     {
       kind: 'created',
       label: t('logs.labels.memberJoined'),
+      about: 'user',
       subject,
       thumbnail,
       details: [
@@ -139,6 +149,7 @@ export function previewEntries(member: GuildMember, channelId: string, t: Transl
     {
       kind: 'deleted',
       label: t('logs.labels.memberLeft'),
+      about: 'user',
       subject,
       thumbnail,
       details: [
@@ -147,21 +158,23 @@ export function previewEntries(member: GuildMember, channelId: string, t: Transl
       ],
       ids: { user: member.id },
     },
-    { kind: 'deleted', label: t('logs.labels.banned'), subject, thumbnail, by: byWithReason, details: [reasonPart(byWithReason, t)], ids: { user: member.id } },
-    { kind: 'deleted', label: t('logs.labels.kicked'), subject, thumbnail, by: byWithReason, details: [reasonPart(byWithReason, t)], ids: { user: member.id } },
+    { kind: 'deleted', label: t('logs.labels.banned'), about: 'user', subject, thumbnail, by: byWithReason, details: [reasonPart(byWithReason, t)], ids: { user: member.id } },
+    { kind: 'deleted', label: t('logs.labels.kicked'), about: 'user', subject, thumbnail, by: byWithReason, details: [reasonPart(byWithReason, t)], ids: { user: member.id } },
     {
       kind: 'deleted',
       label: t('logs.labels.timedOut'),
+      about: 'user',
       subject,
       thumbnail,
       by: byWithReason,
       details: [`**${t('logs.until')}** ${time(new Date(Date.now() + 60 * 60 * 1000), TimestampStyles.LongDateTime)}`, reasonPart(byWithReason, t)],
       ids: { user: member.id },
     },
-    { kind: 'created', label: t('logs.labels.timeoutRemoved'), subject, thumbnail, by, ids: { user: member.id } },
+    { kind: 'created', label: t('logs.labels.timeoutRemoved'), about: 'user', subject, thumbnail, by, ids: { user: member.id } },
     {
       kind: 'created',
       label: t('logs.labels.channelCreated'),
+      about: 'channel',
       subject: channelSubject(channelId, 'new-channel'),
       by,
       details: [`**${t('logs.changes.category')}** ${code('#Text Channels')}`],
@@ -170,6 +183,7 @@ export function previewEntries(member: GuildMember, channelId: string, t: Transl
     {
       kind: 'updated',
       label: t('logs.labels.channelUpdated'),
+      about: 'channel',
       subject: channelSubject(channelId, 'testing'),
       by,
       details: [
@@ -184,6 +198,7 @@ export function previewEntries(member: GuildMember, channelId: string, t: Transl
     {
       kind: 'updated',
       label: t('logs.labels.roleUpdated'),
+      about: 'role',
       subject: role(0, 'Melon'),
       by,
       details: [
@@ -197,6 +212,7 @@ export function previewEntries(member: GuildMember, channelId: string, t: Transl
     {
       kind: 'updated',
       label: t('logs.labels.serverUpdated'),
+      about: 'server',
       subject: code(guild.name),
       thumbnail: guild.iconURL({ size: 128 }),
       by,
@@ -206,14 +222,18 @@ export function previewEntries(member: GuildMember, channelId: string, t: Transl
     {
       kind: 'created',
       label: t('logs.labels.emojiCreated'),
-      subject: code(':pikachu:'),
+      about: 'emoji',
+      // One of the server's own emojis if it has one, shown like a real entry shows it, itself and its picture
+      subject: emoji ? `${emoji.toString()} ${code(`:${emoji.name}:`)}` : code(':pikachu:'),
+      thumbnail: emoji?.imageURL({ size: 128 }),
       by,
-      ids: { emoji: '1' },
+      ids: { emoji: emoji?.id ?? '1' },
     },
     {
       kind: 'created',
       label: t('logs.labels.threadCreated'),
       where,
+      about: 'thread',
       subject: channelSubject(channelId, 'trading pokemon'),
       thumbnail,
       by: { id: member.id, reason: null },
@@ -223,6 +243,7 @@ export function previewEntries(member: GuildMember, channelId: string, t: Transl
       kind: 'created',
       label: t('logs.labels.inviteCreated'),
       where,
+      about: 'invite',
       subject: code('pokehelper'),
       thumbnail,
       by: { id: member.id, reason: null },
@@ -231,10 +252,11 @@ export function previewEntries(member: GuildMember, channelId: string, t: Transl
       ],
       ids: { invite: 'pokehelper' },
     },
-    { kind: 'created', label: t('logs.labels.voiceJoined'), where, subject, thumbnail, ids: { user: member.id, channel: channelId } },
+    { kind: 'created', label: t('logs.labels.voiceJoined'), where, about: 'user', subject, thumbnail, ids: { user: member.id, channel: channelId } },
     {
       kind: 'updated',
       label: t('logs.labels.voiceMoved'),
+      about: 'user',
       subject,
       thumbnail,
       details: [`${t('logs.from')}: ${where}\n${t('logs.to')}: ${where}`],

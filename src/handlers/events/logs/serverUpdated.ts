@@ -14,6 +14,7 @@ export default new Event({
       event: 'server',
       kind: 'updated',
       label: (t) => t('logs.labels.serverUpdated'),
+      about: 'server',
       subject: code(after.name),
       thumbnail: after.iconURL({ size: 128 }),
       details: (t) => [guildChanges(before, after, t).join('\n\n') || null],

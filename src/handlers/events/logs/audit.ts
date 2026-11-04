@@ -23,6 +23,7 @@ export default new Event({
     await sendLog(guild, 'memberKicked', (t) => ({
       kind: 'deleted',
       label: t('logs.labels.kicked'),
+      about: 'user',
       subject: userSubject(target, targetId),
       thumbnail: avatarOf(target),
       by: doer,

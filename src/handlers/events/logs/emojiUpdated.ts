@@ -14,6 +14,7 @@ export default new Event({
       event: 'emojis',
       kind: 'updated',
       label: (t) => t('logs.labels.emojiUpdated'),
+      about: 'emoji',
       subject: `${after.toString()} ${code(`:${after.name}:`)}`,
       thumbnail: after.imageURL({ size: 128 }),
       details: (t) => [before.name !== after.name ? oldNew(t('logs.changes.name'), code(`:${before.name}:`), code(`:${after.name}:`), t) : null],

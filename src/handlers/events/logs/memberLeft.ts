@@ -14,6 +14,7 @@ export default new Event({
     await sendLog(member.guild, 'memberLeft', (t) => ({
       kind: 'deleted',
       label: t('logs.labels.memberLeft'),
+      about: 'user',
       subject: userSubject(member.user),
       thumbnail: avatarOf(member.user),
       details: [

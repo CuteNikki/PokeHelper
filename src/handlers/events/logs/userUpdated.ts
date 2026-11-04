@@ -32,6 +32,7 @@ export default new Event({
       await sendLog(guild, 'memberProfile', (t) => ({
         kind: 'updated',
         label: t('logs.labels.profile'),
+        about: 'user',
         subject: userSubject(after),
         thumbnail: avatarOf(after),
         details: [changes(t).join('\n\n')],

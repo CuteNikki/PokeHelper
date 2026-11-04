@@ -24,6 +24,7 @@ export default new Event({
       await sendLog(guild, 'memberNickname', (t) => ({
         kind: 'updated',
         label: t('logs.labels.memberNickname'),
+        about: 'user',
         subject,
         thumbnail,
         // Changing your own nickname is no one else's doing
@@ -53,6 +54,7 @@ export default new Event({
             : added.length === 0
               ? t('logs.labels.rolesRemoved', { count: removed.length })
               : t('logs.labels.rolesChanged'),
+        about: 'user',
         subject,
         thumbnail,
         by: doer,
@@ -74,6 +76,7 @@ export default new Event({
       await sendLog(guild, 'memberProfile', (t) => ({
         kind: 'updated',
         label: t('logs.labels.serverAvatar'),
+        about: 'user',
         subject,
         thumbnail,
         details: [after.avatar ? null : t('logs.avatarRemoved')],
@@ -90,6 +93,7 @@ export default new Event({
       await sendLog(guild, 'memberTimedOut', (t) => ({
         kind: timedOut ? 'deleted' : 'created',
         label: t(timedOut ? 'logs.labels.timedOut' : 'logs.labels.timeoutRemoved'),
+        about: 'user',
         subject,
         thumbnail,
         by: doer,

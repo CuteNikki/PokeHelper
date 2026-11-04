@@ -15,6 +15,7 @@ export default new Event({
       event: 'emojis',
       kind: 'updated',
       label: (t) => t('logs.labels.stickerUpdated'),
+      about: 'sticker',
       subject: code(after.name),
       thumbnail: after.url,
       details: (t) => [

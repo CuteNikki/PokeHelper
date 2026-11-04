@@ -24,6 +24,7 @@ export default new Event({
       kind: event === 'voiceJoined' ? 'created' : event === 'voiceLeft' ? 'deleted' : 'updated',
       label: t(`logs.labels.${event}`),
       where: event === 'voiceMoved' ? null : channelRef(guild, (after.channelId ?? before.channelId)!),
+      about: 'user',
       subject: userSubject(member.user),
       thumbnail: avatarOf(member),
       details: [

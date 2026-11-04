@@ -16,6 +16,7 @@ export default new Event({
       event: 'invites',
       kind: 'deleted',
       label: (t) => t('logs.labels.inviteDeleted'),
+      about: 'invite',
       subject: code(invite.code),
       where: invite.channelId ? channelRef(guild, invite.channelId) : null,
       id: ['invite', invite.code],

@@ -13,6 +13,7 @@ export default new Event({
       event: 'channels',
       kind: 'created',
       label: (t) => t('logs.labels.channelCreated'),
+      about: 'channel',
       subject: channelSubject(channel.id, channel.name),
       details: (t) => [channel.parentId ? `**${t('logs.changes.category')}** ${channelRef(channel.guild, channel.parentId)}` : null],
       id: ['channel', channel.id],

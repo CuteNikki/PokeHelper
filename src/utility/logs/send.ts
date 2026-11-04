@@ -65,6 +65,9 @@ const KIND_COLORS: Record<LogKind, number> = {
   updated: ThemeColors.info,
 };
 
+/** What an entry can be about. */
+export type LogSubject = 'user' | 'channel' | 'thread' | 'role' | 'emoji' | 'sticker' | 'invite' | 'server';
+
 /** One log entry. Everything in it is already in the server's language. */
 export interface LogEntry {
   kind: LogKind;
@@ -72,6 +75,8 @@ export interface LogEntry {
   label: string;
   /** Where it happened, after the label, like a channel. */
   where?: string | null;
+  /** What the subject is, said in front of it like In and By, so a bare name like an invite code isn't left without context. */
+  about: LogSubject;
   /** Who or what it's about, like a member's name, under the title. */
   subject: string;
   /** A picture of who or what it's about, like the member's avatar, on the right. */
@@ -108,7 +113,7 @@ export function buildLogEntry(entry: LogEntry, t: Translate, doer?: User | null)
   const header = new TextDisplayBuilder().setContent(
     [
       `### ${entry.label}`,
-      entry.subject,
+      `**${t(`logs.about.${entry.about}`)}** ${entry.subject}`,
       entry.where ? `**${t('logs.in')}** ${entry.where}` : null,
       entry.by ? `**${t('logs.byLabel')}** ${userSubject(doer, entry.by.id)}` : null,
       // When it happened, as Discord only shows the time of the first of several messages in a row

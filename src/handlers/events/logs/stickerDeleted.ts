@@ -14,6 +14,7 @@ export default new Event({
       event: 'emojis',
       kind: 'deleted',
       label: (t) => t('logs.labels.stickerDeleted'),
+      about: 'sticker',
       subject: code(sticker.name),
       thumbnail: sticker.url,
       id: ['sticker', sticker.id],

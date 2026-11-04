@@ -1103,6 +1103,16 @@
       "nothing": "There's nothing to reset, logs haven't been set up here yet.",
       "success": "The log settings are reset. Use `/logs-config settings` to set them up again."
     },
+    "about": {
+      "user": "User",
+      "channel": "Channel",
+      "thread": "Thread",
+      "role": "Role",
+      "emoji": "Emoji",
+      "sticker": "Sticker",
+      "invite": "Invite",
+      "server": "Server"
+    },
     "in": "In",
     "byLabel": "By",
     "from": "From",

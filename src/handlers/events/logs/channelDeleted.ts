@@ -15,6 +15,7 @@ export default new Event({
       kind: 'deleted',
       label: (t) => t('logs.labels.channelDeleted'),
       // A mention of a deleted channel shows as unknown, so the name says which it was
+      about: 'channel',
       subject: code(`#${channel.name}`),
       details: (t) => [channel.parentId ? `**${t('logs.changes.category')}** ${channelRef(channel.guild, channel.parentId)}` : null],
       id: ['channel', channel.id],

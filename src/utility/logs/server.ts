@@ -5,7 +5,7 @@ import { whoDid } from 'utility/logs/audit';
 import type { IdKind } from 'utility/logs/copyIds';
 import type { LogEvent } from 'utility/logs/events';
 import { reasonPart } from 'utility/logs/format';
-import { sendLog, shouldLog, type LogKind } from 'utility/logs/send';
+import { sendLog, shouldLog, type LogKind, type LogSubject } from 'utility/logs/send';
 
 /** A change to the server, like a channel or role created, deleted or changed. */
 interface ServerChange {
@@ -15,6 +15,7 @@ interface ServerChange {
   label: (t: Translate) => string;
   /** Where it happened, after the label, like the channel of a thread. */
   where?: string | null;
+  about: LogSubject;
   /** What changed, like a channel mention and its name. */
   subject: string;
   thumbnail?: string | null;
@@ -45,6 +46,7 @@ export async function logServerChange(guild: Guild, change: ServerChange) {
       kind: change.kind,
       label: change.label(t),
       where: change.where,
+      about: change.about,
       subject: change.subject,
       thumbnail: change.thumbnail,
       by: doer,

@@ -13,6 +13,7 @@ export default new Event({
     await sendLog(member.guild, 'memberJoined', (t) => ({
       kind: 'created',
       label: t('logs.labels.memberJoined'),
+      about: 'user',
       subject: userSubject(member.user),
       thumbnail: avatarOf(member),
       details: [

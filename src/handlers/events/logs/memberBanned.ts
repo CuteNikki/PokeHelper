@@ -15,6 +15,7 @@ export default new Event({
     await sendLog(ban.guild, 'memberBanned', (t) => ({
       kind: 'deleted',
       label: t('logs.labels.banned'),
+      about: 'user',
       subject: userSubject(ban.user),
       thumbnail: avatarOf(ban.user),
       by: doer,

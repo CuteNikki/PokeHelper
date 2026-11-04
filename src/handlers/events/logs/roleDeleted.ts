@@ -14,6 +14,7 @@ export default new Event({
       kind: 'deleted',
       label: (t) => t('logs.labels.roleDeleted'),
       // A mention of a deleted role shows as unknown, so the name says which it was
+      about: 'role',
       subject: code(`@${role.name}`),
       id: ['role', role.id],
       actions: [AuditLogEvent.RoleDelete],

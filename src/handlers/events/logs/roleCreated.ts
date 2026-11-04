@@ -13,6 +13,7 @@ export default new Event({
       event: 'roles',
       kind: 'created',
       label: (t) => t('logs.labels.roleCreated'),
+      about: 'role',
       subject: roleSubject(role.id, role.name),
       id: ['role', role.id],
       actions: [AuditLogEvent.RoleCreate],

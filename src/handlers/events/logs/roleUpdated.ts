@@ -14,6 +14,7 @@ export default new Event({
       event: 'roles',
       kind: 'updated',
       label: (t) => t('logs.labels.roleUpdated'),
+      about: 'role',
       subject: roleSubject(after.id, after.name),
       details: (t) => [roleChanges(before, after, t).join('\n\n') || null],
       id: ['role', after.id],

@@ -18,6 +18,7 @@ export default new Event({
       kind: 'created',
       label: t('logs.labels.inviteCreated'),
       where: invite.channelId ? channelRef(guild, invite.channelId) : null,
+      about: 'invite',
       subject: code(invite.code),
       thumbnail: avatarOf(invite.inviter),
       by: invite.inviterId ? { id: invite.inviterId, reason: null } : null,

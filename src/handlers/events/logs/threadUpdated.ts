@@ -16,6 +16,7 @@ export default new Event({
       event: 'threads',
       kind: 'updated',
       label: (t) => t('logs.labels.threadUpdated'),
+      about: 'thread',
       subject: channelSubject(after.id, after.name),
       details: (t) => [
         before.name !== after.name ? oldNew(t('logs.changes.name'), code(before.name), code(after.name), t) : null,

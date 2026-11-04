@@ -24,6 +24,7 @@ export default new Event({
         kind: 'updated',
         label: t('logs.labels.messageEdited'),
         where: channelRef(after.guild, after.channelId),
+        about: 'user',
         subject: userSubject(after.author),
         thumbnail: avatarOf(after.member ?? after.author),
         details: text.details,
