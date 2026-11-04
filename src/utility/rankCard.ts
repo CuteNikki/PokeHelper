@@ -110,7 +110,6 @@ export function renderRankCard(data: RankCardData, t: Translate): Buffer {
     ctx.fill();
   }
   // A Pokéball at the tip of the bar, rolling along as the level fills up
-  // A Pokéball at the tip of the bar, rolling along as the level fills up
   drawPokeball(ctx, contentX + Math.max(barH, barW * progress) - barH / 2, barY + barH / 2, 15);
 
   // XP of both levels, shrunk if big numbers would make them overlap
