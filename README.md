@@ -179,13 +179,15 @@ docker compose exec pokehelper bunx prisma migrate deploy
 
 ## 🧑‍💻 Development
 
-| Script             | What it does            |
-| ------------------ | ----------------------- |
-| `bun run dev`      | Start the bot           |
-| `bun run register` | Register slash commands |
-| `bun test`         | Run the tests           |
-| `bun run lint`     | Lint with ESLint        |
-| `bun run format`   | Format with Prettier    |
+| Script             | What it does                                                                                        |
+| ------------------ | --------------------------------------------------------------------------------------------------- |
+| `bun run dev`      | Start the bot                                                                                       |
+| `bun run register` | Register slash commands                                                                             |
+| `bun test`         | Run the tests                                                                                       |
+| `bun run lint`     | Lint with ESLint                                                                                    |
+| `bun run format`   | Format with Prettier                                                                                |
+| `bun run art`      | Render the avatar and banner, in every theme or the ones named, like `bun run art halloween`        |
+| `bun run profile`  | Upload them to the bot: `--avatar art/out/standard/avatar.gif --banner art/out/standard/banner.gif` |
 
 Translations live in `src/locales/<language>/messages.json`. English is the source; missing German texts fall back to it.
 
