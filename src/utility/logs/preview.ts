@@ -45,7 +45,10 @@ export function previewEntries(member: GuildMember, channelId: string, t: Transl
       subject,
       thumbnail,
       by,
-      details: [role ? roleSubject(role.id, role.name) : code('@Light Salmon Pink')],
+      details: [
+        `**${t('logs.changes.removed')}**
+${role ? roleSubject(role.id, role.name) : code('@Light Salmon Pink')}`,
+      ],
       ids: { user: member.id },
     },
     {

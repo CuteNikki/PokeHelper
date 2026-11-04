@@ -56,11 +56,10 @@ export default new Event({
         subject,
         thumbnail,
         by: doer,
-        // Both at once are said with + and −, one of them alone only needs its label
+        // Blocks like the other changes: a bold heading, then a role on each line
         details: [
-          added.length > 0 && removed.length > 0
-            ? `${t('logs.changes.added')}: ${added.join(' ')}\n${t('logs.changes.removed')}: ${removed.join(' ')}`
-            : [...added, ...removed].join(' '),
+          added.length > 0 ? `**${t('logs.changes.added')}**\n${added.join('\n')}` : null,
+          removed.length > 0 ? `**${t('logs.changes.removed')}**\n${removed.join('\n')}` : null,
           reasonPart(doer, t),
         ],
         // The roles too, so their IDs can be copied with the member's and the moderator's

@@ -17,12 +17,9 @@ export default new Event({
       subject: userSubject(member.user),
       thumbnail: avatarOf(member.user),
       details: [
-        [
-          member.joinedTimestamp ? `**${t('logs.joined')}** ${ago(member.joinedTimestamp)}` : null,
-          roles.length > 0 ? `**${t('logs.roles')}** ${roles.join(' ')}` : null,
-        ]
-          .filter(Boolean)
-          .join('\n'),
+        member.joinedTimestamp ? `**${t('logs.joined')}** ${ago(member.joinedTimestamp)}` : null,
+        // A block like the other lists: a bold heading, then a role on each line
+        roles.length > 0 ? `**${t('logs.roles')}**\n${roles.join('\n')}` : null,
       ],
       ids: { user: member.id },
     }));
