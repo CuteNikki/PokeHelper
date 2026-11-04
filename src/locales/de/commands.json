@@ -200,5 +200,19 @@
         }
       }
     }
+  },
+  "logs-config": {
+    "name": "logs-einstellungen",
+    "description": "Richte ein, wo Nachrichten, Mitglieder und Änderungen am Server geloggt werden",
+    "options": {
+      "settings": {
+        "name": "einstellungen",
+        "description": "Ändere die Log-Kanäle, was geloggt wird und was nicht"
+      },
+      "reset": {
+        "name": "zurücksetzen",
+        "description": "Setz die Log-Einstellungen dieses Servers zurück"
+      }
+    }
   }
 }

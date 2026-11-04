@@ -55,6 +55,7 @@ model Guild {
   counting          GuildCounting?      @relation("GuildCounting")
   birthday          GuildBirthday?      @relation("GuildBirthday")
   leveling          GuildLeveling?      @relation("GuildLeveling")
+  logs              GuildLogs?          @relation("GuildLogs")
   reactionRoleMenus ReactionRoleMenu[]
   tempVoiceCreators TempVoiceCreator[]
   tempVoiceChannels TempVoiceChannel[]
@@ -405,4 +406,27 @@ model TempVoiceSettings {
   guild   Guild  @relation(fields: [guildId], references: [guildId], onDelete: Cascade)
 
   @@id([guildId, userId])
+}
+
+// Where a server's logs go, and which are turned off
+model GuildLogs {
+  guildId String @id
+  guild   Guild  @relation("GuildLogs", fields: [guildId], references: [guildId], onDelete: Cascade)
+
+  enabled             Boolean  @default(true)
+  // The channel of each group of logs. Null leaves the group out
+  messagesChannelId   String?
+  membersChannelId    String?
+  moderationChannelId String?
+  serverChannelId     String?
+  voiceChannelId      String?
+  // The events turned off, so ones added later start turned on
+  disabledEvents      String[] @default([])
+  // Messages and voice in these channels, or in the channels of these categories, aren't logged
+  ignoredChannelIds   String[] @default([])
+  // Messages of members with any of these roles aren't logged
+  ignoredRoleIds      String[] @default([])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

@@ -640,6 +640,7 @@
       "counting": "The counting game",
       "role-menu": "Roles to pick for yourself",
       "temp-voice": "Voice channels of your own",
+      "logs": "What happens on the server, logged",
       "general": "About the bot"
     },
     "categories": {
@@ -649,6 +650,7 @@
       "counting": "Counting",
       "role-menu": "Role menus",
       "temp-voice": "Voice channels",
+      "logs": "Logs",
       "general": "General"
     },
     "unavailable": "The commands can't be listed right now. Try again in a bit."
@@ -851,6 +853,282 @@
       "staff_other": "{{users}} can join any channel as moderators of the server, so keeping them out wouldn't do anything.",
       "moderator_one": "{{users}} is a moderator of this channel and always let in. Take them off the moderators first to keep them out.",
       "moderator_other": "{{users}} are moderators of this channel and always let in. Take them off the moderators first to keep them out."
+    }
+  },
+  "logs": {
+    "by": "by {{user}}",
+    "reason": "Reason",
+    "before": "Before",
+    "after": "After",
+    "inChannel": "{{user}} in {{channel}}",
+    "notSeen": "Sent before I started, so I don't know what it said.",
+    "noText": "*No text*",
+    "attachments": "Attachments",
+    "stickers": "Stickers",
+    "jumpToMessage": "Jump to message",
+    "jumpToContext": "Jump to where it was",
+    "ids": {
+      "message": "User {{user}} · Message {{message}}",
+      "messageOnly": "Message {{message}}",
+      "user": "User {{user}}",
+      "channel": "Channel {{channel}}",
+      "role": "Role {{role}}",
+      "server": "Server {{server}}",
+      "emoji": "Emoji {{emoji}}",
+      "sticker": "Sticker {{sticker}}",
+      "invite": "Invite {{code}}"
+    },
+    "messageEdited": {
+      "title": "Message Edited ✏️"
+    },
+    "messageDeleted": {
+      "title": "Message Deleted 🗑️",
+      "unknown": "A message in {{channel}}"
+    },
+    "messagesBulkDeleted": {
+      "title_one": "{{count}} Message Deleted 🗑️",
+      "title_other": "{{count}} Messages Deleted 🗑️",
+      "about": "In {{channel}}",
+      "notSeen_one": "{{count}} of them was sent before I started, so it's not in the file.",
+      "notSeen_other": "{{count}} of them were sent before I started, so they're not in the file."
+    },
+    "memberJoined": {
+      "title": "Member Joined 📥",
+      "created": "Account created",
+      "count": "Members now"
+    },
+    "memberLeft": {
+      "title": "Member Left 📤",
+      "joined": "Joined",
+      "roles": "Roles"
+    },
+    "memberNickname": {
+      "title": "Nickname Changed 🏷️"
+    },
+    "memberRoles": {
+      "title": "Roles Changed 🎭"
+    },
+    "memberProfile": {
+      "title": "Profile Changed 👤",
+      "serverAvatar": "Server Avatar Changed 👤",
+      "username": "Username",
+      "displayName": "Display name",
+      "newAvatar": "New avatar",
+      "avatarRemoved": "Removed their server avatar"
+    },
+    "memberBanned": {
+      "title": "Member Banned 🔨"
+    },
+    "memberUnbanned": {
+      "title": "Member Unbanned 🕊️"
+    },
+    "memberKicked": {
+      "title": "Member Kicked 👢"
+    },
+    "memberTimedOut": {
+      "title": "Member Timed Out ⏳",
+      "removed": "Timeout Removed ⌛",
+      "until": "Until"
+    },
+    "channels": {
+      "created": "Channel Created 📁",
+      "deleted": "Channel Deleted 📁",
+      "updated": "Channel Changed 📁"
+    },
+    "roles": {
+      "created": "Role Created 🎭",
+      "deleted": "Role Deleted 🎭",
+      "updated": "Role Changed 🎭"
+    },
+    "server": {
+      "updated": "Server Changed 🏠"
+    },
+    "emojis": {
+      "created": "Emoji Added 😀",
+      "deleted": "Emoji Deleted 😀",
+      "updated": "Emoji Changed 😀",
+      "stickerCreated": "Sticker Added 🖼️",
+      "stickerDeleted": "Sticker Deleted 🖼️",
+      "stickerUpdated": "Sticker Changed 🖼️"
+    },
+    "threads": {
+      "created": "Thread Created 🧵",
+      "deleted": "Thread Deleted 🧵",
+      "updated": "Thread Changed 🧵",
+      "about": "{{thread}} in {{channel}}",
+      "startedBy": "Started by",
+      "channel": "In",
+      "locked": "Locked",
+      "archived": "Archived"
+    },
+    "invites": {
+      "created": "Invite Created 🔗",
+      "deleted": "Invite Deleted 🔗",
+      "channel": "For",
+      "uses": "Uses",
+      "unlimited": "Unlimited",
+      "expires": "Expires",
+      "never": "Never"
+    },
+    "voiceJoined": {
+      "title": "Joined Voice 🔊"
+    },
+    "voiceLeft": {
+      "title": "Left Voice 🔇"
+    },
+    "voiceMoved": {
+      "title": "Moved Voice Channels 🔀",
+      "about": "{{user}} from {{from}} to {{to}}"
+    },
+    "changes": {
+      "none": "none",
+      "name": "Name",
+      "topic": "Topic",
+      "category": "Category",
+      "nsfw": "Age-restricted",
+      "slowmode": "Slowmode (seconds)",
+      "bitrate": "Bitrate",
+      "userLimit": "User limit",
+      "permissionsFor": "Permissions for {{who}}",
+      "allowed": "allowed {{permissions}}",
+      "denied": "denied {{permissions}}",
+      "color": "Color",
+      "hoist": "Shown apart",
+      "mentionable": "Mentionable",
+      "icon": "Icon",
+      "permissions": "Permissions",
+      "description": "Description",
+      "banner": "Banner",
+      "owner": "Owner",
+      "verification": "Verification level",
+      "contentFilter": "Content filter",
+      "afkChannel": "AFK channel",
+      "afkTimeout": "AFK timeout (seconds)",
+      "systemChannel": "System messages channel",
+      "rulesChannel": "Rules channel",
+      "vanity": "Vanity invite",
+      "boostBar": "Boost progress bar"
+    },
+    "settings": {
+      "title": "### Log Settings 📜",
+      "categories": {
+        "general": "General",
+        "messages": "Messages",
+        "members": "Members",
+        "moderation": "Moderation",
+        "server": "Server",
+        "voice": "Voice"
+      },
+      "enabled": {
+        "label": "Enabled",
+        "description": "Whether anything is logged. Turned off, every group keeps its channel and switches"
+      },
+      "ignoredChannels": {
+        "label": "Ignored channels",
+        "description": "Messages and voice in these channels aren't logged. Categories cover the channels in them"
+      },
+      "ignoredRoles": {
+        "label": "Ignored roles",
+        "description": "Messages and voice of members with any of these roles aren't logged"
+      },
+      "channel": {
+        "label": "Log channel",
+        "description": "Where this group is logged. Without one, it isn’t logged"
+      },
+      "events": {
+        "messageEdited": {
+          "label": "Edited messages",
+          "description": "What a message said before and after"
+        },
+        "messageDeleted": {
+          "label": "Deleted messages",
+          "description": "What a deleted message said, and who deleted it if it wasn’t its author"
+        },
+        "messagesBulkDeleted": {
+          "label": "Bulk deletes",
+          "description": "Many messages deleted at once, with them in a text file"
+        },
+        "memberJoined": {
+          "label": "Joins",
+          "description": "Who joined, with how old their account is"
+        },
+        "memberLeft": {
+          "label": "Leaves",
+          "description": "Who left, with how long they were here and their roles"
+        },
+        "memberNickname": {
+          "label": "Nicknames",
+          "description": "Nicknames changed, and by whom"
+        },
+        "memberRoles": {
+          "label": "Roles",
+          "description": "Roles given and taken, and by whom"
+        },
+        "memberProfile": {
+          "label": "Profiles",
+          "description": "Usernames, display names and avatars changed"
+        },
+        "memberBanned": {
+          "label": "Bans",
+          "description": "Who was banned, by whom and why"
+        },
+        "memberUnbanned": {
+          "label": "Unbans",
+          "description": "Who was unbanned, by whom and why"
+        },
+        "memberKicked": {
+          "label": "Kicks",
+          "description": "Who was kicked, by whom and why"
+        },
+        "memberTimedOut": {
+          "label": "Timeouts",
+          "description": "Timeouts given and taken away, by whom and why"
+        },
+        "channels": {
+          "label": "Channels",
+          "description": "Channels created, deleted and changed, also their permissions"
+        },
+        "roles": {
+          "label": "Roles",
+          "description": "Roles created, deleted and changed, also their permissions"
+        },
+        "server": {
+          "label": "Server settings",
+          "description": "The server’s name, icon, channels and other settings changed"
+        },
+        "emojis": {
+          "label": "Emojis and stickers",
+          "description": "Emojis and stickers added, deleted and renamed"
+        },
+        "threads": {
+          "label": "Threads",
+          "description": "Threads started, deleted, renamed, locked and archived"
+        },
+        "invites": {
+          "label": "Invites",
+          "description": "Invites made and deleted"
+        },
+        "voiceJoined": {
+          "label": "Joins",
+          "description": "Who joined a voice channel"
+        },
+        "voiceLeft": {
+          "label": "Leaves",
+          "description": "Who left a voice channel"
+        },
+        "voiceMoved": {
+          "label": "Moves",
+          "description": "Who moved from one voice channel to another"
+        }
+      }
+    },
+    "resetConfiguration": {
+      "confirm": "### Reset the log settings? ⚠️\nThis resets the log channels, switches and ignore lists. What's already logged stays.",
+      "confirmButton": "Reset",
+      "cancelButton": "Cancel",
+      "cancelled": "Nothing was reset.",
+      "nothing": "There's nothing to reset, logs haven't been set up here yet.",
+      "success": "The log settings are reset. Use `/logs-config settings` to set them up again."
     }
   },
   "locale": "en-US",

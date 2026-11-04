@@ -3,11 +3,13 @@ import type { Guild, PermissionsString } from 'discord.js';
 import { deleteGuildBirthdayConfiguration, deleteUserBirthday } from 'database/birthday';
 import { getCounting, resetCounting } from 'database/counting';
 import { deleteGuildLevelingConfiguration } from 'database/leveling';
+import { deleteGuildLogs } from 'database/logs';
 
 import { myBirthdaySettings } from 'settings/myBirthday';
 
 import { runCountingTask } from 'utility/counting/game';
 import type { Translate } from 'utility/i18next';
+import { forgetLogConfig } from 'utility/logs/send';
 import { createResponse, type ResponsePayload } from 'utility/response';
 import type { SettingsContext } from 'utility/settings';
 
@@ -29,7 +31,7 @@ function guildOf(context: SettingsContext): Guild {
   return context.guild;
 }
 
-const nothingReset = (key: 'counting' | 'leveling' | 'birthday') => (_context: SettingsContext, t: Translate) =>
+const nothingReset = (key: 'counting' | 'leveling' | 'birthday' | 'logs') => (_context: SettingsContext, t: Translate) =>
   Promise.resolve(createResponse(t(`${key}.resetConfiguration.cancelled`), 'info'));
 
 /** Every action a confirmation can ask about, by the name used in the custom IDs of its buttons. */
@@ -53,6 +55,17 @@ export const confirmations: Record<string, Confirmation> = {
     async run(context, t) {
       await deleteGuildLevelingConfiguration(guildOf(context).id);
       return createResponse(t('leveling.resetConfiguration.success'), 'warning');
+    },
+  },
+  'logs-reset': {
+    scope: 'guild',
+    permissions: ['ManageGuild'],
+    cancel: nothingReset('logs'),
+    async run(context, t) {
+      const guildId = guildOf(context).id;
+      await deleteGuildLogs(guildId);
+      forgetLogConfig(guildId);
+      return createResponse(t('logs.resetConfiguration.success'), 'warning');
     },
   },
   'birthday-reset': {

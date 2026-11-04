@@ -22,8 +22,14 @@ const client = new ExtendedClient({
     GatewayIntentBits.GuildMessages,
     GatewayIntentBits.MessageContent,
     GatewayIntentBits.GuildMessageReactions,
-    // Who joins and leaves voice channels, for temporary voice channels
+    // Who joins and leaves voice channels, for temporary voice channels and the voice logs
     GatewayIntentBits.GuildVoiceStates,
+    // For the logs: members joining, leaving and changing, which is privileged and has to be turned on in the developer portal,
+    // bans and the audit log, emojis and stickers, and invites
+    GatewayIntentBits.GuildMembers,
+    GatewayIntentBits.GuildModeration,
+    GatewayIntentBits.GuildExpressions,
+    GatewayIntentBits.GuildInvites,
   ],
   partials: [Partials.Message, Partials.Reaction, Partials.User, Partials.GuildMember, Partials.Channel],
   // Renaming a channel too often is answered right away with a time to try again, instead of waiting minutes

@@ -258,6 +258,7 @@
       "counting": "Das Zählspiel",
       "role-menu": "Rollen, die du dir selbst aussuchst",
       "temp-voice": "Eigene Sprachkanäle",
+      "logs": "Was auf dem Server passiert, geloggt",
       "general": "Über den Bot"
     },
     "categories": {
@@ -267,6 +268,7 @@
       "counting": "Zählen",
       "role-menu": "Rollenmenüs",
       "temp-voice": "Sprachkanäle",
+      "logs": "Logs",
       "general": "Allgemein"
     },
     "unavailable": "Die Befehle können gerade nicht angezeigt werden. Versuch es gleich nochmal."
@@ -469,6 +471,282 @@
       "staff_other": "{{users}} kommen als Moderatoren des Servers in jeden Kanal, aussperren würde also nichts bringen.",
       "moderator_one": "{{users}} ist Moderator dieses Kanals und wird immer reingelassen. Nimm die Person erst aus den Moderatoren, um sie auszusperren.",
       "moderator_other": "{{users}} sind Moderatoren dieses Kanals und werden immer reingelassen. Nimm sie erst aus den Moderatoren, um sie auszusperren."
+    }
+  },
+  "logs": {
+    "by": "von {{user}}",
+    "reason": "Grund",
+    "before": "Vorher",
+    "after": "Nachher",
+    "inChannel": "{{user}} in {{channel}}",
+    "notSeen": "Vor meinem Start gesendet, also weiß ich nicht, was drinstand.",
+    "noText": "*Kein Text*",
+    "attachments": "Anhänge",
+    "stickers": "Sticker",
+    "jumpToMessage": "Zur Nachricht",
+    "jumpToContext": "Dahin, wo sie war",
+    "ids": {
+      "message": "Nutzer {{user}} · Nachricht {{message}}",
+      "messageOnly": "Nachricht {{message}}",
+      "user": "Nutzer {{user}}",
+      "channel": "Kanal {{channel}}",
+      "role": "Rolle {{role}}",
+      "server": "Server {{server}}",
+      "emoji": "Emoji {{emoji}}",
+      "sticker": "Sticker {{sticker}}",
+      "invite": "Einladung {{code}}"
+    },
+    "messageEdited": {
+      "title": "Nachricht bearbeitet ✏️"
+    },
+    "messageDeleted": {
+      "title": "Nachricht gelöscht 🗑️",
+      "unknown": "Eine Nachricht in {{channel}}"
+    },
+    "messagesBulkDeleted": {
+      "title_one": "{{count}} Nachricht gelöscht 🗑️",
+      "title_other": "{{count}} Nachrichten gelöscht 🗑️",
+      "about": "In {{channel}}",
+      "notSeen_one": "{{count}} davon wurde vor meinem Start gesendet und ist nicht in der Datei.",
+      "notSeen_other": "{{count}} davon wurden vor meinem Start gesendet und sind nicht in der Datei."
+    },
+    "memberJoined": {
+      "title": "Mitglied beigetreten 📥",
+      "created": "Konto erstellt",
+      "count": "Mitglieder jetzt"
+    },
+    "memberLeft": {
+      "title": "Mitglied gegangen 📤",
+      "joined": "Beigetreten",
+      "roles": "Rollen"
+    },
+    "memberNickname": {
+      "title": "Spitzname geändert 🏷️"
+    },
+    "memberRoles": {
+      "title": "Rollen geändert 🎭"
+    },
+    "memberProfile": {
+      "title": "Profil geändert 👤",
+      "serverAvatar": "Server-Avatar geändert 👤",
+      "username": "Nutzername",
+      "displayName": "Anzeigename",
+      "newAvatar": "Neuer Avatar",
+      "avatarRemoved": "Hat den Server-Avatar entfernt"
+    },
+    "memberBanned": {
+      "title": "Mitglied gebannt 🔨"
+    },
+    "memberUnbanned": {
+      "title": "Mitglied entbannt 🕊️"
+    },
+    "memberKicked": {
+      "title": "Mitglied gekickt 👢"
+    },
+    "memberTimedOut": {
+      "title": "Mitglied stummgeschaltet ⏳",
+      "removed": "Stummschaltung aufgehoben ⌛",
+      "until": "Bis"
+    },
+    "channels": {
+      "created": "Kanal erstellt 📁",
+      "deleted": "Kanal gelöscht 📁",
+      "updated": "Kanal geändert 📁"
+    },
+    "roles": {
+      "created": "Rolle erstellt 🎭",
+      "deleted": "Rolle gelöscht 🎭",
+      "updated": "Rolle geändert 🎭"
+    },
+    "server": {
+      "updated": "Server geändert 🏠"
+    },
+    "emojis": {
+      "created": "Emoji hinzugefügt 😀",
+      "deleted": "Emoji gelöscht 😀",
+      "updated": "Emoji geändert 😀",
+      "stickerCreated": "Sticker hinzugefügt 🖼️",
+      "stickerDeleted": "Sticker gelöscht 🖼️",
+      "stickerUpdated": "Sticker geändert 🖼️"
+    },
+    "threads": {
+      "created": "Thread erstellt 🧵",
+      "deleted": "Thread gelöscht 🧵",
+      "updated": "Thread geändert 🧵",
+      "about": "{{thread}} in {{channel}}",
+      "startedBy": "Gestartet von",
+      "channel": "In",
+      "locked": "Gesperrt",
+      "archived": "Archiviert"
+    },
+    "invites": {
+      "created": "Einladung erstellt 🔗",
+      "deleted": "Einladung gelöscht 🔗",
+      "channel": "Für",
+      "uses": "Nutzungen",
+      "unlimited": "Unbegrenzt",
+      "expires": "Läuft ab",
+      "never": "Nie"
+    },
+    "voiceJoined": {
+      "title": "Sprachkanal betreten 🔊"
+    },
+    "voiceLeft": {
+      "title": "Sprachkanal verlassen 🔇"
+    },
+    "voiceMoved": {
+      "title": "Sprachkanal gewechselt 🔀",
+      "about": "{{user}} von {{from}} nach {{to}}"
+    },
+    "changes": {
+      "none": "keiner",
+      "name": "Name",
+      "topic": "Thema",
+      "category": "Kategorie",
+      "nsfw": "Altersbeschränkt",
+      "slowmode": "Langsamer Modus (Sekunden)",
+      "bitrate": "Bitrate",
+      "userLimit": "Limit",
+      "permissionsFor": "Berechtigungen für {{who}}",
+      "allowed": "erlaubt {{permissions}}",
+      "denied": "verweigert {{permissions}}",
+      "color": "Farbe",
+      "hoist": "Getrennt angezeigt",
+      "mentionable": "Erwähnbar",
+      "icon": "Symbol",
+      "permissions": "Berechtigungen",
+      "description": "Beschreibung",
+      "banner": "Banner",
+      "owner": "Besitzer",
+      "verification": "Verifizierungsstufe",
+      "contentFilter": "Inhaltsfilter",
+      "afkChannel": "AFK-Kanal",
+      "afkTimeout": "AFK-Zeitlimit (Sekunden)",
+      "systemChannel": "Kanal für Systemnachrichten",
+      "rulesChannel": "Regelkanal",
+      "vanity": "Eigene Einladung",
+      "boostBar": "Boost-Fortschrittsleiste"
+    },
+    "settings": {
+      "title": "### Log-Einstellungen 📜",
+      "categories": {
+        "general": "Allgemein",
+        "messages": "Nachrichten",
+        "members": "Mitglieder",
+        "moderation": "Moderation",
+        "server": "Server",
+        "voice": "Sprachkanäle"
+      },
+      "enabled": {
+        "label": "Aktiviert",
+        "description": "Ob überhaupt etwas geloggt wird. Ausgeschaltet behält jede Gruppe ihren Kanal und ihre Schalter"
+      },
+      "ignoredChannels": {
+        "label": "Ignorierte Kanäle",
+        "description": "Nachrichten und Sprachkanäle hier werden nicht geloggt. Kategorien gelten für ihre Kanäle"
+      },
+      "ignoredRoles": {
+        "label": "Ignorierte Rollen",
+        "description": "Nachrichten und Sprachkanäle von Mitgliedern mit einer dieser Rollen werden nicht geloggt"
+      },
+      "channel": {
+        "label": "Log-Kanal",
+        "description": "Wohin diese Gruppe geloggt wird. Ohne wird sie nicht geloggt"
+      },
+      "events": {
+        "messageEdited": {
+          "label": "Bearbeitete Nachrichten",
+          "description": "Was eine Nachricht vorher und nachher sagte"
+        },
+        "messageDeleted": {
+          "label": "Gelöschte Nachrichten",
+          "description": "Was eine gelöschte Nachricht sagte, und wer sie gelöscht hat, wenn nicht der Absender"
+        },
+        "messagesBulkDeleted": {
+          "label": "Massenlöschungen",
+          "description": "Viele auf einmal gelöschte Nachrichten, in einer Textdatei"
+        },
+        "memberJoined": {
+          "label": "Beitritte",
+          "description": "Wer beigetreten ist, und wie alt das Konto ist"
+        },
+        "memberLeft": {
+          "label": "Abgänge",
+          "description": "Wer gegangen ist, wie lange die Person hier war und ihre Rollen"
+        },
+        "memberNickname": {
+          "label": "Spitznamen",
+          "description": "Geänderte Spitznamen, und von wem"
+        },
+        "memberRoles": {
+          "label": "Rollen",
+          "description": "Vergebene und entzogene Rollen, und von wem"
+        },
+        "memberProfile": {
+          "label": "Profile",
+          "description": "Geänderte Nutzernamen, Anzeigenamen und Avatare"
+        },
+        "memberBanned": {
+          "label": "Banns",
+          "description": "Wer gebannt wurde, von wem und warum"
+        },
+        "memberUnbanned": {
+          "label": "Entbannungen",
+          "description": "Wer entbannt wurde, von wem und warum"
+        },
+        "memberKicked": {
+          "label": "Kicks",
+          "description": "Wer gekickt wurde, von wem und warum"
+        },
+        "memberTimedOut": {
+          "label": "Stummschaltungen",
+          "description": "Vergebene und aufgehobene Stummschaltungen, von wem und warum"
+        },
+        "channels": {
+          "label": "Kanäle",
+          "description": "Erstellte, gelöschte und geänderte Kanäle, auch ihre Berechtigungen"
+        },
+        "roles": {
+          "label": "Rollen",
+          "description": "Erstellte, gelöschte und geänderte Rollen, auch ihre Berechtigungen"
+        },
+        "server": {
+          "label": "Server-Einstellungen",
+          "description": "Geänderter Name, Symbol, Kanäle und andere Einstellungen des Servers"
+        },
+        "emojis": {
+          "label": "Emojis und Sticker",
+          "description": "Hinzugefügte, gelöschte und umbenannte Emojis und Sticker"
+        },
+        "threads": {
+          "label": "Threads",
+          "description": "Gestartete, gelöschte, umbenannte, gesperrte und archivierte Threads"
+        },
+        "invites": {
+          "label": "Einladungen",
+          "description": "Erstellte und gelöschte Einladungen"
+        },
+        "voiceJoined": {
+          "label": "Beitritte",
+          "description": "Wer einem Sprachkanal beigetreten ist"
+        },
+        "voiceLeft": {
+          "label": "Abgänge",
+          "description": "Wer einen Sprachkanal verlassen hat"
+        },
+        "voiceMoved": {
+          "label": "Wechsel",
+          "description": "Wer von einem Sprachkanal in einen anderen gewechselt ist"
+        }
+      }
+    },
+    "resetConfiguration": {
+      "confirm": "### Log-Einstellungen zurücksetzen? ⚠️\nDas setzt die Log-Kanäle, Schalter und Ignorierlisten zurück. Was schon geloggt ist, bleibt.",
+      "confirmButton": "Zurücksetzen",
+      "cancelButton": "Abbrechen",
+      "cancelled": "Nichts wurde zurückgesetzt.",
+      "nothing": "Es gibt nichts zurückzusetzen, Logs wurden hier noch nicht eingerichtet.",
+      "success": "Die Log-Einstellungen sind zurückgesetzt. Nutz `/logs-einstellungen einstellungen`, um sie neu einzurichten."
     }
   },
   "locale": "de-DE",
