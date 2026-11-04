@@ -632,8 +632,7 @@
       "counting": "The counting game",
       "role-menu": "Roles to pick for yourself",
       "temp-voice": "Voice channels of your own",
-      "general": "About the bot",
-      "settings": "Set up the bot for this server"
+      "general": "About the bot"
     },
     "categories": {
       "pokemon": "Pokémon",
@@ -642,8 +641,7 @@
       "counting": "Counting",
       "role-menu": "Role menus",
       "temp-voice": "Voice channels",
-      "general": "General",
-      "settings": "Server settings"
+      "general": "General"
     },
     "unavailable": "The commands can't be listed right now. Try again in a bit."
   },

@@ -29,9 +29,6 @@ export const HELP_OVERVIEW = 'overview';
 
 /** The order of the categories, by the folder their commands are in. Others come after them. */
 const CATEGORY_ORDER = ['pokemon', 'leveling', 'birthday', 'counting', 'role-menu', 'temp-voice', 'general'];
-/** The commands that need a permission are listed apart from the others, under this. */
-const SETTINGS_CATEGORY = 'settings';
-
 let registered: Collection<string, ApplicationCommand> | null = null;
 
 /**
@@ -82,17 +79,17 @@ async function getCategories(interaction: Interaction): Promise<[string, string[
   const client = interaction.client as ExtendedClient;
   const commands = await getRegisteredCommands(interaction);
 
-  // Grouped by the folder each command is in, with those that need a permission apart
+  // Grouped by the folder each command is in, the ones for everyone first and those that need a permission, like settings, after them
+  const forEveryoneFirst = (a: ApplicationCommand, b: ApplicationCommand) =>
+    Number(Boolean(a.defaultMemberPermissions)) - Number(Boolean(b.defaultMemberPermissions)) || a.name.localeCompare(b.name);
   const categories = new Map<string, string[]>();
-  for (const command of [...commands.values()].sort((a, b) => a.name.localeCompare(b.name))) {
+  for (const command of [...commands.values()].sort(forEveryoneFirst)) {
     const loaded = client.commands.get(command.name);
     if (!loaded || loaded.options.devOnly || !isUsableHere(command, interaction)) continue;
-    const category = command.defaultMemberPermissions ? SETTINGS_CATEGORY : loaded.category;
-    categories.set(category, [...(categories.get(category) ?? []), ...commandLines(command, interaction.locale)]);
+    categories.set(loaded.category, [...(categories.get(loaded.category) ?? []), ...commandLines(command, interaction.locale)]);
   }
 
   const position = (category: string) => {
-    if (category === SETTINGS_CATEGORY) return CATEGORY_ORDER.length + 1;
     const index = CATEGORY_ORDER.indexOf(category);
     return index === -1 ? CATEGORY_ORDER.length : index;
   };

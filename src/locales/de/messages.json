@@ -254,8 +254,7 @@
       "counting": "Das Zählspiel",
       "role-menu": "Rollen, die du dir selbst aussuchst",
       "temp-voice": "Eigene Sprachkanäle",
-      "general": "Über den Bot",
-      "settings": "Richte den Bot für diesen Server ein"
+      "general": "Über den Bot"
     },
     "categories": {
       "pokemon": "Pokémon",
@@ -264,8 +263,7 @@
       "counting": "Zählen",
       "role-menu": "Rollenmenüs",
       "temp-voice": "Sprachkanäle",
-      "general": "Allgemein",
-      "settings": "Servereinstellungen"
+      "general": "Allgemein"
     },
     "unavailable": "Die Befehle können gerade nicht angezeigt werden. Versuch es gleich nochmal."
   },
