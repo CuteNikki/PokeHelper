@@ -78,6 +78,7 @@ export async function syncStatBarEmojis(client: Client<true>): Promise<void> {
     const emoji = await client.application.emojis.create({ name, attachment: render() });
     emojis.set(name, `<:${name}:${emoji.id}>`);
   }
+  logger.info(`Uploaded ${missing.length} stat bar emojis`);
 }
 
 /** The emoji of a bar piece in a type's color, or `empty`, or null if the emojis aren't there. */
