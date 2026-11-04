@@ -322,6 +322,7 @@
       "locked": "Abgeschlossen",
       "hidden": "Versteckt",
       "edit": "Name und Limit",
+      "editDescription": "Der Name des Kanals und wie viele Leute beitreten können",
       "delete": "Kanal löschen",
       "allowed": "Reingelassen",
       "blocked": "Ausgesperrt",

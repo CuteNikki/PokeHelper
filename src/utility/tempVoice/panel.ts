@@ -10,6 +10,7 @@ import {
   StringSelectMenuBuilder,
   TextDisplayBuilder,
   UserSelectMenuBuilder,
+  quote,
   type Guild,
 } from 'discord.js';
 
@@ -61,8 +62,10 @@ export function buildPanel({ channel, record }: TempChannel, t: Translate): Resp
   const others = here.filter((member) => member.id !== record.ownerId);
 
   // Rows like the settings panels': a bold name and a short description, with the button on the right
-  const row = (label: string, description: string, button: ButtonBuilder) =>
-    new SectionBuilder().addTextDisplayComponents(new TextDisplayBuilder().setContent(`**${label}**\n-# ${description}`)).setButtonAccessory(button);
+  const row = (label: string, description: string, button: ButtonBuilder, value?: string) =>
+    new SectionBuilder()
+      .addTextDisplayComponents(new TextDisplayBuilder().setContent([`**${label}**`, `-# ${description}`, value].filter(Boolean).join('\n')))
+      .setButtonAccessory(button);
   const toggle = (action: TempVoiceAction, on: boolean) =>
     new ButtonBuilder()
       .setCustomId(tempVoiceCustomId(action, id))
@@ -110,8 +113,10 @@ export function buildPanel({ channel, record }: TempChannel, t: Translate): Resp
       row(t('tempVoice.panel.hidden'), t('tempVoice.panel.hiddenDescription'), toggle('hide', record.hidden)),
       row(
         t('tempVoice.panel.edit'),
-        nameAndLimit,
-        new ButtonBuilder().setCustomId(tempVoiceCustomId('edit', id)).setLabel(t('settings.text.edit')).setEmoji('✏️').setStyle(ButtonStyle.Secondary),
+        t('tempVoice.panel.editDescription'),
+        new ButtonBuilder().setCustomId(tempVoiceCustomId('edit', id)).setLabel(t('settings.text.edit')).setEmoji('✏️').setStyle(ButtonStyle.Primary),
+        // Quoted, like the value of a text setting
+        quote(nameAndLimit),
       ),
     )
     .addSeparatorComponents(new SeparatorBuilder())

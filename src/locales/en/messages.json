@@ -700,6 +700,7 @@
       "locked": "Locked",
       "hidden": "Hidden",
       "edit": "Name and limit",
+      "editDescription": "The channel's name and how many people can join",
       "delete": "Delete channel",
       "allowed": "Let in",
       "blocked": "Kept out",
