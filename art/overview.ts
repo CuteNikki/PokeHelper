@@ -23,8 +23,7 @@ const GAP = 16;
 const CELL_W = 300;
 const BANNER_SHOWN_H = Math.round((CELL_W * BANNER_H) / BANNER_W);
 const AVATAR_D = 72;
-const LABEL_H = 28;
-const CELL_H = LABEL_H + BANNER_SHOWN_H + AVATAR_D / 2 + 34;
+const CELL_H = BANNER_SHOWN_H + AVATAR_D / 2 + 34;
 const FRAMES = 120;
 const DELAY = 80;
 /** Closed eyes at the same moments as in the real loop. */
@@ -83,16 +82,10 @@ function statusBubble(ctx: SKRSContext2D, name: ThemeName, left: number, right: 
 
 function cell(ctx: SKRSContext2D, name: ThemeName, x: number, y: number, time: number, blink: number) {
   const theme = THEMES[name];
-  ctx.fillStyle = '#dbdee1';
-  ctx.font = '20px "Nunito Black"';
-  ctx.textAlign = 'left';
-  ctx.textBaseline = 'alphabetic';
-  ctx.fillText(title(name), x, y + 20);
-
-  const top = y + LABEL_H;
+  const top = y;
   ctx.fillStyle = '#232428';
   ctx.beginPath();
-  ctx.roundRect(x, top, CELL_W, CELL_H - LABEL_H, 10);
+  ctx.roundRect(x, top, CELL_W, CELL_H, 10);
   ctx.fill();
 
   ctx.save();
@@ -121,11 +114,12 @@ function cell(ctx: SKRSContext2D, name: ThemeName, x: number, y: number, time: n
 
   statusBubble(ctx, name, cx + AVATAR_D / 2 + 13, x + CELL_W - 10, cy + 15, time);
 
+  // The theme's name where the bot's name is on a profile, as the bot's name is on every banner already
   ctx.fillStyle = '#f2f3f5';
-  ctx.font = '16px "Nunito Black"';
+  ctx.font = '18px "Nunito Black"';
   ctx.textAlign = 'left';
   ctx.textBaseline = 'alphabetic';
-  ctx.fillText('Poke Helper', x + 14, cy + AVATAR_D / 2 + 24);
+  ctx.fillText(title(name), x + 14, cy + AVATAR_D / 2 + 24);
 }
 
 /** The overview of the themes named, in a grid. */
