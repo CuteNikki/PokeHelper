@@ -32,10 +32,10 @@ const blinkAt = (frame: number) => (frame === 35 || frame === 36 || frame === 95
 /** Theme names as people read them, like `newYear` as New Year. */
 const title = (name: string) => name.replace(/([A-Z])/g, ' $1').replace(/^./, (letter) => letter.toUpperCase());
 
-const STATUS_FONT = 13;
-const STATUS_LINE_H = 16;
-const STATUS_PAD_X = 9;
-const STATUS_PAD_Y = 4;
+const STATUS_FONT = 11;
+const STATUS_LINE_H = 14;
+const STATUS_PAD_X = 10;
+const STATUS_PAD_Y = 6;
 
 /** Words into lines no wider than a width, the last one taking whatever is left. An emoji stays with the word before it. */
 function wrap(ctx: SKRSContext2D, text: string, width: number, maxLines: number): string[] {
