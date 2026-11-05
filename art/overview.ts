@@ -1,7 +1,7 @@
-import { createCanvas, type SKRSContext2D } from '@napi-rs/canvas';
+import type { SKRSContext2D } from '@napi-rs/canvas';
 
 import { TAU } from './draw';
-import { encodeGif } from './gif';
+import { animatedGif } from './gif';
 import { avatar, BANNER_H, BANNER_W, banner } from './scenes';
 import type { ThemeName } from './themes';
 import { THEMES } from './themes';
@@ -70,19 +70,15 @@ function cell(ctx: SKRSContext2D, name: ThemeName, x: number, y: number, time: n
 }
 
 /** The overview of the themes named, in a grid. */
-export function overviewGif(names: ThemeName[]): Uint8Array {
+export function overviewGif(names: ThemeName[]): Promise<Uint8Array> {
   const rows = Math.ceil(names.length / COLUMNS);
   const width = COLUMNS * CELL_W + (COLUMNS + 1) * GAP;
   const height = rows * CELL_H + (rows + 1) * GAP;
-  const frames = Array.from({ length: FRAMES }, (_, frame) => {
-    const canvas = createCanvas(width, height);
-    const ctx = canvas.getContext('2d');
+  return animatedGif(width, height, FRAMES, DELAY, (ctx, frame) => {
     ctx.fillStyle = '#313338';
     ctx.fillRect(0, 0, width, height);
     names.forEach((name, i) =>
       cell(ctx, name, GAP + (i % COLUMNS) * (CELL_W + GAP), GAP + Math.floor(i / COLUMNS) * (CELL_H + GAP), frame / FRAMES, blinkAt(frame)),
     );
-    return ctx.getImageData(0, 0, width, height).data;
   });
-  return encodeGif(frames, width, height, DELAY);
 }

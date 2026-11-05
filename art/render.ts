@@ -3,16 +3,17 @@ import { join } from 'node:path';
 
 import { createCanvas } from '@napi-rs/canvas';
 
-import { avatarGif, bannerGif, iconPng } from './assets';
+import { bannerPng, iconPng } from './assets';
 import { TAU } from './draw';
-import { overviewGif } from './overview';
 import { avatar, AVATAR_SIZE, BANNER_H, BANNER_W, banner } from './scenes';
 import { THEMES, type ThemeName } from './themes';
 import type { Theme } from './themes/types';
+import { drawGifs, type GifJob } from './workers';
 
 /**
- * Render the bot's avatar, banner and app icon, in every theme or the ones named: `bun run art`, or `bun run art halloween`.
- * They're written to `art/out/<theme>/`, with a preview of how they look in a profile popup, and uploaded with `bun run profile`.
+ * Render the bot's avatar, banner and app icon, and a still of the banner, in every theme or the ones named: `bun run art`, or
+ * `bun run art halloween`. They're written to `art/out/<theme>/`, with a preview of how they look in a profile popup, and uploaded
+ * with `bun run profile`.
  */
 
 const OUT = join(import.meta.dir, 'out');
@@ -56,27 +57,39 @@ if (unknown.length > 0) {
   process.exit(1);
 }
 
-for (const name of (names.length > 0 ? names : Object.keys(THEMES)) as ThemeName[]) {
+const all = Object.keys(THEMES) as ThemeName[];
+const themes = names.length > 0 ? (names as ThemeName[]) : all;
+const started = Date.now();
+
+// Every GIF at once, a few at a time, one for each core. Every theme in one GIF too, to share with people who can't open the page
+// below, but only when all of them are drawn. First, as it takes longest, so the others are done in the meantime
+const jobs: GifJob[] = themes.flatMap((theme) => [
+  { kind: 'avatar' as const, theme },
+  { kind: 'banner' as const, theme },
+]);
+if (names.length === 0) jobs.unshift({ kind: 'overview', themes: all });
+const gifs = await drawGifs(jobs);
+const gifOf = (kind: 'avatar' | 'banner', theme: ThemeName) => gifs[jobs.findIndex((job) => job.kind === kind && job.theme === theme)]!;
+
+for (const name of themes) {
   const theme = THEMES[name];
   const folder = join(OUT, name);
   await mkdir(folder, { recursive: true });
-
-  const avatarFile = avatarGif(theme);
-  const bannerFile = bannerGif(theme);
+  const [avatarFile, bannerFile] = [gifOf('avatar', name), gifOf('banner', name)];
   await Bun.write(join(folder, 'avatar.gif'), avatarFile);
   await Bun.write(join(folder, 'banner.gif'), bannerFile);
   await Bun.write(join(folder, 'icon.png'), iconPng(theme));
+  await Bun.write(join(folder, 'banner.png'), bannerPng(theme));
   await Bun.write(join(folder, 'preview.png'), preview(theme));
   console.log(`${name}: avatar ${megabytes(avatarFile.length)}, banner ${megabytes(bannerFile.length)}, in art/out/${name}`);
 }
 
-// Every theme in one GIF, to share with people who can't open the page below. Only when all of them were rendered.
 // Kept next to the code, not in out/, as it's committed for the README
 if (names.length === 0) {
-  const overview = overviewGif(Object.keys(THEMES) as ThemeName[]);
-  await Bun.write(join(import.meta.dir, 'themes.gif'), overview);
-  console.log(`All themes in one GIF: art/themes.gif, ${megabytes(overview.length)}`);
+  await Bun.write(join(import.meta.dir, 'themes.gif'), gifs[0]!);
+  console.log(`All themes in one GIF: art/themes.gif, ${megabytes(gifs[0]!.length)}`);
 }
+console.log(`Drawn in ${((Date.now() - started) / 1000).toFixed(0)} s`);
 
 // A page with every theme rendered so far, animated as on Discord: a profile popup, and the avatar at the size it has in chat
 const rendered = Object.keys(THEMES).filter((name) => Bun.file(join(OUT, name, 'avatar.gif')).size > 0);

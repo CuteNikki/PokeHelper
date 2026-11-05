@@ -1,4 +1,4 @@
-import type { SKRSContext2D } from '@napi-rs/canvas';
+import { type Canvas, createCanvas, type SKRSContext2D } from '@napi-rs/canvas';
 
 /**
  * The pieces the mascot's scenes are made of. Everything is drawn at a moment `time` from 0 to 1 through a loop, so the same code draws
@@ -540,4 +540,27 @@ export function bow(ctx: SKRSContext2D, x: number, y: number, color: string) {
   ctx.beginPath();
   ctx.arc(x, y, 8, 0, TAU);
   ctx.fill();
+}
+
+const layers = new Map<string, Canvas>();
+
+/**
+ * A canvas to draw something on its own, before putting it on the scene, cleared and ready. The same one each time for the same use
+ * and size, rather than a new one for every frame: a canvas's pixels are kept outside of what the garbage collector keeps an eye on,
+ * so they piled up across the frames of a GIF faster than they were freed, gigabytes of them for the overview of every theme.
+ * @param use What it's for, so two uses never draw on the same one at once.
+ */
+export function scratchLayer(use: string, width: number, height: number): SKRSContext2D {
+  const key = `${use} ${width}x${height}`;
+  let layer = layers.get(key);
+  if (!layer) {
+    layer = createCanvas(width, height);
+    layers.set(key, layer);
+  }
+  const ctx = layer.getContext('2d');
+  ctx.resetTransform();
+  ctx.globalCompositeOperation = 'source-over';
+  ctx.globalAlpha = 1;
+  ctx.clearRect(0, 0, width, height);
+  return ctx;
 }

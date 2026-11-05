@@ -1,8 +1,8 @@
 import { DiscordAPIError, SnowflakeUtil, type Client } from 'discord.js';
 
-import { avatarGif, bannerGif } from 'art/assets';
 import { themeOn } from 'art/calendar';
 import { THEMES, type ThemeName } from 'art/themes';
+import { drawGif } from 'art/workers';
 
 import { getBotProfile, updateBotProfile } from 'database/botProfile';
 
@@ -55,7 +55,8 @@ export async function syncProfileTheme(client: Client<true>, force = false): Pro
   for (const part of ['avatar', 'banner'] as const) {
     if (!force && profile?.[`${part}Theme`] === theme) continue;
     try {
-      const image = Buffer.from(part === 'avatar' ? avatarGif(THEMES[theme]) : bannerGif(THEMES[theme]));
+      // In a thread of its own, as it takes a few seconds, which the bot would otherwise spend not answering anyone
+      const image = Buffer.from(await drawGif({ kind: part, theme }));
       await (part === 'avatar' ? client.user.setAvatar(image) : client.user.setBanner(image));
       await updateBotProfile({ [`${part}Theme`]: theme });
       result[part] = 'changed';
@@ -81,18 +82,7 @@ let overview: Promise<Uint8Array> | null = null;
  * kept after that, as the themes only change with a new version of the bot.
  */
 export function themeOverview(): Promise<Uint8Array> {
-  overview ??= new Promise<Uint8Array>((resolve, reject) => {
-    const worker = new Worker(new URL('../../art/overviewWorker.ts', import.meta.url).href);
-    worker.onmessage = (event: MessageEvent<Uint8Array>) => {
-      resolve(event.data);
-      worker.terminate();
-    };
-    worker.onerror = (event) => {
-      reject(new Error(`Drawing the theme overview failed: ${event.message}`));
-      worker.terminate();
-    };
-    worker.postMessage(null);
-  }).catch((error: unknown) => {
+  overview ??= drawGif({ kind: 'overview', themes: Object.keys(THEMES) as ThemeName[] }).catch((error: unknown) => {
     // Tried again next time
     overview = null;
     throw error;

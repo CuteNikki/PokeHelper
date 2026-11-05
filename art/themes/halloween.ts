@@ -1,6 +1,6 @@
 import { type Canvas, createCanvas, type SKRSContext2D } from '@napi-rs/canvas';
 
-import { PALE_BODY, fireflies, stars, TAU } from '../draw';
+import { PALE_BODY, fireflies, scratchLayer, stars, TAU } from '../draw';
 import type { Theme } from './types';
 
 /** How far the moon's glow reaches, in moon radii. */
@@ -214,8 +214,7 @@ export const halloween: Theme = {
     ghost(ctx, 1095, 62, 0.85, time);
     // Bats flutter across in a pattern that repeats every half width, moving that far in a loop, like the clouds. They're drawn
     // on their own and faded out on the right, so the moon and the mascot's hat stay clear, and they seem to come out of the moonlight
-    const layer = createCanvas(scene.width, scene.height);
-    const bats = layer.getContext('2d');
+    const bats = scratchLayer('bats', scene.width, scene.height);
     const period = scene.width / 2;
     for (let copy = -1; copy <= 2; copy++) {
       const x = copy * period - time * period;
@@ -228,7 +227,7 @@ export const halloween: Theme = {
     bats.globalCompositeOperation = 'destination-out';
     bats.fillStyle = fade;
     bats.fillRect(scene.width - 420, 0, 420, scene.height);
-    ctx.drawImage(layer, 0, 0);
+    ctx.drawImage(bats.canvas, 0, 0);
   },
   prop: (ctx, x, y, scale, time) => pumpkin(ctx, x, y, scale * 1.3, time),
   hat: witchHat,

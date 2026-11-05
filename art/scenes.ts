@@ -2,7 +2,7 @@ import { join } from 'node:path';
 
 import { type Canvas, createCanvas, GlobalFonts, type SKRSContext2D } from '@napi-rs/canvas';
 
-import { BODY, cloud, grass, hills, hillTop, mascot, meadow, snow, sparkle, TAU, tree } from './draw';
+import { BODY, cloud, grass, hills, hillTop, mascot, meadow, scratchLayer, snow, sparkle, TAU, tree } from './draw';
 import type { Scene, Theme } from './themes/types';
 
 // The font of the name on the banner, kept with the art
@@ -103,8 +103,8 @@ function landscape(ctx: SKRSContext2D, theme: Theme, scene: Scene) {
  */
 function lit(ctx: SKRSContext2D, theme: Theme, width: number, height: number, draw: (ctx: SKRSContext2D) => void) {
   if (!theme.light) return draw(ctx);
-  const layer = createCanvas(width, height);
-  const layered = layer.getContext('2d');
+  const layered = scratchLayer('lit', width, height);
+  const layer = layered.canvas;
   layered.setTransform(ctx.getTransform());
   draw(layered);
   layered.resetTransform();

@@ -216,7 +216,7 @@ docker compose exec pokehelper bunx prisma migrate deploy
 | `bun test`         | Run the tests                                                                                       |
 | `bun run lint`     | Lint with ESLint                                                                                    |
 | `bun run format`   | Format with Prettier                                                                                |
-| `bun run art`      | Render the avatar and banner, in every theme or the ones named, like `bun run art halloween`        |
+| `bun run art`      | Render the avatar and banner, with stills of both, in every theme or the ones named, like `bun run art halloween` |
 | `bun run profile`  | Upload them to the bot: `--avatar art/out/standard/avatar.gif --banner art/out/standard/banner.gif` |
 | `bun run themes`   | Which seasonal look the bot wears when, over the next twelve months                                 |
 
