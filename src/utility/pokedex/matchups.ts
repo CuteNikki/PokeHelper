@@ -242,9 +242,9 @@ function buildText(matchups: Matchups, t: Translate): ResponsePayload {
     for (const entry of matchups.weak) {
       const lines = [
         `**${entry.type.name}** ${entry.label}`,
-        // Labeled like the card, with the moves as code, the closest text has to the card's chips
+        // Labeled like the card
         entry.pokemon.length > 0 ? `${t('pokedex.matchups.pokemon')}: ${entry.pokemon.map((example) => example.name).join(' · ')}` : null,
-        entry.moves.length > 0 ? `${t('pokedex.matchups.moves')}: ${entry.moves.map((move) => `\`${move}\``).join(' ')}` : null,
+        entry.moves.length > 0 ? `${t('pokedex.matchups.moves')}: ${entry.moves.join(' · ')}` : null,
       ];
       const text = new TextDisplayBuilder().setContent(lines.filter(Boolean).join('\n'));
       const first = entry.pokemon[0];
