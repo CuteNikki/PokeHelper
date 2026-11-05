@@ -47,7 +47,7 @@ function basket(ctx: SKRSContext2D, x: number, y: number, scale: number) {
   // The eggs, their bottoms hidden in the basket. Colors that stand out from the sky and the grass
   egg(ctx, -32, -96, 30, -0.3, '#ff9f43', '#ffffff');
   egg(ctx, 32, -94, 28, 0.25, '#ffc9de', '#ffd43b');
-  egg(ctx, 0, -104, 33, 0, '#d0bfff', '#69db7c');
+  egg(ctx, 0, -104, 33, 0, '#9775fa', '#69db7c');
 
   // The basket, a bowl wider at the top, with a rim and woven rows
   const bowl = () => {
