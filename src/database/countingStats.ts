@@ -62,6 +62,24 @@ export const getTopCounters = async (guildId: string, take: number, skip = 0) =>
   return { counters, total };
 };
 
+/** Where someone is on the counting leaderboard, in the order it's shown, or null when they haven't counted. */
+export async function getCounterPosition(guildId: string, userId: string): Promise<number | null> {
+  const own = await prisma.countingUser.findUnique({ where: { guildId_userId: { guildId, userId } } });
+  if (!own || own.counted === 0) return null;
+  const ahead = await prisma.countingUser.count({
+    where: {
+      guildId,
+      counted: { gt: 0 },
+      OR: [
+        { counted: { gt: own.counted } },
+        { counted: own.counted, mistakes: { lt: own.mistakes } },
+        { counted: own.counted, mistakes: own.mistakes, userId: { lt: userId } },
+      ],
+    },
+  });
+  return ahead + 1;
+}
+
 /**
  * Get a member's counting stats in a guild, with their rank by how much they counted.
  * @param guildId {string} The ID of the guild.

@@ -4,6 +4,7 @@ import { Event } from 'classes/base/event';
 
 import { handleSettingsModal } from 'settings/index';
 
+import { COUNTING_PAGE_MODAL_PREFIX, handleCountingPageModal } from 'utility/counting/pages';
 import { closeFriendCodesCopy, FRIEND_CODES_COPY_MODAL_ID } from 'utility/friendCodeView';
 import { getTranslate } from 'utility/i18next';
 import { handleLeaderboardPageModal } from 'utility/leveling/leaderboardPageModal';
@@ -30,6 +31,7 @@ export default new Event({
     try {
       if (interaction.customId.startsWith(SETTINGS_CUSTOM_ID_PREFIX)) await handleSettingsModal(interaction);
       else if (interaction.customId.startsWith(LEADERBOARD_PAGE_MODAL_PREFIX)) await handleLeaderboardPageModal(interaction);
+      else if (interaction.customId.startsWith(COUNTING_PAGE_MODAL_PREFIX)) await handleCountingPageModal(interaction);
       else if (interaction.customId.startsWith(POKEDEX_SEARCH_MODAL_PREFIX)) await handlePokedexSearchModal(interaction);
       else if (interaction.customId.startsWith(GUESS_MODAL_PREFIX)) await handleGuessModal(interaction);
       else if (interaction.customId.startsWith(TEMP_VOICE_EDIT_MODAL_PREFIX)) await handleTempVoiceModal(interaction);

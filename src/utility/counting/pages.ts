@@ -8,14 +8,16 @@ import {
   time,
   TimestampStyles,
   userMention,
+  type ModalSubmitInteraction,
 } from 'discord.js';
 
 import { getCounting } from 'database/counting';
 import { getRecentRuns, getTopCounters } from 'database/countingStats';
 
 import { formatDuration, formatNumber } from 'utility/duration';
-import type { Translate } from 'utility/i18next';
-import type { ResponsePayload } from 'utility/response';
+import { getTranslate, type Translate } from 'utility/i18next';
+import { findMeButton, readPageInput } from 'utility/pagination';
+import { sendError, type ResponsePayload } from 'utility/response';
 import { ThemeColors } from 'utility/theme';
 
 /** How many members or runs a page shows. */
@@ -24,15 +26,30 @@ export const COUNTING_PAGE_SIZE = 10;
 export type CountingList = 'leaderboard' | 'runs';
 const LISTS: CountingList[] = ['leaderboard', 'runs'];
 
-/** The page buttons of /counting are `countpage:<list>:<page>`, so they work however old the message is. */
+/**
+ * The page buttons of /counting are `countpage:<list>:<page>`, so they work however old the message is. The first and last ones end
+ * in what they are, as they can lead to the same page as previous and next, and so do the buttons asking for a page and finding you.
+ */
 export const COUNTING_PAGE_PREFIX = 'countpage:';
+/** The popup asking for a page is this, followed by its list. */
+export const COUNTING_PAGE_MODAL_PREFIX = 'countpage-goto:';
 
-export function parseCountingPageId(customId: string): { list: CountingList; page: number } | null {
-  // The first and last page buttons end in what they are, as they can lead to the same page as previous and next
+/** Go to the page, ask which page to go to, or go to the page of whoever pressed. */
+export type CountingPageAction = 'page' | 'goto' | 'me';
+
+export function parseCountingPageId(customId: string): { list: CountingList; page: number; action: CountingPageAction } | null {
   const [list, page, ...rest] = customId.slice(COUNTING_PAGE_PREFIX.length).split(':');
-  if (!LISTS.includes(list as CountingList) || !/^\d+$/.test(page ?? '')) return null;
-  if (rest.length > 1 || (rest[0] !== undefined && rest[0] !== 'first' && rest[0] !== 'last')) return null;
-  return { list: list as CountingList, page: Number(page) };
+  if (!LISTS.includes(list as CountingList) || !/^\d+$/.test(page ?? '') || rest.length > 1) return null;
+  const suffix = rest[0];
+  if (suffix !== undefined && !['first', 'last', 'goto', 'me'].includes(suffix)) return null;
+  const action: CountingPageAction = suffix === 'goto' || suffix === 'me' ? suffix : 'page';
+  return { list: list as CountingList, page: Number(page), action };
+}
+
+/** The list a page popup is for, or null if it isn't one. */
+export function parseCountingPageModalId(customId: string): CountingList | null {
+  const list = customId.slice(COUNTING_PAGE_MODAL_PREFIX.length);
+  return LISTS.includes(list as CountingList) ? (list as CountingList) : null;
 }
 
 /** The page to show and how many there are, kept within the pages there are, as the lists change between presses. */
@@ -43,7 +60,10 @@ export function pageOf(requested: number, total: number) {
 
 const accuracy = (counted: number, mistakes: number) => Math.round((counted / Math.max(1, counted + mistakes)) * 100);
 
-/** The lines of a page, with buttons to the first, previous, next and last page when there's more than one. Nobody is pinged. */
+/**
+ * The lines of a page, with buttons to the first, previous, next and last page and to ask for one when there's more than one,
+ * and on the leaderboard one to find yourself on its own row. Nobody is pinged.
+ */
 function buildPage(list: CountingList, lines: string[], page: number, pages: number, t: Translate): ResponsePayload {
   const container = new ContainerBuilder().setAccentColor(ThemeColors.info).addTextDisplayComponents(new TextDisplayBuilder().setContent(lines.join('\n')));
   if (pages > 1) {
@@ -60,18 +80,33 @@ function buildPage(list: CountingList, lines: string[], page: number, pages: num
           .setDisabled(page === 0),
         button(page - 1, t('pagination.previous.icon')),
         new ButtonBuilder()
-          .setCustomId(`${COUNTING_PAGE_PREFIX}${list}:current`)
+          .setCustomId(`${COUNTING_PAGE_PREFIX}${list}:${page}:goto`)
           .setStyle(ButtonStyle.Secondary)
-          .setLabel(t('pagination.page.label', { current: (page + 1).toLocaleString(t('locale')), total: pages.toLocaleString(t('locale')) }))
-          .setDisabled(true),
+          .setLabel(t('pagination.page.label', { current: (page + 1).toLocaleString(t('locale')), total: pages.toLocaleString(t('locale')) })),
         button(page + 1, t('pagination.next.icon')),
         button(pages - 1, t('pagination.last.icon'))
           .setCustomId(`${COUNTING_PAGE_PREFIX}${list}:${pages - 1}:last`)
           .setDisabled(page === pages - 1),
       ),
     );
+    if (list === 'leaderboard') {
+      container.addActionRowComponents(new ActionRowBuilder<ButtonBuilder>().addComponents(findMeButton(`${COUNTING_PAGE_PREFIX}${list}:${page}:me`, t)));
+    }
   }
   return { components: [container], flags: [MessageFlags.IsComponentsV2], allowedMentions: { parse: [] } };
+}
+
+/** Go to the page typed into the popup. A page past the end shows the last one. */
+export async function handleCountingPageModal(interaction: ModalSubmitInteraction): Promise<unknown> {
+  const t = getTranslate(interaction.locale);
+  const list = parseCountingPageModalId(interaction.customId);
+  if (!list || !interaction.inCachedGuild() || !interaction.isFromMessage()) return sendError(interaction, t('system.outdated'));
+  const page = readPageInput(interaction);
+  if (page === null) return sendError(interaction, t('pagination.modal.invalid'));
+
+  await interaction.deferUpdate();
+  const build = list === 'leaderboard' ? buildCountingLeaderboard : buildCountingRuns;
+  return interaction.editReply(await build(interaction.guildId, page - 1, t));
 }
 
 /** A page of the members who counted the most. */

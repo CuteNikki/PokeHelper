@@ -20,8 +20,9 @@ import { drawAvatar, truncateText } from 'utility/canvas';
 import { formatCompactNumber } from 'utility/duration';
 import type { Translate } from 'utility/i18next';
 import { clampPage, leaderboardCustomId, type LeaderboardAction, type LeaderboardView } from 'utility/leveling/leaderboardView';
+import { findMeButton } from 'utility/pagination';
 
-const ITEMS_PER_PAGE = 5;
+export const ITEMS_PER_PAGE = 5;
 
 // Avatars of recently shown leaderboards, kept for 15 minutes, as the same pages are often looked at a few times in a row
 const avatarCache = new Map<string, { image: Image; expiresAt: number }>();
@@ -272,7 +273,10 @@ function buildControls(view: LeaderboardView, totalPages: number, t: Translate) 
     ),
   );
 
-  return [rowPageButtons, rowSortOrder] as const;
+  // On a row of its own, under the sorting it follows
+  const rowFindMe = new ActionRowBuilder<ButtonBuilder>().addComponents(findMeButton(leaderboardCustomId('me', view), t));
+
+  return [rowPageButtons, rowSortOrder, rowFindMe] as const;
 }
 
 /**

@@ -9,8 +9,8 @@ export interface LeaderboardView {
   text: boolean;
 }
 
-/** What a leaderboard button or select does: go to the page in its view, ask for a page, or sort. */
-export type LeaderboardAction = 'first' | 'prev' | 'goto' | 'next' | 'last' | 'sort';
+/** What a leaderboard button or select does: go to the page in its view, ask for a page, sort, or find whoever pressed it. */
+export type LeaderboardAction = 'first' | 'prev' | 'goto' | 'next' | 'last' | 'sort' | 'me';
 
 /**
  * Custom IDs of the leaderboard's buttons and select are `lb:<action>:<page>:<sort>:<a|w>:<i|t>`, with the view they lead to,
@@ -20,7 +20,7 @@ export const LEADERBOARD_CUSTOM_ID_PREFIX = 'lb:';
 /** Custom IDs of the popup asking for a page are this, followed by the view it was opened from. */
 export const LEADERBOARD_PAGE_MODAL_PREFIX = 'lb-page:';
 
-const ACTIONS: LeaderboardAction[] = ['first', 'prev', 'goto', 'next', 'last', 'sort'];
+const ACTIONS: LeaderboardAction[] = ['first', 'prev', 'goto', 'next', 'last', 'sort', 'me'];
 
 const encodeView = (view: LeaderboardView) => `${view.page}:${view.sortOrder}:${view.weekly ? 'w' : 'a'}:${view.text ? 't' : 'i'}`;
 

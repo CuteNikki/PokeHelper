@@ -991,7 +991,9 @@
     "sort": {
       "ascending": "Aufsteigend",
       "descending": "Absteigend"
-    }
+    },
+    "findMe": "Mich finden",
+    "notListed": "Du bist noch nicht auf dieser Liste."
   },
   "number": {
     "thousand": "k",

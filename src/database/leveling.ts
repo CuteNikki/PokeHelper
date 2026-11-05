@@ -93,7 +93,8 @@ export const getUserLevelingData = (guildId: string, userId: string) =>
 export const getTopUsersByXP = (guildId: string, take: number = 10, skip: number = 0, sortOrder: 'asc' | 'desc' = 'desc') =>
   prisma.level.findMany({
     where: { guildId },
-    orderBy: { xp: sortOrder },
+    // Ties by user, so the order is the same on every page and someone can be found in it
+    orderBy: [{ xp: sortOrder }, { userId: 'asc' }],
     take,
     skip,
   });
@@ -111,6 +112,18 @@ export const getUserRank = async (guildId: string, targetXp: number) => {
   return usersWithMoreXp + 1;
 };
 
+/**
+ * Where someone is on the leaderboard, in the order it's shown, or null when they aren't on it.
+ * @param weekly Whether it's the weekly leaderboard.
+ */
+export async function getLeaderboardPosition(guildId: string, userId: string, weekly: boolean, sortOrder: 'asc' | 'desc'): Promise<number | null> {
+  const own = weekly ? await getWeeklyUserLevelingData(guildId, userId) : await getUserLevelingData(guildId, userId);
+  if (!own) return null;
+  const where = { guildId, OR: [{ xp: sortOrder === 'desc' ? { gt: own.xp } : { lt: own.xp } }, { xp: own.xp, userId: { lt: userId } }] };
+  const ahead = weekly ? await prisma.weeklyLevel.count({ where }) : await prisma.level.count({ where });
+  return ahead + 1;
+}
+
 export const getTotalUsersWithXP = (guildId: string) =>
   prisma.level.count({
     where: { guildId },
@@ -124,7 +137,8 @@ export const getTotalWeeklyUsersWithXP = (guildId: string) =>
 export const getTopWeeklyUsersByXP = (guildId: string, take: number = 10, skip: number = 0, sortOrder: 'asc' | 'desc' = 'desc') =>
   prisma.weeklyLevel.findMany({
     where: { guildId },
-    orderBy: { xp: sortOrder },
+    // Ties by user, so the order is the same on every page and someone can be found in it
+    orderBy: [{ xp: sortOrder }, { userId: 'asc' }],
     take,
     skip,
   });

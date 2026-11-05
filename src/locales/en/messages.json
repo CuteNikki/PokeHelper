@@ -141,7 +141,9 @@
     "sort": {
       "ascending": "Ascending",
       "descending": "Descending"
-    }
+    },
+    "findMe": "Find me",
+    "notListed": "You're not on this list yet."
   },
   "system": {
     "cooldown": {
