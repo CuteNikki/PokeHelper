@@ -1240,7 +1240,7 @@
       },
       "threshold": {
         "label": "Reactions Needed",
-        "description": "How many it takes to get on the starboard. The author's own and bots' don't count.",
+        "description": "How many stars it takes to get on the starboard, by reacting or with the button on the post. The author's own and bots' don't count.",
         "invalid": "Type a whole number from 1 to {{max}}."
       },
       "ignoredChannels": {
@@ -1249,7 +1249,13 @@
       }
     },
     "post": {
-      "jump": "Jump to message"
+      "jump": "Jump to message",
+      "who": "Starred by",
+      "whoTitle": "### Starred by ⭐",
+      "more_one": "and {{count}} more",
+      "more_other": "and {{count}} more",
+      "own": "You can't star your own message.",
+      "gone": "This message isn't on the starboard anymore."
     },
     "resetConfiguration": {
       "confirm": "### Reset the starboard settings? ⚠️\nThis resets the channel, emoji, reactions needed and ignored channels. Posts already on the starboard stay, but aren't updated anymore.",

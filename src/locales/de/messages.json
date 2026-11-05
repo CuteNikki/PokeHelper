@@ -858,7 +858,7 @@
       },
       "threshold": {
         "label": "Benötigte Reaktionen",
-        "description": "Wie viele es braucht, um ins Starboard zu kommen. Die eigene und die von Bots zählen nicht.",
+        "description": "Wie viele Sterne es braucht, um ins Starboard zu kommen, per Reaktion oder mit dem Button am Post. Die eigenen und die von Bots zählen nicht.",
         "invalid": "Gib eine ganze Zahl von 1 bis {{max}} ein."
       },
       "ignoredChannels": {
@@ -867,7 +867,13 @@
       }
     },
     "post": {
-      "jump": "Zur Nachricht"
+      "jump": "Zur Nachricht",
+      "who": "Sterne von",
+      "whoTitle": "### Sterne von ⭐",
+      "more_one": "und {{count}} weiteren Person",
+      "more_other": "und {{count}} weiteren",
+      "own": "Deiner eigenen Nachricht kannst du keinen Stern geben.",
+      "gone": "Diese Nachricht ist nicht mehr im Starboard."
     },
     "resetConfiguration": {
       "confirm": "### Starboard-Einstellungen zurücksetzen? ⚠️\nDas setzt Kanal, Emoji, benötigte Reaktionen und ignorierte Kanäle zurück. Was schon im Starboard ist, bleibt, wird aber nicht mehr aktualisiert.",

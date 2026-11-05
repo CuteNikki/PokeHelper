@@ -27,4 +27,7 @@ export const getStarboardEntryByPost = async (starboardMessageId: string) => pri
 export const saveStarboardEntry = async (entry: Pick<StarboardEntry, 'messageId' | 'guildId' | 'channelId' | 'authorId'> & Partial<StarboardEntry>) =>
   prisma.starboardEntry.upsert({ where: { messageId: entry.messageId }, create: entry, update: entry });
 
+export const updateStarboardEntry = async (messageId: string, data: Partial<Omit<StarboardEntry, 'messageId' | 'createdAt' | 'updatedAt'>>) =>
+  prisma.starboardEntry.update({ where: { messageId }, data });
+
 export const deleteStarboardEntry = async (messageId: string) => prisma.starboardEntry.deleteMany({ where: { messageId } });

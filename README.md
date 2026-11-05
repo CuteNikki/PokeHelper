@@ -65,8 +65,9 @@ _A Pokémon themed Discord bot_
 
 - Messages with enough reactions are posted in a starboard channel, with who wrote them, their text and pictures, and a button to the message
 - Your own emoji, also one of the server's, and how many reactions it takes
-- The count on the post follows the reactions, and the post goes when the message is deleted or falls below again
-- The author's own reaction and bots' don't count, and channels can be left out
+- Star by reacting to the message or with the star button on the post, and see who starred it
+- The count on the post follows the stars, and the post goes when the message is deleted or falls below again
+- The author's own star and bots' don't count, and channels can be left out
 - Age-restricted messages only go on a starboard that's age-restricted too
 - A post deleted by hand isn't posted again
 

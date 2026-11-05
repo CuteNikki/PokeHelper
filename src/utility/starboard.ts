@@ -29,7 +29,9 @@ import {
   getStarboardEntry,
   getStarboardEntryByPost,
   saveStarboardEntry,
+  updateStarboardEntry,
   type GuildStarboard,
+  type StarboardEntry,
 } from 'database/starboard';
 
 import { getTranslate, type Translate } from 'utility/i18next';
@@ -42,6 +44,16 @@ export const DEFAULT_THRESHOLD = 3;
 export const MAX_THRESHOLD = 100;
 /** What the bot needs on the starboard: posting with pictures, and finding its posts again to update them. */
 export const STARBOARD_CHANNEL_PERMISSIONS: PermissionsString[] = ['ViewChannel', 'SendMessages', 'AttachFiles', 'ReadMessageHistory'];
+
+/**
+ * The buttons on a post: `starpost:star` stars or unstars, `starpost:who` shows who starred. The post is found by the message they're on,
+ * so they work however old it is.
+ */
+export const STARBOARD_BUTTON_PREFIX = 'starpost:';
+export const STAR_BUTTON_ID = `${STARBOARD_BUTTON_PREFIX}star`;
+export const STARRED_BY_BUTTON_ID = `${STARBOARD_BUTTON_PREFIX}who`;
+/** Reactions are read 100 at a time. This many pages is far more than a starboard ever sees. */
+const MAX_REACTION_PAGES = 10;
 
 /** The gold of a star. */
 const STAR_COLOR = 0xffac33;
@@ -60,13 +72,6 @@ export function isStarEmoji(configured: string, emoji: { id: string | null; name
   if (customId) return emoji.id === customId;
   return emoji.id === null && emoji.name?.replace(VARIATION_SELECTOR, '') === configured.replace(VARIATION_SELECTOR, '');
 }
-
-/**
- * How many stars a message has: everyone who reacted, except the author and bots.
- * @param total How many reacted, which can be more than the users fetched.
- */
-export const countStars = (total: number, users: { id: string; bot: boolean }[], authorId: string) =>
-  Math.max(0, total - users.filter((user) => user.bot || user.id === authorId).length);
 
 /** Whether reactions in a channel don't count: the channel itself, its category, or for a thread, the channel it's in and its category. */
 export function isIgnoredChannel(config: Pick<GuildStarboard, 'ignoredChannelIds'>, guild: Guild, channelId: string): boolean {
@@ -98,9 +103,7 @@ export function buildStarboardPost(message: Message, stars: number, emoji: strin
   const container = new ContainerBuilder()
     .setAccentColor(STAR_COLOR)
     .addTextDisplayComponents(
-      new TextDisplayBuilder().setContent(
-        `${emoji} **${stars.toLocaleString(t('locale'))}** · ${channelMention(message.channelId)} · ${time(message.createdAt, TimestampStyles.RelativeTime)}`,
-      ),
+      new TextDisplayBuilder().setContent(`${channelMention(message.channelId)} · ${time(message.createdAt, TimestampStyles.RelativeTime)}`),
     )
     .addSeparatorComponents(new SeparatorBuilder())
     .addSectionComponents(
@@ -131,7 +134,16 @@ export function buildStarboardPost(message: Message, stars: number, emoji: strin
   if (others.length > 0) container.addTextDisplayComponents(new TextDisplayBuilder().setContent(`-# 📎 ${others.map((file) => file.name).join(', ')}`));
 
   container.addActionRowComponents(
-    new ActionRowBuilder<ButtonBuilder>().addComponents(new ButtonBuilder().setStyle(ButtonStyle.Link).setURL(message.url).setLabel(t('starboard.post.jump'))),
+    new ActionRowBuilder<ButtonBuilder>().addComponents(
+      // The count on the star button, like a reaction, which pressing adds to
+      new ButtonBuilder()
+        .setCustomId(STAR_BUTTON_ID)
+        .setStyle(ButtonStyle.Secondary)
+        .setEmoji(emoji)
+        .setLabel(stars.toLocaleString(t('locale'))),
+      new ButtonBuilder().setCustomId(STARRED_BY_BUTTON_ID).setStyle(ButtonStyle.Secondary).setLabel(t('starboard.post.who')),
+      new ButtonBuilder().setStyle(ButtonStyle.Link).setURL(message.url).setLabel(t('starboard.post.jump')),
+    ),
   );
   // Nobody is pinged by a message being starred
   return { components: [container], flags: [MessageFlags.IsComponentsV2], allowedMentions: { parse: [] } };
@@ -151,7 +163,7 @@ async function uploadsOf(message: Message): Promise<AttachmentBuilder[]> {
 
 const isUnknownMessage = (error: unknown) => error instanceof DiscordAPIError && error.code === RESTJSONErrorCodes.UnknownMessage;
 
-/** One message at a time, so quick reactions don't post it twice. */
+/** One message at a time, so quick stars don't post it twice or lose one. */
 const queue = new KeyedQueue();
 
 /** The starboard channel, if it's set and there. */
@@ -160,9 +172,23 @@ function starboardChannelOf(guild: Guild, config: GuildStarboard) {
   return channel?.isSendable() && channel.isTextBased() && !channel.isThread() ? channel : null;
 }
 
-/** Take a post off the starboard, forgetting it first, so its deletion isn't taken for someone removing it by hand. */
-async function removePost(guild: Guild, config: GuildStarboard, messageId: string, postId: string | null) {
-  await deleteStarboardEntry(messageId);
+/** Everyone who reacted with the starboard's emoji, without bots, read 100 at a time. */
+async function reactorsOf(message: Message, emoji: string): Promise<string[]> {
+  const reaction = message.reactions.cache.find((candidate) => isStarEmoji(emoji, candidate.emoji));
+  if (!reaction) return [];
+  const ids: string[] = [];
+  let after: string | undefined;
+  for (let page = 0; page < MAX_REACTION_PAGES; page++) {
+    const users = await reaction.users.fetch({ limit: 100, after });
+    for (const user of users.values()) if (!user.bot) ids.push(user.id);
+    if (users.size < 100) break;
+    after = users.lastKey();
+  }
+  return ids;
+}
+
+/** Delete a post, after it's taken off its entry, so its deletion isn't taken for someone removing it by hand. */
+async function deletePost(guild: Guild, config: GuildStarboard, postId: string | null) {
   if (!postId) return;
   await starboardChannelOf(guild, config)
     ?.messages.delete(postId)
@@ -171,56 +197,95 @@ async function removePost(guild: Guild, config: GuildStarboard, messageId: strin
     });
 }
 
+/** Forget a message and take its post off the starboard, like when it's deleted. */
+async function forget(guild: Guild, config: GuildStarboard, entry: StarboardEntry) {
+  await deleteStarboardEntry(entry.messageId);
+  await deletePost(guild, config, entry.starboardMessageId);
+}
+
+/** How the stars of a message change: who to add, who to take off, or everyone off, like when a moderator removes the reactions. */
+export type StarChange = { add: string } | { remove: string } | { toggle: string } | { clear: true } | null;
+
+/** Who starred after a change, each once and never the author, whose own star doesn't count. */
+export function applyStarChange(starredBy: string[], change: StarChange, authorId: string): string[] {
+  let next = starredBy;
+  if (change && 'add' in change) next = [...next, change.add];
+  if (change && 'remove' in change) next = next.filter((userId) => userId !== change.remove);
+  if (change && 'toggle' in change) next = next.includes(change.toggle) ? next.filter((userId) => userId !== change.toggle) : [...next, change.toggle];
+  if (change && 'clear' in change) next = [];
+  return [...new Set(next)].filter((userId) => userId !== authorId);
+}
+
 /**
- * Bring a message's post on the starboard up to date: post it once it has enough stars, update the count and what it says, and take it
- * off again when it falls below. Reactions on the starboard itself, in ignored channels, and on age-restricted messages when the
- * starboard isn't age-restricted don't count.
+ * Change who starred a message, then bring its post up to date: post it once it has enough stars, update the count and what it says,
+ * and take it off again when it falls below. The first time, who starred starts from who already reacted, so stars from while the bot
+ * was offline count. Messages on the starboard itself, in ignored channels, and age-restricted ones when the starboard isn't, are left out.
+ * @param change Null to only update the post, like after an edit.
+ * @returns Who starred it now, or null if it doesn't count.
  */
-export function syncStarboard(guild: Guild, message: Message | PartialMessage): Promise<void> {
+export function changeStars(guild: Guild, message: Message | PartialMessage, change: StarChange): Promise<string[] | null> {
   return queue.run(message.id, async () => {
     const config = await getGuildStarboard(guild.id);
     const starboard = config?.enabled ? starboardChannelOf(guild, config) : null;
-    if (!config || !starboard || message.channelId === starboard.id || isIgnoredChannel(config, guild, message.channelId)) return;
+    if (!config || !starboard || message.channelId === starboard.id || isIgnoredChannel(config, guild, message.channelId)) return null;
 
     const full = message.partial ? await message.fetch().catch(() => null) : message;
     const entry = await getStarboardEntry(message.id);
     if (!full) {
-      if (entry) await removePost(guild, config, entry.messageId, entry.starboardMessageId);
-      return;
+      if (entry) await forget(guild, config, entry);
+      return null;
     }
-    if (entry?.removed) return;
-    if (full.channel.isTextBased() && 'nsfw' in full.channel && full.channel.nsfw && !('nsfw' in starboard && starboard.nsfw)) return;
+    if (entry?.removed) return null;
+    if ('nsfw' in full.channel && full.channel.nsfw && !starboard.nsfw) return null;
 
     const emoji = emojiOf(config);
-    const reaction = full.reactions.cache.find((candidate) => isStarEmoji(emoji, candidate.emoji));
-    const users = reaction ? [...(await reaction.users.fetch()).values()] : [];
-    const stars = reaction ? countStars(reaction.count, users, full.author.id) : 0;
-
-    if (stars < thresholdOf(config)) {
-      if (entry?.starboardMessageId) await removePost(guild, config, entry.messageId, entry.starboardMessageId);
-      return;
-    }
-
-    const t = getTranslate(guild.preferredLocale);
-    const post = buildStarboardPost(full, stars, emoji, t);
+    // An entry is deleted once nobody starred it, so an empty one is from before who starred was kept, and starts from the reactions too
+    const known = entry && entry.starredBy.length > 0 ? entry.starredBy : await reactorsOf(full, emoji);
+    const starredBy = applyStarChange(known, change, full.author.id);
     const ids = { messageId: full.id, guildId: guild.id, channelId: full.channelId, authorId: full.author.id };
 
+    if (starredBy.length < thresholdOf(config)) {
+      // Without stars there's nothing to remember
+      if (starredBy.length === 0 && entry) await deleteStarboardEntry(entry.messageId);
+      else if (starredBy.length > 0) await saveStarboardEntry({ ...ids, starredBy, starboardMessageId: null });
+      if (entry) await deletePost(guild, config, entry.starboardMessageId);
+      return starredBy;
+    }
+
+    const post = buildStarboardPost(full, starredBy.length, emoji, getTranslate(guild.preferredLocale));
     if (entry?.starboardMessageId) {
       try {
         await starboard.messages.edit(entry.starboardMessageId, post);
-        await saveStarboardEntry({ ...ids, stars });
-        return;
+        await saveStarboardEntry({ ...ids, starredBy });
       } catch (error) {
         // Deleted by hand while the bot was offline, so it stays off
         if (!isUnknownMessage(error)) throw error;
-        await saveStarboardEntry({ ...ids, stars, starboardMessageId: null, removed: true });
-        return;
+        await saveStarboardEntry({ ...ids, starredBy, starboardMessageId: null, removed: true });
       }
+      return starredBy;
     }
 
     const sent = await starboard.send({ ...post, files: await uploadsOf(full) });
-    await saveStarboardEntry({ ...ids, stars, starboardMessageId: sent.id });
+    await saveStarboardEntry({ ...ids, starredBy, starboardMessageId: sent.id });
+    return starredBy;
   });
+}
+
+/**
+ * Star or unstar a message with the button on its post.
+ * @returns Whether they starred it now, or null if the message is gone.
+ */
+export async function toggleStar(guild: Guild, entry: StarboardEntry, userId: string): Promise<boolean | null> {
+  const channel = guild.channels.cache.get(entry.channelId);
+  const message = channel?.isTextBased() ? await channel.messages.fetch(entry.messageId).catch(() => null) : null;
+  if (!message) {
+    const config = await getGuildStarboard(guild.id);
+    if (config) await queue.run(entry.messageId, () => forget(guild, config, entry));
+    return null;
+  }
+  // Toggled where it runs, so two quick presses undo each other
+  const starredBy = await changeStars(guild, message, { toggle: userId });
+  return starredBy?.includes(userId) ?? null;
 }
 
 /** Whether a reaction could change a starboard, checked before the message is looked at. */
@@ -238,12 +303,12 @@ export async function handleDeletedMessage(guild: Guild, messageId: string, chan
 
   if (channelId === config.channelId) {
     const entry = await getStarboardEntryByPost(messageId);
-    if (entry) await saveStarboardEntry({ ...entry, starboardMessageId: null, removed: true });
+    if (entry) await updateStarboardEntry(entry.messageId, { starboardMessageId: null, removed: true });
     return;
   }
 
   await queue.run(messageId, async () => {
     const entry = await getStarboardEntry(messageId);
-    if (entry) await removePost(guild, config, entry.messageId, entry.starboardMessageId);
+    if (entry) await forget(guild, config, entry);
   });
 }

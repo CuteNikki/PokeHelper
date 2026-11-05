@@ -470,19 +470,20 @@ model GuildStarboard {
   updatedAt DateTime @updatedAt
 }
 
-// A message that got onto the starboard, so its post is updated instead of posted again
+// A message someone starred, with who did, and its post once it has enough stars
 model StarboardEntry {
   // The starred message
-  messageId          String  @id
+  messageId          String   @id
   guildId            String
-  guild              Guild   @relation(fields: [guildId], references: [guildId], onDelete: Cascade)
+  guild              Guild    @relation(fields: [guildId], references: [guildId], onDelete: Cascade)
   channelId          String
   authorId           String
   // The post on the starboard, null while it's below the threshold
-  starboardMessageId String? @unique
-  stars              Int     @default(0)
+  starboardMessageId String?  @unique
+  // Who starred it, by reacting or with the button on the post. The author never counts
+  starredBy          String[] @default([])
   // Deleted from the starboard by hand, so it isn't posted again
-  removed            Boolean @default(false)
+  removed            Boolean  @default(false)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

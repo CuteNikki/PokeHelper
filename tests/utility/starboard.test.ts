@@ -2,7 +2,7 @@ import { expect, test } from 'bun:test';
 
 import { parseThreshold } from 'settings/starboard';
 
-import { countStars, isStarEmoji } from 'utility/starboard';
+import { applyStarChange, isStarEmoji } from 'utility/starboard';
 
 test('a normal emoji matches with or without its variation selector, a custom one by its ID even when renamed', () => {
   expect(isStarEmoji('⭐', { id: null, name: '⭐' })).toBe(true);
@@ -14,19 +14,19 @@ test('a normal emoji matches with or without its variation selector, a custom on
   expect(isStarEmoji('⭐', { id: '123456789012345678', name: '⭐' })).toBe(false);
 });
 
-test("the author's own star and bots' don't count", () => {
-  const users = [
-    { id: 'author', bot: false },
-    { id: 'friend', bot: false },
-    { id: 'bot', bot: true },
-  ];
-  expect(countStars(3, users, 'author')).toBe(1);
-  // More reacted than were fetched: only the ones known not to count are taken off
-  expect(countStars(150, users, 'author')).toBe(148);
-  expect(countStars(1, [{ id: 'author', bot: false }], 'author')).toBe(0);
+test('stars are added, taken back, toggled and cleared, each person once and never the author', () => {
+  expect(applyStarChange(['a'], { add: 'b' }, 'author')).toEqual(['a', 'b']);
+  expect(applyStarChange(['a', 'b'], { add: 'b' }, 'author')).toEqual(['a', 'b']);
+  expect(applyStarChange(['a', 'b'], { remove: 'a' }, 'author')).toEqual(['b']);
+  expect(applyStarChange(['a'], { toggle: 'b' }, 'author')).toEqual(['a', 'b']);
+  expect(applyStarChange(['a', 'b'], { toggle: 'b' }, 'author')).toEqual(['a']);
+  expect(applyStarChange(['a', 'b'], { clear: true }, 'author')).toEqual([]);
+  // Who already reacted, read the first time, without the author's own star
+  expect(applyStarChange(['author', 'a'], null, 'author')).toEqual(['a']);
+  expect(applyStarChange([], { add: 'author' }, 'author')).toEqual([]);
 });
 
-test('the reactions needed are a whole number from 1 to 100', () => {
+test('the stars needed are a whole number from 1 to 100', () => {
   expect(parseThreshold('3')).toBe(3);
   expect(parseThreshold(' 100 ')).toBe(100);
   for (const text of ['0', '101', '2.5', '-1', 'three', '']) expect(parseThreshold(text)).toBeNull();

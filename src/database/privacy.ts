@@ -30,7 +30,7 @@ export async function getUserData(userId: string) {
       prisma.tempVoiceChannel.findMany({ where: { OR: [{ ownerId: userId }, ...onAList(userId)] } }),
       prisma.tempVoiceSettings.findMany({ where: { userId } }),
       prisma.tempVoiceSettings.findMany({ where: { userId: { not: userId }, OR: onAList(userId) } }),
-      prisma.starboardEntry.findMany({ where: { authorId: userId } }),
+      prisma.starboardEntry.findMany({ where: { OR: [{ authorId: userId }, { starredBy: { has: userId } }] } }),
     ]);
 
   return {
@@ -39,8 +39,14 @@ export async function getUserData(userId: string) {
     birthday: user?.birthday ?? null,
     friendCodes: user?.friendCodes ?? null,
     birthdayRoles,
-    // Their messages that got onto a starboard. What they said is in the posts on Discord, not stored here
-    starboard: starred,
+    starboard: {
+      // Their messages that were starred, with who starred them. What they said is in the posts on Discord, not stored here
+      starred: starred.filter((entry) => entry.authorId === userId),
+      // Others' messages they starred, without who else did
+      gaveStars: starred
+        .filter((entry) => entry.authorId !== userId)
+        .map((entry) => ({ guildId: entry.guildId, channelId: entry.channelId, messageId: entry.messageId })),
+    },
     counting: {
       stats: counting,
       numbers: countedNumbers,
@@ -88,6 +94,10 @@ export async function deleteUserData(userId: string) {
     await tx.tempVoiceSettings.deleteMany({ where: { userId } });
     // Forgotten, so their posts aren't updated anymore. The posts are messages in the server, which its moderators can delete
     await tx.starboardEntry.deleteMany({ where: { authorId: userId } });
+    // Their stars on others' messages are taken back. The counts on the posts change with the next star
+    for (const entry of await tx.starboardEntry.findMany({ where: { starredBy: { has: userId } } })) {
+      await tx.starboardEntry.update({ where: { messageId: entry.messageId }, data: { starredBy: without(entry.starredBy) } });
+    }
 
     // Taken off the lists of others
     for (const settings of await tx.tempVoiceSettings.findMany({ where: { OR: onAList(userId) } })) {

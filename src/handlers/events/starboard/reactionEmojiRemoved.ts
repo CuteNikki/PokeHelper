@@ -2,14 +2,14 @@ import { Events } from 'discord.js';
 
 import { Event } from 'classes/base/event';
 
-import { isStarReaction, syncStarboard } from 'utility/starboard';
+import { changeStars, isStarReaction } from 'utility/starboard';
 
-/** All reactions of one emoji removed by a moderator, which takes the message off the starboard when it was the star. */
+/** A moderator removed all reactions of one emoji. When it's the star, everyone's star goes, also those given with the button. */
 export default new Event({
   name: Events.MessageReactionRemoveEmoji,
   once: false,
   async execute(client, reaction) {
     const guild = reaction.message.guildId ? client.guilds.cache.get(reaction.message.guildId) : null;
-    if (guild && (await isStarReaction(reaction))) await syncStarboard(guild, reaction.message);
+    if (guild && (await isStarReaction(reaction))) await changeStars(guild, reaction.message, { clear: true });
   },
 });
