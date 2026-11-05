@@ -212,9 +212,8 @@ function buildControls(match: PokedexMatch, view: PokedexView, hasShiny: boolean
     .setStyle(ButtonStyle.Secondary)
     .setEmoji(view.text ? '🖼️' : '📝')
     .setLabel(t(view.text ? 'pokedex.view.image' : 'pokedex.view.text'));
-  // Under the card, five buttons are wider than the picture looks, so Shiny, Matchups and the switch to text get a row of their own
-  // A row holds five, so in text, where the other five fill one, the switch gets a row of its own
-  const groups = view.text ? [buttons, [mode]] : [buttons.slice(0, 3), [...buttons.slice(3), mode]];
+  // Getting around on one row, and how it's shown on the next, the same for the card and text
+  const groups = [buttons.slice(0, 3), [...buttons.slice(3), mode]];
   const navigation = groups.map((group) => new ActionRowBuilder<ButtonBuilder>().addComponents(group));
   if (species.forms.length === 0) return { navigation, forms: [] };
 
