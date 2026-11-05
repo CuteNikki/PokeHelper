@@ -983,6 +983,9 @@
     }
   },
   "pagination": {
+    "page": {
+      "label": "Seite {{current}}/{{total}}"
+    },
     "modal": {
       "title": "Zu Seite springen",
       "label": "Seite",

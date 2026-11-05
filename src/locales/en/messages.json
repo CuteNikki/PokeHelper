@@ -125,7 +125,7 @@
       "icon": "◀️"
     },
     "page": {
-      "label": "{{current}}/{{total}}"
+      "label": "Page {{current}}/{{total}}"
     },
     "next": {
       "icon": "▶️"
