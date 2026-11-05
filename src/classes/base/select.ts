@@ -11,12 +11,13 @@ export class SelectMenu {
       isAuthorOnly?: boolean;
       /** The permissions required to interact with the select menu. */
       permissions?: PermissionsString[];
-      /** The cooldown period for the select menu in seconds. Defaults to 3 seconds. */
+      /**
+       * A wait in seconds after each use, for heavy work, like creating a file. Without it, a few uses in a row are fine and only
+       * spamming is stopped, see `utility/rateLimit`.
+       */
       cooldown?: number;
       /** The function to execute when the select menu is interacted with. This is required. */
       execute: (interaction: AnySelectMenuInteraction) => unknown;
     },
-  ) {
-    this.options.cooldown ??= 3; // Default cooldown to 3 seconds if not provided
-  }
+  ) {}
 }

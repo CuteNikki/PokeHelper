@@ -6,6 +6,5 @@ import { POKEDEX_MATCHUPS_PREFIX, showMatchups } from 'utility/pokedex/matchups'
 export default new Button({
   customId: POKEDEX_MATCHUPS_PREFIX,
   includesCustomId: true,
-  cooldown: 1,
   execute: (interaction) => showMatchups(interaction),
 });

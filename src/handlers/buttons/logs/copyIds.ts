@@ -6,6 +6,5 @@ import { COPY_IDS_PREFIX, showCopyIds } from 'utility/logs/copyIds';
 export default new Button({
   customId: COPY_IDS_PREFIX,
   includesCustomId: true,
-  cooldown: 1,
   execute: (interaction) => showCopyIds(interaction),
 });

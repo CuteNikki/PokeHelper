@@ -10,7 +10,6 @@ import { settingsContext } from 'utility/settings';
 export default new Button({
   customId: CONFIRM_CUSTOM_ID_PREFIX,
   includesCustomId: true,
-  cooldown: 1,
   async execute(interaction) {
     const t = getTranslate(interaction.locale);
 

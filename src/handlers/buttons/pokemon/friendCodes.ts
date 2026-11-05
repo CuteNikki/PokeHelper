@@ -6,6 +6,5 @@ import { FRIEND_CODES_PREFIX, handleFriendCodesButton } from 'utility/friendCode
 export default new Button({
   customId: FRIEND_CODES_PREFIX,
   includesCustomId: true,
-  cooldown: 1,
   execute: (interaction) => handleFriendCodesButton(interaction),
 });

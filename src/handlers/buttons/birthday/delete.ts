@@ -8,7 +8,6 @@ import { getTranslate } from 'utility/i18next';
 /** Asks whether to delete your birthday, from its panel. The answer is handled by the confirmation buttons. */
 export default new Button({
   customId: DELETE_BIRTHDAY_ID,
-  cooldown: 1,
   async execute(interaction) {
     const t = getTranslate(interaction.locale);
     await interaction.update(

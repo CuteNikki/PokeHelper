@@ -12,7 +12,6 @@ import { settingsContext } from 'utility/settings';
 export default new SelectMenu({
   customId: ROLE_MENU_CUSTOM_ID.open,
   permissions: ['ManageGuild'],
-  cooldown: 1,
   async execute(interaction) {
     if (!interaction.inCachedGuild()) return;
     const t = getTranslate(interaction.locale);

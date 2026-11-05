@@ -5,6 +5,7 @@ import { Event } from 'classes/base/event';
 
 import { getTranslate } from 'utility/i18next';
 import { logger } from 'utility/logger';
+import { takeBurst } from 'utility/rateLimit';
 import { sendError } from 'utility/response';
 
 export default new Event({
@@ -92,6 +93,12 @@ export default new Event({
       timestamps.set(userId, now);
       // Remove the userId from the cooldowns after the cooldown period
       setTimeout(() => timestamps.delete(userId), cooldownAmount);
+    }
+
+    // Clicking a few times in a row is normal use, like paging or changing settings, so only spamming is stopped
+    const freeAt = takeBurst(`${button.options.customId}:${interaction.user.id}`);
+    if (freeAt !== null) {
+      return sendError(interaction, translate('system.cooldown.message', { remaining: time(Math.ceil(freeAt / 1_000), TimestampStyles.RelativeTime) }));
     }
 
     /**

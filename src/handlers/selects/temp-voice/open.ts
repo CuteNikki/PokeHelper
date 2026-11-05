@@ -12,7 +12,6 @@ import { settingsContext } from 'utility/settings';
 export default new SelectMenu({
   customId: TEMP_VOICE_CONFIG_ID.open,
   permissions: ['ManageChannels'],
-  cooldown: 1,
   async execute(interaction) {
     if (!interaction.inCachedGuild()) return;
     const t = getTranslate(interaction.locale);

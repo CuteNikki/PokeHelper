@@ -8,6 +8,5 @@ export default new Button({
   customId: TEMP_VOICE_CUSTOM_ID_PREFIX,
   includesCustomId: true,
   // Changes to a channel wait their turn anyway
-  cooldown: 1,
   execute: (interaction) => handleTempVoiceButton(interaction),
 });

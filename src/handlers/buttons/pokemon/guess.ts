@@ -8,6 +8,5 @@ export default new Button({
   includesCustomId: true,
   isAuthorOnly: true,
   // Guessing and hints come one after another quickly
-  cooldown: 1,
   execute: handleGuessButton,
 });

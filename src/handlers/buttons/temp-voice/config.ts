@@ -23,7 +23,6 @@ export default new Button({
   customId: 'voicecfg:',
   includesCustomId: true,
   permissions: ['ManageChannels'],
-  cooldown: 1,
   async execute(interaction) {
     if (!interaction.inCachedGuild()) return;
     const t = getTranslate(interaction.locale);

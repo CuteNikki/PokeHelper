@@ -14,7 +14,6 @@ import { canGiveRole } from 'utility/roles';
 export default new Button({
   customId: ROLE_BUTTON_PREFIX,
   includesCustomId: true,
-  cooldown: 1.5,
   async execute(interaction) {
     if (!interaction.inCachedGuild()) {
       return;

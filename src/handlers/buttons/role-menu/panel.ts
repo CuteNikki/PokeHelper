@@ -24,7 +24,6 @@ export default new Button({
   customId: 'rolemenu:',
   includesCustomId: true,
   permissions: ['ManageGuild'],
-  cooldown: 1,
   async execute(interaction) {
     if (!interaction.inCachedGuild()) return;
     const t = getTranslate(interaction.locale);
