@@ -129,7 +129,7 @@ function drawWeakness(ctx: SKRSContext2D, weakness: MatchupCardWeakness, y: numb
   const slot = examplesWidth / Math.max(weakness.pokemon.length, 1);
   weakness.pokemon.forEach((pokemon, index) => {
     const x = examplesX + index * slot;
-    const imageY = y + 4;
+    const imageY = y + 12;
     ctx.fillStyle = withAlpha(weakness.type.color, 0.22);
     ctx.beginPath();
     ctx.arc(x + EXAMPLE_SIZE / 2, imageY + EXAMPLE_SIZE / 2, EXAMPLE_SIZE / 2, 0, Math.PI * 2);
@@ -146,7 +146,7 @@ function drawWeakness(ctx: SKRSContext2D, weakness: MatchupCardWeakness, y: numb
   ctx.textAlign = 'left';
   ctx.textBaseline = 'middle';
   ctx.fillStyle = COLORS.textGray;
-  ctx.fillText(truncateText(ctx, weakness.moves.join('  ·  '), examplesWidth), examplesX, y + EXAMPLE_SIZE + 26);
+  ctx.fillText(truncateText(ctx, weakness.moves.join('  ·  '), examplesWidth), examplesX, y + EXAMPLE_SIZE + 24);
 }
 
 /** Types with their multiplier, a few to a row. */
