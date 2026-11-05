@@ -196,7 +196,7 @@ export const halloween: Theme = {
   ground: { kind: 'grass', colors: ['#1f3b34', '#2b5446', '#3a6e57'] },
   // Dark against the glow along the horizon, the far ones a little lighter than the near ones, as in the other themes
   hills: ['#231439', '#130b22'],
-  trees: { kind: 'pine', colors: ['#1d1433', '#251a40'] },
+  trees: { kind: 'pine', colors: ['#0e071c', '#130a26'] },
   // A dusky mauve, so it looks lit by the night instead of glowing, without going cold or blue
   light: { color: '#8a5a9e', amount: 0.16 },
   details: (ctx, scene, time) => fireflies(ctx, scene, time, [214, 255, 140]),

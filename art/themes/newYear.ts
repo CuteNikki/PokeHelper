@@ -185,7 +185,7 @@ export const newYear: Theme = {
   ground: { kind: 'grass', colors: ['#163a35', '#1f4f45', '#2a6656'] },
   // Dark against the glow along the horizon, the far ones a little lighter than the near ones, as in the other themes, and still
   // dark enough to stand out from the sky
-  hills: ['#0c1029', '#070a17'],
+  hills: ['#0c1029', '#03040b'],
   trees: { kind: 'pine', colors: ['#141a33', '#18213f'] },
   // A dusky rose, warm like the light of the fireworks, so it doesn't look cold or grey at night
   light: { color: '#9a7088', amount: 0.14 },
