@@ -159,7 +159,7 @@ async function handleProfileTheme(interaction: ChatInputCommandInteraction<'cach
   const result = await syncProfileTheme(interaction.client, true);
   const lines = [
     `Wearing the **${result.theme}** theme${isThemeName(choice) ? ' until set back to auto' : ', the one of the day'}.`,
-    `Avatar: ${SYNC_TEXT[result.avatar]}. Banner: ${SYNC_TEXT[result.banner]}.`,
+    `Avatar: ${SYNC_TEXT[result.avatar]}. Banner: ${SYNC_TEXT[result.banner]}. Status: ${result.status}`,
     profileThemesEnabled() ? null : '-# PROFILE_THEMES is off here, so it only changes when you use this command.',
   ];
   return interaction.editReply(createResponse(lines.filter(Boolean).join('\n'), 'success'));
