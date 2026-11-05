@@ -17,13 +17,14 @@ import { logSettings } from 'settings/logs';
 import { friendCodeSettings } from 'settings/friendCodes';
 import { myBirthdaySettings } from 'settings/myBirthday';
 import { getRoleMenuSettings, ROLE_MENU_PANEL_PREFIX } from 'settings/roleMenu';
+import { starboardSettings } from 'settings/starboard';
 import { getTempVoiceSettings, TEMP_VOICE_PANEL_PREFIX } from 'settings/tempVoice';
 
 import { createResponse, sendError } from 'utility/response';
 import { parseSettingsCustomId, settingsContext, type SettingsInput, type SettingsModal, type SettingsPanel } from 'utility/settings';
 
 /** Every settings panel, so their buttons and selects can find them by ID. Role menus and join channels each have their own, found by their ID. */
-const panels: SettingsPanel[] = [countingSettings, levelingSettings, birthdaySettings, myBirthdaySettings, friendCodeSettings, logSettings];
+const panels: SettingsPanel[] = [countingSettings, levelingSettings, birthdaySettings, myBirthdaySettings, friendCodeSettings, logSettings, starboardSettings];
 
 const MODAL_INPUT_ID = 'value';
 /** The most characters typed into a popup, unless it says otherwise. */

@@ -22,11 +22,12 @@ The bot only stores what its features need. Everything is tied to Discord IDs, w
 - **Birthdays:** your birthday, your timezone if you set one, whether your age is shown, and the servers it's announced in. You set this yourself with `/birthday`.
 - **Friend codes:** the codes you add for the Nintendo Switch and Pokémon games. You add them yourself with `/friendcode set`, and anyone using the bot can look them up.
 - **Temporary voice channels:** the channels you own, who you let in, kept out or made a moderator, and the settings you saved for your next channel, like its name and user limit.
+- **Starboard:** which of your messages are on a server's starboard and how many reactions they have, so the posts can be updated. What the messages say is in the posts on Discord, not in the database.
 - **Roles the bot gave you**, like a birthday role or the weekly leveling role, so it can take them away again.
 
 **About servers**
 
-- The settings of each feature, like channels, roles, rewards, multipliers, role menus, log settings and which features are turned on.
+- The settings of each feature, like channels, roles, rewards, multipliers, role menus, log settings, the starboard and which features are turned on.
 
 **Legal basis:** providing the features you and your server use (Art. 6(1)(b) GDPR). Your birthday and friend codes are only stored because you entered them yourself, to have your birthday announced and to share your codes.
 

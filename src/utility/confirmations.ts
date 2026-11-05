@@ -4,6 +4,7 @@ import { deleteGuildBirthdayConfiguration, deleteUserBirthday } from 'database/b
 import { getCounting, resetCounting } from 'database/counting';
 import { deleteGuildLevelingConfiguration } from 'database/leveling';
 import { deleteGuildLogs } from 'database/logs';
+import { deleteGuildStarboard } from 'database/starboard';
 
 import { myBirthdaySettings } from 'settings/myBirthday';
 
@@ -32,7 +33,7 @@ function guildOf(context: SettingsContext): Guild {
   return context.guild;
 }
 
-const nothingReset = (key: 'counting' | 'leveling' | 'birthday' | 'logs') => (_context: SettingsContext, t: Translate) =>
+const nothingReset = (key: 'counting' | 'leveling' | 'birthday' | 'logs' | 'starboard') => (_context: SettingsContext, t: Translate) =>
   Promise.resolve(createResponse(t(`${key}.resetConfiguration.cancelled`), 'info'));
 
 /** Every action a confirmation can ask about, by the name used in the custom IDs of its buttons. */
@@ -67,6 +68,15 @@ export const confirmations: Record<string, Confirmation> = {
       await deleteGuildLogs(guildId);
       forgetLogConfig(guildId);
       return createResponse(t('logs.resetConfiguration.success'), 'warning');
+    },
+  },
+  'starboard-reset': {
+    scope: 'guild',
+    permissions: ['ManageGuild'],
+    cancel: nothingReset('starboard'),
+    async run(context, t) {
+      await deleteGuildStarboard(guildOf(context).id);
+      return createResponse(t('starboard.resetConfiguration.success'), 'warning');
     },
   },
   'birthday-reset': {

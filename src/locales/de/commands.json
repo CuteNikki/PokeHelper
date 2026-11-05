@@ -255,5 +255,19 @@
         "description": "Setz die Log-Einstellungen dieses Servers zurück"
       }
     }
+  },
+  "starboard-config": {
+    "name": "starboard-einstellungen",
+    "description": "Richte das Starboard ein, wo Nachrichten mit genug Reaktionen gepostet werden",
+    "options": {
+      "settings": {
+        "name": "einstellungen",
+        "description": "Ändere Kanal, Emoji, benötigte Reaktionen und mehr"
+      },
+      "reset": {
+        "name": "zurücksetzen",
+        "description": "Setz die Starboard-Einstellungen dieses Servers zurück"
+      }
+    }
   }
 }

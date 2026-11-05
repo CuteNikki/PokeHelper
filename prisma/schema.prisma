@@ -73,6 +73,8 @@ model Guild {
   birthday          GuildBirthday?      @relation("GuildBirthday")
   leveling          GuildLeveling?      @relation("GuildLeveling")
   logs              GuildLogs?          @relation("GuildLogs")
+  starboard         GuildStarboard?     @relation("GuildStarboard")
+  starboardEntries  StarboardEntry[]
   reactionRoleMenus ReactionRoleMenu[]
   tempVoiceCreators TempVoiceCreator[]
   tempVoiceChannels TempVoiceChannel[]
@@ -448,6 +450,45 @@ model GuildLogs {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model GuildStarboard {
+  guildId String @id
+  guild   Guild  @relation("GuildStarboard", fields: [guildId], references: [guildId], onDelete: Cascade)
+
+  enabled           Boolean  @default(true)
+  // Where starred messages are posted. Nothing is posted without one
+  channelId         String?
+  // The emoji that stars a message, as sent to Discord. Null is ⭐
+  emoji             String?
+  // How many reactions it takes. Null is the default
+  threshold         Int?
+  // Reactions in these channels, or in the channels of these categories, don't count
+  ignoredChannelIds String[] @default([])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// A message that got onto the starboard, so its post is updated instead of posted again
+model StarboardEntry {
+  // The starred message
+  messageId          String  @id
+  guildId            String
+  guild              Guild   @relation(fields: [guildId], references: [guildId], onDelete: Cascade)
+  channelId          String
+  authorId           String
+  // The post on the starboard, null while it's below the threshold
+  starboardMessageId String? @unique
+  stars              Int     @default(0)
+  // Deleted from the starboard by hand, so it isn't posted again
+  removed            Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([guildId])
+  @@index([authorId])
 }
 
 // The bot's own profile: which theme its avatar and banner wear, so they're only uploaded again when the theme changes.

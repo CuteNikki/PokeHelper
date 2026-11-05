@@ -115,8 +115,8 @@ export type TextSetting<C> = Omit<BaseSetting<C, string | null>, 'defaultValue'>
   defaultText?: (t: Translate) => string;
   /** How the text is shown in the panel, like a date in the user's language. */
   formatValue?: (value: string, t: Translate) => string;
-  /** Check what was typed. Returns why it isn't valid, or null if it is. */
-  validate?: (text: string, t: Translate) => string | null;
+  /** Check what was typed, like an emoji against the server's own. Returns why it isn't valid, or null if it is. */
+  validate?: (text: string, t: Translate, context: SettingsContext) => string | null;
   /** Whether it has to be filled in, as there's no default to go back to. */
   required?: boolean;
 };
@@ -660,7 +660,7 @@ function textModal<C>(
     optional: !setting.required,
     submit(input) {
       const text = input.trim();
-      const invalid = text ? setting.validate?.(text, t) : null;
+      const invalid = text ? setting.validate?.(text, t, context) : null;
       if (invalid) return { error: invalid };
       // Left empty, or the same as the default, it keeps following the default, like when that's translated
       return { save: () => setting.set(scopeId, text && text !== setting.defaultText?.(t) ? text : null, context) };

@@ -11,7 +11,7 @@ const onAList = (userId: string) => VOICE_LISTS.map((list) => ({ [list]: { has: 
 
 /** Everything stored about someone, in every server. Others' data is left out, like who else is on a list they're on. */
 export async function getUserData(userId: string) {
-  const [user, birthdayRoles, counting, countedNumbers, runsEnded, countingRecords, weeklyWins, voiceChannels, voiceSettings, onOthersSettings] =
+  const [user, birthdayRoles, counting, countedNumbers, runsEnded, countingRecords, weeklyWins, voiceChannels, voiceSettings, onOthersSettings, starred] =
     await Promise.all([
       prisma.user.findUnique({ where: { userId }, include: { birthday: true, friendCodes: true, levels: true, levelsWeekly: true } }),
       prisma.birthdayRole.findMany({ where: { userId } }),
@@ -30,6 +30,7 @@ export async function getUserData(userId: string) {
       prisma.tempVoiceChannel.findMany({ where: { OR: [{ ownerId: userId }, ...onAList(userId)] } }),
       prisma.tempVoiceSettings.findMany({ where: { userId } }),
       prisma.tempVoiceSettings.findMany({ where: { userId: { not: userId }, OR: onAList(userId) } }),
+      prisma.starboardEntry.findMany({ where: { authorId: userId } }),
     ]);
 
   return {
@@ -38,6 +39,8 @@ export async function getUserData(userId: string) {
     birthday: user?.birthday ?? null,
     friendCodes: user?.friendCodes ?? null,
     birthdayRoles,
+    // Their messages that got onto a starboard. What they said is in the posts on Discord, not stored here
+    starboard: starred,
     counting: {
       stats: counting,
       numbers: countedNumbers,
@@ -83,6 +86,8 @@ export async function deleteUserData(userId: string) {
     await tx.guildCounting.updateMany({ where: { lastNumberByUserId: userId }, data: { lastNumberByUserId: null } });
     await tx.guildLeveling.updateMany({ where: { weeklyLastWinner: userId }, data: { weeklyLastWinner: null } });
     await tx.tempVoiceSettings.deleteMany({ where: { userId } });
+    // Forgotten, so their posts aren't updated anymore. The posts are messages in the server, which its moderators can delete
+    await tx.starboardEntry.deleteMany({ where: { authorId: userId } });
 
     // Taken off the lists of others
     for (const settings of await tx.tempVoiceSettings.findMany({ where: { OR: onAList(userId) } })) {
@@ -112,6 +117,8 @@ export const getGuildData = (guildId: string) =>
       levels: true,
       levelsWeekly: true,
       logs: true,
+      starboard: true,
+      starboardEntries: true,
       reactionRoleMenus: { include: { roles: true } },
       tempVoiceCreators: true,
       tempVoiceChannels: true,

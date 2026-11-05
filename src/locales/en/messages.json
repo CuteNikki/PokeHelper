@@ -640,6 +640,7 @@
       "counting": "The counting game",
       "role-menu": "Roles to pick for yourself",
       "temp-voice": "Voice channels of your own",
+      "starboard": "Messages with the most reactions, collected",
       "logs": "What happens on the server, logged",
       "general": "About the bot"
     },
@@ -650,6 +651,7 @@
       "counting": "Counting",
       "role-menu": "Role menus",
       "temp-voice": "Voice channels",
+      "starboard": "Starboard",
       "logs": "Logs",
       "general": "General"
     },
@@ -1217,6 +1219,46 @@
     "to": "To",
     "tooLong": "Too long to show in full here, the whole text is in the file below.",
     "transcriptHeading": "{{count}} messages deleted in #{{channel}} ({{channelId}})"
+  },
+  "starboard": {
+    "settings": {
+      "title": "### Starboard Settings ⭐",
+      "noChannel": "Pick a channel below, and messages with enough reactions get posted there.",
+      "enabled": {
+        "label": "Starboard",
+        "description": "Post messages with enough reactions on the starboard."
+      },
+      "channel": {
+        "label": "Starboard Channel",
+        "description": "Where starred messages get posted."
+      },
+      "emoji": {
+        "label": "Emoji",
+        "description": "The reaction that stars a message. A normal emoji, or one of this server's.",
+        "placeholder": "⭐ or :emoji_name:",
+        "invalid": "That's not an emoji I can use. Type a normal emoji, or the name of one of this server's emoji, like `:shiny:`."
+      },
+      "threshold": {
+        "label": "Reactions Needed",
+        "description": "How many it takes to get on the starboard. The author's own and bots' don't count.",
+        "invalid": "Type a whole number from 1 to {{max}}."
+      },
+      "ignoredChannels": {
+        "label": "Ignored Channels",
+        "description": "Reactions in these channels, or in the channels of these categories, don't count."
+      }
+    },
+    "post": {
+      "jump": "Jump to message"
+    },
+    "resetConfiguration": {
+      "confirm": "### Reset the starboard settings? ⚠️\nThis resets the channel, emoji, reactions needed and ignored channels. Posts already on the starboard stay, but aren't updated anymore.",
+      "confirmButton": "Reset",
+      "cancelButton": "Cancel",
+      "cancelled": "Nothing was reset.",
+      "nothing": "There's nothing to reset, the starboard hasn't been set up here yet.",
+      "success": "The starboard settings are reset. Use `/starboard-config settings` to set it up again."
+    }
   },
   "locale": "en-US",
   "number": {

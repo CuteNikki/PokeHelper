@@ -2,7 +2,7 @@
 
 _A Pokémon themed Discord bot_
 
-**Poke Helper** is a Discord bot made for a Pokémon community server. It runs the server's counting game, levels, birthdays, role menus, temporary voice channels and server logs, and has a Pokédex, a guessing game and a place for everyone's friend codes.
+**Poke Helper** is a Discord bot made for a Pokémon community server. It runs the server's counting game, levels, birthdays, role menus, temporary voice channels, starboard and server logs, and has a Pokédex, a guessing game and a place for everyone's friend codes.
 
 ## ✨ Features
 
@@ -60,6 +60,15 @@ _A Pokémon themed Discord bot_
 - Owners lock, hide, rename and limit their channel, let people in, keep them out or kick them, all from a panel in the channel
 - Moderators chosen by the owner can let people in, keep them out, kick them and change the limit, but not rename the channel
 - Owners can hand their channel over, and it passes to someone still there when the owner leaves
+
+### ⭐ Starboard
+
+- Messages with enough reactions are posted in a starboard channel, with who wrote them, their text and pictures, and a button to the message
+- Your own emoji, also one of the server's, and how many reactions it takes
+- The count on the post follows the reactions, and the post goes when the message is deleted or falls below again
+- The author's own reaction and bots' don't count, and channels can be left out
+- Age-restricted messages only go on a starboard that's age-restricted too
+- A post deleted by hand isn't posted again
 
 ### 📜 Server Logs
 
@@ -126,6 +135,7 @@ Days change at midnight UTC, and the bot puts the new look on within 15 minutes.
 | `/birthday-config`  | Set the birthday channel and role                                 |
 | `/role-menu-config` | Create role menus and change them                                 |
 | `/voice-config`     | Set up join channels for temporary voice channels                 |
+| `/starboard-config` | Set up the starboard and change its settings                      |
 | `/logs-config`      | Set up the log channels and which events are logged               |
 | `/dev`              | Reload, restart, log previews and the bot's look, dev server only |
 
