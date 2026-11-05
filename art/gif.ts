@@ -1,15 +1,21 @@
-import { applyPalette, GIFEncoder, quantize } from 'gifenc';
+import { GIFEncoder, quantize } from 'gifenc';
 
 /**
  * Turning frames into a GIF, which has only 256 colors for the whole loop.
  *
  * Picking each pixel's nearest color on its own makes things flicker: a pixel whose real color barely changes from one frame to the
  * next, like the soft edge of a swaying grass blade, can land on a different color each time, and dark scenes with few colors to pick
- * from show it most. So a pixel keeps the color it had until its real color has changed by more than a little.
+ * from show it most. So a pixel keeps the color it had while that still fits its real color about as well as the closest one.
  */
 
-/** How much a pixel's red, green and blue may change together before it gets a new color. */
-const KEEP_BELOW = 24;
+/**
+ * How much farther from a pixel's real color, its red, green and blue together, the color it had may be than the closest color, and
+ * still be kept. Enough to stop a pixel flipping between two colors that fit it about equally well.
+ */
+const KEEP_WITHIN = 10;
+
+/** How much a pixel's real color may move from one frame to the next, its red, green and blue together, and still count as still. */
+const STILL_WITHIN = 12;
 
 /** The palette slot that means "as in the frame before", so a pixel that stays the same costs almost nothing. */
 const UNCHANGED = 255;
@@ -26,25 +32,70 @@ export function paletteFor(frames: Uint8ClampedArray[]) {
   return [...quantize(sample, UNCHANGED, { format: 'rgb565' }), [0, 0, 0]];
 }
 
-/** Each frame's pixels as palette colors, keeping a pixel's color while its real color hardly changes. */
+/**
+ * Finds the closest palette color for a color, the same one for the same color every time.
+ *
+ * Not gifenc's applyPalette: it sorts colors into coarse buckets and gives a whole bucket the color closest to the first pixel of it it
+ * comes across in a frame, so one and the same color could get a different palette color from one frame to the next, depending on
+ * what else was in the picture, and things that didn't move at all flickered. Every color is looked up exactly here, and remembered,
+ * as the same colors come up again and again through a loop.
+ */
+function closestColors(palette: number[][]) {
+  const picked = new Map<number, number>();
+  return (red: number, green: number, blue: number) => {
+    const key = (red << 16) | (green << 8) | blue;
+    let best = picked.get(key);
+    if (best !== undefined) return best;
+    let bestDistance = Infinity;
+    // Only the real colors, never the slot that means unchanged
+    for (let slot = 0; slot < UNCHANGED; slot++) {
+      const color = palette[slot]!;
+      const distance = (red - color[0]!) ** 2 + (green - color[1]!) ** 2 + (blue - color[2]!) ** 2;
+      if (distance < bestDistance) {
+        bestDistance = distance;
+        best = slot;
+      }
+    }
+    picked.set(key, best!);
+    return best!;
+  };
+}
+
+/**
+ * Each frame's pixels as palette colors, keeping a pixel's color from the frame before while its real color hardly moved since then,
+ * and the color it had is still about as close to it as the closest one.
+ *
+ * A pixel that's entirely still, though, always gets its closest color. When the soft edge of a cloud has passed over a pixel, the
+ * color it got on the way can be a shade off the sky behind, yet close enough to keep, and kept for good it'd leave a trail of the
+ * cloud. Once the cloud has gone, the sky there doesn't move at all, so it gets its own color back. A still pixel's closest color is
+ * the same every frame, so it can't flicker.
+ */
 export function indexFrames(frames: Uint8ClampedArray[], palette: number[][]): Uint8Array[] {
   let previous: Uint8Array | null = null;
-  // The real color each kept color was picked for, so slow changes still add up to a new color in the end
-  let pickedFor: Uint8ClampedArray | null = null;
+  let previousData: Uint8ClampedArray | null = null;
+  const closest = closestColors(palette);
+  const distance = (data: Uint8ClampedArray, at: number, color: ArrayLike<number>, from = 0) =>
+    Math.abs(data[at]! - color[from]!) + Math.abs(data[at + 1]! - color[from + 1]!) + Math.abs(data[at + 2]! - color[from + 2]!);
   return frames.map((data) => {
-    // Only the real colors, never the slot that means unchanged
-    const index = applyPalette(data, palette.slice(0, UNCHANGED), 'rgb565');
-    if (previous && pickedFor) {
+    const index = new Uint8Array(data.length / 4);
+    for (let pixel = 0; pixel < index.length; pixel++) index[pixel] = closest(data[pixel * 4]!, data[pixel * 4 + 1]!, data[pixel * 4 + 2]!);
+    if (previous && previousData) {
       for (let pixel = 0; pixel < index.length; pixel++) {
+        const kept = previous[pixel]!;
+        if (kept === index[pixel]) continue;
         const at = pixel * 4;
-        const change = Math.abs(data[at]! - pickedFor[at]!) + Math.abs(data[at + 1]! - pickedFor[at + 1]!) + Math.abs(data[at + 2]! - pickedFor[at + 2]!);
-        if (change < KEEP_BELOW) index[pixel] = previous[pixel]!;
-        else pickedFor.set(data.subarray(at, at + 4), at);
+        const moved = distance(data, at, previousData, at);
+        if (
+          moved > 0 &&
+          moved <= STILL_WITHIN &&
+          distance(data, at, palette[kept]!) <= distance(data, at, palette[index[pixel]!]!) + KEEP_WITHIN
+        ) {
+          index[pixel] = kept;
+        }
       }
-    } else {
-      pickedFor = new Uint8ClampedArray(data);
     }
     previous = index;
+    previousData = data;
     return index;
   });
 }
