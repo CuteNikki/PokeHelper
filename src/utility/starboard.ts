@@ -6,7 +6,6 @@ import {
   channelMention,
   ContainerBuilder,
   DiscordAPIError,
-  escapeMarkdown,
   MediaGalleryBuilder,
   MessageFlags,
   RESTJSONErrorCodes,
@@ -14,6 +13,7 @@ import {
   TextDisplayBuilder,
   time,
   TimestampStyles,
+  userMention,
   type Guild,
   type Message,
   type MessageReaction,
@@ -96,15 +96,15 @@ const imagesOf = (message: Message) =>
  * A starboard post: who wrote it, where and when, the text and pictures, and buttons to star, see who starred, and go to the message.
  */
 export function buildStarboardPost(message: Message, stars: number, emoji: string, t: Translate): ResponsePayload {
-  const name = message.member?.displayName ?? message.author.displayName;
   const text = message.content.length > MAX_TEXT ? `${message.content.slice(0, MAX_TEXT)}…` : message.content;
 
-  // Who wrote it on one line with where and when, like an embed's author, as a thumbnail would take a large square beside the text
+  // Who wrote it on one line with where and when, like an embed's author, as a thumbnail would take a large square beside the text.
+  // A mention, which shows their name and profile when clicked, and never pings them, see allowedMentions below
   const container = new ContainerBuilder()
     .setAccentColor(STAR_COLOR)
     .addTextDisplayComponents(
       new TextDisplayBuilder().setContent(
-        `**${escapeMarkdown(name)}** · ${channelMention(message.channelId)} · ${time(message.createdAt, TimestampStyles.RelativeTime)}`,
+        `${userMention(message.author.id)} · ${channelMention(message.channelId)} · ${time(message.createdAt, TimestampStyles.RelativeTime)}`,
       ),
     );
   if (text) container.addSeparatorComponents(new SeparatorBuilder()).addTextDisplayComponents(new TextDisplayBuilder().setContent(text));
