@@ -65,7 +65,7 @@ _A Pokémon themed Discord bot_
 
 - Interactive settings panels instead of a long list of config commands
 - Every feature can be turned off in its settings, without losing them
-- An animated mascot as avatar and banner, which changes with the seasons and holidays, like a witch hat in October
+- An animated mascot as avatar and banner, and a custom status to match, which change with the seasons and holidays, like a witch hat and "Happy Halloween! 🎃" in October
 - `/help` lists the commands by category, and only the ones of features that are turned on
 - English and German, following each member's Discord language
 - `/privacy` to download or delete your own data, and server managers their server's
@@ -73,7 +73,7 @@ _A Pokémon themed Discord bot_
 
 ### 🎨 Seasonal Looks
 
-With `PROFILE_THEMES=on`, the bot changes its animated avatar and banner by itself. Holidays come before the season they fall in, and between the seasons it wears its standard look:
+With `PROFILE_THEMES=on`, the bot changes its animated avatar, banner and custom status by itself. Holidays come before the season they fall in, and between the seasons it wears its standard look:
 
 | When                                 | Theme           |
 | ------------------------------------ | --------------- |
@@ -94,6 +94,8 @@ With `PROFILE_THEMES=on`, the bot changes its animated avatar and banner by itse
 | September 16 to 30, and November     | Autumn          |
 
 Days change at midnight UTC, and the bot puts the new look on within 15 minutes. `bun run themes` and `/dev theme-calendar` list the exact dates of the next twelve months, `/dev theme-preview` posts every look in one GIF, and `/dev profile-theme` puts on any look right away.
+
+![Every seasonal theme the bot wears](art/themes.gif)
 
 ## 💬 Commands
 
@@ -176,7 +178,7 @@ Copy `.env.example` to `.env` and fill it in:
 | `DISCORD_ID`     | The application ID                                                                                        |
 | `DEV_GUILD_ID`   | Server where `/dev` is registered, only visible there                                                     |
 | `DATABASE_URL`   | Like `postgresql://myuser:mypass@localhost:5432/mydb` for a local server                                  |
-| `PROFILE_THEMES` | `on` to change the avatar and banner with the seasons and holidays by itself. Only on one copy of the bot |
+| `PROFILE_THEMES` | `on` to change the avatar, banner and custom status with the seasons and holidays by itself. Only on one copy of the bot |
 
 ### 5. Create the tables
 

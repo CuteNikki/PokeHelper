@@ -70,11 +70,12 @@ for (const name of (names.length > 0 ? names : Object.keys(THEMES)) as ThemeName
   console.log(`${name}: avatar ${megabytes(avatarFile.length)}, banner ${megabytes(bannerFile.length)}, in art/out/${name}`);
 }
 
-// Every theme in one GIF, to share with people who can't open the page below. Only when all of them were rendered
+// Every theme in one GIF, to share with people who can't open the page below. Only when all of them were rendered.
+// Kept next to the code, not in out/, as it's committed for the README
 if (names.length === 0) {
   const overview = overviewGif(Object.keys(THEMES) as ThemeName[]);
-  await Bun.write(join(OUT, 'overview.gif'), overview);
-  console.log(`All themes in one GIF: art/out/overview.gif, ${megabytes(overview.length)}`);
+  await Bun.write(join(import.meta.dir, 'themes.gif'), overview);
+  console.log(`All themes in one GIF: art/themes.gif, ${megabytes(overview.length)}`);
 }
 
 // A page with every theme rendered so far, animated as on Discord: a profile popup, and the avatar at the size it has in chat
