@@ -695,6 +695,14 @@
       "title": "Look up a Pokémon",
       "label": "Name or Pokédex number",
       "placeholder": "Pikachu, Mega Charizard X, 25..."
+    },
+    "matchups": {
+      "button": "Matchups",
+      "title": "### Matchups of {{name}} 🛡️",
+      "weak": "Weak to",
+      "resists": "Resists",
+      "immune": "Can't be hurt by",
+      "note": "From its types. Abilities like Levitate aren't counted."
     }
   },
   "friendCodes": {

@@ -36,6 +36,7 @@ import {
   type ApiSpecies,
 } from 'utility/pokedex/api';
 import { renderPokedexCard, STAT_BAR_MAX } from 'utility/pokedex/card';
+import { matchupsButton } from 'utility/pokedex/matchups';
 import { TYPE_COLORS } from 'utility/pokedex/types';
 import { statBarEmoji, type BarPiece } from 'utility/pokedex/statBarEmojis';
 import {
@@ -172,7 +173,7 @@ function evolutionStages(chain: ApiEvolutionLink): { id: number; slug: string }[
   return stages;
 }
 
-/** The buttons to the previous and next Pokémon and to the shiny pictures, and the forms select if there are forms. */
+/** The buttons to the previous and next Pokémon, to the shiny pictures and to the matchups, and the forms select if there are forms. */
 function buildControls(match: PokedexMatch, view: PokedexView, hasShiny: boolean, language: string, t: Translate) {
   const { species } = match;
   const previous = speciesById(species.id - 1);
@@ -203,6 +204,7 @@ function buildControls(match: PokedexMatch, view: PokedexView, hasShiny: boolean
       .setEmoji('✨')
       .setLabel(t(view.shiny ? 'pokedex.shiny.hide' : 'pokedex.shiny.show'))
       .setDisabled(!hasShiny),
+    matchupsButton(slug, t),
   );
   if (species.forms.length === 0) return { navigation, forms: [] };
 

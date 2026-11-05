@@ -313,6 +313,14 @@
       "title": "Pokémon nachschlagen",
       "label": "Name oder Pokédex-Nummer",
       "placeholder": "Pikachu, Mega-Glurak X, 25..."
+    },
+    "matchups": {
+      "button": "Schwächen",
+      "title": "### Schwächen und Resistenzen von {{name}} 🛡️",
+      "weak": "Schwach gegen",
+      "resists": "Resistent gegen",
+      "immune": "Immun gegen",
+      "note": "Nach seinen Typen. Fähigkeiten wie Schwebe zählen nicht mit."
     }
   },
   "friendCodes": {

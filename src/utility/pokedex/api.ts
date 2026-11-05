@@ -43,6 +43,19 @@ export interface ApiEvolutionChain {
   chain: ApiEvolutionLink;
 }
 
+/** How much damage a type takes from others, as it is in the newest games. */
+export interface ApiDamageRelations {
+  double_damage_from: Named[];
+  half_damage_from: Named[];
+  no_damage_from: Named[];
+}
+
+export interface ApiType {
+  id: number;
+  name: string;
+  damage_relations: ApiDamageRelations;
+}
+
 /** Thrown when PokéAPI can't be reached or answers with an error, but not when something doesn't exist. */
 export class PokeApiError extends Error {}
 
@@ -95,6 +108,7 @@ function get<T>(path: string): Promise<T | null> {
 
 export const getPokemon = (slug: string) => get<ApiPokemon>(`pokemon/${encodeURIComponent(slug)}`);
 export const getSpecies = (id: number) => get<ApiSpecies>(`pokemon-species/${id}`);
+export const getType = (name: string) => get<ApiType>(`type/${encodeURIComponent(name)}`);
 
 /** The evolution chain at a URL from {@link ApiSpecies.evolution_chain}. */
 export function getEvolutionChain(url: string) {
