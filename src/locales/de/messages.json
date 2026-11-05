@@ -955,6 +955,10 @@
         "label": "Leveling",
         "description": "Mitglieder sammeln XP fürs Schreiben und steigen mit der Zeit im Level auf."
       },
+      "levelUpMessages": {
+        "label": "Level-Up-Nachrichten",
+        "description": "Ankündigen, wenn Mitglieder ein Level aufsteigen. Wenn aus, steigen sie trotzdem auf und bekommen ihre Belohnungsrollen, nur ohne Nachricht."
+      },
       "channel": {
         "label": "Level-Up-Kanal",
         "description": "Wo Level-Ups angekündigt werden. Ohne Kanal tauchen sie in dem Kanal auf, in dem jemand aufgestiegen ist."

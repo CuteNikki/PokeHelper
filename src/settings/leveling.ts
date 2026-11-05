@@ -90,9 +90,21 @@ export const levelingSettings = createSettingsPanel<LevelingConfig>({
       set: (guildId, enabled) => update(guildId, enabled ? { enabled, weeklyLastResetAt: new Date() } : { enabled }),
     },
     {
+      type: 'boolean',
+      key: 'levelUpMessages',
+      category: 'general',
+      defaultValue: true,
+      label: (t) => t('leveling.settings.levelUpMessages.label'),
+      description: (t) => t('leveling.settings.levelUpMessages.description'),
+      get: (config) => config.levelUpMessages,
+      set: (guildId, levelUpMessages) => update(guildId, { levelUpMessages }),
+    },
+    {
       type: 'channel',
       key: 'channel',
       category: 'general',
+      // Only matters while level ups are announced
+      hidden: (config) => !config.levelUpMessages,
       channelTypes: [ChannelType.GuildText, ChannelType.GuildAnnouncement],
       botPermissions: LEVEL_UP_CHANNEL_PERMISSIONS,
       label: (t) => t('leveling.settings.channel.label'),

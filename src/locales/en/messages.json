@@ -330,6 +330,10 @@
         "label": "Leveling",
         "description": "Members earn XP for chatting and level up over time."
       },
+      "levelUpMessages": {
+        "label": "Level Up Messages",
+        "description": "Announce when members level up. When off, they still level up and get their reward roles, just quietly."
+      },
       "channel": {
         "label": "Level Up Channel",
         "description": "Where level ups get announced. Without one, they show up in the channel the member leveled up in."

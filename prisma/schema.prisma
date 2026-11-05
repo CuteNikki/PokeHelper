@@ -264,6 +264,8 @@ model GuildLeveling {
 
   // Configuration
   enabled           Boolean               @default(false)
+  // Whether level ups are announced. Members level up and get their rewards either way
+  levelUpMessages   Boolean               @default(true)
   channelId         String?
   rewards           GuildLevelingReward[]
   multipliers       LevelingMultiplier[]
