@@ -687,7 +687,7 @@
     "forms": "Other forms",
     "notFound": "I couldn't find a Pokémon called **{{name}}**. Pick one of the suggestions, or try its number.",
     "unavailable": "The Pokédex can't be reached right now. Try again in a bit.",
-    "altText": "Pokédex card of {{name}}, {{genus}}. Type: {{types}}. Base stats: {{stats}}. {{details}}. Evolution: {{evolution}}. {{entry}}",
+    "altText": "Pokédex entry of {{name}}, {{genus}}. Type: {{types}}. Base stats: {{stats}}. {{details}}. Evolution: {{evolution}}. {{entry}}",
     "details": {
       "height": "Height",
       "weight": "Weight",
@@ -715,7 +715,7 @@
     },
     "view": {
       "text": "Show as text",
-      "image": "Show as card"
+      "image": "Show as image"
     }
   },
   "friendCodes": {

@@ -301,7 +301,7 @@
     "forms": "Andere Formen",
     "notFound": "Ich hab kein Pokémon namens **{{name}}** gefunden. Nimm einen der Vorschläge oder probier die Nummer.",
     "unavailable": "Der Pokédex ist gerade nicht erreichbar. Versuch es gleich nochmal.",
-    "altText": "Pokédex-Karte von {{name}}, {{genus}}. Typ: {{types}}. Basiswerte: {{stats}}. {{details}}. Entwicklung: {{evolution}}. {{entry}}",
+    "altText": "Pokédex-Eintrag von {{name}}, {{genus}}. Typ: {{types}}. Basiswerte: {{stats}}. {{details}}. Entwicklung: {{evolution}}. {{entry}}",
     "details": {
       "height": "Größe",
       "weight": "Gewicht",
@@ -329,7 +329,7 @@
     },
     "view": {
       "text": "Als Text anzeigen",
-      "image": "Als Karte anzeigen"
+      "image": "Als Bild anzeigen"
     }
   },
   "friendCodes": {

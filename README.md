@@ -17,7 +17,7 @@ _A Pokémon themed Discord bot_
 
 ### 📈 Leveling
 
-- XP for chatting, with rank cards and a leaderboard as images, or as text for screen readers
+- XP for chatting, with rank cards and a leaderboard as images, or as text for screen readers, which the leaderboard switches between with a button
 - A weekly leaderboard, with a role for the weekly winner
 - Level-up rewards, given out retroactively to members who already reached the level
 - XP multipliers for roles and channels
@@ -39,9 +39,9 @@ _A Pokémon themed Discord bot_
 ### 📖 Pokédex
 
 - Look up any Pokémon by name or number, with suggestions while typing
-- A card with its picture, types, stats and evolutions, or a text version for screen readers
+- An image with its picture, types, stats and evolutions, or a text version for screen readers, switched between with a button
 - Shiny pictures, and buttons to go to the previous, next or another Pokémon without running the command again
-- A Matchups button with what a Pokémon is weak to, with Pokémon and moves to use against it, and what it resists and can't be hurt by, as a card or text like the entry, for whoever presses it
+- A Matchups button with what a Pokémon is weak to, with Pokémon and moves to use against it, and what it resists and can't be hurt by, as an image or text like the entry, for whoever presses it
 - Names, pictures and details come from [PokéAPI](https://pokeapi.co/), so nothing has to be downloaded first
 - `/guess`: guess a Pokémon from its silhouette, in any language, with up to three hints
 
@@ -149,7 +149,7 @@ The config commands need the **Manage Server** permission, `/counting-config` an
 - [discord.js](https://discord.js.org/): Discord API integration
 - [Prisma](https://www.prisma.io/) with [PostgreSQL](https://www.postgresql.org/): type-safe database access
 - [i18next](https://www.i18next.com/): translations
-- [@napi-rs/canvas](https://github.com/Brooooooklyn/canvas): rank cards, the leaderboard, the Pokédex card and the mascot
+- [@napi-rs/canvas](https://github.com/Brooooooklyn/canvas): rank cards, the leaderboard, the Pokédex and its matchups, and the mascot
 - [gifenc](https://github.com/mattdesl/gifenc): the animated avatar and banner
 
 ## 🚀 Getting Started
