@@ -29,7 +29,10 @@ export function paletteFor(samples: Uint8ClampedArray[]) {
   const size = samples[0]!.length;
   const sample = new Uint8ClampedArray(size * samples.length);
   samples.forEach((frame, slot) => sample.set(frame, slot * size));
-  return [...quantize(sample, UNCHANGED, { format: 'rgb565' }), [0, 0, 0]];
+  const colors = quantize(sample, UNCHANGED, { format: 'rgb565' });
+  // Fewer when the frames have fewer colors than that, so filled up with the last one, to keep the slot for unchanged the last
+  while (colors.length < UNCHANGED) colors.push(colors.at(-1)!);
+  return [...colors, [0, 0, 0]];
 }
 
 /**
@@ -117,13 +120,7 @@ async function freeFrames() {
  * free the memory of the ones done with. The frames the palette is picked from are drawn twice, once for it, once in turn.
  * @param frame Draws a frame, from 0 to count - 1, and gives its pixels.
  */
-export async function encodeGif(
-  count: number,
-  width: number,
-  height: number,
-  delay: number,
-  frame: (index: number) => Uint8ClampedArray,
-): Promise<Uint8Array> {
+export async function encodeGif(count: number, width: number, height: number, delay: number, frame: (index: number) => Uint8ClampedArray): Promise<Uint8Array> {
   const palette = paletteFor([0, 0.25, 0.5, 0.75].map((share) => frame(Math.floor(share * count))));
   const closest = closestColors(palette);
   const encoder = GIFEncoder();
