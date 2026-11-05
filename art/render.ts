@@ -13,7 +13,8 @@ import { drawGifs, type GifJob } from './workers';
 /**
  * Render the bot's avatar, banner and app icon, and a still of the banner, in every theme or the ones named: `bun run art`, or
  * `bun run art halloween`. They're written to `art/out/<theme>/`, with a preview of how they look in a profile popup, and uploaded
- * with `bun run profile`.
+ * with `bun run profile`. With every theme, also the overview of all of them, and `bun run art --readme` puts that in `art/themes.gif`
+ * for the README too.
  */
 
 const OUT = join(import.meta.dir, 'out');
@@ -50,10 +51,17 @@ function preview(theme: Theme): Buffer {
 
 const megabytes = (bytes: number) => `${(bytes / 1024 / 1024).toFixed(1)} MB`;
 
-const names = process.argv.slice(2);
+const args = process.argv.slice(2);
+/** Whether to replace the overview of every theme the README shows, `art/themes.gif`. */
+const readme = args.includes('--readme');
+const names = args.filter((arg) => arg !== '--readme');
 const unknown = names.filter((name) => !(name in THEMES));
 if (unknown.length > 0) {
   console.error(`Unknown theme: ${unknown.join(', ')}. There are: ${Object.keys(THEMES).join(', ')}.`);
+  process.exit(1);
+}
+if (readme && names.length > 0) {
+  console.error('--readme needs every theme, so leave out the theme names.');
   process.exit(1);
 }
 
@@ -84,10 +92,15 @@ for (const name of themes) {
   console.log(`${name}: avatar ${megabytes(avatarFile.length)}, banner ${megabytes(bannerFile.length)}, in art/out/${name}`);
 }
 
-// Kept next to the code, not in out/, as it's committed for the README
+// In out/ like the rest, and next to the code for the README only when asked, as it's committed: written on every run, a copy of
+// the bot that renders the art, like on the server, would have it changed, and git wouldn't pull over it
 if (names.length === 0) {
-  await Bun.write(join(import.meta.dir, 'themes.gif'), gifs[0]!);
-  console.log(`All themes in one GIF: art/themes.gif, ${megabytes(gifs[0]!.length)}`);
+  await Bun.write(join(OUT, 'themes.gif'), gifs[0]!);
+  console.log(`All themes in one GIF: art/out/themes.gif, ${megabytes(gifs[0]!.length)}`);
+  if (readme) {
+    await Bun.write(join(import.meta.dir, 'themes.gif'), gifs[0]!);
+    console.log('Copied to art/themes.gif for the README, to commit');
+  }
 }
 console.log(`Drawn in ${((Date.now() - started) / 1000).toFixed(0)} s`);
 
