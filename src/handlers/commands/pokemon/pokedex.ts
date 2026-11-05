@@ -11,6 +11,11 @@ import { createResponse, sendResponse } from 'utility/response';
 
 /** Discord shows at most 25 autocomplete choices. */
 const MAX_CHOICES = 25;
+/**
+ * How long suggestions wait for the names. Discord drops an answer after 3 seconds, and loading the names can take far longer when
+ * PokéAPI is slow, so the load carries on and the suggestions come with a later keystroke.
+ */
+const AUTOCOMPLETE_WAIT = 2_000;
 
 /** Replace the "thinking" reply with an error only the user sees, as the entry would have been public. */
 async function fail(interaction: ChatInputCommandInteraction, text: string) {
@@ -32,7 +37,10 @@ export default new Command({
   async autocomplete(interaction) {
     const language = resolveLanguage(interaction.locale);
     // Without the names there's nothing to suggest, but what's typed can still be looked up once they're back
-    const loaded = await loadPokedexData().catch(() => null);
+    const loaded = await Promise.race([
+      loadPokedexData().catch(() => null),
+      new Promise<null>((resolve) => setTimeout(() => resolve(null), AUTOCOMPLETE_WAIT)),
+    ]);
     if (!loaded) return interaction.respond([]);
 
     const choices = searchPokemon(interaction.options.getFocused(), MAX_CHOICES).map((match) => ({
