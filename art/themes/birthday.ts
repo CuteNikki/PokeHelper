@@ -1,10 +1,8 @@
 import type { SKRSContext2D } from '@napi-rs/canvas';
 
-import { drifting, partyHat, TAU } from '../draw';
+import { BOW, bow, partyHat, TAU } from '../draw';
 import { standard } from './standard';
 import type { Theme } from './types';
-
-const CONFETTI = ['#ff6fae', '#ffd23f', '#3fa7ff', '#69db7c', '#b28dff'];
 
 /** A cake with frosting dripping down and a candle whose flame flickers. */
 function cake(ctx: SKRSContext2D, x: number, y: number, scale: number, time: number) {
@@ -44,31 +42,60 @@ function cake(ctx: SKRSContext2D, x: number, y: number, scale: number, time: num
   ctx.restore();
 }
 
-/** The bot's birthday: the everyday look with confetti falling, a cake, and a party hat. */
+/** A bunch of three balloons on strings tied down in the grass, bobbing each at its own pace. */
+function balloons(ctx: SKRSContext2D, x: number, y: number, scale: number, time: number) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(scale, scale);
+  // The strings come together in a bow above the grass, and go on down into it as one, as if tied to a peg
+  ctx.strokeStyle = 'rgba(255,255,255,0.85)';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(0, 0);
+  ctx.lineTo(0, -BOW);
+  ctx.stroke();
+  for (const [dx, height, color, phase] of [
+    [-72, 150, '#3fa7ff', 0],
+    [66, 158, '#ff6fae', 1.2],
+    [-4, 182, '#ffd23f', 2.4],
+  ] as const) {
+    const bx = dx + Math.sin(time * TAU * 2 + phase) * 6;
+    const by = -height + Math.sin(time * TAU * 3 + phase) * 5;
+    ctx.strokeStyle = 'rgba(255,255,255,0.85)';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(0, -BOW);
+    ctx.quadraticCurveTo(bx * 0.4, (by + 46 - BOW) / 2, bx, by + 46);
+    ctx.stroke();
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.ellipse(bx, by, 34, 42, 0, 0, TAU);
+    ctx.fill();
+    // The knot
+    ctx.beginPath();
+    ctx.moveTo(bx, by + 40);
+    ctx.lineTo(bx - 7, by + 49);
+    ctx.lineTo(bx + 7, by + 49);
+    ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,0.5)';
+    ctx.beginPath();
+    ctx.ellipse(bx - 12, by - 15, 8, 13, -0.4, 0, TAU);
+    ctx.fill();
+  }
+  bow(ctx, 0, -BOW, '#ff6fae');
+  ctx.restore();
+}
+
+/** The bot's birthday: the everyday look, with a cake, balloons and a party hat. */
 export const birthday: Theme = {
   ...standard,
   sparkles: ['#ffffff', '#ff8fd1'],
-  life: (ctx, scene, time) => {
-    const banner = scene.kind === 'banner';
-    drifting(
-      scene.width,
-      scene.height,
-      time,
-      banner ? 50 : 12,
-      (x, y, index) => {
-        ctx.save();
-        ctx.translate(x, y);
-        // Flipping as it falls, a whole number of turns a loop
-        ctx.rotate(index + time * TAU * (index % 2 ? 3 : -3));
-        ctx.fillStyle = CONFETTI[index % CONFETTI.length]!;
-        const size = banner ? 1 : 1.8;
-        ctx.fillRect(-6 * size, -3 * size, 12 * size, 6 * size);
-        ctx.restore();
-      },
-      1,
-      18,
-    );
+  // None of the flowers of the everyday look: with the cake and the balloons, it was too busy
+  flowers: undefined,
+  prop: (ctx, x, y, scale, time) => {
+    balloons(ctx, x - 150, y, scale * 1.3, time);
+    cake(ctx, x, y, scale, time);
   },
-  prop: cake,
-  hat: (ctx, time) => partyHat(ctx, time, ['#3fa7ff', '#ffd23f', '#ff6fae']),
+  // Pink, as a blue hat was lost against the blue sky
+  hat: (ctx, time) => partyHat(ctx, time, ['#ff6fae', '#ffffff', '#ffd23f']),
 };

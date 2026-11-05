@@ -1,7 +1,7 @@
 import type { SKRSContext2D } from '@napi-rs/canvas';
 
-import { TAU } from '../draw';
-import type { Theme } from './types';
+import { butterflies, TAU } from '../draw';
+import type { Scene, Theme } from './types';
 
 /** A painted egg with a zigzag band. */
 function egg(ctx: SKRSContext2D, x: number, y: number, size: number, angle: number, color: string, band: string) {
@@ -115,12 +115,36 @@ function chick(ctx: SKRSContext2D, time: number) {
   ctx.restore();
 }
 
-/** Easter: a soft spring sky, a basket of painted eggs, and a chick on its head. */
+/**
+ * Eggs for an egg hunt at the very front, in front of the grass and cut off by the bottom edge, as near as the basket, so they lie in
+ * the grass instead of seeming to float on top of it further back. In the gaps between the flowers. Only on the banner: on the avatar,
+ * the corners where they'd fit are cut off by its circle.
+ */
+function hiddenEggs(ctx: SKRSContext2D, scene: Scene) {
+  if (scene.kind !== 'banner') return;
+  for (const [x, y, size, angle, color, band] of [
+    [620, 468, 26, -0.3, '#ff9f43', '#ffffff'],
+    [780, 472, 24, 0.4, '#74c0fc', '#ffd43b'],
+    [905, 466, 26, -0.2, '#ffc9de', '#69db7c'],
+  ] as const) {
+    egg(ctx, x, y, size, angle, color, band);
+  }
+}
+
+/** Easter: a soft spring sky, butterflies, eggs hidden in the grass, a basket of painted eggs, and a chick on its head. */
 export const easter: Theme = {
   sky: ['#b3e1ff', '#6fa8f0'],
   cloud: '#ffffff',
   sparkles: ['#ffffff', '#fff07a'],
   ground: { kind: 'grass', colors: ['#3f9a52', '#5bbf6a', '#7fd88a'] },
+  // Warm sunlight on the mascot and the prop, so it doesn't look pale against the cool sky
+  light: { color: '#ffb066', amount: 0.1 },
+  hills: ['#b8dfcc', '#86cc95'],
+  trees: { kind: 'round', colors: ['#7a5a45', '#69c07d'] },
+  // Only a few, with the eggs in the gaps between them
+  flowers: { colors: ['#ffffff', '#ffe066'], count: 4 },
+  details: hiddenEggs,
+  life: (ctx, scene, time) => butterflies(ctx, scene, time, ['#ffd43b', '#d0bfff', '#ffc9de']),
   ear: '#46507e',
   titleShadow: 'rgba(30,60,130,0.35)',
   prop: (ctx, x, y, scale) => basket(ctx, x, y, scale),

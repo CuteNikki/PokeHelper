@@ -33,7 +33,7 @@ function sun(ctx: SKRSContext2D, x: number, y: number, r: number, time: number) 
 
 /** A striped beach ball, bobbing a little. */
 function beachBall(ctx: SKRSContext2D, x: number, y: number, scale: number, time: number) {
-  const r = 46;
+  const r = 64;
   ctx.save();
   ctx.translate(x, y - r - Math.abs(Math.sin(time * TAU * 3)) * 8);
   ctx.scale(scale, scale);
@@ -58,7 +58,7 @@ function beachBall(ctx: SKRSContext2D, x: number, y: number, scale: number, time
   ctx.restore();
   ctx.fillStyle = '#ffffff';
   ctx.beginPath();
-  ctx.arc(0, 0, 9, 0, TAU);
+  ctx.arc(0, 0, 12, 0, TAU);
   ctx.fill();
   ctx.restore();
 }
@@ -88,15 +88,43 @@ function sunglasses(ctx: SKRSContext2D) {
   }
 }
 
-/** Summer: a bright sky, the sun, a beach ball and sunglasses. */
+/** A gull gliding, a soft curved v, its wings rising and falling with flap from -1 to 1. */
+function gull(ctx: SKRSContext2D, x: number, y: number, size: number, flap: number) {
+  ctx.strokeStyle = 'rgba(255,255,255,0.95)';
+  ctx.lineWidth = size * 0.22;
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.moveTo(x - size, y - flap * size * 0.35);
+  ctx.quadraticCurveTo(x - size * 0.45, y - size * 0.5, x, y);
+  ctx.quadraticCurveTo(x + size * 0.45, y - size * 0.5, x + size, y - flap * size * 0.35);
+  ctx.stroke();
+}
+
+/** Summer: a bright sky with the sun and gulls gliding by, a beach ball and sunglasses. */
 export const summer: Theme = {
   sky: ['#86d8ff', '#2b8be0'],
   cloud: '#ffffff',
   sparkles: ['#ffffff', '#ffe066'],
   ground: { kind: 'grass', colors: ['#2f9a4f', '#3fb85f', '#62d47c'] },
+  // Warm sunlight on the mascot and the prop, so it doesn't look pale against the cool sky
+  light: { color: '#ffb066', amount: 0.1 },
+  hills: ['#9ad8c8', '#5fc283'],
+  trees: { kind: 'round', colors: ['#7a5a45', '#3f9a52'] },
+  flowers: { colors: ['#ffffff', '#ffe066'] },
   ear: '#46507e',
   titleShadow: 'rgba(15,60,130,0.35)',
   backdrop: (ctx, scene, time) => (scene.kind === 'banner' ? sun(ctx, 1290, 95, 50, time) : sun(ctx, 430, 90, 52, time)),
+  life: (ctx, scene, time) => {
+    if (scene.kind !== 'banner') return;
+    // Two gulls crossing from right to left, a whole width a loop, wrapping around
+    for (const [start, y, size, phase] of [
+      [0.2, 62, 26, 0],
+      [0.55, 40, 20, 1.5],
+    ] as const) {
+      const x = ((((start - time) % 1) + 1) % 1) * (scene.width + 80) - 40;
+      gull(ctx, x, y + Math.sin(time * TAU * 2 + phase) * 6, size, Math.sin(time * TAU * 8 + phase));
+    }
+  },
   prop: beachBall,
   hat: sunglasses,
 };

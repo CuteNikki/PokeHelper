@@ -1,22 +1,7 @@
 import type { SKRSContext2D } from '@napi-rs/canvas';
 
-import { drifting, TAU } from '../draw';
+import { MID_BODY, butterflies, drifting, flower, TAU } from '../draw';
 import type { Theme } from './types';
-
-/** A small five-petaled flower. */
-function flower(ctx: SKRSContext2D, x: number, y: number, r: number, petal: string, center: string) {
-  ctx.fillStyle = petal;
-  for (let i = 0; i < 5; i++) {
-    const angle = (i / 5) * TAU - Math.PI / 2;
-    ctx.beginPath();
-    ctx.arc(x + Math.cos(angle) * r, y + Math.sin(angle) * r, r * 0.75, 0, TAU);
-    ctx.fill();
-  }
-  ctx.fillStyle = center;
-  ctx.beginPath();
-  ctx.arc(x, y, r * 0.6, 0, TAU);
-  ctx.fill();
-}
 
 /** Three tulips in the grass, swaying a little. */
 function tulips(ctx: SKRSContext2D, x: number, y: number, scale: number, time: number) {
@@ -61,12 +46,18 @@ function flowerCrown(ctx: SKRSContext2D) {
   });
 }
 
-/** Spring: a fresh sky, cherry blossom petals drifting down, tulips and a flower crown. */
+/** Spring: a fresh sky, cherry trees in bloom, petals drifting down, butterflies, tulips and a flower crown. */
 export const spring: Theme = {
   sky: ['#9ecbff', '#5d8ff0'],
   cloud: '#ffffff',
   sparkles: ['#ffffff', '#ffb7d5'],
   ground: { kind: 'grass', colors: ['#3f9a52', '#5bbf6a', '#7fd88a'] },
+  // Warm sunlight on the mascot and the prop, so it doesn't look pale against the cool sky
+  light: { color: '#ffb066', amount: 0.1 },
+  hills: ['#b5dcc8', '#82c995'],
+  trees: { kind: 'round', colors: ['#8a6450', '#ffc2d6'] },
+  // Between the pale yellow of the cold themes and the full yellow of the warm ones
+  body: MID_BODY,
   ear: '#46507e',
   titleShadow: 'rgba(30,50,120,0.35)',
   life: (ctx, scene, time) => {
@@ -90,6 +81,7 @@ export const spring: Theme = {
       1,
       28,
     );
+    butterflies(ctx, scene, time, ['#ffe066', '#ffffff', '#c77dff']);
   },
   prop: tulips,
   hat: flowerCrown,
