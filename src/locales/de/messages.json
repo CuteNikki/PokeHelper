@@ -957,7 +957,7 @@
       },
       "levelUpMessages": {
         "label": "Level-Up-Nachrichten",
-        "description": "Ankündigen, wenn Mitglieder ein Level aufsteigen. Wenn aus, steigen sie trotzdem auf und bekommen ihre Belohnungsrollen, nur ohne Nachricht."
+        "description": "Ankündigen, wenn Mitglieder ein Level aufsteigen."
       },
       "channel": {
         "label": "Level-Up-Kanal",
@@ -1040,7 +1040,8 @@
     "tips": {
       "general": [
         "Die Wochen-Rangliste fängt jeden Montag um 00:00 UTC neu an, auch wenn der Bot da offline war.",
-        "Es gibt höchstens für eine Nachricht pro Minute XP, Spammen bringt also nichts."
+        "Es gibt höchstens für eine Nachricht pro Minute XP, Spammen bringt also nichts.",
+        "Ohne Level-Up-Nachrichten steigen Mitglieder trotzdem auf und bekommen ihre Belohnungsrollen, nur ohne Nachricht."
       ],
       "filters": [
         "Eine ignorierte Kategorie ignoriert alle Kanäle darin, und Threads zählen wie der Kanal, in dem sie sind."

@@ -332,7 +332,7 @@
       },
       "levelUpMessages": {
         "label": "Level Up Messages",
-        "description": "Announce when members level up. When off, they still level up and get their reward roles, just quietly."
+        "description": "Announce when members level up."
       },
       "channel": {
         "label": "Level Up Channel",
@@ -390,7 +390,8 @@
     "tips": {
       "general": [
         "The weekly leaderboard starts over every Monday at 00:00 UTC, even if the bot was offline then.",
-        "Members get XP for one message a minute at most, so spamming doesn't help."
+        "Members get XP for one message a minute at most, so spamming doesn't help.",
+        "With level up messages off, members still level up and get their reward roles, just without a message."
       ],
       "filters": [
         "Ignoring a category ignores every channel in it, and threads count as the channel they're in."
