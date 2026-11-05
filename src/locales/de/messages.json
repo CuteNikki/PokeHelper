@@ -965,7 +965,9 @@
       "entry": "{{position}}. {{user}} · {{xp}} XP (Level {{level}})",
       "none": "Hier hat noch niemand XP gesammelt. Fangt an zu schreiben!",
       "title": "### {{guild}} Bestenliste 🏆",
-      "titleWeekly": "### {{guild}} Wochen-Bestenliste 🏆"
+      "titleWeekly": "### {{guild}} Wochen-Bestenliste 🏆",
+      "showText": "Als Text anzeigen",
+      "showImage": "Als Bild anzeigen"
     },
     "rank": {
       "all": "GESAMT",

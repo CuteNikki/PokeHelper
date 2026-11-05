@@ -273,10 +273,15 @@ function buildControls(view: LeaderboardView, totalPages: number, t: Translate) 
     ),
   );
 
-  // On a row of its own, under the sorting it follows
-  const rowFindMe = new ActionRowBuilder<ButtonBuilder>().addComponents(findMeButton(leaderboardCustomId('me', view), t));
+  // On a row of their own, under the sorting they follow: finding yourself, and switching between the image and text, like for screen readers
+  const mode = new ButtonBuilder()
+    .setCustomId(leaderboardCustomId('mode', { ...view, text: !view.text }))
+    .setStyle(ButtonStyle.Secondary)
+    .setEmoji(view.text ? '🖼️' : '📝')
+    .setLabel(t(view.text ? 'leveling.leaderboard.showImage' : 'leveling.leaderboard.showText'));
+  const rowMore = new ActionRowBuilder<ButtonBuilder>().addComponents(findMeButton(leaderboardCustomId('me', view), t), mode);
 
-  return [rowPageButtons, rowSortOrder, rowFindMe] as const;
+  return [rowPageButtons, rowSortOrder, rowMore] as const;
 }
 
 /**
@@ -334,7 +339,8 @@ export async function buildLeaderboard(requested: LeaderboardView, guild: Guild,
 
   if (text) {
     const list = new TextDisplayBuilder().setContent(lines.join('\n'));
-    return { components: [heading, list, ...controls], flags: [MessageFlags.IsComponentsV2], allowedMentions: { parse: [] } };
+    // Without attachments, so the image is taken off when switching to text
+    return { components: [heading, list, ...controls], attachments: [], flags: [MessageFlags.IsComponentsV2], allowedMentions: { parse: [] } };
   }
 
   // Avatars are loaded at the same time, from the cache when they were shown recently

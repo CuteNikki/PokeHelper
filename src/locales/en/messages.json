@@ -302,7 +302,9 @@
       "none": "Nobody has earned XP here yet. Start chatting!",
       "title": "### {{guild}} Leaderboard 🏆",
       "titleWeekly": "### {{guild}} Weekly Leaderboard 🏆",
-      "entry": "{{position}}. {{user}} · {{xp}} XP (level {{level}})"
+      "entry": "{{position}}. {{user}} · {{xp}} XP (level {{level}})",
+      "showText": "Show as text",
+      "showImage": "Show as image"
     },
     "settings": {
       "title": "### Leveling Settings ⚙️",
