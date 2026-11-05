@@ -73,7 +73,8 @@ export const autumn: Theme = {
   sparkles: ['#fff3e3', '#ffd36b'],
   ground: { kind: 'grass', colors: ['#7a4f22', '#a26c2c', '#c98d3c'] },
   hills: ['#e6b48a', '#c99355'],
-  trees: { kind: 'round', colors: ['#6b4a35', '#e0702a'] },
+  // A deep rust, darker than the orange sky behind them, which the orange of the leaves blended into
+  trees: { kind: 'round', colors: ['#5a3a2a', '#b23a1c'] },
   // Between the pale yellow of the cold themes and the full yellow of the warm ones
   body: MID_BODY,
   ear: '#46507e',
