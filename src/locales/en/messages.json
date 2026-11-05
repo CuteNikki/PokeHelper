@@ -224,7 +224,7 @@
       },
       "channel": {
         "label": "Announcement Channel",
-        "description": "Where birthdays get announced. Members choose themselves whether theirs is announced here."
+        "description": "Where birthdays get announced."
       },
       "role": {
         "label": "Birthday Role",
@@ -344,11 +344,11 @@
       },
       "ignoredChannels": {
         "label": "Ignored Channels",
-        "description": "No XP for messages here. Picking a category covers all its channels, and a channel's threads count too."
+        "description": "No XP for messages here."
       },
       "enabledChannels": {
         "label": "Only These Channels",
-        "description": "If any are picked, only messages here earn XP. Categories and threads work like with ignored channels."
+        "description": "If any are picked, only messages here earn XP."
       },
       "ignoredRoles": {
         "label": "Ignored Roles",
@@ -360,18 +360,18 @@
       },
       "rewards": {
         "label": "Level Rewards",
-        "description": "Roles members get when they reach a level. Members who are already past it get it right away. Pick a role that's already in the list to change its level.",
+        "description": "Roles members get when they reach a level. Pick a role that's already in the list to change its level.",
         "level": "Level {{level}}",
         "input": "Level",
         "invalid": "That needs to be a whole number from 1 to {{max}}."
       },
       "channelMultipliers": {
         "label": "Channel Multipliers",
-        "description": "More or less XP for messages in these channels. A category covers its channels. Only the highest multiplier that applies counts, they don't stack. Click a value to change it, after 3x you can type your own."
+        "description": "More or less XP for messages in these channels. Click a value to change it, after 3x you can type your own."
       },
       "roleMultipliers": {
         "label": "Role Multipliers",
-        "description": "More or less XP for members with these roles. Only the highest multiplier that applies counts, they don't stack. Click a value to change it, after 3x you can type your own."
+        "description": "More or less XP for members with these roles. Click a value to change it, after 3x you can type your own."
       },
       "multipliers": {
         "input": "Multiplier",
@@ -394,7 +394,7 @@
         "With level up messages off, members still level up and get their reward roles, just without a message."
       ],
       "filters": [
-        "Ignoring a category ignores every channel in it, and threads count as the channel they're in."
+        "A category covers every channel in it, and threads count as the channel they're in, for ignored and allowed channels alike."
       ],
       "rewards": [
         "Reward roles are also given to members who already reached the level.",
@@ -443,11 +443,11 @@
       "title": "### Counting Settings ⚙️",
       "enabled": {
         "label": "Enabled",
-        "description": "Whether counting is on. Turned off, messages in the channel are left alone, and they aren't checked when it's turned back on"
+        "description": "Whether counting is on."
       },
       "channel": {
         "label": "Channel",
-        "description": "The channel where the counting happens. Messages already in a new channel are left alone."
+        "description": "The channel where the counting happens."
       },
       "lives": {
         "label": "Lives",
@@ -523,7 +523,9 @@
     "tips": [
       "Nobody can count twice in a row. That's removed, but never costs a life.",
       "Numbers sent while the bot was offline still count once it's back.",
-      "If the last number is deleted or changed, the bot posts it again, so nobody can quietly break the count."
+      "If the last number is deleted or changed, the bot posts it again, so nobody can quietly break the count.",
+      "Turned off, messages in the counting channel are left alone, and the ones sent meanwhile aren't checked once it's back on.",
+      "In a new counting channel, messages already there are left alone."
     ]
   },
   "roleMenu": {
@@ -958,7 +960,7 @@
       "title": "### Join Channel Settings 🔊",
       "enabled": {
         "label": "Enabled",
-        "description": "Whether joining this channel gives you a voice channel of your own. Channels already made keep working"
+        "description": "Whether joining this channel gives you a voice channel of your own."
       },
       "notFound": "That join channel doesn't exist anymore.",
       "missingChannel": "Deleted channel",
@@ -1023,7 +1025,8 @@
     "tips": [
       "A channel is deleted once everyone has left.",
       "When the owner has been gone for 30 seconds, the channel goes to someone still there.",
-      "Moderators picked by the owner can let people in, keep them out, kick them and change the limit, but not rename the channel."
+      "Moderators picked by the owner can let people in, keep them out, kick them and change the limit, but not rename the channel.",
+      "Turning a join channel off keeps the channels already made working."
     ]
   },
   "logs": {
@@ -1162,7 +1165,7 @@
       },
       "enabled": {
         "label": "Enabled",
-        "description": "Whether anything is logged. Turned off, every group keeps its channel and switches"
+        "description": "Whether anything is logged."
       },
       "defaultChannel": {
         "label": "Default log channel",
@@ -1170,7 +1173,7 @@
       },
       "ignoredChannels": {
         "label": "Ignored channels",
-        "description": "Messages and voice in these channels aren't logged. Categories cover the channels in them"
+        "description": "Messages and voice in these channels aren't logged."
       },
       "ignoredRoles": {
         "label": "Ignored roles",
@@ -1294,7 +1297,8 @@
     "tips": {
       "general": [
         "The bot needs View Audit Log to say who did something and why.",
-        "Ignoring a category ignores every channel in it."
+        "Ignoring a category ignores every channel in it.",
+        "Turned off, every group keeps its channel and switches, for when logs are turned back on."
       ],
       "messages": [
         "Edits and deletions of messages sent before the bot last restarted can't show what they said.",
@@ -1335,7 +1339,7 @@
       },
       "threshold": {
         "label": "Reactions Needed",
-        "description": "How many stars it takes to get on the starboard, by reacting or with the button on the post. The author's own and bots' don't count.",
+        "description": "How many stars it takes to get on the starboard, by reacting or with the button on the post.",
         "invalid": "Type a whole number from 1 to {{max}}."
       },
       "ignoredChannels": {

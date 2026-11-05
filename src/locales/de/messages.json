@@ -169,11 +169,11 @@
       "title": "### Zähl-Einstellungen ⚙️",
       "enabled": {
         "label": "Aktiviert",
-        "description": "Ob Zählen an ist. Ausgeschaltet bleiben Nachrichten im Kanal in Ruhe und werden beim Wiedereinschalten nicht geprüft"
+        "description": "Ob Zählen an ist."
       },
       "channel": {
         "label": "Kanal",
-        "description": "Der Kanal, in dem gezählt wird. Nachrichten, die schon in einem neuen Kanal sind, bleiben in Ruhe."
+        "description": "Der Kanal, in dem gezählt wird."
       },
       "lives": {
         "label": "Leben",
@@ -249,7 +249,9 @@
     "tips": [
       "Niemand kann zweimal hintereinander zählen. Das wird entfernt, kostet aber nie ein Leben.",
       "Zahlen, die geschickt wurden, während der Bot offline war, zählen trotzdem, sobald er wieder da ist.",
-      "Wird die letzte Zahl gelöscht oder geändert, postet der Bot sie nochmal, damit niemand heimlich das Zählen kaputt macht."
+      "Wird die letzte Zahl gelöscht oder geändert, postet der Bot sie nochmal, damit niemand heimlich das Zählen kaputt macht.",
+      "Ausgeschaltet bleiben Nachrichten im Zählkanal in Ruhe, und was in der Zeit geschickt wurde, wird beim Wiedereinschalten nicht geprüft.",
+      "In einem neuen Zählkanal bleiben Nachrichten, die schon da sind, in Ruhe."
     ]
   },
   "help": {
@@ -525,7 +527,7 @@
       "title": "### Beitrittskanal-Einstellungen 🔊",
       "enabled": {
         "label": "Aktiviert",
-        "description": "Ob man über diesen Kanal einen eigenen Sprachkanal bekommt. Schon erstellte Kanäle funktionieren weiter"
+        "description": "Ob man über diesen Kanal einen eigenen Sprachkanal bekommt."
       },
       "notFound": "Diesen Beitrittskanal gibt es nicht mehr.",
       "missingChannel": "Gelöschter Kanal",
@@ -590,7 +592,8 @@
     "tips": [
       "Ein Kanal wird gelöscht, sobald alle raus sind.",
       "Wenn der Besitzer 30 Sekunden weg ist, geht der Kanal an jemanden, der noch da ist.",
-      "Moderatoren, die der Besitzer gewählt hat, können Leute reinlassen, aussperren, rauswerfen und das Limit ändern, den Kanal aber nicht umbenennen."
+      "Moderatoren, die der Besitzer gewählt hat, können Leute reinlassen, aussperren, rauswerfen und das Limit ändern, den Kanal aber nicht umbenennen.",
+      "Wenn du einen Beitrittskanal ausschaltest, funktionieren schon erstellte Kanäle weiter."
     ]
   },
   "logs": {
@@ -729,7 +732,7 @@
       },
       "enabled": {
         "label": "Aktiviert",
-        "description": "Ob überhaupt etwas geloggt wird. Ausgeschaltet behält jede Gruppe ihren Kanal und ihre Schalter"
+        "description": "Ob überhaupt etwas geloggt wird."
       },
       "defaultChannel": {
         "label": "Standard-Log-Kanal",
@@ -737,7 +740,7 @@
       },
       "ignoredChannels": {
         "label": "Ignorierte Kanäle",
-        "description": "Nachrichten und Sprachkanäle hier werden nicht geloggt. Kategorien gelten für ihre Kanäle"
+        "description": "Nachrichten und Sprachkanäle hier werden nicht geloggt."
       },
       "ignoredRoles": {
         "label": "Ignorierte Rollen",
@@ -861,7 +864,8 @@
     "tips": {
       "general": [
         "Der Bot braucht „Audit-Log anzeigen“, um zu sagen, wer etwas gemacht hat und warum.",
-        "Eine ignorierte Kategorie ignoriert alle Kanäle darin."
+        "Eine ignorierte Kategorie ignoriert alle Kanäle darin.",
+        "Ausgeschaltet behält jede Gruppe ihren Kanal und ihre Schalter, für wenn Logs wieder an sind."
       ],
       "messages": [
         "Bei Nachrichten von vor dem letzten Neustart des Bots kann beim Bearbeiten oder Löschen nicht gezeigt werden, was drinstand.",
@@ -902,7 +906,7 @@
       },
       "threshold": {
         "label": "Benötigte Reaktionen",
-        "description": "Wie viele Sterne es braucht, um ins Starboard zu kommen, per Reaktion oder mit dem Button am Post. Die eigenen und die von Bots zählen nicht.",
+        "description": "Wie viele Sterne es braucht, um ins Starboard zu kommen, per Reaktion oder mit dem Button am Post.",
         "invalid": "Gib eine ganze Zahl von 1 bis {{max}} ein."
       },
       "ignoredChannels": {
@@ -969,11 +973,11 @@
       },
       "ignoredChannels": {
         "label": "Ignorierte Kanäle",
-        "description": "Keine XP für Nachrichten hier. Eine Kategorie gilt für alle ihre Kanäle, und Threads eines Kanals zählen mit."
+        "description": "Keine XP für Nachrichten hier."
       },
       "enabledChannels": {
         "label": "Nur diese Kanäle",
-        "description": "Wenn welche ausgewählt sind, geben nur Nachrichten hier XP. Kategorien und Threads funktionieren wie bei den ignorierten Kanälen."
+        "description": "Wenn welche ausgewählt sind, geben nur Nachrichten hier XP."
       },
       "ignoredRoles": {
         "label": "Ignorierte Rollen",
@@ -985,18 +989,18 @@
       },
       "rewards": {
         "label": "Level-Belohnungen",
-        "description": "Rollen, die man bei einem Level bekommt. Wer schon drüber ist, bekommt sie sofort. Wähl eine Rolle aus der Liste aus, um ihr Level zu ändern.",
+        "description": "Rollen, die man bei einem Level bekommt. Wähl eine Rolle aus der Liste aus, um ihr Level zu ändern.",
         "level": "Level {{level}}",
         "input": "Level",
         "invalid": "Das muss eine ganze Zahl von 1 bis {{max}} sein."
       },
       "channelMultipliers": {
         "label": "Kanal-Multiplikatoren",
-        "description": "Mehr oder weniger XP für Nachrichten in diesen Kanälen. Eine Kategorie gilt für ihre Kanäle. Nur der höchste passende Multiplikator zählt, sie addieren sich nicht. Klick auf einen Wert, um ihn zu ändern, nach 3x kannst du einen eigenen eingeben."
+        "description": "Mehr oder weniger XP für Nachrichten in diesen Kanälen. Klick auf einen Wert, um ihn zu ändern, nach 3x kannst du einen eigenen eingeben."
       },
       "roleMultipliers": {
         "label": "Rollen-Multiplikatoren",
-        "description": "Mehr oder weniger XP für Mitglieder mit diesen Rollen. Nur der höchste passende Multiplikator zählt, sie addieren sich nicht. Klick auf einen Wert, um ihn zu ändern, nach 3x kannst du einen eigenen eingeben."
+        "description": "Mehr oder weniger XP für Mitglieder mit diesen Rollen. Klick auf einen Wert, um ihn zu ändern, nach 3x kannst du einen eigenen eingeben."
       },
       "multipliers": {
         "input": "Multiplikator",
@@ -1044,7 +1048,7 @@
         "Ohne Level-Up-Nachrichten steigen Mitglieder trotzdem auf und bekommen ihre Belohnungsrollen, nur ohne Nachricht."
       ],
       "filters": [
-        "Eine ignorierte Kategorie ignoriert alle Kanäle darin, und Threads zählen wie der Kanal, in dem sie sind."
+        "Eine Kategorie gilt für alle Kanäle darin, und Threads zählen wie der Kanal, in dem sie sind, bei ignorierten und erlaubten Kanälen gleich."
       ],
       "rewards": [
         "Belohnungsrollen bekommen auch Mitglieder, die das Level schon erreicht haben.",
@@ -1204,7 +1208,7 @@
       },
       "channel": {
         "label": "Ankündigungskanal",
-        "description": "Wo Geburtstage angekündigt werden. Mitglieder entscheiden selbst, ob ihrer hier angekündigt wird."
+        "description": "Wo Geburtstage angekündigt werden."
       },
       "role": {
         "label": "Geburtstagsrolle",
