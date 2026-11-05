@@ -204,7 +204,7 @@ function buildControls(match: PokedexMatch, view: PokedexView, hasShiny: boolean
       .setEmoji('✨')
       .setLabel(t(view.shiny ? 'pokedex.shiny.hide' : 'pokedex.shiny.show'))
       .setDisabled(!hasShiny),
-    matchupsButton(slug, t),
+    matchupsButton(slug, view.text, t),
   );
   if (species.forms.length === 0) return { navigation, forms: [] };
 

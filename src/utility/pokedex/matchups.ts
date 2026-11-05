@@ -1,14 +1,30 @@
-import { ButtonBuilder, ButtonStyle, ContainerBuilder, MessageFlags, TextDisplayBuilder, type ButtonInteraction } from 'discord.js';
+import {
+  AttachmentBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+  ContainerBuilder,
+  MediaGalleryBuilder,
+  MessageFlags,
+  SectionBuilder,
+  SeparatorBuilder,
+  TextDisplayBuilder,
+  ThumbnailBuilder,
+  type ButtonInteraction,
+} from 'discord.js';
 
 import { getTranslate, resolveLanguage, type Translate } from 'utility/i18next';
 import { logger } from 'utility/logger';
-import { getPokemon, getType, PokeApiError, type ApiDamageRelations } from 'utility/pokedex/api';
-import { findBySlug, getPokedexData, loadPokedexData, matchName, nameIn } from 'utility/pokedex/names';
+import { artworkUrl, getImage, getMove, getPokemon, getType, PokeApiError, type ApiDamageRelations } from 'utility/pokedex/api';
+import { renderMatchupCard } from 'utility/pokedex/matchupCard';
+import { findBySlug, getPokedexData, loadPokedexData, matchName, nameIn, type PokedexMatch } from 'utility/pokedex/names';
 import { TYPE_COLORS } from 'utility/pokedex/types';
 import { sendError, sendResponse, type ResponsePayload } from 'utility/response';
 import { ThemeColors } from 'utility/theme';
 
-/** The Matchups button of a Pokédex entry is `pokedex-matchups:<slug>`, with the Pokémon or form it's for, so it works however old the entry is. */
+/**
+ * The Matchups button of a Pokédex entry is `pokedex-matchups:<slug>:<i|t>`, with the Pokémon or form it's for and whether the entry is
+ * a card or text, so it works however old the entry is. Buttons from before the text mode have none and show the card.
+ */
 export const POKEDEX_MATCHUPS_PREFIX = 'pokedex-matchups:';
 
 /** The types attacks can have, in the order the games list them. */
@@ -22,6 +38,31 @@ const GROUPS = [
   { multiplier: 0.25, label: '×¼' },
   { multiplier: 0, label: '×0' },
 ] as const;
+
+/**
+ * Well-known Pokémon and strong, common moves of each type, to use against a Pokémon weak to it. Picked by hand, as which are well
+ * known can't be worked out, and kept to three each so a row stays readable. Their names come from PokéAPI in each language.
+ */
+export const TYPE_EXAMPLES: Record<string, { pokemon: string[]; moves: string[] }> = {
+  normal: { pokemon: ['snorlax', 'porygon-z', 'staraptor'], moves: ['hyper-voice', 'body-slam', 'double-edge'] },
+  fire: { pokemon: ['charizard', 'arcanine', 'volcarona'], moves: ['flamethrower', 'fire-blast', 'flare-blitz'] },
+  water: { pokemon: ['blastoise', 'gyarados', 'greninja'], moves: ['surf', 'hydro-pump', 'waterfall'] },
+  electric: { pokemon: ['jolteon', 'magnezone', 'zapdos'], moves: ['thunderbolt', 'thunder', 'wild-charge'] },
+  grass: { pokemon: ['venusaur', 'sceptile', 'rillaboom'], moves: ['energy-ball', 'giga-drain', 'leaf-blade'] },
+  ice: { pokemon: ['lapras', 'weavile', 'glaceon'], moves: ['ice-beam', 'blizzard', 'icicle-crash'] },
+  fighting: { pokemon: ['lucario', 'machamp', 'conkeldurr'], moves: ['close-combat', 'aura-sphere', 'drain-punch'] },
+  poison: { pokemon: ['gengar', 'toxapex', 'nidoking'], moves: ['sludge-bomb', 'gunk-shot', 'poison-jab'] },
+  ground: { pokemon: ['garchomp', 'excadrill', 'landorus'], moves: ['earthquake', 'earth-power', 'high-horsepower'] },
+  flying: { pokemon: ['talonflame', 'corviknight', 'pidgeot'], moves: ['brave-bird', 'hurricane', 'air-slash'] },
+  psychic: { pokemon: ['alakazam', 'espeon', 'gardevoir'], moves: ['psychic', 'psyshock', 'zen-headbutt'] },
+  bug: { pokemon: ['scizor', 'heracross', 'pinsir'], moves: ['bug-buzz', 'x-scissor', 'u-turn'] },
+  rock: { pokemon: ['tyranitar', 'aerodactyl', 'rhyperior'], moves: ['stone-edge', 'rock-slide', 'power-gem'] },
+  ghost: { pokemon: ['dragapult', 'mimikyu', 'chandelure'], moves: ['shadow-ball', 'poltergeist', 'shadow-claw'] },
+  dragon: { pokemon: ['dragonite', 'salamence', 'haxorus'], moves: ['draco-meteor', 'dragon-claw', 'outrage'] },
+  dark: { pokemon: ['umbreon', 'hydreigon', 'kingambit'], moves: ['dark-pulse', 'crunch', 'knock-off'] },
+  steel: { pokemon: ['metagross', 'aggron', 'steelix'], moves: ['iron-head', 'flash-cannon', 'meteor-mash'] },
+  fairy: { pokemon: ['sylveon', 'clefable', 'togekiss'], moves: ['moonblast', 'play-rough', 'dazzling-gleam'] },
+};
 
 /** How much damage a Pokémon of these types takes from an attack of each type: the multipliers of its types, multiplied. */
 export function damageTaken(types: ApiDamageRelations[]): Record<string, number> {
@@ -42,59 +83,206 @@ export function matchupGroups(taken: Record<string, number>) {
 }
 
 /** The Matchups button for a Pokémon or form, which anyone who sees the entry can press. */
-export const matchupsButton = (slug: string, t: Translate) =>
-  new ButtonBuilder().setCustomId(`${POKEDEX_MATCHUPS_PREFIX}${slug}`).setStyle(ButtonStyle.Secondary).setEmoji('🛡️').setLabel(t('pokedex.matchups.button'));
+export const matchupsButton = (slug: string, text: boolean, t: Translate) =>
+  new ButtonBuilder()
+    .setCustomId(`${POKEDEX_MATCHUPS_PREFIX}${slug}:${text ? 't' : 'i'}`)
+    .setStyle(ButtonStyle.Secondary)
+    .setEmoji('🛡️')
+    .setLabel(t('pokedex.matchups.button'));
+
+/** The Pokémon, and whether to show text, from the button's custom ID. */
+export function parseMatchupsCustomId(customId: string): { slug: string; text: boolean } | null {
+  const [slug, mode, ...rest] = customId.slice(POKEDEX_MATCHUPS_PREFIX.length).split(':');
+  if (!slug || rest.length > 0 || (mode !== undefined && mode !== 'i' && mode !== 't')) return null;
+  return { slug, text: mode === 't' };
+}
+
+const toHex = (color: number) => `#${color.toString(16).padStart(6, '0')}`;
+
+interface MatchupType {
+  slug: string;
+  name: string;
+  color: number;
+}
+
+interface Matchups {
+  name: string;
+  picture: string | null;
+  types: MatchupType[];
+  weak: { type: MatchupType; label: string; pokemon: { name: string; id: number }[]; moves: string[] }[];
+  resists: { type: MatchupType; label: string }[];
+  immune: { type: MatchupType; label: string }[];
+}
 
 /**
- * What a Pokémon is weak to, resists and can't be hurt by, from its types.
+ * Everything about a Pokémon's matchups, in a language.
  * @throws {PokeApiError} When PokéAPI can't be reached.
  * @returns The matchups, or null when PokéAPI doesn't know the Pokémon.
  */
-async function buildMatchups(slug: string, language: string, t: Translate): Promise<ResponsePayload | null> {
+async function getMatchups(slug: string, language: string): Promise<Matchups | null> {
   const match = findBySlug(slug);
   const pokemon = match && (await getPokemon(slug));
   if (!match || !pokemon) return null;
 
-  const typeNames = [...pokemon.types].sort((a, b) => a.slot - b.slot).map((entry) => entry.type.name);
-  const relations = await Promise.all(typeNames.map((name) => getType(name)));
-  if (relations.some((type) => !type)) return null;
+  const ownTypes = [...pokemon.types].sort((a, b) => a.slot - b.slot).map((entry) => entry.type.name);
+  const relations = await Promise.all(ownTypes.map((name) => getType(name)));
+  if (relations.some((relation) => !relation)) return null;
 
   const data = getPokedexData();
-  const typeName = (type: string) => nameIn(data.types[type], language) || type;
-  const groups = matchupGroups(damageTaken(relations.map((type) => type!.damage_relations)));
+  const toType = (type: string): MatchupType => ({
+    slug: type,
+    name: nameIn(data.types[type], language) || type,
+    color: TYPE_COLORS[type] ?? ThemeColors.info,
+  });
+  const groups = matchupGroups(damageTaken(relations.map((relation) => relation!.damage_relations)));
+  const entries = (keep: (multiplier: number) => boolean) =>
+    groups.filter((group) => keep(group.multiplier)).flatMap((group) => group.types.map((type) => ({ type: toType(type), label: group.label })));
 
-  const heading = (multiplier: number) => (multiplier > 1 ? 'weak' : multiplier > 0 ? 'resists' : 'immune');
-  const lines: string[] = [];
-  for (const group of groups) {
-    const title = t(`pokedex.matchups.${heading(group.multiplier)}`);
-    if (!lines.includes(`**${title}**`)) lines.push(`**${title}**`);
-    lines.push(`${group.label} ${group.types.map(typeName).join(', ')}`);
-  }
+  // The moves' names are asked for together, and one PokéAPI doesn't answer for is left out
+  const weak = await Promise.all(
+    entries((multiplier) => multiplier > 1).map(async (entry) => {
+      const examples = TYPE_EXAMPLES[entry.type.slug] ?? { pokemon: [], moves: [] };
+      const moves = await Promise.all(examples.moves.map((move) => getMove(move).catch(() => null)));
+      return {
+        ...entry,
+        pokemon: examples.pokemon
+          .map((example) => findBySlug(example))
+          .filter((example): example is PokedexMatch => example !== null && example.species.id !== match.species.id)
+          .map((example) => ({ name: matchName(example, language), id: example.species.id })),
+        moves: moves.flatMap((move) => {
+          if (!move) return [];
+          const named = (lang: string) => move.names.find((name) => name.language.name === lang)?.name;
+          return [named(language) ?? named('en') ?? move.name];
+        }),
+      };
+    }),
+  );
+
+  return {
+    name: matchName(match, language),
+    picture: pokemon.sprites.other?.['official-artwork']?.front_default ?? pokemon.sprites.front_default,
+    types: ownTypes.map(toType),
+    weak,
+    resists: entries((multiplier) => multiplier > 0 && multiplier < 1),
+    immune: entries((multiplier) => multiplier === 0),
+  };
+}
+
+/** The matchups as a card, like the Pokédex entry, with everything on it in its description for screen readers. */
+async function buildCard(matchups: Matchups, t: Translate): Promise<ResponsePayload> {
+  const cardType = (type: MatchupType) => ({ name: type.name, color: toHex(type.color) });
+  const [artwork, weak] = await Promise.all([
+    matchups.picture ? getImage(matchups.picture) : null,
+    Promise.all(
+      matchups.weak.map(async (entry) => ({
+        type: cardType(entry.type),
+        multiplier: entry.label,
+        pokemon: await Promise.all(entry.pokemon.map(async (example) => ({ name: example.name, image: await getImage(artworkUrl(example.id, false)) }))),
+        moves: entry.moves,
+      })),
+    ),
+  ]);
+  const card = renderMatchupCard({
+    name: matchups.name,
+    artwork,
+    types: matchups.types.map(cardType),
+    title: t('pokedex.matchups.button'),
+    weak,
+    resists: matchups.resists.map((entry) => ({ type: cardType(entry.type), multiplier: entry.label })),
+    immune: matchups.immune.map((entry) => ({ type: cardType(entry.type), multiplier: entry.label })),
+    labels: { weak: t('pokedex.matchups.weak'), resists: t('pokedex.matchups.resists'), immune: t('pokedex.matchups.immune') },
+    note: t('pokedex.matchups.note'),
+  });
+
+  const list = (entries: { type: MatchupType; label: string }[]) => entries.map((entry) => `${entry.type.name} ${entry.label}`).join(', ');
+  const weakText = matchups.weak
+    .map((entry) => `${entry.type.name} ${entry.label} (${[...entry.pokemon.map((example) => example.name), ...entry.moves].join(', ')})`)
+    .join('; ');
+  const description = [
+    t('pokedex.matchups.altText', { name: matchups.name, types: matchups.types.map((type) => type.name).join(', ') }),
+    matchups.weak.length > 0 ? `${t('pokedex.matchups.weak')}: ${weakText}.` : null,
+    matchups.resists.length > 0 ? `${t('pokedex.matchups.resists')}: ${list(matchups.resists)}.` : null,
+    matchups.immune.length > 0 ? `${t('pokedex.matchups.immune')}: ${list(matchups.immune)}.` : null,
+  ]
+    .filter(Boolean)
+    .join(' ');
 
   const container = new ContainerBuilder()
-    .setAccentColor(TYPE_COLORS[typeNames[0] ?? ''] ?? ThemeColors.info)
-    .addTextDisplayComponents(
-      new TextDisplayBuilder().setContent(
-        [
-          t('pokedex.matchups.title', { name: matchName(match, language) }),
-          `-# ${typeNames.map(typeName).join(' / ')}`,
-          ...lines,
-          `-# ${t('pokedex.matchups.note')}`,
-        ].join('\n'),
-      ),
+    .setAccentColor(matchups.types[0]?.color ?? ThemeColors.info)
+    .addMediaGalleryComponents(
+      new MediaGalleryBuilder().addItems((item) => item.setURL('attachment://matchups.png').setDescription(description.slice(0, 1024))),
     );
+  return { components: [container], files: [new AttachmentBuilder(card, { name: 'matchups.png' })], flags: [MessageFlags.IsComponentsV2] };
+}
+
+/** The matchups as text, a type to a line, with the Pokémon's picture and one of the Pokémon to use against each weakness. */
+function buildText(matchups: Matchups, t: Translate): ResponsePayload {
+  const header = new TextDisplayBuilder().setContent(
+    `${t('pokedex.matchups.title', { name: matchups.name })}\n-# ${matchups.types.map((type) => type.name).join(' / ')}`,
+  );
+  const container = new ContainerBuilder().setAccentColor(matchups.types[0]?.color ?? ThemeColors.info);
+  if (matchups.picture) {
+    container.addSectionComponents(
+      new SectionBuilder()
+        .addTextDisplayComponents(header)
+        .setThumbnailAccessory(new ThumbnailBuilder().setURL(matchups.picture).setDescription(t('pokedex.picture', { name: matchups.name }))),
+    );
+  } else {
+    container.addTextDisplayComponents(header);
+  }
+
+  if (matchups.weak.length > 0) {
+    container.addSeparatorComponents(new SeparatorBuilder()).addTextDisplayComponents(new TextDisplayBuilder().setContent(`### ${t('pokedex.matchups.weak')}`));
+    for (const entry of matchups.weak) {
+      const lines = [
+        `**${entry.type.name}** ${entry.label}`,
+        entry.pokemon.map((example) => example.name).join(' · '),
+        entry.moves.length > 0 ? `-# ${entry.moves.join(' · ')}` : null,
+      ];
+      const text = new TextDisplayBuilder().setContent(lines.filter(Boolean).join('\n'));
+      const first = entry.pokemon[0];
+      if (first) {
+        container.addSectionComponents(
+          new SectionBuilder()
+            .addTextDisplayComponents(text)
+            .setThumbnailAccessory(new ThumbnailBuilder().setURL(artworkUrl(first.id, false)).setDescription(t('pokedex.picture', { name: first.name }))),
+        );
+      } else {
+        container.addTextDisplayComponents(text);
+      }
+    }
+  }
+
+  for (const [key, entries] of [
+    ['resists', matchups.resists],
+    ['immune', matchups.immune],
+  ] as const) {
+    if (entries.length === 0) continue;
+    const lines = entries.map((entry) => `**${entry.type.name}** ${entry.label}`);
+    container
+      .addSeparatorComponents(new SeparatorBuilder())
+      .addTextDisplayComponents(new TextDisplayBuilder().setContent(`### ${t(`pokedex.matchups.${key}`)}\n${lines.join('\n')}`));
+  }
+
+  container.addSeparatorComponents(new SeparatorBuilder()).addTextDisplayComponents(new TextDisplayBuilder().setContent(`-# ${t('pokedex.matchups.note')}`));
   return { components: [container], flags: [MessageFlags.IsComponentsV2] };
 }
 
-/** Show the matchups of the entry's Pokémon to whoever pressed the button, in their language, so the entry stays as it is for everyone. */
+/**
+ * Show the matchups of the entry's Pokémon to whoever pressed the button, in their language, so the entry stays as it is for everyone.
+ * As a card or text, like the entry.
+ */
 export async function showMatchups(interaction: ButtonInteraction): Promise<unknown> {
   const t = getTranslate(interaction.locale);
+  const parsed = parseMatchupsCustomId(interaction.customId);
+  if (!parsed) return sendError(interaction, t('system.outdated'));
+
   await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
   try {
     await loadPokedexData();
-    const matchups = await buildMatchups(interaction.customId.slice(POKEDEX_MATCHUPS_PREFIX.length), resolveLanguage(interaction.locale), t);
+    const matchups = await getMatchups(parsed.slug, resolveLanguage(interaction.locale));
     if (!matchups) return sendError(interaction, t('system.outdated'));
-    return sendResponse(interaction, matchups);
+    return sendResponse(interaction, parsed.text ? buildText(matchups, t) : await buildCard(matchups, t));
   } catch (error) {
     if (!(error instanceof PokeApiError)) throw error;
     logger.warn(error, error.message);

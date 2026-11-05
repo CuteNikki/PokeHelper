@@ -56,6 +56,12 @@ export interface ApiType {
   damage_relations: ApiDamageRelations;
 }
 
+export interface ApiMove {
+  id: number;
+  name: string;
+  names: { name: string; language: Named }[];
+}
+
 /** Thrown when PokéAPI can't be reached or answers with an error, but not when something doesn't exist. */
 export class PokeApiError extends Error {}
 
@@ -108,6 +114,7 @@ function get<T>(path: string): Promise<T | null> {
 
 export const getPokemon = (slug: string) => get<ApiPokemon>(`pokemon/${encodeURIComponent(slug)}`);
 export const getSpecies = (id: number) => get<ApiSpecies>(`pokemon-species/${id}`);
+export const getMove = (slug: string) => get<ApiMove>(`move/${encodeURIComponent(slug)}`);
 export const getType = (name: string) => get<ApiType>(`type/${encodeURIComponent(name)}`);
 
 /** The evolution chain at a URL from {@link ApiSpecies.evolution_chain}. */

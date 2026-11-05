@@ -1,6 +1,7 @@
 import { expect, test } from 'bun:test';
 
-import { damageTaken, matchupGroups } from 'utility/pokedex/matchups';
+import { damageTaken, matchupGroups, parseMatchupsCustomId, TYPE_EXAMPLES } from 'utility/pokedex/matchups';
+import { TYPE_COLORS } from 'utility/pokedex/types';
 
 const type = (double: string[], half: string[], none: string[] = []) => ({
   double_damage_from: double.map((name) => ({ name, url: '' })),
@@ -30,4 +31,18 @@ test('the groups go from most to least damage, without neutral damage or empty g
     ['×0', ['ground']],
   ]);
   expect(matchupGroups(damageTaken([type([], [])]))).toEqual([]);
+});
+
+test('the Matchups button keeps whether the entry is text, and older buttons without it show the card', () => {
+  expect(parseMatchupsCustomId('pokedex-matchups:raichu-alola:t')).toEqual({ slug: 'raichu-alola', text: true });
+  expect(parseMatchupsCustomId('pokedex-matchups:pikachu:i')).toEqual({ slug: 'pikachu', text: false });
+  expect(parseMatchupsCustomId('pokedex-matchups:pikachu')).toEqual({ slug: 'pikachu', text: false });
+  expect(parseMatchupsCustomId('pokedex-matchups:pikachu:x')).toBeNull();
+});
+
+test('every type has three Pokémon and three moves to use against it', () => {
+  for (const type of Object.keys(TYPE_COLORS)) {
+    expect(TYPE_EXAMPLES[type]?.pokemon).toHaveLength(3);
+    expect(TYPE_EXAMPLES[type]?.moves).toHaveLength(3);
+  }
 });

@@ -41,7 +41,7 @@ _A Pokémon themed Discord bot_
 - Look up any Pokémon by name or number, with suggestions while typing
 - A card with its picture, types, stats and evolutions, or a text version for screen readers
 - Shiny pictures, and buttons to go to the previous, next or another Pokémon without running the command again
-- A Matchups button with what a Pokémon is weak to, resists and can't be hurt by, for whoever presses it
+- A Matchups button with what a Pokémon is weak to, with Pokémon and moves to use against it, and what it resists and can't be hurt by, as a card or text like the entry, for whoever presses it
 - Names, pictures and details come from [PokéAPI](https://pokeapi.co/), so nothing has to be downloaded first
 - `/guess`: guess a Pokémon from its silhouette, in any language, with up to three hints
 

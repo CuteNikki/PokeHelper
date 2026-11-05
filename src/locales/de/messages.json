@@ -320,7 +320,8 @@
       "weak": "Schwach gegen",
       "resists": "Resistent gegen",
       "immune": "Immun gegen",
-      "note": "Nach seinen Typen. Fähigkeiten wie Schwebe zählen nicht mit."
+      "note": "Nach seinen Typen. Fähigkeiten wie Schwebe zählen nicht mit.",
+      "altText": "Schwächen und Resistenzen von {{name}}, Typ {{types}}."
     }
   },
   "friendCodes": {
