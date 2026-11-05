@@ -180,7 +180,7 @@ function buildControls(match: PokedexMatch, view: PokedexView, hasShiny: boolean
   const next = speciesById(species.id + 1);
   const slug = matchSlug(match);
 
-  const navigation = new ActionRowBuilder<ButtonBuilder>().addComponents(
+  const buttons = [
     new ButtonBuilder()
       .setCustomId(pokedexCustomId('prev', previous?.slug ?? slug, view))
       .setStyle(ButtonStyle.Secondary)
@@ -205,7 +205,10 @@ function buildControls(match: PokedexMatch, view: PokedexView, hasShiny: boolean
       .setLabel(t(view.shiny ? 'pokedex.shiny.hide' : 'pokedex.shiny.show'))
       .setDisabled(!hasShiny),
     matchupsButton(slug, view.text, t),
-  );
+  ];
+  // Under the card, five buttons are wider than the picture looks, so Shiny and Matchups get a row of their own. Text has room for all of them
+  const groups = view.text ? [buttons] : [buttons.slice(0, 3), buttons.slice(3)];
+  const navigation = groups.map((group) => new ActionRowBuilder<ButtonBuilder>().addComponents(group));
   if (species.forms.length === 0) return { navigation, forms: [] };
 
   const options = [
@@ -388,7 +391,7 @@ export async function buildPokedexEntry(match: PokedexMatch, view: PokedexView, 
   const { navigation, forms } = buildControls(match, shownView, Boolean(shinyPicture), language, t);
   // The text has them under its evolution heading already
   const evolutionButtons = evolves && !view.text ? buildEvolutionButtons(stages.flat(), match, shownView, speciesName) : [];
-  container.addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large)).addActionRowComponents(navigation, ...evolutionButtons);
+  container.addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large)).addActionRowComponents(...navigation, ...evolutionButtons);
   if (forms.length > 0) container.addActionRowComponents(...forms);
 
   return { components: [container], files, flags: [MessageFlags.IsComponentsV2], allowedMentions: { parse: [] } };
