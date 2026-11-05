@@ -34,9 +34,11 @@ test('the groups go from most to least damage, without neutral damage or empty g
 });
 
 test('the Matchups button keeps whether the entry is text, and older buttons without it show the card', () => {
-  expect(parseMatchupsCustomId('pokedex-matchups:raichu-alola:t')).toEqual({ slug: 'raichu-alola', text: true });
-  expect(parseMatchupsCustomId('pokedex-matchups:pikachu:i')).toEqual({ slug: 'pikachu', text: false });
-  expect(parseMatchupsCustomId('pokedex-matchups:pikachu')).toEqual({ slug: 'pikachu', text: false });
+  expect(parseMatchupsCustomId('pokedex-matchups:raichu-alola:t')).toEqual({ slug: 'raichu-alola', text: true, switch: false });
+  expect(parseMatchupsCustomId('pokedex-matchups:pikachu:i')).toEqual({ slug: 'pikachu', text: false, switch: false });
+  expect(parseMatchupsCustomId('pokedex-matchups:pikachu')).toEqual({ slug: 'pikachu', text: false, switch: false });
+  expect(parseMatchupsCustomId('pokedex-matchups:pikachu:t:switch')).toEqual({ slug: 'pikachu', text: true, switch: true });
+  expect(parseMatchupsCustomId('pokedex-matchups:pikachu:t:other')).toBeNull();
   expect(parseMatchupsCustomId('pokedex-matchups:pikachu:x')).toBeNull();
 });
 

@@ -1,4 +1,5 @@
 import {
+  ActionRowBuilder,
   AttachmentBuilder,
   ButtonBuilder,
   ButtonStyle,
@@ -90,11 +91,19 @@ export const matchupsButton = (slug: string, text: boolean, t: Translate) =>
     .setEmoji('🛡️')
     .setLabel(t('pokedex.matchups.button'));
 
-/** The Pokémon, and whether to show text, from the button's custom ID. */
-export function parseMatchupsCustomId(customId: string): { slug: string; text: boolean } | null {
-  const [slug, mode, ...rest] = customId.slice(POKEDEX_MATCHUPS_PREFIX.length).split(':');
-  if (!slug || rest.length > 0 || (mode !== undefined && mode !== 'i' && mode !== 't')) return null;
-  return { slug, text: mode === 't' };
+/** The button on the matchups that switches them between the card and text, ending in `:switch`, as it changes the reply it's on. */
+const switchButton = (slug: string, text: boolean, t: Translate) =>
+  new ButtonBuilder()
+    .setCustomId(`${POKEDEX_MATCHUPS_PREFIX}${slug}:${text ? 'i' : 't'}:switch`)
+    .setStyle(ButtonStyle.Secondary)
+    .setEmoji(text ? '🖼️' : '📝')
+    .setLabel(t(text ? 'pokedex.view.image' : 'pokedex.view.text'));
+
+/** The Pokémon, whether to show text, and whether it's the switch on the matchups, from a button's custom ID. */
+export function parseMatchupsCustomId(customId: string): { slug: string; text: boolean; switch: boolean } | null {
+  const [slug, mode, extra, ...rest] = customId.slice(POKEDEX_MATCHUPS_PREFIX.length).split(':');
+  if (!slug || rest.length > 0 || (mode !== undefined && mode !== 'i' && mode !== 't') || (extra !== undefined && extra !== 'switch')) return null;
+  return { slug, text: mode === 't', switch: extra === 'switch' };
 }
 
 const toHex = (color: number) => `#${color.toString(16).padStart(6, '0')}`;
@@ -169,7 +178,7 @@ async function getMatchups(slug: string, language: string): Promise<Matchups | n
 }
 
 /** The matchups as a card, like the Pokédex entry, with everything on it in its description for screen readers. */
-async function buildCard(matchups: Matchups, t: Translate): Promise<ResponsePayload> {
+async function buildCard(matchups: Matchups, slug: string, t: Translate): Promise<ResponsePayload> {
   const cardType = (type: MatchupType) => ({ name: type.name, color: toHex(type.color) });
   const [artwork, weak] = await Promise.all([
     matchups.picture ? getImage(matchups.picture) : null,
@@ -217,12 +226,13 @@ async function buildCard(matchups: Matchups, t: Translate): Promise<ResponsePayl
     .setAccentColor(matchups.types[0]?.color ?? ThemeColors.info)
     .addMediaGalleryComponents(
       new MediaGalleryBuilder().addItems((item) => item.setURL('attachment://matchups.png').setDescription(description.slice(0, 1024))),
-    );
+    )
+    .addActionRowComponents(new ActionRowBuilder<ButtonBuilder>().addComponents(switchButton(slug, false, t)));
   return { components: [container], files: [new AttachmentBuilder(card, { name: 'matchups.png' })], flags: [MessageFlags.IsComponentsV2] };
 }
 
 /** The matchups as text, a type to a line, with the Pokémon's picture and one of the Pokémon to use against each weakness. */
-function buildText(matchups: Matchups, t: Translate): ResponsePayload {
+function buildText(matchups: Matchups, slug: string, t: Translate): ResponsePayload {
   const header = new TextDisplayBuilder().setContent(
     `${t('pokedex.matchups.title', { name: matchups.name })}\n-# ${matchups.types.map((type) => type.name).join(' / ')}`,
   );
@@ -271,7 +281,10 @@ function buildText(matchups: Matchups, t: Translate): ResponsePayload {
       .addTextDisplayComponents(new TextDisplayBuilder().setContent(`### ${t(`pokedex.matchups.${key}`)}\n${lines.join('\n')}`));
   }
 
-  container.addSeparatorComponents(new SeparatorBuilder()).addTextDisplayComponents(new TextDisplayBuilder().setContent(`-# ${t('pokedex.matchups.note')}`));
+  container
+    .addSeparatorComponents(new SeparatorBuilder())
+    .addTextDisplayComponents(new TextDisplayBuilder().setContent(`-# ${t('pokedex.matchups.note')}`))
+    .addActionRowComponents(new ActionRowBuilder<ButtonBuilder>().addComponents(switchButton(slug, true, t)));
   return { components: [container], flags: [MessageFlags.IsComponentsV2] };
 }
 
@@ -284,12 +297,17 @@ export async function showMatchups(interaction: ButtonInteraction): Promise<unkn
   const parsed = parseMatchupsCustomId(interaction.customId);
   if (!parsed) return sendError(interaction, t('system.outdated'));
 
-  await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
+  // The switch changes the reply it's on, the button on the entry answers with a new one
+  if (parsed.switch) await interaction.deferUpdate();
+  else await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
   try {
     await loadPokedexData();
     const matchups = await getMatchups(parsed.slug, resolveLanguage(interaction.locale));
     if (!matchups) return sendError(interaction, t('system.outdated'));
-    return sendResponse(interaction, parsed.text ? buildText(matchups, t) : await buildCard(matchups, t));
+    const reply = parsed.text ? buildText(matchups, parsed.slug, t) : await buildCard(matchups, parsed.slug, t);
+    // Without the card's picture when switching to text
+    if (parsed.switch) return interaction.editReply({ ...reply, attachments: [] });
+    return sendResponse(interaction, reply);
   } catch (error) {
     if (!(error instanceof PokeApiError)) throw error;
     logger.warn(error, error.message);
