@@ -1,6 +1,7 @@
 import {
   ActionRowBuilder,
   ApplicationCommandOptionType,
+  ApplicationCommandType,
   ApplicationIntegrationType,
   chatInputApplicationCommandMention,
   ContainerBuilder,
@@ -103,6 +104,8 @@ async function getCategories(interaction: Interaction): Promise<[string, string[
   const categories = new Map<string, string[]>();
   for (const command of [...commands.values()].sort(forEveryoneFirst)) {
     const loaded = client.commands.get(command.name);
+    // Commands in the menu of a name or message can't be mentioned, they're found where they're used
+    if (command.type !== ApplicationCommandType.ChatInput) continue;
     if (!loaded || loaded.options.devOnly || !isUsableHere(command, interaction)) continue;
     if (off.has(loaded.category) && !command.defaultMemberPermissions) continue;
     categories.set(loaded.category, [...(categories.get(loaded.category) ?? []), ...commandLines(command, interaction.locale)]);

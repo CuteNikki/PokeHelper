@@ -20,6 +20,7 @@ The bot only stores what its features need. Everything is tied to Discord IDs, w
 - **Leveling:** your XP in each server, all time and for the current week.
 - **Counting:** how many numbers you counted and how many mistakes you made in each server, when you last counted, and the numbers you counted in each run, with their message IDs.
 - **Birthdays:** your birthday, your timezone if you set one, whether your age is shown, and the servers it's announced in. You set this yourself with `/birthday`.
+- **Friend codes:** the codes you add for the Nintendo Switch and Pokémon games. You add them yourself with `/friendcode set`, and anyone using the bot can look them up.
 - **Temporary voice channels:** the channels you own, who you let in, kept out or made a moderator, and the settings you saved for your next channel, like its name and user limit.
 - **Roles the bot gave you**, like a birthday role or the weekly leveling role, so it can take them away again.
 
@@ -27,7 +28,7 @@ The bot only stores what its features need. Everything is tied to Discord IDs, w
 
 - The settings of each feature, like channels, roles, rewards, multipliers, role menus, log settings and which features are turned on.
 
-**Legal basis:** providing the features you and your server use (Art. 6(1)(b) GDPR). Your birthday is only stored because you entered it yourself, to have it announced.
+**Legal basis:** providing the features you and your server use (Art. 6(1)(b) GDPR). Your birthday and friend codes are only stored because you entered them yourself, to have your birthday announced and to share your codes.
 
 ## Messages
 
@@ -63,7 +64,7 @@ The data isn't sold, and isn't shared or used for anything other than the bot's 
 ## How long data is kept
 
 - **Server data**, including everyone's XP and counting stats there, is deleted **30 days after the bot is removed** from a server, unless it's added back before then.
-- **Birthdays** stay until you delete them with `/birthday` or `/privacy`, as they aren't tied to one server.
+- **Birthdays and friend codes** stay until you delete them with `/birthday`, `/friendcode set` or `/privacy`, as they aren't tied to one server.
 - **Temporary voice channels** are forgotten once they're deleted. Saved settings for your next channel stay until you delete them with `/privacy`.
 - **The bot's own log** is kept for 14 days.
 - Server managers can reset the settings of a feature, like with `/logs-config reset`, or delete all of the server's data with `/privacy`.

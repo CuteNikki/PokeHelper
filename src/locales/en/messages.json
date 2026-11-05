@@ -697,6 +697,32 @@
       "placeholder": "Pikachu, Mega Charizard X, 25..."
     }
   },
+  "friendCodes": {
+    "games": {
+      "nintendoSwitch": "Nintendo Switch",
+      "pokemonGo": "Pokémon GO",
+      "pokemonSleep": "Pokémon Sleep",
+      "tcgPocket": "Pokémon TCG Pocket"
+    },
+    "panel": {
+      "title": "### Your Friend Codes 🤝",
+      "intro": "Add the codes you want to share. Anyone can see them with `/friendcode view`, in every server you share with the bot. Save one empty to take it out.",
+      "nintendoSwitch": "On your user page, by tapping your icon on the HOME Menu.",
+      "pokemonGo": "Your Trainer Code, shown when you add a friend.",
+      "pokemonSleep": "Shown when you add a friend in the game.",
+      "tcgPocket": "Your Friend ID, shown when you add a friend in the game.",
+      "invalid": "That's not a code I can use. Type it like `{{example}}`."
+    },
+    "view": {
+      "title": "### {{name}}'s Friend Codes 🤝",
+      "none": "{{name}} hasn't added any friend codes yet.",
+      "noneSelf": "You haven't added any friend codes yet. Add them below, and anyone can look them up with `/friendcode view`.",
+      "copy": "Copy",
+      "copyTitle": "Friend codes",
+      "yours": "Your codes",
+      "gone": "These friend codes aren't there anymore."
+    }
+  },
   "privacy": {
     "title": "### Your Data 🔒",
     "intro": "Download what the bot stores, or delete it. What's stored and why is in the [privacy policy]({{url}}).",
@@ -706,9 +732,9 @@
     "cancelButton": "Keep it",
     "user": {
       "title": "About you",
-      "description": "Your XP, counting stats, birthday and temporary voice channel settings, in every server",
+      "description": "Your XP, counting stats, birthday, friend codes and temporary voice channel settings, in every server",
       "downloaded": "Here's everything stored about you, as a file only you can see.",
-      "confirm": "### Delete your data?\nYour XP, counting stats, birthday and saved voice channel settings are deleted in **every server**. This can't be undone.",
+      "confirm": "### Delete your data?\nYour XP, counting stats, birthday, friend codes and saved voice channel settings are deleted in **every server**. This can't be undone.",
       "deleted": "Your data is deleted. Using the bot again, like chatting where leveling is on, starts over from zero."
     },
     "guild": {

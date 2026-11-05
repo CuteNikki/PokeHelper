@@ -315,6 +315,32 @@
       "placeholder": "Pikachu, Mega-Glurak X, 25..."
     }
   },
+  "friendCodes": {
+    "games": {
+      "nintendoSwitch": "Nintendo Switch",
+      "pokemonGo": "Pokémon GO",
+      "pokemonSleep": "Pokémon Sleep",
+      "tcgPocket": "Pokémon TCG Pocket"
+    },
+    "panel": {
+      "title": "### Deine Freundescodes 🤝",
+      "intro": "Trag die Codes ein, die du teilen willst. Jeder kann sie mit `/freundescode zeigen` sehen, auf allen Servern, die du mit dem Bot teilst. Speicher einen leer, um ihn rauszunehmen.",
+      "nintendoSwitch": "Auf deiner Nutzerseite, wenn du im HOME-Menü auf dein Profilbild tippst.",
+      "pokemonGo": "Dein Trainercode, der angezeigt wird, wenn du Freunde hinzufügst.",
+      "pokemonSleep": "Wird im Spiel angezeigt, wenn du Freunde hinzufügst.",
+      "tcgPocket": "Deine Freundes-ID, die im Spiel angezeigt wird, wenn du Freunde hinzufügst.",
+      "invalid": "Mit dem Code kann ich nichts anfangen. Gib ihn wie `{{example}}` ein."
+    },
+    "view": {
+      "title": "### Freundescodes von {{name}} 🤝",
+      "none": "{{name}} hat noch keine Freundescodes eingetragen.",
+      "noneSelf": "Du hast noch keine Freundescodes eingetragen. Trag sie unten ein, dann kann jeder sie mit `/freundescode zeigen` nachschauen.",
+      "copy": "Kopieren",
+      "copyTitle": "Freundescodes",
+      "yours": "Deine Codes",
+      "gone": "Diese Freundescodes gibt es nicht mehr."
+    }
+  },
   "privacy": {
     "title": "### Deine Daten 🔒",
     "intro": "Lad runter, was der Bot speichert, oder lösch es. Was gespeichert wird und warum, steht in der [Datenschutzerklärung]({{url}}).",
@@ -324,9 +350,9 @@
     "cancelButton": "Behalten",
     "user": {
       "title": "Über dich",
-      "description": "Deine XP, Zähl-Statistiken, dein Geburtstag und deine Sprachkanal-Einstellungen, in allen Servern",
+      "description": "Deine XP, Zähl-Statistiken, dein Geburtstag, deine Freundescodes und deine Sprachkanal-Einstellungen, in allen Servern",
       "downloaded": "Hier ist alles, was über dich gespeichert ist, als Datei, die nur du sehen kannst.",
-      "confirm": "### Deine Daten löschen?\nDeine XP, Zähl-Statistiken, dein Geburtstag und deine gespeicherten Sprachkanal-Einstellungen werden in **allen Servern** gelöscht. Das lässt sich nicht rückgängig machen.",
+      "confirm": "### Deine Daten löschen?\nDeine XP, Zähl-Statistiken, dein Geburtstag, deine Freundescodes und deine gespeicherten Sprachkanal-Einstellungen werden in **allen Servern** gelöscht. Das lässt sich nicht rückgängig machen.",
       "deleted": "Deine Daten sind gelöscht. Wenn du den Bot wieder benutzt, zum Beispiel beim Schreiben, wo Leveling an ist, fängst du bei null an."
     },
     "guild": {

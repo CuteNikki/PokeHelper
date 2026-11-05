@@ -13,7 +13,7 @@ const onAList = (userId: string) => VOICE_LISTS.map((list) => ({ [list]: { has: 
 export async function getUserData(userId: string) {
   const [user, birthdayRoles, counting, countedNumbers, runsEnded, countingRecords, weeklyWins, voiceChannels, voiceSettings, onOthersSettings] =
     await Promise.all([
-      prisma.user.findUnique({ where: { userId }, include: { birthday: true, levels: true, levelsWeekly: true } }),
+      prisma.user.findUnique({ where: { userId }, include: { birthday: true, friendCodes: true, levels: true, levelsWeekly: true } }),
       prisma.birthdayRole.findMany({ where: { userId } }),
       prisma.countingUser.findMany({ where: { userId } }),
       prisma.countingEntry.findMany({
@@ -36,6 +36,7 @@ export async function getUserData(userId: string) {
     userId,
     leveling: { allTime: user?.levels ?? [], weekly: user?.levelsWeekly ?? [], weeklyWins },
     birthday: user?.birthday ?? null,
+    friendCodes: user?.friendCodes ?? null,
     birthdayRoles,
     counting: {
       stats: counting,
@@ -72,7 +73,7 @@ export async function deleteUserData(userId: string) {
   const without = (ids: string[]) => ids.filter((id) => id !== userId);
 
   await prisma.$transaction(async (tx) => {
-    // Levels, weekly levels and the birthday go with the user
+    // Levels, weekly levels, the birthday and friend codes go with the user
     await tx.user.deleteMany({ where: { userId } });
     await tx.birthdayRole.deleteMany({ where: { userId } });
     await tx.countingUser.deleteMany({ where: { userId } });

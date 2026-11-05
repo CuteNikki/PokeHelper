@@ -7,6 +7,8 @@ import { getFilesFrom } from 'utility/files';
 
 interface CommandNode {
   name: string;
+  /** 1 for slash commands, 2 and 3 for the commands in the menu of a name or message, which only have a name. */
+  type?: number;
   description?: string;
   options?: CommandNode[];
   choices?: { value: string | number }[];
@@ -21,6 +23,7 @@ for (const file of await getFilesFrom('src/handlers/commands')) {
 
 /** Every path that can have a translated description, like `counting user user`, and every choice, like `dev reload target [all]`. */
 function commandPaths(node: CommandNode, prefix = ''): string[] {
+  if (prefix === '' && isMenuCommand(node)) return [];
   const path = `${prefix}${node.name}`;
   return [
     path,
@@ -46,8 +49,15 @@ function nameGroups(nodes: CommandNode[], translations: Record<string, CommandTr
   return [group, ...nodes.flatMap((node) => nameGroups(node.options ?? [], translations[node.name]?.options, `${prefix}${node.name} `))];
 }
 
-// Lowercase letters, numbers, - and _, as Discord wants for slash command and option names
+/** Whether a command, not an option, is one in the menu of a name or message, which has no description, and whose name can have spaces and capitals. */
+function isMenuCommand(node: CommandNode) {
+  return node.type !== undefined && node.type !== 1;
+}
+const menuNames = new Set(commands.filter(isMenuCommand).map((command) => command.name));
+
+// Lowercase letters, numbers, - and _, as Discord wants for slash command and option names. Menu commands can be named anything up to 32 characters
 const validName = (name: string) => /^[-_\p{L}\p{N}]{1,32}$/u.test(name) && name === name.toLowerCase();
+const validMenuName = (name: string) => name.length <= 32 && name.trim() === name && name !== '';
 
 const existing = new Set(commands.flatMap((command) => commandPaths(command)));
 
@@ -74,7 +84,7 @@ describe.each(Object.entries(loadCommandTranslations()))('%s command translation
   });
 
   test('use names Discord allows', () => {
-    expect(names.flat().filter((entry) => entry.name && !validName(entry.name))).toEqual([]);
+    expect(names.flat().filter((entry) => entry.name && !(menuNames.has(entry.path) ? validMenuName(entry.name) : validName(entry.name)))).toEqual([]);
   });
 
   test('give commands and options next to each other different names', () => {

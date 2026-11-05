@@ -4,6 +4,7 @@ import { Event } from 'classes/base/event';
 
 import { handleSettingsModal } from 'settings/index';
 
+import { closeFriendCodesCopy, FRIEND_CODES_COPY_MODAL_ID } from 'utility/friendCodeView';
 import { getTranslate } from 'utility/i18next';
 import { handleLeaderboardPageModal } from 'utility/leveling/leaderboardPageModal';
 import { LEADERBOARD_PAGE_MODAL_PREFIX } from 'utility/leveling/leaderboardView';
@@ -33,6 +34,7 @@ export default new Event({
       else if (interaction.customId.startsWith(GUESS_MODAL_PREFIX)) await handleGuessModal(interaction);
       else if (interaction.customId.startsWith(TEMP_VOICE_EDIT_MODAL_PREFIX)) await handleTempVoiceModal(interaction);
       else if (interaction.customId === COPY_IDS_MODAL_ID) await closeCopyIds(interaction);
+      else if (interaction.customId === FRIEND_CODES_COPY_MODAL_ID) await closeFriendCodesCopy(interaction);
       else await sendError(interaction, getTranslate(interaction.locale)('system.outdated'));
     } catch (error) {
       logger.error(error, `Failed to handle the popup ${interaction.customId}`);

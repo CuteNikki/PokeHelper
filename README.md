@@ -2,7 +2,7 @@
 
 _A Pokémon themed Discord bot_
 
-**Poke Helper** is a Discord bot made for a Pokémon community server. It runs the server's counting game, levels, birthdays, role menus, temporary voice channels and server logs, and has a Pokédex and a guessing game.
+**Poke Helper** is a Discord bot made for a Pokémon community server. It runs the server's counting game, levels, birthdays, role menus, temporary voice channels and server logs, and has a Pokédex, a guessing game and a place for everyone's friend codes.
 
 ## ✨ Features
 
@@ -43,6 +43,14 @@ _A Pokémon themed Discord bot_
 - Shiny pictures, and buttons to go to the previous, next or another Pokémon without running the command again
 - Names, pictures and details come from [PokéAPI](https://pokeapi.co/), so nothing has to be downloaded first
 - `/guess`: guess a Pokémon from its silhouette, in any language, with up to three hints
+
+### 🤝 Friend Codes
+
+- Save your friend codes for the Nintendo Switch, Pokémon GO, Pokémon Sleep and Pokémon TCG Pocket once, and they work in every server
+- Codes can be typed any way they're written, with or without dashes, spaces or `SW-`, and are shown the way each game does
+- `/friendcode view` shares your codes in the chat, or shows someone else's, and so does right-clicking a member, under Apps
+- A Copy button with the codes to paste into the games, as text can't be selected on phones
+- Anyone who sees someone's codes can add their own right from there
 
 ### 🔊 Temporary Voice Channels
 
@@ -107,6 +115,7 @@ Days change at midnight UTC, and the bot puts the new look on within 15 minutes.
 | `/birthday`         | Your birthday, timezone and where it gets announced               |
 | `/pokedex`          | Look up a Pokémon                                                 |
 | `/guess`            | Guess a Pokémon from its silhouette                               |
+| `/friendcode`       | Add your friend codes, or show yours or someone else's            |
 | `/voice`            | The control panel of your temporary voice channel                 |
 | `/help`             | All commands, by category                                         |
 | `/privacy`          | Download or delete your data, or the server's                     |

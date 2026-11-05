@@ -181,6 +181,33 @@
       }
     }
   },
+  "friendcode": {
+    "name": "freundescode",
+    "description": "Teil deine Freundescodes für die Switch und Pokémon-Spiele",
+    "options": {
+      "set": {
+        "name": "eintragen",
+        "description": "Trag deine Freundescodes ein oder änder sie"
+      },
+      "view": {
+        "name": "zeigen",
+        "description": "Zeig deine Freundescodes oder die von jemand anderem",
+        "options": {
+          "user": {
+            "name": "mitglied",
+            "description": "Wessen Freundescodes du sehen willst. Ohne Angabe deine eigenen"
+          },
+          "ephemeral": {
+            "name": "privat",
+            "description": "Ob nur du die Antwort siehst. Standardmäßig nein"
+          }
+        }
+      }
+    }
+  },
+  "Friend codes": {
+    "name": "Freundescodes"
+  },
   "help": {
     "name": "hilfe",
     "description": "Alle Befehle, die du hier benutzen kannst"

@@ -11,7 +11,8 @@ model User {
   userId String @id
 
   // Configuration and state
-  birthday     UserBirthday? @relation("UserBirthday")
+  birthday     UserBirthday?    @relation("UserBirthday")
+  friendCodes  UserFriendCodes? @relation("UserFriendCodes")
   levels       Level[]
   levelsWeekly WeeklyLevel[]
 
@@ -35,6 +36,22 @@ model UserBirthday {
   roleYear      Int? // the year the birthday role was last given
   roleActive    Boolean @default(false) // whether the birthday role is on and has to be taken away after the birthday
   announcedYear Int? // the year the birthday was last announced
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Someone's friend codes for the games, shown to anyone who looks them up. The same in every server, as they belong to the person
+model UserFriendCodes {
+  userId String @id
+  User   User   @relation("UserFriendCodes", fields: [userId], references: [userId], onDelete: Cascade)
+
+  // The digits of each code, null while it isn't set
+  nintendoSwitch String?
+  pokemonGo      String?
+  pokemonSleep   String?
+  tcgPocket      String?
 
   // Timestamps
   createdAt DateTime @default(now())
