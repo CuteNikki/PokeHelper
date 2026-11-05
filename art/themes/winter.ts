@@ -64,7 +64,8 @@ function snowman(ctx: SKRSContext2D, x: number, y: number, scale: number) {
   ctx.fillStyle = '#d63c4a';
   ctx.fillRect(-17, -12, 34, 7);
   ctx.restore();
-  // Shade on its right, as the light comes from the left
+  // Shade on its left, as the light comes from the right: drawn as if on the right, mirrored
+  ctx.scale(-1, 1);
   ctx.fillStyle = 'rgba(120,150,210,0.18)';
   for (const [dy, r] of [
     [-42, 46],

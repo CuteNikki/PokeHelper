@@ -48,12 +48,12 @@ export function cloud(ctx: SKRSContext2D, x: number, y: number, scale: number, c
   ctx.fillStyle = color;
   shape(0);
   ctx.fill();
-  // Light on the tops of the puffs
+  // Light on the tops of the puffs, a little to the right, where the light comes from
   ctx.fillStyle = 'rgba(255,255,255,0.16)';
   ctx.beginPath();
   for (const [px, py, r] of PUFFS.slice(0, 4)) {
-    ctx.moveTo(x + (px - 3 + r * 0.5) * scale, y + (py - r * 0.35) * scale);
-    ctx.arc(x + (px - 3) * scale, y + (py - r * 0.35) * scale, r * 0.5 * scale, 0, TAU);
+    ctx.moveTo(x + (px + 3 + r * 0.5) * scale, y + (py - r * 0.35) * scale);
+    ctx.arc(x + (px + 3) * scale, y + (py - r * 0.35) * scale, r * 0.5 * scale, 0, TAU);
   }
   ctx.fill();
 }
@@ -96,10 +96,10 @@ export function tree(ctx: SKRSContext2D, x: number, y: number, size: number, kin
       ctx.arc(dx, dy, r, 0, TAU);
     }
     ctx.fill();
-    // Light on its top left
+    // Light on its top right, where the light comes from
     ctx.fillStyle = 'rgba(255,255,255,0.18)';
     ctx.beginPath();
-    ctx.arc(-6, -46, 11, 0, TAU);
+    ctx.arc(6, -46, 11, 0, TAU);
     ctx.fill();
   } else {
     for (const [top, half, bottom] of [
@@ -382,7 +382,7 @@ export function mascot(
     ctx.restore();
   }
 
-  // Body, a soft rounded blob, with shading on one side
+  // Body, a soft rounded blob, with shading on its left, away from the light, which comes from the right like the sun and the moon
   const outline = () => {
     ctx.beginPath();
     ctx.moveTo(-120, 80);
@@ -398,12 +398,12 @@ export function mascot(
   ctx.save();
   outline();
   ctx.clip();
-  const shade = ctx.createLinearGradient(30, 0, 125, 0);
+  const shade = ctx.createLinearGradient(-30, 0, -125, 0);
   // The shade's color, see-through
   shade.addColorStop(0, `${body[1]}00`);
   shade.addColorStop(1, body[1]);
   ctx.fillStyle = shade;
-  ctx.fillRect(0, -200, 140, 300);
+  ctx.fillRect(-140, -200, 140, 300);
   ctx.restore();
 
   // Eyes, closed into lines when blinking

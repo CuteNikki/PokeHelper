@@ -87,7 +87,8 @@ function candyCane(ctx: SKRSContext2D, x: number, y: number, scale: number) {
 
 /** Christmas: a starry, snowy evening, snowy pines, falling snow, presents, a candy cane and a Santa hat. */
 export const christmas: Theme = {
-  sky: ['#16244f', '#3a5aa8'],
+  // Lightest on the right, where the light comes from in every theme
+  sky: ['#3a5aa8', '#16244f'],
   cloud: '#8fa3d6',
   sparkles: ['#ffffff', '#ffe27a'],
   ground: { kind: 'snow', colors: ['#c9d8f5', '#e3ecfc', '#ffffff'] },

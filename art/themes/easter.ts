@@ -87,20 +87,22 @@ function basket(ctx: SKRSContext2D, x: number, y: number, scale: number) {
   ctx.restore();
 }
 
-/** A fluffy chick sitting on its head, bobbing along. */
+/** A fluffy chick sitting on its head, bobbing along. Tangerine, as a yellow one was lost against the yellow mascot. */
 function chick(ctx: SKRSContext2D, time: number) {
   ctx.save();
   ctx.translate(0, -198 - Math.abs(Math.sin(time * TAU * 3)) * 4);
-  ctx.fillStyle = '#ffd43b';
+  ctx.fillStyle = '#ffc27a';
   ctx.beginPath();
   ctx.arc(0, 0, 32, 0, TAU);
   ctx.fill();
   ctx.beginPath();
-  ctx.ellipse(-24, 6, 12, 18, 0.6, 0, TAU);
-  ctx.fill();
-  ctx.beginPath();
   ctx.moveTo(-6, -30);
   ctx.quadraticCurveTo(0, -46, 6, -30);
+  ctx.fill();
+  // Its wing a shade darker, so it shows
+  ctx.fillStyle = '#ffa24d';
+  ctx.beginPath();
+  ctx.ellipse(-24, 6, 12, 18, 0.6, 0, TAU);
   ctx.fill();
   ctx.fillStyle = '#2d1b3d';
   ctx.beginPath();

@@ -116,13 +116,12 @@ export const summer: Theme = {
   backdrop: (ctx, scene, time) => (scene.kind === 'banner' ? sun(ctx, 1290, 95, 50, time) : sun(ctx, 430, 90, 52, time)),
   life: (ctx, scene, time) => {
     if (scene.kind !== 'banner') return;
-    // Two gulls crossing from right to left, a whole width a loop, wrapping around
-    for (const [start, y, size, phase] of [
-      [0.2, 62, 26, 0],
-      [0.55, 40, 20, 1.5],
-    ] as const) {
-      const x = ((((start - time) % 1) + 1) % 1) * (scene.width + 80) - 40;
-      gull(ctx, x, y + Math.sin(time * TAU * 2 + phase) * 6, size, Math.sin(time * TAU * 8 + phase));
+    // Gulls gliding from right to left, one every half width, moving that far in a loop, like the clouds, so it starts over without
+    // a jump. A little faster than the clouds, as they're nearer
+    const period = scene.width / 2;
+    for (let copy = -1; copy <= 2; copy++) {
+      const x = copy * period + period * 0.3 - time * period;
+      gull(ctx, x, 54 + Math.sin(time * TAU * 2 + copy) * 6, 24, Math.sin(time * TAU * 8 + copy));
     }
   },
   prop: beachBall,

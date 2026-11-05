@@ -178,11 +178,14 @@ function confettiBurst(ctx: SKRSContext2D, scene: Scene, time: number) {
 
 /** New Year: a starry night with fireworks, a party popper it holds up that confetti bursts out of, and a party hat. */
 export const newYear: Theme = {
-  sky: ['#0b0f2e', '#2c2f74'],
+  // Lightest on the right, where the light comes from in every theme
+  sky: ['#2c2f74', '#0b0f2e'],
   cloud: null,
   sparkles: ['#ffffff', '#ffd75e'],
   ground: { kind: 'grass', colors: ['#163a35', '#1f4f45', '#2a6656'] },
-  hills: ['#262a63', '#1b2c45'],
+  // Dark against the glow along the horizon, the far ones a little lighter than the near ones, as in the other themes, and still
+  // dark enough to stand out from the sky
+  hills: ['#0c1029', '#070a17'],
   trees: { kind: 'pine', colors: ['#141a33', '#18213f'] },
   // A dusky rose, warm like the light of the fireworks, so it doesn't look cold or grey at night
   light: { color: '#9a7088', amount: 0.14 },

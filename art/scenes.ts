@@ -134,7 +134,9 @@ export function avatar(ctx: SKRSContext2D, theme: Theme, size: number, time: num
   ground(ctx, theme, 0, AVATAR_SIZE, 500, 130, time, 3, 60);
   theme.details?.(ctx, AVATAR, time);
   lit(ctx, theme, ...sizeOf(ctx), (lc) => mascot(lc, 250, 450, 1.55, time, blink, theme.ear, theme.body ?? BODY, theme.hat));
-  ground(ctx, theme, 2, AVATAR_SIZE, 545, 120, time, 29, 66);
+  // In front of it, up its body, so it peeks out of the grass as on the banner. Snow lies lower than grass reaches up, so it's put
+  // higher
+  ground(ctx, theme, 2, AVATAR_SIZE, theme.ground.kind === 'snow' ? 485 : 510, 120, time, 29, 66);
   ctx.restore();
 }
 

@@ -1,17 +1,42 @@
-import { createCanvas, type SKRSContext2D } from '@napi-rs/canvas';
+import { type Canvas, createCanvas, type SKRSContext2D } from '@napi-rs/canvas';
 
 import { PALE_BODY, fireflies, stars, TAU } from '../draw';
 import type { Theme } from './types';
 
+/** How far the moon's glow reaches, in moon radii. */
+const GLOW_REACH = 5;
+
+const glows = new Map<number, Canvas>();
+
+/**
+ * The glow around a moon of a size, in two layers: a bright one close around it, fading fast, and a faint one reaching far, so the
+ * light fades out softly rather than ending at an edge. Worked out pixel by pixel, as a canvas gradient is dithered, which turns into
+ * speckles in a GIF, and made once, as the moon doesn't move.
+ */
+function moonGlow(r: number): Canvas {
+  const made = glows.get(r);
+  if (made) return made;
+  const size = Math.ceil(r * GLOW_REACH * 2);
+  const canvas = createCanvas(size, size);
+  const ctx = canvas.getContext('2d');
+  const image = ctx.createImageData(size, size);
+  for (let y = 0; y < size; y++) {
+    for (let x = 0; x < size; x++) {
+      const out = Math.max(0, Math.hypot(x - size / 2, y - size / 2) - r) / r;
+      const alpha = 0.32 * Math.exp(-out / 0.35) + 0.12 * Math.exp(-out / 1.6);
+      const at = (y * size + x) * 4;
+      image.data.set([255, 244, 201, Math.round(alpha * 255)], at);
+    }
+  }
+  ctx.putImageData(image, 0, 0);
+  glows.set(r, canvas);
+  return canvas;
+}
+
 /** A pale full moon with a soft glow and a few craters. */
 function moon(ctx: SKRSContext2D, x: number, y: number, r: number) {
-  const glow = ctx.createRadialGradient(x, y, r * 0.8, x, y, r * 1.8);
-  glow.addColorStop(0, 'rgba(255,244,201,0.35)');
-  glow.addColorStop(1, 'rgba(255,244,201,0)');
-  ctx.fillStyle = glow;
-  ctx.beginPath();
-  ctx.arc(x, y, r * 1.8, 0, TAU);
-  ctx.fill();
+  const glow = moonGlow(r);
+  ctx.drawImage(glow, x - glow.width / 2, y - glow.height / 2);
   ctx.fillStyle = '#fff4c9';
   ctx.beginPath();
   ctx.arc(x, y, r, 0, TAU);
@@ -102,18 +127,18 @@ function pumpkin(ctx: SKRSContext2D, x: number, y: number, scale: number, time: 
 }
 
 /**
- * A witch hat, sitting a little crooked between its ears. A lighter purple than the night behind it, so it doesn't disappear into
+ * A witch hat, sitting a little crooked between its ears. A darker purple than the moonlit sky behind it, so it doesn't disappear into
  * the sky, its brim a shade darker than its cone.
  */
 function witchHat(ctx: SKRSContext2D, time: number) {
   ctx.save();
   ctx.translate(0, -168);
   ctx.rotate(-0.12 + Math.sin(time * TAU * 3) * 0.02);
-  ctx.fillStyle = '#4a2c7a';
+  ctx.fillStyle = '#1f1238';
   ctx.beginPath();
   ctx.ellipse(0, 0, 100, 20, 0, 0, TAU);
   ctx.fill();
-  ctx.fillStyle = '#6a40a8';
+  ctx.fillStyle = '#33205a';
   ctx.beginPath();
   ctx.moveTo(-55, -4);
   ctx.quadraticCurveTo(-30, -75, 10, -122);
@@ -163,11 +188,14 @@ function ghost(ctx: SKRSContext2D, x: number, y: number, size: number, time: num
 
 /** Halloween: a starry purple night, a full moon, bats, a ghost, fireflies, a carved pumpkin and a witch hat. */
 export const halloween: Theme = {
-  sky: ['#2a1650', '#5b2a86'],
-  cloud: '#4a3373',
+  // Lightest on the right, where the moon is, and where the light comes from in every theme
+  sky: ['#5b2a86', '#2a1650'],
+  // Lighter than the night sky, so they don't disappear into it
+  cloud: '#7a62a8',
   sparkles: ['#f3e7ff', '#ffb347'],
   ground: { kind: 'grass', colors: ['#1f3b34', '#2b5446', '#3a6e57'] },
-  hills: ['#47306f', '#33284f'],
+  // Dark against the glow along the horizon, the far ones a little lighter than the near ones, as in the other themes
+  hills: ['#231439', '#130b22'],
   trees: { kind: 'pine', colors: ['#1d1433', '#251a40'] },
   // A dusky mauve, so it looks lit by the night instead of glowing, without going cold or blue
   light: { color: '#8a5a9e', amount: 0.16 },
