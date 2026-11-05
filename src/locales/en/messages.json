@@ -105,7 +105,8 @@
     "text": {
       "edit": "Edit",
       "usingDefault": "Uses the default text"
-    }
+    },
+    "tips": "**Good to know 💡**"
   },
   "state": {
     "yes": "Yes",
@@ -271,8 +272,18 @@
         "question": "### Delete your birthday?\nIt won't be announced anymore, anywhere.",
         "confirm": "Delete",
         "cancel": "Keep it"
-      }
-    }
+      },
+      "tips": [
+        "Your birthday starts at midnight in your timezone.",
+        "February 29 birthdays are celebrated on February 28 in other years.",
+        "Only the servers that have birthdays set up announce it."
+      ]
+    },
+    "tips": [
+      "Members set their birthday with /birthday, also in DMs, and pick which servers it's announced in.",
+      "February 29 birthdays are celebrated on February 28 in other years.",
+      "Birthdays missed while the bot was offline are still announced once it's back."
+    ]
   },
   "leveling": {
     "levelUp": {
@@ -371,6 +382,26 @@
       "cancelled": "Nothing was reset.",
       "nothing": "There's nothing to reset, leveling hasn't been set up here yet.",
       "success": "Leveling is reset. Use `/leveling-config settings` to set it up again."
+    },
+    "tips": {
+      "general": [
+        "The weekly leaderboard starts over every Monday at 00:00 UTC, even if the bot was offline then.",
+        "Members get XP for one message a minute at most, so spamming doesn't help."
+      ],
+      "filters": [
+        "Ignoring a category ignores every channel in it, and threads count as the channel they're in."
+      ],
+      "rewards": [
+        "Reward roles are also given to members who already reached the level.",
+        "The bot can only give roles below its own highest role."
+      ],
+      "channelMultipliers": [
+        "A multiplier on a category counts for every channel in it.",
+        "When several multipliers apply, the highest one counts. They don't add up."
+      ],
+      "roleMultipliers": [
+        "When several multipliers apply, the highest one counts. They don't add up."
+      ]
     }
   },
   "counting": {
@@ -483,7 +514,12 @@
       "cancelButton": "Cancel",
       "cancelled": "Nothing was removed.",
       "success": "The counting game and its stats are gone. Use `/counting-config setup` to start a new one."
-    }
+    },
+    "tips": [
+      "Nobody can count twice in a row. That's removed, but never costs a life.",
+      "Numbers sent while the bot was offline still count once it's back.",
+      "If the last number is deleted or changed, the bot posts it again, so nobody can quietly break the count."
+    ]
   },
   "roleMenu": {
     "notFound": "Couldn't find that role menu. It may have been deleted.",
@@ -579,6 +615,18 @@
       "error": "Something went wrong giving you that role. An admin should check that my role is above the roles in this menu.",
       "disabled": "This role menu is turned off right now.",
       "cantAssign": "I can't give out {{role}} right now. An admin should check the settings of this menu."
+    },
+    "tips": {
+      "roles": [
+        "The bot can only give roles below its own highest role.",
+        "Deleted roles are taken out of the menu by themselves."
+      ],
+      "text": [
+        "Every change shows up in the posted menu right away."
+      ],
+      "general": [
+        "All role menus can also be turned off at once, from the list in /role-menu-config settings."
+      ]
     }
   },
   "dev": {
@@ -732,7 +780,12 @@
       "pokemonGo": "Your Trainer Code, shown when you add a friend.",
       "pokemonSleep": "Shown when you add a friend in the game.",
       "tcgPocket": "Your Friend ID, shown when you add a friend in the game.",
-      "invalid": "That's not a code I can use. Type it like `{{example}}`."
+      "invalid": "That's not a code I can use. Type it like `{{example}}`.",
+      "tips": [
+        "Codes can be typed with or without dashes, spaces or SW-.",
+        "Anyone can also see them by right-clicking you, under Apps.",
+        "/privacy deletes them along with your other data."
+      ]
     },
     "view": {
       "title": "### {{name}}'s Friend Codes 🤝",
@@ -961,7 +1014,12 @@
       "staff_other": "{{users}} can join any channel as moderators of the server, so keeping them out wouldn't do anything.",
       "moderator_one": "{{users}} is a moderator of this channel and always let in. Take them off the moderators first to keep them out.",
       "moderator_other": "{{users}} are moderators of this channel and always let in. Take them off the moderators first to keep them out."
-    }
+    },
+    "tips": [
+      "A channel is deleted once everyone has left.",
+      "When the owner has been gone for 30 seconds, the channel goes to someone still there.",
+      "Moderators picked by the owner can let people in, keep them out, kick them and change the limit, but not rename the channel."
+    ]
   },
   "logs": {
     "reason": "Reason",
@@ -1227,7 +1285,30 @@
     "from": "From",
     "to": "To",
     "tooLong": "Too long to show in full here, the whole text is in the file below.",
-    "transcriptHeading": "{{count}} messages deleted in #{{channel}} ({{channelId}})"
+    "transcriptHeading": "{{count}} messages deleted in #{{channel}} ({{channelId}})",
+    "tips": {
+      "general": [
+        "The bot needs View Audit Log to say who did something and why.",
+        "Ignoring a category ignores every channel in it."
+      ],
+      "messages": [
+        "Edits and deletions of messages sent before the bot last restarted can't show what they said.",
+        "Messages of bots and webhooks aren't logged.",
+        "Long messages and bulk deletes come as a file you can read right in Discord."
+      ],
+      "members": [
+        "The Copy IDs button on every entry is for phones, where text in messages can't be selected."
+      ],
+      "moderation": [
+        "The reason a moderator gave is taken from the audit log, so it needs View Audit Log."
+      ],
+      "server": [
+        "The Copy IDs button on every entry is for phones, where text in messages can't be selected."
+      ],
+      "voice": [
+        "Channels left out under General are left out here too."
+      ]
+    }
   },
   "starboard": {
     "settings": {
@@ -1272,7 +1353,13 @@
       "cancelled": "Nothing was reset.",
       "nothing": "There's nothing to reset, the starboard hasn't been set up here yet.",
       "success": "The starboard settings are reset. Use `/starboard-config settings` to set it up again."
-    }
+    },
+    "tips": [
+      "A post deleted by hand isn't posted again, however many stars it gets.",
+      "Age-restricted messages only go on a starboard that is age-restricted too.",
+      "The author's own star and bots' don't count. Stars from the button on a post count like reactions.",
+      "Posts follow the stars: the count updates, and the post goes when the message is deleted or falls below again."
+    ]
   },
   "locale": "en-US",
   "number": {

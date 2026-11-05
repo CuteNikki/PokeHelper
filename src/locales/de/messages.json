@@ -105,7 +105,8 @@
     "text": {
       "edit": "Bearbeiten",
       "usingDefault": "Nutzt den Standardtext"
-    }
+    },
+    "tips": "**Gut zu wissen 💡**"
   },
   "state": {
     "yes": "Ja",
@@ -244,7 +245,12 @@
       "cancelButton": "Abbrechen",
       "cancelled": "Es wurde nichts entfernt.",
       "success": "Das Zählspiel und seine Statistiken sind weg. Mit `/zählen-einstellungen einrichten` kannst du ein neues starten."
-    }
+    },
+    "tips": [
+      "Niemand kann zweimal hintereinander zählen. Das wird entfernt, kostet aber nie ein Leben.",
+      "Zahlen, die geschickt wurden, während der Bot offline war, zählen trotzdem, sobald er wieder da ist.",
+      "Wird die letzte Zahl gelöscht oder geändert, postet der Bot sie nochmal, damit niemand heimlich das Zählen kaputt macht."
+    ]
   },
   "help": {
     "title": "## Befehle 📖",
@@ -346,7 +352,12 @@
       "pokemonGo": "Dein Trainercode, der angezeigt wird, wenn du Freunde hinzufügst.",
       "pokemonSleep": "Wird im Spiel angezeigt, wenn du Freunde hinzufügst.",
       "tcgPocket": "Deine Freundes-ID, die im Spiel angezeigt wird, wenn du Freunde hinzufügst.",
-      "invalid": "Mit dem Code kann ich nichts anfangen. Gib ihn wie `{{example}}` ein."
+      "invalid": "Mit dem Code kann ich nichts anfangen. Gib ihn wie `{{example}}` ein.",
+      "tips": [
+        "Codes kannst du mit oder ohne Bindestriche, Leerzeichen oder SW- eingeben.",
+        "Jeder kann sie auch per Rechtsklick auf dich unter Apps sehen.",
+        "/privacy löscht sie zusammen mit deinen anderen Daten."
+      ]
     },
     "view": {
       "title": "### Freundescodes von {{name}} 🤝",
@@ -575,7 +586,12 @@
       "staff_other": "{{users}} kommen als Moderatoren des Servers in jeden Kanal, aussperren würde also nichts bringen.",
       "moderator_one": "{{users}} ist Moderator dieses Kanals und wird immer reingelassen. Nimm die Person erst aus den Moderatoren, um sie auszusperren.",
       "moderator_other": "{{users}} sind Moderatoren dieses Kanals und werden immer reingelassen. Nimm sie erst aus den Moderatoren, um sie auszusperren."
-    }
+    },
+    "tips": [
+      "Ein Kanal wird gelöscht, sobald alle raus sind.",
+      "Wenn der Besitzer 30 Sekunden weg ist, geht der Kanal an jemanden, der noch da ist.",
+      "Moderatoren, die der Besitzer gewählt hat, können Leute reinlassen, aussperren, rauswerfen und das Limit ändern, den Kanal aber nicht umbenennen."
+    ]
   },
   "logs": {
     "reason": "Grund",
@@ -841,7 +857,30 @@
     "from": "Von",
     "to": "Nach",
     "tooLong": "Zu lang, um hier ganz angezeigt zu werden, der ganze Text ist in der Datei darunter.",
-    "transcriptHeading": "{{count}} Nachrichten gelöscht in #{{channel}} ({{channelId}})"
+    "transcriptHeading": "{{count}} Nachrichten gelöscht in #{{channel}} ({{channelId}})",
+    "tips": {
+      "general": [
+        "Der Bot braucht „Audit-Log anzeigen“, um zu sagen, wer etwas gemacht hat und warum.",
+        "Eine ignorierte Kategorie ignoriert alle Kanäle darin."
+      ],
+      "messages": [
+        "Bei Nachrichten von vor dem letzten Neustart des Bots kann beim Bearbeiten oder Löschen nicht gezeigt werden, was drinstand.",
+        "Nachrichten von Bots und Webhooks werden nicht geloggt.",
+        "Lange Nachrichten und Massenlöschungen kommen als Datei, die du direkt in Discord lesen kannst."
+      ],
+      "members": [
+        "Der „IDs kopieren“-Button an jedem Eintrag ist fürs Handy, wo man Text in Nachrichten nicht markieren kann."
+      ],
+      "moderation": [
+        "Der Grund, den ein Moderator angegeben hat, kommt aus dem Audit-Log, dafür braucht der Bot „Audit-Log anzeigen“."
+      ],
+      "server": [
+        "Der „IDs kopieren“-Button an jedem Eintrag ist fürs Handy, wo man Text in Nachrichten nicht markieren kann."
+      ],
+      "voice": [
+        "Kanäle, die unter Allgemein ignoriert werden, werden auch hier ignoriert."
+      ]
+    }
   },
   "starboard": {
     "settings": {
@@ -886,7 +925,13 @@
       "cancelled": "Nichts wurde zurückgesetzt.",
       "nothing": "Es gibt nichts zurückzusetzen, das Starboard wurde hier noch nicht eingerichtet.",
       "success": "Die Starboard-Einstellungen sind zurückgesetzt. Nutz `/starboard-einstellungen einstellungen`, um es neu einzurichten."
-    }
+    },
+    "tips": [
+      "Ein Post, den jemand von Hand löscht, wird nicht nochmal gepostet, egal wie viele Sterne er bekommt.",
+      "Altersbeschränkte Nachrichten kommen nur in ein Starboard, das auch altersbeschränkt ist.",
+      "Der eigene Stern und die von Bots zählen nicht. Sterne über den Button am Post zählen wie Reaktionen.",
+      "Posts folgen den Sternen: Die Zahl wird aktualisiert, und der Post verschwindet, wenn die Nachricht gelöscht wird oder wieder darunter fällt."
+    ]
   },
   "locale": "de-DE",
   "leveling": {
@@ -986,6 +1031,26 @@
         "weeklyPlain": "diese Woche Level {{level}}, Platz {{rank}}, {{xpIntoLevel}} von {{xpRequired}} XP bis zum nächsten Level"
       },
       "altText": "Rangkarte von {{user}}: {{allTime}}; {{weekly}}."
+    },
+    "tips": {
+      "general": [
+        "Die Wochen-Rangliste fängt jeden Montag um 00:00 UTC neu an, auch wenn der Bot da offline war.",
+        "Es gibt höchstens für eine Nachricht pro Minute XP, Spammen bringt also nichts."
+      ],
+      "filters": [
+        "Eine ignorierte Kategorie ignoriert alle Kanäle darin, und Threads zählen wie der Kanal, in dem sie sind."
+      ],
+      "rewards": [
+        "Belohnungsrollen bekommen auch Mitglieder, die das Level schon erreicht haben.",
+        "Der Bot kann nur Rollen unter seiner eigenen höchsten Rolle vergeben."
+      ],
+      "channelMultipliers": [
+        "Ein Multiplikator auf einer Kategorie gilt für alle Kanäle darin.",
+        "Wenn mehrere Multiplikatoren gelten, zählt der höchste. Sie werden nicht addiert."
+      ],
+      "roleMultipliers": [
+        "Wenn mehrere Multiplikatoren gelten, zählt der höchste. Sie werden nicht addiert."
+      ]
     }
   },
   "pagination": {
@@ -1106,6 +1171,18 @@
       "error": "Beim Vergeben der Rolle ist was schiefgelaufen. Ein Admin sollte schauen, ob meine Rolle über den Rollen in diesem Menü ist.",
       "disabled": "Dieses Rollenmenü ist gerade ausgeschaltet.",
       "cantAssign": "Ich kann {{role}} gerade nicht vergeben. Ein Admin sollte sich die Einstellungen dieses Menüs anschauen."
+    },
+    "tips": {
+      "roles": [
+        "Der Bot kann nur Rollen unter seiner eigenen höchsten Rolle vergeben.",
+        "Gelöschte Rollen werden von selbst aus dem Menü genommen."
+      ],
+      "text": [
+        "Jede Änderung ist sofort im geposteten Menü zu sehen."
+      ],
+      "general": [
+        "Alle Rollenmenüs kannst du auch auf einmal ausschalten, in der Liste unter /rollenmenü-einstellungen einstellungen."
+      ]
     }
   },
   "birthday": {
@@ -1169,8 +1246,18 @@
         "question": "### Deinen Geburtstag löschen?\nEr wird dann nirgends mehr angekündigt.",
         "confirm": "Löschen",
         "cancel": "Behalten"
-      }
-    }
+      },
+      "tips": [
+        "Dein Geburtstag fängt um Mitternacht in deiner Zeitzone an.",
+        "Wer am 29. Februar Geburtstag hat, feiert in anderen Jahren am 28. Februar.",
+        "Angekündigt wird er nur auf Servern, die Geburtstage eingerichtet haben."
+      ]
+    },
+    "tips": [
+      "Mitglieder tragen ihren Geburtstag mit /geburtstag ein, auch per DM, und wählen, auf welchen Servern er angekündigt wird.",
+      "Wer am 29. Februar Geburtstag hat, feiert in anderen Jahren am 28. Februar.",
+      "Geburtstage, die verpasst wurden, während der Bot offline war, werden trotzdem angekündigt, sobald er wieder da ist."
+    ]
   },
   "botinfo": {
     "author": "Status von {{username}}",

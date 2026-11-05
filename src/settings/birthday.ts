@@ -17,6 +17,7 @@ export const birthdaySettings = createSettingsPanel<GuildBirthday>({
   // Birthdays start turned off, so there's always a configuration to show
   load: getOrCreateGuildBirthdayConfiguration,
   notConfigured: (t) => t('birthday.settings.title'),
+  tips: (t) => t('birthday.tips', { returnObjects: true }),
   settings: [
     {
       type: 'boolean',

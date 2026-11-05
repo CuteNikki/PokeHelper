@@ -34,6 +34,7 @@ export const starboardSettings = createSettingsPanel<GuildStarboard>({
   load: getOrCreateGuildStarboard,
   notConfigured: (t) => t('starboard.settings.title'),
   header: (config, _context, t) => (config.channelId ? null : t('starboard.settings.noChannel')),
+  tips: (t) => t('starboard.tips', { returnObjects: true }),
   settings: [
     {
       type: 'boolean',

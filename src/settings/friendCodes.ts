@@ -15,6 +15,7 @@ export const friendCodeSettings = createSettingsPanel<FriendCodes>({
   },
   notConfigured: (t) => t('friendCodes.panel.title'),
   header: (_codes, _context, t) => t('friendCodes.panel.intro'),
+  tips: (t) => t('friendCodes.panel.tips', { returnObjects: true }),
   settings: FRIEND_CODE_GAMES.map((game): Setting<FriendCodes> => ({
     type: 'text',
     key: game,

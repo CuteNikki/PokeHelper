@@ -60,6 +60,7 @@ export const myBirthdaySettings = createSettingsPanel<MyBirthday>({
     birthday.exists
       ? [new ButtonBuilder().setCustomId(DELETE_BIRTHDAY_ID).setLabel(t('birthday.panel.delete')).setEmoji('🗑️').setStyle(ButtonStyle.Danger)]
       : [],
+  tips: (t) => t('birthday.panel.tips', { returnObjects: true }),
   settings: [
     {
       type: 'text',

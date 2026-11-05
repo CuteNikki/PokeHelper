@@ -47,6 +47,15 @@ const MAX_SELECT_OPTIONS = 25;
 /** How much of a text setting is shown in the panel. */
 const TEXT_PREVIEW_LENGTH = 300;
 
+/**
+ * The tips of a page: the list, or the category's list of a panel with categories. Anything else, like a translation that's missing,
+ * is no tips.
+ */
+export function tipsFor(tips: unknown, page: string): string[] {
+  const list = Array.isArray(tips) ? tips : tips && typeof tips === 'object' ? (tips as Record<string, unknown>)[page] : null;
+  return Array.isArray(list) ? list.filter((tip): tip is string => typeof tip === 'string') : [];
+}
+
 /** Who uses a panel, and where. */
 export interface SettingsContext {
   client: Client;
@@ -228,6 +237,11 @@ export interface SettingsPanelDefinition<C> {
   notConfigured: (t: Translate) => string;
   /** Text shown under the title, like where a role menu is posted. */
   header?: (config: C, context: SettingsContext, t: Translate) => string | null;
+  /**
+   * Things good to know that the settings themselves don't say, like that a starboard post deleted by hand isn't posted again,
+   * shown under the settings. From the translations: a list, or for panels with categories, a list for each category.
+   */
+  tips?: (t: Translate) => unknown;
   /** Buttons shown under the settings, for actions that aren't settings, like deleting a role menu. */
   footer?: (config: C, t: Translate) => ButtonBuilder[];
   /** Runs after any setting was saved, before the panel is shown again, like to update a posted role menu. */
@@ -740,6 +754,13 @@ export function createSettingsPanel<C>(definition: SettingsPanelDefinition<C>): 
         if (index > 0) container.addSeparatorComponents(new SeparatorBuilder().setDivider(false).setSpacing(SeparatorSpacingSize.Small));
         addSetting(container, context, definition.id, page, setting, config, t);
       });
+
+      const tips = tipsFor(definition.tips?.(t), page);
+      if (tips.length > 0) {
+        container
+          .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large))
+          .addTextDisplayComponents(new TextDisplayBuilder().setContent([t('settings.tips'), ...tips.map((tip) => `-# • ${tip}`)].join('\n')));
+      }
 
       const footer = definition.footer?.(config, t) ?? [];
       if (footer.length > 0) {

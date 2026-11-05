@@ -25,6 +25,7 @@ export const countingSettings = createSettingsPanel<GuildCounting>({
   permissions: ['ManageChannels'],
   load: getCounting,
   notConfigured: (t) => t('counting.none'),
+  tips: (t) => t('counting.tips', { returnObjects: true }),
   settings: [
     {
       type: 'boolean',

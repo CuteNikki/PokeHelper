@@ -105,6 +105,7 @@ export function getRoleMenuSettings(menuId: string): SettingsPanel {
     onSaved: async ({ guild }) => {
       if (guild) await syncRoleMenuMessage(guild, menuId);
     },
+    tips: (t) => t('roleMenu.tips', { returnObjects: true }),
     settings: [
       {
         type: 'textEntries',

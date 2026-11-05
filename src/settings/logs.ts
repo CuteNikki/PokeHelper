@@ -75,6 +75,7 @@ export const logSettings = createSettingsPanel<GuildLogs>({
     if (guild) forgetLogConfig(guild.id);
     return Promise.resolve();
   },
+  tips: (t) => t('logs.tips', { returnObjects: true }),
   settings: [
     {
       type: 'boolean',

@@ -11,7 +11,15 @@ import {
 } from 'discord.js';
 
 import { getTranslate, initI18Next } from 'utility/i18next';
-import { createSettingsPanel, parseSettingsCustomId, type Entry, type SettingsContext, type SettingsInput, type SettingsModal } from 'utility/settings';
+import {
+  createSettingsPanel,
+  parseSettingsCustomId,
+  tipsFor,
+  type Entry,
+  type SettingsContext,
+  type SettingsInput,
+  type SettingsModal,
+} from 'utility/settings';
 
 // The panel renders labels like On and Off through i18next
 beforeAll(() => initI18Next());
@@ -726,4 +734,13 @@ describe('personal panels', () => {
     await pick([]);
     expect(profiles.cy!.servers).toEqual([]);
   });
+});
+
+test('tips are the list, or the list of the page shown, and nothing when the translation is missing', () => {
+  expect(tipsFor(['a', 'b'], '_')).toEqual(['a', 'b']);
+  expect(tipsFor({ general: ['a'], rewards: ['b'] }, 'rewards')).toEqual(['b']);
+  expect(tipsFor({ general: ['a'] }, 'rewards')).toEqual([]);
+  // i18next answers with the key itself when there's no translation
+  expect(tipsFor('starboard.tips', '_')).toEqual([]);
+  expect(tipsFor(undefined, '_')).toEqual([]);
 });

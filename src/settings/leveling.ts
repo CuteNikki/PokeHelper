@@ -76,6 +76,7 @@ export const levelingSettings = createSettingsPanel<LevelingConfig>({
   // Leveling starts turned off, so there's always a configuration to show
   load: getOrCreateGuildLevelingConfiguration,
   notConfigured: (t) => t('leveling.disabled'),
+  tips: (t) => t('leveling.tips', { returnObjects: true }),
   settings: [
     {
       type: 'boolean',

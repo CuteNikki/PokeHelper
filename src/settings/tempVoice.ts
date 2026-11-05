@@ -84,6 +84,7 @@ export function getTempVoiceSettings(creatorId: string): SettingsPanel {
         .setStyle(ButtonStyle.Danger),
       new ButtonBuilder().setCustomId(TEMP_VOICE_CONFIG_ID.list).setLabel(t('tempVoice.config.back')).setStyle(ButtonStyle.Secondary),
     ],
+    tips: (t) => t('tempVoice.tips', { returnObjects: true }),
     settings: [
       {
         type: 'boolean',
