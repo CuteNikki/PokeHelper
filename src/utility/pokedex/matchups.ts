@@ -190,7 +190,13 @@ async function buildCard(matchups: Matchups, t: Translate): Promise<ResponsePayl
     weak,
     resists: matchups.resists.map((entry) => ({ type: cardType(entry.type), multiplier: entry.label })),
     immune: matchups.immune.map((entry) => ({ type: cardType(entry.type), multiplier: entry.label })),
-    labels: { weak: t('pokedex.matchups.weak'), resists: t('pokedex.matchups.resists'), immune: t('pokedex.matchups.immune') },
+    labels: {
+      weak: t('pokedex.matchups.weak'),
+      resists: t('pokedex.matchups.resists'),
+      immune: t('pokedex.matchups.immune'),
+      pokemon: t('pokedex.matchups.pokemon'),
+      moves: t('pokedex.matchups.moves'),
+    },
     note: t('pokedex.matchups.note'),
   });
 

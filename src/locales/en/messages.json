@@ -703,7 +703,9 @@
       "resists": "Resists",
       "immune": "Can't be hurt by",
       "note": "From its types. Abilities like Levitate aren't counted.",
-      "altText": "Matchups of {{name}}, type {{types}}."
+      "altText": "Matchups of {{name}}, type {{types}}.",
+      "pokemon": "Pokémon",
+      "moves": "Moves"
     }
   },
   "friendCodes": {
