@@ -37,6 +37,7 @@ import {
 import {
   announce,
   buildPanel,
+  MAX_PICKED,
   MODERATOR_ACTIONS,
   parseTempVoiceCustomId,
   serverTranslate,
@@ -213,7 +214,6 @@ export async function handleTempVoiceSelect(interaction: AnySelectMenuInteractio
   const temp = await controlledChannel(interaction, parsed.channelId, MODERATOR_ACTIONS.includes(parsed.action), t);
   if (!temp) return;
 
-  // Picking sets the whole list, so leaving someone out takes them off it
   // Picking sets the whole list, so leaving someone out takes them off it. Who can't be on it is left off, and whoever picked is told why
   if ((parsed.action === 'moderators' || parsed.action === 'allow' || parsed.action === 'block') && interaction.isUserSelectMenu()) {
     const list = parsed.action;
@@ -238,7 +238,11 @@ export async function handleTempVoiceSelect(interaction: AnySelectMenuInteractio
     }
 
     await interaction.deferUpdate();
-    const change = list === 'moderators' ? { moderators: ids } : list === 'allow' ? { allowed: ids } : { blocked: ids };
+    const field = list === 'moderators' ? 'moderators' : list === 'allow' ? 'allowed' : 'blocked';
+    // The picker only shows the first ones of a long list, so those after them weren't there to unpick and stay on it
+    const change = (record: { allowed: string[]; blocked: string[]; moderators: string[] }) => ({
+      [field]: [...new Set([...ids, ...record[field].slice(MAX_PICKED)])],
+    });
     await showChanged(interaction, temp, await changeTempChannel(temp, interaction.member, change), t);
     if (skipped.size > 0) {
       const lines = [...skipped].map(([why, users]) => t(`tempVoice.skipped.${why}`, { users: users.map((id) => `<@${id}>`).join(', '), count: users.length }));

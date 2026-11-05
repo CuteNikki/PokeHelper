@@ -446,7 +446,8 @@
       "noLimit": "Kein Limit",
       "moderators": "Moderatoren",
       "moderatorsDescription": "Sie können Leute reinlassen, aussperren, rauswerfen und das Limit setzen, aber den Kanal nicht umbenennen, abschließen, verstecken oder löschen",
-      "moderatorsPlaceholder": "Wähl, wer dem Besitzer hilft"
+      "moderatorsPlaceholder": "Wähl, wer dem Besitzer hilft",
+      "moreHidden": "{{count}} weitere werden in der Auswahl nicht angezeigt und bleiben auf der Liste."
     },
     "announce": {
       "changed": "{{user}} hat den Kanal geändert:",

@@ -828,7 +828,8 @@
       "noLimit": "No limit",
       "moderators": "Moderators",
       "moderatorsDescription": "They can let people in, keep them out, kick them and set the limit, but can't rename, lock, hide or delete it",
-      "moderatorsPlaceholder": "Pick who helps the owner"
+      "moderatorsPlaceholder": "Pick who helps the owner",
+      "moreHidden": "{{count}} more aren't shown in the picker, and stay on the list."
     },
     "announce": {
       "changed": "{{user}} changed this channel:",

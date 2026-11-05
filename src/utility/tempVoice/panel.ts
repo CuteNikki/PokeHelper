@@ -55,7 +55,8 @@ const ACTIONS: TempVoiceAction[] = [
 export const MODERATOR_ACTIONS: TempVoiceAction[] = ['allow', 'block', 'limit', 'member', 'kick', 'keepout'];
 
 /** Discord's user selects pick at most 25 people. */
-const MAX_PICKED = 25;
+/** Discord's pickers show at most 25. Longer lists show their first 25, and the rest are kept when the picker is used. */
+export const MAX_PICKED = 25;
 /** How long to wait for more changes before editing the panel, so a few people joining at once edit it once. */
 const REFRESH_DELAY = 1_000;
 
@@ -92,6 +93,9 @@ export function buildPanel({ channel, record }: TempChannel, t: Translate): Resp
       .setStyle(on ? ButtonStyle.Success : ButtonStyle.Secondary);
   // A bold name with a short description under it, like the rows above, for the pickers that have no row of their own
   const heading = (label: string, description: string) => new TextDisplayBuilder().setContent(`**${label}**\n-# ${description}`);
+  // Who's on a list past what the picker shows, so they aren't forgotten
+  const withHidden = (description: string, count: number) =>
+    count > MAX_PICKED ? `${description} ${t('tempVoice.panel.moreHidden', { count: count - MAX_PICKED })}` : description;
 
   const allowed = new UserSelectMenuBuilder()
     .setCustomId(tempVoiceCustomId('allow', id))
@@ -142,9 +146,9 @@ export function buildPanel({ channel, record }: TempChannel, t: Translate): Resp
       row(t('tempVoice.panel.limit'), t('tempVoice.panel.limitDescription'), edit('limit'), quote(limit)),
     )
     .addSeparatorComponents(new SeparatorBuilder())
-    .addTextDisplayComponents(heading(t('tempVoice.panel.allowed'), t('tempVoice.panel.allowedDescription')))
+    .addTextDisplayComponents(heading(t('tempVoice.panel.allowed'), withHidden(t('tempVoice.panel.allowedDescription'), record.allowed.length)))
     .addActionRowComponents(new ActionRowBuilder<UserSelectMenuBuilder>().addComponents(allowed))
-    .addTextDisplayComponents(heading(t('tempVoice.panel.blocked'), t('tempVoice.panel.blockedDescription')))
+    .addTextDisplayComponents(heading(t('tempVoice.panel.blocked'), withHidden(t('tempVoice.panel.blockedDescription'), record.blocked.length)))
     .addActionRowComponents(new ActionRowBuilder<UserSelectMenuBuilder>().addComponents(blocked))
     .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large))
     .addTextDisplayComponents(heading(t('tempVoice.panel.someone'), t('tempVoice.panel.someoneDescription')))
