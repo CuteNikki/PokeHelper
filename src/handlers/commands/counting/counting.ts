@@ -14,19 +14,16 @@ import { getTranslate, type Translate } from 'utility/i18next';
 import { Command } from 'classes/base/command';
 
 import { getCounting } from 'database/counting';
-import { getCountingUser, getCurrentRun, getEntriesForNumbers, getRecentRuns, getRunCount, getRunNumber, getTopCounters } from 'database/countingStats';
+import { getCountingUser, getCurrentRun, getEntriesForNumbers, getRunCount, getRunNumber } from 'database/countingStats';
 
 import type { CountingRun, GuildCounting } from 'generated/prisma/client';
+import { buildCountingLeaderboard, buildCountingRuns } from 'utility/counting/pages';
 import { formatLives, getMilestones } from 'utility/counting/rules';
 import { formatDuration, formatNumber } from 'utility/duration';
 import { createResponse, sendError, sendResponse } from 'utility/response';
 
 /** How many milestones the info shows, the most recent ones. */
 const SHOWN_MILESTONES = 5;
-/** How many members the leaderboard shows. */
-const LEADERBOARD_SIZE = 10;
-/** How many runs the runs subcommand shows. */
-const SHOWN_RUNS = 10;
 
 const HOUR = 3_600_000;
 const DAY = 24 * HOUR;
@@ -58,11 +55,11 @@ export default new Command({
       case 'info':
         return reply(interaction, await buildInfo(counting, t));
       case 'leaderboard':
-        return reply(interaction, await buildLeaderboard(counting.guildId, t));
+        return sendResponse(interaction, await buildCountingLeaderboard(counting.guildId, 0, t));
       case 'user':
         return reply(interaction, await buildUser(counting.guildId, interaction.options.getUser('user')?.id ?? interaction.user.id, t));
       case 'runs':
-        return reply(interaction, await buildRuns(counting, t));
+        return sendResponse(interaction, await buildCountingRuns(counting.guildId, 0, t));
     }
   },
 });
@@ -155,23 +152,6 @@ async function describeCurrentRun(counting: GuildCounting, run: CountingRun, t: 
   return lines;
 }
 
-async function buildLeaderboard(guildId: string, t: Translate): Promise<string[]> {
-  const counters = await getTopCounters(guildId, LEADERBOARD_SIZE);
-  if (counters.length === 0) return [t('counting.leaderboard.title'), t('counting.leaderboard.empty')];
-
-  return [
-    t('counting.leaderboard.title'),
-    ...counters.map((counter, index) =>
-      t('counting.leaderboard.entry', {
-        position: index + 1,
-        user: userMention(counter.userId),
-        counted: formatNumber(counter.counted),
-        accuracy: accuracy(counter.counted, counter.mistakes),
-      }),
-    ),
-  ];
-}
-
 async function buildUser(guildId: string, userId: string, t: Translate): Promise<string[]> {
   const stats = await getCountingUser(guildId, userId);
   if (!stats || (stats.counted === 0 && stats.mistakes === 0)) return [t('counting.user.none', { user: userMention(userId) })];
@@ -183,30 +163,5 @@ async function buildUser(guildId: string, userId: string, t: Translate): Promise
     t('counting.user.mistakes', { mistakes: formatNumber(stats.mistakes) }),
     t('counting.user.accuracy', { accuracy: accuracy(stats.counted, stats.mistakes) }),
     ...(stats.lastCountedAt ? [t('counting.user.lastCounted', { relative: time(stats.lastCountedAt, TimestampStyles.RelativeTime) })] : []),
-  ];
-}
-
-async function buildRuns(counting: GuildCounting, t: Translate): Promise<string[]> {
-  const runs = await getRecentRuns(counting.guildId, SHOWN_RUNS);
-  if (runs.length === 0) return [t('counting.runs.title'), t('counting.runs.empty')];
-
-  return [
-    t('counting.runs.title'),
-    ...runs.map((run) => {
-      if (!run.endedAt) {
-        const started = run.startedAt
-          ? t('counting.runs.started', { relative: time(run.startedAt, TimestampStyles.RelativeTime) })
-          : t('counting.runs.startedUnknown');
-        return t('counting.runs.ongoing', { run: run.runNumber, number: formatNumber(counting.lastNumber), started });
-      }
-
-      const finished = t('counting.runs.finished', {
-        run: run.runNumber,
-        number: formatNumber(run.finalNumber),
-        user: run.endedByUserId ? userMention(run.endedByUserId) : '?',
-        relative: time(run.endedAt, TimestampStyles.RelativeTime),
-      });
-      return run.startedAt ? finished + t('counting.runs.lasted', { duration: formatDuration(run.endedAt.getTime() - run.startedAt.getTime(), t) }) : finished;
-    }),
   ];
 }

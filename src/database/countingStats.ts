@@ -24,13 +24,15 @@ export const getRunNumber = async (guildId: string, runId: number) =>
  * Get the most recent runs of a guild, newest first, with their position among all runs.
  * @param guildId {string} The ID of the guild.
  * @param take {number} How many runs to get.
+ * @param skip {number} How many of the newest to skip, for later pages.
+ * @returns The runs, with their number counted from the first, and how many runs there are.
  */
-export const getRecentRuns = async (guildId: string, take: number) => {
+export const getRecentRuns = async (guildId: string, take: number, skip = 0) => {
   const [runs, total] = await Promise.all([
-    prisma.countingRun.findMany({ where: { guildId }, orderBy: { id: 'desc' }, take }),
+    prisma.countingRun.findMany({ where: { guildId }, orderBy: { id: 'desc' }, take, skip }),
     prisma.countingRun.count({ where: { guildId } }),
   ]);
-  return runs.map((run, index) => ({ ...run, runNumber: total - index }));
+  return { runs: runs.map((run, index) => ({ ...run, runNumber: total - skip - index })), total };
 };
 
 /**
@@ -48,13 +50,17 @@ export const getEntriesForNumbers = async (runId: number, numbers: number[]) =>
  * Get the members who counted the most in a guild.
  * @param guildId {string} The ID of the guild.
  * @param take {number} How many members to get.
+ * @param skip {number} How many of the top to skip, for later pages.
+ * @returns The members, and how many counted at all.
  */
-export const getTopCounters = async (guildId: string, take: number) =>
-  prisma.countingUser.findMany({
-    where: { guildId, counted: { gt: 0 } },
-    orderBy: [{ counted: 'desc' }, { mistakes: 'asc' }],
-    take,
-  });
+export const getTopCounters = async (guildId: string, take: number, skip = 0) => {
+  const where = { guildId, counted: { gt: 0 } };
+  const [counters, total] = await Promise.all([
+    prisma.countingUser.findMany({ where, orderBy: [{ counted: 'desc' }, { mistakes: 'asc' }, { userId: 'asc' }], take, skip }),
+    prisma.countingUser.count({ where }),
+  ]);
+  return { counters, total };
+};
 
 /**
  * Get a member's counting stats in a guild, with their rank by how much they counted.
