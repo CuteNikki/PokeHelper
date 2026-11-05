@@ -98,14 +98,37 @@ function landscape(ctx: SKRSContext2D, theme: Theme, scene: Scene) {
 }
 
 /**
- * Draws something lit by the scene's light: on a layer of its own, tinted, then onto the scene. Straight onto the scene when it's
- * daylight.
+ * Where on the canvas a scene lands, in whole pixels, cut to the canvas. All of it for the avatar or banner on their own, a small
+ * part of it for one theme in the overview of every theme.
  */
-function lit(ctx: SKRSContext2D, theme: Theme, width: number, height: number, draw: (ctx: SKRSContext2D) => void) {
+function areaOf(ctx: SKRSContext2D, scene: Scene) {
+  const { a, b, c, d, e, f } = ctx.getTransform();
+  const corners = [
+    [0, 0],
+    [scene.width, 0],
+    [0, scene.height],
+    [scene.width, scene.height],
+  ].map(([x, y]) => [a * x! + c * y! + e, b * x! + d * y! + f] as const);
+  // Rounded a hair in, so a scene that fills the canvas exactly isn't made a pixel bigger by the float math
+  const left = Math.max(0, Math.floor(Math.min(...corners.map(([x]) => x)) + 1e-6));
+  const top = Math.max(0, Math.floor(Math.min(...corners.map(([, y]) => y)) + 1e-6));
+  const right = Math.min(ctx.canvas.width, Math.ceil(Math.max(...corners.map(([x]) => x)) - 1e-6));
+  const bottom = Math.min(ctx.canvas.height, Math.ceil(Math.max(...corners.map(([, y]) => y)) - 1e-6));
+  return { left, top, width: right - left, height: bottom - top };
+}
+
+/**
+ * Draws something lit by the scene's light: on a layer of its own, tinted, then onto the scene. Straight onto the scene when it's
+ * daylight. The layer is only as big as the scene, not the canvas, as in the overview it'd be cleared, tinted and laid on all of it
+ * twice for each theme in every frame, more than twice as slow.
+ */
+function lit(ctx: SKRSContext2D, theme: Theme, scene: Scene, draw: (ctx: SKRSContext2D) => void) {
   if (!theme.light) return draw(ctx);
+  const { left, top, width, height } = areaOf(ctx, scene);
+  if (width <= 0 || height <= 0) return;
   const layered = scratchLayer('lit', width, height);
-  const layer = layered.canvas;
-  layered.setTransform(ctx.getTransform());
+  const { a, b, c, d, e, f } = ctx.getTransform();
+  layered.setTransform(a, b, c, d, e - left, f - top);
   draw(layered);
   layered.resetTransform();
   // Only over what was drawn
@@ -115,12 +138,9 @@ function lit(ctx: SKRSContext2D, theme: Theme, width: number, height: number, dr
   layered.fillRect(0, 0, width, height);
   ctx.save();
   ctx.resetTransform();
-  ctx.drawImage(layer, 0, 0);
+  ctx.drawImage(layered.canvas, left, top);
   ctx.restore();
 }
-
-/** The size of the canvas a context draws on, for a layer to match it. */
-const sizeOf = (ctx: SKRSContext2D) => [ctx.canvas.width, ctx.canvas.height] as const;
 
 /** The avatar, drawn at any size. Props like a pumpkin are left out, as they'd only be cut off at the edge of the circle. */
 export function avatar(ctx: SKRSContext2D, theme: Theme, size: number, time: number, blink = 0) {
@@ -133,7 +153,7 @@ export function avatar(ctx: SKRSContext2D, theme: Theme, size: number, time: num
 
   ground(ctx, theme, 0, AVATAR_SIZE, 500, 130, time, 3, 60);
   theme.details?.(ctx, AVATAR, time);
-  lit(ctx, theme, ...sizeOf(ctx), (lc) => mascot(lc, 250, 450, 1.55, time, blink, theme.ear, theme.body ?? BODY, theme.hat));
+  lit(ctx, theme, AVATAR, (lc) => mascot(lc, 250, 450, 1.55, time, blink, theme.ear, theme.body ?? BODY, theme.hat));
   // In front of it, up its body, so it peeks out of the grass as on the banner. Snow lies lower than grass reaches up, so it's put
   // higher
   ground(ctx, theme, 2, AVATAR_SIZE, theme.ground.kind === 'snow' ? 485 : 510, 120, time, 29, 66);
@@ -177,7 +197,7 @@ export function banner(ctx: SKRSContext2D, theme: Theme, time: number, blink = 0
   theme.life?.(ctx, BANNER, time);
 
   ground(ctx, theme, 0, BANNER_W, BANNER_H - 30, 110, time, 3);
-  lit(ctx, theme, ...sizeOf(ctx), (lc) => {
+  lit(ctx, theme, BANNER, (lc) => {
     mascot(lc, 1195, BANNER_H - 10, 1.25, time, blink, theme.ear, theme.body ?? BODY, theme.hat);
     // In front of the mascot, as if it holds it, and low enough that the grass always covers its bottom. Lower on snow, which lies lower
     theme.prop?.(lc, 1010, theme.ground.kind === 'snow' ? BANNER_H - 18 : BANNER_H - 32, 0.9, time);
