@@ -712,6 +712,10 @@
       "altText": "Matchups of {{name}}, type {{types}}.",
       "pokemon": "Pokémon",
       "moves": "Moves"
+    },
+    "view": {
+      "text": "Show as text",
+      "image": "Show as card"
     }
   },
   "friendCodes": {

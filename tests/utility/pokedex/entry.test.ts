@@ -4,6 +4,11 @@ import { parsePokedexCustomId, parsePokedexFormSelectId, pokedexCustomId } from 
 
 describe('custom IDs', () => {
   test('a button leads back to the Pokémon and view it was made with', () => {
+    expect(parsePokedexCustomId(pokedexCustomId('mode', 'eevee', { shiny: true, text: true }))).toEqual({
+      action: 'mode',
+      slug: 'eevee',
+      view: { shiny: true, text: true },
+    });
     expect(parsePokedexCustomId(pokedexCustomId('next', 'raichu-alola', { shiny: true, text: false }))).toEqual({
       action: 'next',
       slug: 'raichu-alola',

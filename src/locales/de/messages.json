@@ -326,6 +326,10 @@
       "altText": "Schwächen und Resistenzen von {{name}}, Typ {{types}}.",
       "pokemon": "Pokémon",
       "moves": "Attacken"
+    },
+    "view": {
+      "text": "Als Text anzeigen",
+      "image": "Als Karte anzeigen"
     }
   },
   "friendCodes": {

@@ -112,8 +112,8 @@ const BUTTONS_PER_ROW = 5;
 /** Two rows of evolutions, more than any Pokémon has: Eevee has nine with itself. */
 const MAX_EVOLUTION_BUTTONS = 10;
 
-export type PokedexAction = 'prev' | 'next' | 'shiny' | 'evo' | 'search';
-const ACTIONS: PokedexAction[] = ['prev', 'next', 'shiny', 'evo', 'search'];
+export type PokedexAction = 'prev' | 'next' | 'shiny' | 'evo' | 'search' | 'mode';
+const ACTIONS: PokedexAction[] = ['prev', 'next', 'shiny', 'evo', 'search', 'mode'];
 
 /** Custom IDs of the popup asking which Pokémon to show are this, followed by the view of the entry it was opened on. */
 export const POKEDEX_SEARCH_MODAL_PREFIX = 'pokedex-search:';
@@ -206,8 +206,15 @@ function buildControls(match: PokedexMatch, view: PokedexView, hasShiny: boolean
       .setDisabled(!hasShiny),
     matchupsButton(slug, view.text, t),
   ];
-  // Under the card, five buttons are wider than the picture looks, so Shiny and Matchups get a row of their own. Text has room for all of them
-  const groups = view.text ? [buttons] : [buttons.slice(0, 3), buttons.slice(3)];
+  // Switches between the card and text, like for screen readers, keeping the Pokémon and whether it's shiny
+  const mode = new ButtonBuilder()
+    .setCustomId(pokedexCustomId('mode', slug, { ...view, text: !view.text }))
+    .setStyle(ButtonStyle.Secondary)
+    .setEmoji(view.text ? '🖼️' : '📝')
+    .setLabel(t(view.text ? 'pokedex.view.image' : 'pokedex.view.text'));
+  // Under the card, five buttons are wider than the picture looks, so Shiny, Matchups and the switch to text get a row of their own
+  // A row holds five, so in text, where the other five fill one, the switch gets a row of its own
+  const groups = view.text ? [buttons, [mode]] : [buttons.slice(0, 3), [...buttons.slice(3), mode]];
   const navigation = groups.map((group) => new ActionRowBuilder<ButtonBuilder>().addComponents(group));
   if (species.forms.length === 0) return { navigation, forms: [] };
 
