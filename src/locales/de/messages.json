@@ -870,10 +870,9 @@
       "jump": "Zur Nachricht",
       "who": "Sterne von",
       "whoTitle": "### Sterne von ⭐",
-      "more_one": "und {{count}} weiteren Person",
-      "more_other": "und {{count}} weiteren",
       "own": "Deiner eigenen Nachricht kannst du keinen Stern geben.",
-      "gone": "Diese Nachricht ist nicht mehr im Starboard."
+      "gone": "Diese Nachricht ist nicht mehr im Starboard.",
+      "nobody": "Noch niemand hat einen Stern gegeben."
     },
     "resetConfiguration": {
       "confirm": "### Starboard-Einstellungen zurücksetzen? ⚠️\nDas setzt Kanal, Emoji, benötigte Reaktionen und ignorierte Kanäle zurück. Was schon im Starboard ist, bleibt, wird aber nicht mehr aktualisiert.",

@@ -3,6 +3,7 @@ import { expect, test } from 'bun:test';
 import { parseThreshold } from 'settings/starboard';
 
 import { applyStarChange, isStarEmoji } from 'utility/starboard';
+import { clampPage } from 'utility/starboardButtons';
 
 test('a normal emoji matches with or without its variation selector, a custom one by its ID even when renamed', () => {
   expect(isStarEmoji('⭐', { id: null, name: '⭐' })).toBe(true);
@@ -30,4 +31,13 @@ test('the stars needed are a whole number from 1 to 100', () => {
   expect(parseThreshold('3')).toBe(3);
   expect(parseThreshold(' 100 ')).toBe(100);
   for (const text of ['0', '101', '2.5', '-1', 'three', '']) expect(parseThreshold(text)).toBeNull();
+});
+
+test('the pages of who starred stay within the pages there are', () => {
+  expect(clampPage(0, 0)).toEqual({ page: 0, pages: 1 });
+  expect(clampPage(0, 50)).toEqual({ page: 0, pages: 1 });
+  expect(clampPage(1, 51)).toEqual({ page: 1, pages: 2 });
+  // Stars taken back since the button was made
+  expect(clampPage(5, 120)).toEqual({ page: 2, pages: 3 });
+  expect(clampPage(-1, 120)).toEqual({ page: 0, pages: 3 });
 });

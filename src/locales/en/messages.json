@@ -1252,10 +1252,9 @@
       "jump": "Jump to message",
       "who": "Starred by",
       "whoTitle": "### Starred by ⭐",
-      "more_one": "and {{count}} more",
-      "more_other": "and {{count}} more",
       "own": "You can't star your own message.",
-      "gone": "This message isn't on the starboard anymore."
+      "gone": "This message isn't on the starboard anymore.",
+      "nobody": "Nobody has starred this yet."
     },
     "resetConfiguration": {
       "confirm": "### Reset the starboard settings? ⚠️\nThis resets the channel, emoji, reactions needed and ignored channels. Posts already on the starboard stay, but aren't updated anymore.",
