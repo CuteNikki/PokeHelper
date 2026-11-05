@@ -3,6 +3,7 @@ import { logger } from 'utility/logger';
 import { PokeApiError } from 'utility/pokedex/api';
 
 const GRAPHQL_URL = 'https://beta.pokeapi.co/graphql/v1beta';
+const API_URL = 'https://pokeapi.co/api/v2';
 const TIMEOUT = 30_000;
 /** How long to wait before asking again after the names couldn't be loaded, so a PokéAPI outage isn't asked about on every keystroke. */
 const RETRY_AFTER = 60_000;
@@ -106,44 +107,120 @@ export function parseNames(result: NamesQuery, languages: string[]): PokedexData
   };
 }
 
-const EMPTY: PokedexData = { species: [], abilities: {}, types: {} };
-let data: PokedexData = EMPTY;
-let loading: Promise<PokedexData> | null = null;
-let failedAt = 0;
+type Listed = { name: string; url: string }[];
+
+/** The number at the end of a PokéAPI URL, like 25 in `.../pokemon-species/25/`. */
+const idFromUrl = (url: string) => Number(url.match(/\/(\d+)\/?$/)?.[1]) || 0;
 
 /**
- * Load the names from PokéAPI the first time they're needed, and keep them while the bot runs. Asking again while they're on their way
- * waits for the same answer.
- * @throws {PokeApiError} When PokéAPI can't be reached, or couldn't be a minute ago.
+ * Names from PokéAPI's lists, for when its GraphQL, which has the real names, is down. The lists only have slugs, so the names are
+ * made from them, like `Mr Mime`, the same in every language. Forms are put with the species their slug starts with, like
+ * `raichu-alola` with Raichu.
  */
-export function loadPokedexData(): Promise<PokedexData> {
-  if (data !== EMPTY) return Promise.resolve(data);
-  if (Date.now() - failedAt < RETRY_AFTER) return Promise.reject(new PokeApiError('PokéAPI could not be reached a moment ago'));
+export function namesFromLists(lists: { species: Listed; pokemon: Listed; types: Listed; abilities: Listed }, languages: string[]): PokedexData {
+  const species = lists.species.map((entry) => ({ id: idFromUrl(entry.url), slug: entry.name, forms: [] as string[] }));
+  // The longest first, so a form goes with the species whose whole slug it starts with
+  const byLength = [...species].sort((a, b) => b.slug.length - a.slug.length);
+  const speciesSlugs = new Set(species.map((entry) => entry.slug));
+  for (const { name } of lists.pokemon) {
+    if (speciesSlugs.has(name)) continue;
+    byLength.find((entry) => name.startsWith(`${entry.slug}-`))?.forms.push(name);
+  }
 
-  loading ??= (async () => {
+  const noNames: Names = [];
+  return parseNames(
+    {
+      pokemon_v2_pokemonspecies: species
+        .sort((a, b) => a.id - b.id)
+        .map((entry) => ({
+          id: entry.id,
+          name: entry.slug,
+          pokemon_v2_pokemonspeciesnames: noNames,
+          pokemon_v2_pokemons: entry.forms.map((form) => ({ name: form, is_default: false, pokemon_v2_pokemonforms: [] })),
+        })),
+      pokemon_v2_ability: lists.abilities.map((entry) => ({ name: entry.name, pokemon_v2_abilitynames: noNames })),
+      pokemon_v2_type: lists.types.map((entry) => ({ name: entry.name, pokemon_v2_typenames: noNames })),
+    },
+    languages,
+  );
+}
+
+const EMPTY: PokedexData = { species: [], abilities: {}, types: {} };
+let data: PokedexData = EMPTY;
+/** Whether the names are the real ones from GraphQL, and not the ones made from slugs. */
+let complete = false;
+let loading: Promise<PokedexData> | null = null;
+let loadingComplete: Promise<PokedexData> | null = null;
+let failedAt = 0;
+
+/** A PokéAPI answer, as JSON. */
+async function fetchJson<T>(url: string, what: string, init?: RequestInit): Promise<T> {
+  const response = await fetch(url, { ...init, signal: AbortSignal.timeout(TIMEOUT) }).catch((error: unknown) => {
+    throw new PokeApiError(`PokéAPI couldn't be reached for ${what}`, { cause: error });
+  });
+  if (!response.ok) throw new PokeApiError(`PokéAPI answered ${response.status} for ${what}`);
+  return (await response.json()) as T;
+}
+
+/** The real names, in every language, from GraphQL. They replace the ones made from slugs when those came first. */
+function loadCompleteNames(): Promise<PokedexData> {
+  loadingComplete ??= (async () => {
     try {
-      const response = await fetch(GRAPHQL_URL, {
+      const body = await fetchJson<{ data?: NamesQuery; errors?: unknown }>(GRAPHQL_URL, 'the Pokémon names', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ query: namesQuery(supportedLanguages) }),
-        signal: AbortSignal.timeout(TIMEOUT),
-      }).catch((error: unknown) => {
-        throw new PokeApiError("PokéAPI couldn't be reached for the Pokémon names", { cause: error });
       });
-      if (!response.ok) throw new PokeApiError(`PokéAPI answered ${response.status} for the Pokémon names`);
-      const body = (await response.json()) as { data?: NamesQuery; errors?: unknown };
       if (!body.data) throw new PokeApiError(`PokéAPI answered the Pokémon names with errors: ${JSON.stringify(body.errors)}`);
-
       data = parseNames(body.data, supportedLanguages);
+      complete = true;
       logger.info(`Loaded the names of ${data.species.length} Pokémon`);
       return data;
     } catch (error) {
       failedAt = Date.now();
       throw error;
     } finally {
-      loading = null;
+      loadingComplete = null;
     }
   })();
+  return loadingComplete;
+}
+
+/** Names made from PokéAPI's lists, used until the real ones are there. Kept only if the real ones haven't come first. */
+async function loadListedNames(): Promise<PokedexData> {
+  const list = (path: string) => fetchJson<{ results: Listed }>(`${API_URL}/${path}?limit=100000`, `the list of ${path}`).then((body) => body.results);
+  const [species, pokemon, types, abilities] = await Promise.all([list('pokemon-species'), list('pokemon'), list('type'), list('ability')]);
+  if (complete) return data;
+  data = namesFromLists({ species, pokemon, types, abilities }, supportedLanguages);
+  logger.warn(`PokéAPI's names aren't there yet, so the names of ${data.species.length} Pokémon are made from their slugs for now`);
+  return data;
+}
+
+/**
+ * Load the names from PokéAPI the first time they're needed, and keep them while the bot runs. Asking again while they're on their way
+ * waits for the same answer.
+ *
+ * The real names come from PokéAPI's GraphQL, which is sometimes slow or down. Names made from its lists are loaded at the same time,
+ * and used if they're there first, while the real ones are asked for again every minute.
+ * @throws {PokeApiError} When PokéAPI can't be reached at all, or couldn't be a minute ago.
+ */
+export function loadPokedexData(): Promise<PokedexData> {
+  const retry = Date.now() - failedAt >= RETRY_AFTER;
+  if (data !== EMPTY) {
+    if (!complete && retry && !loadingComplete)
+      loadCompleteNames().catch((error: unknown) => logger.warn(error, 'The Pokémon names are still made from slugs'));
+    return Promise.resolve(data);
+  }
+  if (!retry) return Promise.reject(new PokeApiError('PokéAPI could not be reached a moment ago'));
+
+  loading ??= Promise.any([loadCompleteNames(), loadListedNames()])
+    .catch((error: unknown) => {
+      failedAt = Date.now();
+      throw error instanceof AggregateError ? (error.errors[0] as Error) : error;
+    })
+    .finally(() => {
+      loading = null;
+    });
   return loading;
 }
 

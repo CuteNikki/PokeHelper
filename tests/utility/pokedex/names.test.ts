@@ -1,6 +1,6 @@
 import { beforeAll, describe, expect, test } from 'bun:test';
 
-import { findBySlug, findPokemon, formatDexNumber, searchPokemon, setPokedexData } from 'utility/pokedex/names';
+import { findBySlug, findPokemon, formatDexNumber, namesFromLists, searchPokemon, setPokedexData } from 'utility/pokedex/names';
 
 beforeAll(() =>
   setPokedexData({
@@ -60,4 +60,43 @@ test('findBySlug finds species and forms by the exact slug', () => {
 test('formatDexNumber pads to four digits like the games', () => {
   expect(formatDexNumber(25)).toBe('#0025');
   expect(formatDexNumber(1025)).toBe('#1025');
+});
+
+test('namesFromLists makes names from slugs and puts forms with the species their slug starts with', () => {
+  const listed = (names: [string, number][], path: string) => names.map(([name, id]) => ({ name, url: `https://pokeapi.co/api/v2/${path}/${id}/` }));
+  const data = namesFromLists(
+    {
+      species: listed(
+        [
+          ['mr-mime', 122],
+          ['raichu', 26],
+          ['porygon', 137],
+          ['porygon-z', 474],
+        ],
+        'pokemon-species',
+      ),
+      pokemon: listed(
+        [
+          ['raichu', 26],
+          ['mr-mime', 122],
+          ['porygon', 137],
+          ['porygon-z', 474],
+          ['raichu-alola', 10100],
+          ['mr-mime-galar', 10168],
+        ],
+        'pokemon',
+      ),
+      types: listed([['fire', 10]], 'type'),
+      abilities: listed([['static', 9]], 'ability'),
+    },
+    ['en', 'de'],
+  );
+
+  expect(data.species.map((species) => [species.id, species.names.de, species.forms.map((form) => form.names.en)])).toEqual([
+    [26, 'Raichu', ['Raichu Alola']],
+    [122, 'Mr Mime', ['Mr Mime Galar']],
+    [137, 'Porygon', []],
+    [474, 'Porygon Z', []],
+  ]);
+  expect(data.types.fire).toEqual({ en: 'Fire', de: 'Fire' });
 });
