@@ -23,7 +23,9 @@ const GAP = 16;
 const CELL_W = 300;
 const BANNER_SHOWN_H = Math.round((CELL_W * BANNER_H) / BANNER_W);
 const AVATAR_D = 72;
-const CELL_H = BANNER_SHOWN_H + AVATAR_D / 2 + 34;
+/** How far above the bottom of the banner the middle of the avatar is, as on a Discord profile. */
+const AVATAR_LIFT = 4;
+const CELL_H = BANNER_SHOWN_H - AVATAR_LIFT + AVATAR_D / 2 + 34;
 const FRAMES = 120;
 const DELAY = 80;
 /** Closed eyes at the same moments as in the real loop. */
@@ -71,7 +73,7 @@ function wrap(ctx: SKRSContext2D, text: string, width: number, maxLines: number)
  */
 function statusBubble(ctx: SKRSContext2D, name: ThemeName, cx: number, cy: number, right: number, time: number) {
   const left = cx + 44;
-  const top = cy - 5;
+  const top = cy - 3;
   const sentences = STATUSES[name];
   ctx.font = `${STATUS_FONT}px "Nunito Medium"`;
   const lines = wrap(ctx, sentences[Math.floor(time * sentences.length)]!, right - left - STATUS_PAD_X * 2, 2);
@@ -82,8 +84,8 @@ function statusBubble(ctx: SKRSContext2D, name: ThemeName, cx: number, cy: numbe
   ctx.roundRect(left, top, width, height, STATUS_RADIUS);
   ctx.moveTo(left + 17 + 8, top + 1);
   ctx.arc(left + 17, top + 1, 8, 0, TAU);
-  ctx.moveTo(cx + 44 + 4.5, cy - 15);
-  ctx.arc(cx + 44, cy - 15, 4.5, 0, TAU);
+  ctx.moveTo(cx + 44 + 4.5, cy - 13);
+  ctx.arc(cx + 44, cy - 13, 4.5, 0, TAU);
   ctx.fill();
   ctx.fillStyle = '#dbdee1';
   lines.forEach((line, i) => fillWithEmoji(ctx, line, left + STATUS_PAD_X, top + STATUS_PAD_Y + STATUS_LINE_H * (i + 0.5) + 0.5, STATUS_FONT));
@@ -108,7 +110,7 @@ function cell(ctx: SKRSContext2D, name: ThemeName, x: number, y: number, time: n
 
   // The avatar in its ring, over the bottom of the banner, like on a profile
   const cx = x + 14 + AVATAR_D / 2;
-  const cy = top + BANNER_SHOWN_H;
+  const cy = top + BANNER_SHOWN_H - AVATAR_LIFT;
   ctx.fillStyle = '#232428';
   ctx.beginPath();
   ctx.arc(cx, cy, AVATAR_D / 2 + 5, 0, TAU);
