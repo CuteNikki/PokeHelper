@@ -6,13 +6,12 @@ import {
   channelMention,
   ContainerBuilder,
   DiscordAPIError,
+  escapeMarkdown,
   MediaGalleryBuilder,
   MessageFlags,
   RESTJSONErrorCodes,
-  SectionBuilder,
   SeparatorBuilder,
   TextDisplayBuilder,
-  ThumbnailBuilder,
   time,
   TimestampStyles,
   type Guild,
@@ -94,23 +93,21 @@ const imagesOf = (message: Message) =>
     .map((file, index) => ({ file, name: imageName(index, file.name) }));
 
 /**
- * A starboard post: the stars and where it's from, who wrote it with their avatar, the text and pictures, and a button to the message.
+ * A starboard post: who wrote it, where and when, the text and pictures, and buttons to star, see who starred, and go to the message.
  */
 export function buildStarboardPost(message: Message, stars: number, emoji: string, t: Translate): ResponsePayload {
   const name = message.member?.displayName ?? message.author.displayName;
   const text = message.content.length > MAX_TEXT ? `${message.content.slice(0, MAX_TEXT)}…` : message.content;
 
+  // Who wrote it on one line with where and when, like an embed's author, as a thumbnail would take a large square beside the text
   const container = new ContainerBuilder()
     .setAccentColor(STAR_COLOR)
     .addTextDisplayComponents(
-      new TextDisplayBuilder().setContent(`${channelMention(message.channelId)} · ${time(message.createdAt, TimestampStyles.RelativeTime)}`),
-    )
-    .addSeparatorComponents(new SeparatorBuilder())
-    .addSectionComponents(
-      new SectionBuilder()
-        .addTextDisplayComponents(new TextDisplayBuilder().setContent(text ? `**${name}**\n${text}` : `**${name}**`))
-        .setThumbnailAccessory(new ThumbnailBuilder().setURL((message.member ?? message.author).displayAvatarURL({ extension: 'png', size: 128 }))),
+      new TextDisplayBuilder().setContent(
+        `**${escapeMarkdown(name)}** · ${channelMention(message.channelId)} · ${time(message.createdAt, TimestampStyles.RelativeTime)}`,
+      ),
     );
+  if (text) container.addSeparatorComponents(new SeparatorBuilder()).addTextDisplayComponents(new TextDisplayBuilder().setContent(text));
 
   const images = imagesOf(message);
   // Without pictures of its own, the picture of a link, like a GIF, which isn't on Discord's servers and keeps working
