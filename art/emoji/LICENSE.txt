@@ -1,0 +1,4 @@
+The emoji in this folder are Twemoji, as Discord shows them, by Twitter, Inc and other contributors, from
+https://github.com/jdecked/twemoji (version 15.1.0).
+
+Licensed under CC-BY 4.0: https://creativecommons.org/licenses/by/4.0/

@@ -185,7 +185,9 @@ async function handleThemePreview(interaction: ChatInputCommandInteraction<'cach
   await interaction.deferReply();
   const gif = await themeOverview();
   const container = new ContainerBuilder()
-    .addTextDisplayComponents(new TextDisplayBuilder().setContent("### Poke Helper's Looks 🎨\n-# Every theme the avatar and banner wear through the year"))
+    .addTextDisplayComponents(
+      new TextDisplayBuilder().setContent("### Poke Helper's Looks 🎨\n-# Every theme the avatar, banner and status wear through the year"),
+    )
     .addMediaGalleryComponents(
       new MediaGalleryBuilder().addItems((item) =>
         item.setURL('attachment://themes.gif').setDescription('Every theme of the bot, each with its animated banner and avatar'),
