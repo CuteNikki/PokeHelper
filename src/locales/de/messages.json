@@ -929,7 +929,8 @@
     "tips": [
       "Ein Post, den jemand von Hand löscht, wird nicht nochmal gepostet, egal wie viele Sterne er bekommt.",
       "Altersbeschränkte Nachrichten kommen nur in ein Starboard, das auch altersbeschränkt ist.",
-      "Der eigene Stern und die von Bots zählen nicht. Sterne über den Button am Post zählen wie Reaktionen.",
+      "Der eigene Stern und die von Bots zählen nicht.",
+      "Jeder zählt nur einmal, egal ob per Reaktion, mit dem Stern am Post oder beidem. Nochmal auf den Stern drücken nimmt den Stern zurück, auch einen per Reaktion.",
       "Posts folgen den Sternen: Die Zahl wird aktualisiert, und der Post verschwindet, wenn die Nachricht gelöscht wird oder wieder darunter fällt."
     ]
   },

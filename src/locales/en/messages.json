@@ -1357,7 +1357,8 @@
     "tips": [
       "A post deleted by hand isn't posted again, however many stars it gets.",
       "Age-restricted messages only go on a starboard that is age-restricted too.",
-      "The author's own star and bots' don't count. Stars from the button on a post count like reactions.",
+      "The author's own star and bots' don't count.",
+      "Everyone counts once, whether they react, press the star on the post, or both. Pressing the star again takes their star back, also one given by reacting.",
       "Posts follow the stars: the count updates, and the post goes when the message is deleted or falls below again."
     ]
   },
