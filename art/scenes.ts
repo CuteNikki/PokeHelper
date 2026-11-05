@@ -214,7 +214,10 @@ export function banner(ctx: SKRSContext2D, theme: Theme, time: number, blink = 0
   ctx.textAlign = 'center';
   ctx.textBaseline = 'alphabetic';
   ctx.shadowColor = theme.titleShadow;
-  ctx.shadowOffsetY = 6;
+  // 8 at the banner's own size. A shadow's offset is in pixels of the canvas, whatever it's scaled by, so it's scaled here, or the
+  // shadow would be as deep in the small overview of every theme as on the full banner, four times as deep for its size
+  const { b, d } = ctx.getTransform();
+  ctx.shadowOffsetY = 8 * Math.hypot(b, d);
   ctx.shadowBlur = 0;
   ctx.font = '150px "Nunito Black"';
   ctx.fillStyle = '#ffffff';
