@@ -48,7 +48,7 @@ function heartBalloon(ctx: SKRSContext2D, x: number, y: number, scale: number, t
   ctx.beginPath();
   ctx.ellipse(sway - size * 0.4, top - size * 0.3, size * 0.15, size * 0.24, -0.5, 0, TAU);
   ctx.fill();
-  // White, as pink like the balloon it was lost against it
+  // White, as a pink bow was lost against the pink balloon
   bow(ctx, 0, -BOW, '#ffffff');
   ctx.restore();
 }
