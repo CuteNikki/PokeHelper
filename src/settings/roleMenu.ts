@@ -253,6 +253,8 @@ export async function renderRoleMenuList(guild: Guild, t: Translate): Promise<Re
         [subtext(t('roleMenu.list.count', { count: menus.length, max: formatNumber(MAX_ROLE_MENUS, t) })), ...lines].join('\n'),
       ),
     )
+    // Large, like before the buttons at the bottom of the settings panels
+    .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large))
     .addActionRowComponents(
       new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
         new StringSelectMenuBuilder()
