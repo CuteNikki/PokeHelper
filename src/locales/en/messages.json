@@ -1552,6 +1552,7 @@
     },
     "list": {
       "title": "### {{icon.alarm-clock}} Your reminders",
+      "count": "{{count, number}}/{{max}} reminders",
       "none": "You don't have any reminders. Set one with `/remind set`.",
       "entry": "**{{position}}.** {{text}}\n-# {{due}} · {{details}}",
       "delete": "Delete a reminder"

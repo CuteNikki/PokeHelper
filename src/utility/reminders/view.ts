@@ -4,6 +4,8 @@ import {
   ButtonStyle,
   ContainerBuilder,
   MessageFlags,
+  SeparatorBuilder,
+  SeparatorSpacingSize,
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder,
   subtext,
@@ -13,6 +15,7 @@ import {
   userMention,
 } from 'discord.js';
 
+import { MAX_REMINDERS } from 'database/reminders';
 import type { Reminder } from 'generated/prisma/client';
 import { buttonIcon } from 'utility/emojis';
 import type { Translate } from 'utility/i18next';
@@ -79,7 +82,9 @@ function describe(reminder: Reminder, t: Translate) {
 export function buildReminderList(reminders: Reminder[], t: Translate): ResponsePayload {
   const container = new ContainerBuilder()
     .setAccentColor(ThemeColors.info)
-    .addTextDisplayComponents(new TextDisplayBuilder().setContent(t('reminders.list.title')));
+    .addTextDisplayComponents(new TextDisplayBuilder().setContent(t('reminders.list.title')))
+    // Large, so the title and the list stand apart, like in the settings panels
+    .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large));
 
   if (reminders.length === 0) {
     container.addTextDisplayComponents(new TextDisplayBuilder().setContent(t('reminders.list.none')));
@@ -93,11 +98,17 @@ export function buildReminderList(reminders: Reminder[], t: Translate): Response
       due: formatDue(reminder.dueAt),
       details: describe(reminder, t),
     });
+  // How many there are of how many can be set, above the list like on the admin lists
+  const count = subtext(t('reminders.list.count', { count: reminders.length, max: formatNumber(MAX_REMINDERS, t) }));
   // The texts share what's left of Discord's limit for a message's text, so a long list still fits
-  const rest = t('reminders.list.title').length + reminders.reduce((sum, reminder, index) => sum + line(reminder, index, '').length + 1, 0);
+  const rest =
+    t('reminders.list.title').length + count.length + 1 + reminders.reduce((sum, reminder, index) => sum + line(reminder, index, '').length + 1, 0);
   const perText = Math.min(MAX_LIST_TEXT, Math.floor((DiscordLimits.messageTextLength - TEXT_MARGIN - rest) / reminders.length));
   const lines = reminders.map((reminder, index) => line(reminder, index, shorten(reminder.text.replace(/\s+/g, ' '), perText)));
-  container.addTextDisplayComponents(new TextDisplayBuilder().setContent(lines.join('\n')));
+  container
+    .addTextDisplayComponents(new TextDisplayBuilder().setContent([count, ...lines].join('\n')))
+    // Large, like before the buttons at the bottom of the settings panels
+    .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large));
 
   const select = new StringSelectMenuBuilder()
     .setCustomId(REMINDER_DELETE_ID)

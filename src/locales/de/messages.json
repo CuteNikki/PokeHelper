@@ -1496,6 +1496,7 @@
     },
     "list": {
       "title": "### {{icon.alarm-clock}} Deine Erinnerungen",
+      "count": "{{count, number}}/{{max}} Erinnerungen",
       "none": "Du hast keine Erinnerungen. Setz eine mit `/erinnerung setzen`.",
       "entry": "**{{position}}.** {{text}}\n-# {{due}} · {{details}}",
       "delete": "Erinnerung löschen"
