@@ -28,7 +28,7 @@ import { copyIdsButton, type LogIds } from 'utility/logs/copyIds';
 import { CHANNEL_FIELDS, LOG_GROUPS, logChannelOf, type LogEvent } from 'utility/logs/events';
 import { userSubject } from 'utility/logs/format';
 import { missingBotPermissions } from 'utility/settings';
-import { quote } from 'utility/text';
+import { quote, shorten } from 'utility/text';
 import { ThemeColors } from 'utility/theme';
 
 /** What the bot needs in a log channel. */
@@ -93,15 +93,12 @@ export interface LogEntry {
   files?: AttachmentBuilder[];
 }
 
-/** Shorten a text so the entry has room for the rest, ending in … when it was cut. */
-export const shorten = (text: string, max = MAX_TEXT) => (text.length > max ? `${text.slice(0, max)}…` : text);
-
 /** The most lines of a text shown, so a message of many short lines doesn't take over the log. */
 export const MAX_QUOTE_LINES = 15;
 
 /** A text as a quote, so it stands apart from the entry's own text, cut short if it's long or has many lines. */
 export function quoteText(text: string) {
-  const lines = shorten(text).split('\n');
+  const lines = shorten(text, MAX_TEXT).split('\n');
   return quote((lines.length > MAX_QUOTE_LINES ? [...lines.slice(0, MAX_QUOTE_LINES), '…'] : lines).join('\n'));
 }
 

@@ -27,7 +27,7 @@ import type { ResponsePayload } from 'utility/response';
 import { DiscordLimits } from 'utility/discordLimits';
 import { createResponse } from 'utility/response';
 import { getRoleProblem, isRoleAboveMember } from 'utility/roles';
-import { quote } from 'utility/text';
+import { quote, shorten } from 'utility/text';
 import { ThemeColors } from 'utility/theme';
 
 /**
@@ -502,7 +502,7 @@ function addSetting<C>(container: ContainerBuilder, context: SettingsContext, pa
       const text = value ?? setting.defaultText?.(t) ?? null;
       const shown = text !== null && setting.formatValue ? setting.formatValue(text, t) : text;
       // Quoted, so the text stands apart from the setting's description, and cut short so long texts don't take over the panel
-      const preview = shown === null ? t('settings.none') : quote(shown.length > TEXT_PREVIEW_LENGTH ? `${shown.slice(0, TEXT_PREVIEW_LENGTH)}…` : shown);
+      const preview = shown === null ? t('settings.none') : quote(shorten(shown, TEXT_PREVIEW_LENGTH));
       const extra = [value === null && setting.defaultText ? `-# ${t('settings.text.usingDefault')}` : null, preview].filter((line) => line !== null);
       container.addSectionComponents(
         new SectionBuilder().addTextDisplayComponents(new TextDisplayBuilder().setContent(describe(setting, t, extra))).setButtonAccessory(

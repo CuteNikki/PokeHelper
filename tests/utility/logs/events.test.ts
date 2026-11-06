@@ -4,7 +4,7 @@ import type { GuildLogs } from 'database/logs';
 
 import { getTranslate, initI18Next } from 'utility/i18next';
 import { groupOf, LOG_EVENTS, LOG_GROUPS, logChannelOf } from 'utility/logs/events';
-import { isLogChannel, quoteText, shorten } from 'utility/logs/send';
+import { isLogChannel, quoteText } from 'utility/logs/send';
 
 beforeAll(() => initI18Next());
 
@@ -63,7 +63,6 @@ test("a log channel's own messages aren't logged", () => {
   expect(isLogChannel(config({ defaultChannelId: '20' }), '20')).toBe(true);
 });
 
-test('long texts are shortened and quoted line by line', () => {
-  expect(shorten('abcdef', 3)).toBe('abc…');
+test('texts are quoted line by line', () => {
   expect(quoteText('one\ntwo')).toBe('> one\n> two');
 });

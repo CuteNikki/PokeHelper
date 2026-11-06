@@ -37,6 +37,7 @@ import { getTranslate, type Translate } from 'utility/i18next';
 import { logger } from 'utility/logger';
 import { KeyedQueue } from 'utility/queue';
 import type { ResponsePayload } from 'utility/response';
+import { shorten } from 'utility/text';
 
 export const DEFAULT_STAR_EMOJI = '⭐';
 export const DEFAULT_THRESHOLD = 3;
@@ -103,7 +104,7 @@ const imagesOf = (message: Message) =>
  * @param uploaded The names of the pictures on the post, as one whose upload failed can't be shown.
  */
 function buildStarboardPost(message: Message, stars: number, emoji: string, uploaded: string[], t: Translate): ResponsePayload {
-  const text = message.content.length > MAX_TEXT ? `${message.content.slice(0, MAX_TEXT)}…` : message.content;
+  const text = shorten(message.content, MAX_TEXT);
 
   // Who wrote it on one line with where and when, like an embed's author, as a thumbnail would take a large square beside the text.
   // A mention, which shows their name and profile when clicked, and never pings them, see allowedMentions below

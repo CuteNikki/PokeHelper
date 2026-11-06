@@ -3,7 +3,8 @@ import type { AttachmentBuilder } from 'discord.js';
 import type { Translate } from 'utility/i18next';
 import { markChanges } from 'utility/logs/diff';
 import { textFile } from 'utility/logs/files';
-import { MAX_QUOTE_LINES, quoteText, shorten } from 'utility/logs/send';
+import { MAX_QUOTE_LINES, quoteText } from 'utility/logs/send';
+import { shorten } from 'utility/text';
 
 /**
  * The text of edited and deleted messages, which can be up to 4000 characters, more than an entry has room for twice.

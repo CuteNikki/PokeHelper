@@ -17,6 +17,7 @@ import type { Translate } from 'utility/i18next';
 import type { ResponsePayload } from 'utility/response';
 import { DiscordLimits } from 'utility/discordLimits';
 import { MINUTE } from 'utility/duration';
+import { shorten } from 'utility/text';
 import { ThemeColors } from 'utility/theme';
 
 /** The select that deletes a reminder from the list. */
@@ -30,9 +31,6 @@ const LATE_AFTER = 2 * MINUTE;
 const MAX_LIST_TEXT = 200;
 /** Room left under Discord's text limit, for anything a translation adds. */
 const TEXT_MARGIN = 100;
-
-/** Shortened to fit, with an ellipsis when it was cut. */
-const shorten = (text: string, length: number) => (text.length > length ? `${text.slice(0, length - 1)}…` : text);
 
 /** When a reminder goes off, as a date Discord shows in everyone's own time, and how long until then. */
 export const formatDue = (dueAt: Date) => `${time(dueAt, TimestampStyles.LongDateShortTime)} (${time(dueAt, TimestampStyles.RelativeTime)})`;
