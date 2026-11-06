@@ -61,6 +61,7 @@
     "lessThanMinute": "<1min"
   },
   "settings": {
+    "warning": "{{icon.triangle-alert}} {{warning}}",
     "default": "Standard: {{value}}",
     "none": "Keine",
     "channel": {
@@ -920,6 +921,7 @@
       }
     },
     "post": {
+      "files": "{{icon.paperclip}} {{files}}",
       "jump": "Zur Nachricht",
       "who": "Sterne von",
       "whoTitle": "### Sterne von {{icon.star}}",

@@ -52,6 +52,7 @@ export const ICONS = {
   lock: '🔒',
   'memory-stick': '💾',
   'messages-square': '🧵',
+  paperclip: '📎',
   pencil: '✏️',
   power: '🔁',
   'refresh-cw': '🔁',

@@ -54,16 +54,18 @@ const MAX_PREFIX_LENGTH = 20;
 /** How a join channel is called for admins: by its channel's name. */
 export const creatorName = (creator: TempVoiceCreator, guild: Guild, t: Translate) => {
   const channel = guild.channels.cache.get(creator.channelId);
-  return channel ? `🔊 ${channel.name}` : t('tempVoice.config.missingChannel');
+  return channel ? channel.name : t('tempVoice.config.missingChannel');
 };
 
 /** Where its channels go and whether the bot can make them there, or what's wrong. */
 function status(creator: TempVoiceCreator, guild: Guild, t: Translate): string {
-  if (!guild.channels.cache.has(creator.channelId)) return `⚠️ ${t('tempVoice.config.status.missingChannel')}`;
+  if (!guild.channels.cache.has(creator.channelId)) return t('settings.warning', { warning: t('tempVoice.config.status.missingChannel') });
   const category = creatorCategory(guild, creator);
   const where = category ? t('tempVoice.config.status.category', { category: channelMention(category.id) }) : t('tempVoice.config.status.noCategory');
   const missing = missingCreatorPermissions(guild, creator);
-  if (missing.length > 0) return `${where}\n⚠️ ${t('tempVoice.config.status.missingPermissions', { permissions: formatPermissions(missing, t) })}`;
+  if (missing.length > 0) {
+    return `${where}\n${t('settings.warning', { warning: t('tempVoice.config.status.missingPermissions', { permissions: formatPermissions(missing, t) }) })}`;
+  }
   if (!creator.enabled) return `${where}\n${t('tempVoice.config.status.off')}`;
   return `${where}\n${t('tempVoice.config.status.ready', { channel: channelMention(creator.channelId) })}`;
 }

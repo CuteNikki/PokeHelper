@@ -485,10 +485,14 @@ function addSetting<C>(container: ContainerBuilder, context: SettingsContext, pa
         .setMinValues(setting.type === 'channel' && setting.required ? 1 : 0)
         .setMaxValues(setting.type === 'channel' ? 1 : Math.min(setting.max, DiscordLimits.selectOptions));
       if (existing.length > 0) select.setDefaultChannels(existing);
-      const warning = existing.length < saved.length ? [`⚠️ ${t(setting.type === 'channel' ? 'settings.channel.missing' : 'settings.channels.missing')}`] : [];
+      const warning =
+        existing.length < saved.length
+          ? [t('settings.warning', { warning: t(setting.type === 'channel' ? 'settings.channel.missing' : 'settings.channels.missing') })]
+          : [];
       // Permissions can be taken away after the channel was picked
       const missing = setting.type === 'channel' && existing[0] ? missingBotPermissions(guild, existing[0], setting.botPermissions) : [];
-      if (missing.length > 0) warning.push(`⚠️ ${t('settings.channel.botPermissions', { permissions: formatPermissions(missing, t) })}`);
+      if (missing.length > 0)
+        warning.push(t('settings.warning', { warning: t('settings.channel.botPermissions', { permissions: formatPermissions(missing, t) }) }));
       container
         .addTextDisplayComponents(new TextDisplayBuilder().setContent(describe(setting, t, warning)))
         .addActionRowComponents(new ActionRowBuilder<ChannelSelectMenuBuilder>().addComponents(select));
@@ -506,10 +510,13 @@ function addSetting<C>(container: ContainerBuilder, context: SettingsContext, pa
         .setMinValues(setting.type === 'role' && setting.required ? 1 : 0)
         .setMaxValues(setting.type === 'role' ? 1 : Math.min(setting.max, DiscordLimits.selectOptions));
       if (existing.length > 0) select.setDefaultRoles(existing);
-      const warning = existing.length < saved.length ? [`⚠️ ${t(setting.type === 'role' ? 'settings.role.missing' : 'settings.roles.missing')}`] : [];
+      const warning =
+        existing.length < saved.length
+          ? [t('settings.warning', { warning: t(setting.type === 'role' ? 'settings.role.missing' : 'settings.roles.missing') })]
+          : [];
       // The role or the bot's own roles can change after the role was picked
       const reason = setting.type === 'role' && setting.assignable && existing[0] ? unassignableReason(guild, existing[0], t) : null;
-      if (reason) warning.push(`⚠️ ${t('settings.role.cantAssign', { reason })}`);
+      if (reason) warning.push(t('settings.warning', { warning: t('settings.role.cantAssign', { reason }) }));
       container
         .addTextDisplayComponents(new TextDisplayBuilder().setContent(describe(setting, t, warning)))
         .addActionRowComponents(new ActionRowBuilder<RoleSelectMenuBuilder>().addComponents(select));
@@ -569,9 +576,9 @@ function addSetting<C>(container: ContainerBuilder, context: SettingsContext, pa
 
 /** A warning for an entry whose channel or role was deleted, or whose role the bot can't give. */
 function entryWarning<C>(guild: Guild, setting: AnyEntriesSetting<C>, targetId: string, t: Translate): string {
-  if (!exists(guild, setting.target, targetId)) return ` ⚠️ ${t('settings.entries.missing')}`;
+  if (!exists(guild, setting.target, targetId)) return ` ${t('settings.warning', { warning: t('settings.entries.missing') })}`;
   const reason = setting.target === 'role' && setting.assignable ? unassignableReason(guild, targetId, t) : null;
-  return reason ? ` ⚠️ ${reason}` : '';
+  return reason ? ` ${t('settings.warning', { warning: reason })}` : '';
 }
 
 function addEntries<C>(container: ContainerBuilder, guild: Guild, panelId: string, page: string, setting: AnyEntriesSetting<C>, config: C, t: Translate) {

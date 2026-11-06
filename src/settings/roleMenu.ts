@@ -67,10 +67,12 @@ function status(menu: RoleMenu, guild: Guild, t: Translate): string {
   const channel = channelMention(menu.channelId);
   if (menu.roles.length === 0) return t('roleMenu.settings.status.noRoles', { channel });
   if (menu.messageId) return t('roleMenu.settings.status.posted', { link: messageLink(menu.channelId, menu.messageId, guild.id) });
-  if (!guild.channels.cache.has(menu.channelId)) return `⚠️ ${t('roleMenu.settings.status.missingChannel')}`;
+  if (!guild.channels.cache.has(menu.channelId)) return t('settings.warning', { warning: t('roleMenu.settings.status.missingChannel') });
   const missing = missingBotPermissions(guild, menu.channelId, ROLE_MENU_CHANNEL_PERMISSIONS);
-  if (missing.length > 0) return `⚠️ ${t('roleMenu.settings.status.missingPermissions', { channel, permissions: formatPermissions(missing, t) })}`;
-  return `⚠️ ${t('roleMenu.settings.status.notPosted', { channel })}`;
+  if (missing.length > 0) {
+    return t('settings.warning', { warning: t('roleMenu.settings.status.missingPermissions', { channel, permissions: formatPermissions(missing, t) }) });
+  }
+  return t('settings.warning', { warning: t('roleMenu.settings.status.notPosted', { channel }) });
 }
 
 /** The settings panel of one role menu. Every change is also made to the posted message right away. */

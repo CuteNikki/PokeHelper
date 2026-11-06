@@ -61,6 +61,7 @@
     "lessThanMinute": "<1m"
   },
   "settings": {
+    "warning": "{{icon.triangle-alert}} {{warning}}",
     "default": "Default: {{value}}",
     "none": "None",
     "channel": {
@@ -1372,6 +1373,7 @@
       }
     },
     "post": {
+      "files": "{{icon.paperclip}} {{files}}",
       "jump": "Jump to message",
       "who": "Starred by",
       "whoTitle": "### Starred by {{icon.star}}",

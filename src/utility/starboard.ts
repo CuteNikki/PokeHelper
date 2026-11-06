@@ -144,7 +144,10 @@ function buildStarboardPost(message: Message, stars: number, emoji: string, uplo
   }
 
   const others = [...message.attachments.values()].filter((file) => !images.some((image) => image.file.id === file.id));
-  if (others.length > 0) container.addTextDisplayComponents(new TextDisplayBuilder().setContent(subtext(`📎 ${others.map((file) => file.name).join(', ')}`)));
+  if (others.length > 0)
+    container.addTextDisplayComponents(
+      new TextDisplayBuilder().setContent(subtext(t('starboard.post.files', { files: others.map((file) => file.name).join(', ') }))),
+    );
 
   container.addActionRowComponents(
     new ActionRowBuilder<ButtonBuilder>().addComponents(
