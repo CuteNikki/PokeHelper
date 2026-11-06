@@ -70,6 +70,29 @@ export interface ApiMove {
 /** Thrown when PokéAPI can't be reached or answers with an error, but not when something doesn't exist. */
 export class PokeApiError extends Error {}
 
+interface FetchOptions {
+  init?: RequestInit;
+  /** How long to wait for an answer, in milliseconds. */
+  timeout?: number;
+}
+
+/**
+ * A PokéAPI answer, as JSON.
+ * @param what What was asked for, for the error.
+ * @param options.allowMissing Null when it doesn't exist, instead of an error.
+ * @throws {PokeApiError} When PokéAPI can't be reached or answers with an error.
+ */
+export async function fetchJson<T>(url: string, what: string, options: FetchOptions & { allowMissing: true }): Promise<T | null>;
+export async function fetchJson<T>(url: string, what: string, options?: FetchOptions): Promise<T>;
+export async function fetchJson<T>(url: string, what: string, options: FetchOptions & { allowMissing?: boolean } = {}): Promise<T | null> {
+  const response = await fetch(url, { ...options.init, signal: AbortSignal.timeout(options.timeout ?? TIMEOUT) }).catch((error: unknown) => {
+    throw new PokeApiError(`PokéAPI couldn't be reached for ${what}`, { cause: error });
+  });
+  if (options.allowMissing && response.status === 404) return null;
+  if (!response.ok) throw new PokeApiError(`PokéAPI answered ${response.status} for ${what}`);
+  return (await response.json()) as T;
+}
+
 /**
  * Tell whoever asked that PokéAPI can't be reached, for an error from asking it. Any other error is thrown on, as it's a bug.
  * @param options.replace Replace a public "thinking" reply with the error only they see, instead of answering only them.
@@ -117,14 +140,7 @@ const images = new RecentCache(60);
  * @returns The answer, or null if it doesn't exist.
  */
 function get<T>(path: string): Promise<T | null> {
-  return answers.get(path, async () => {
-    const response = await fetch(`${API_URL}/${path}`, { signal: AbortSignal.timeout(TIMEOUT) }).catch((error: unknown) => {
-      throw new PokeApiError(`PokéAPI couldn't be reached for ${path}`, { cause: error });
-    });
-    if (response.status === 404) return null;
-    if (!response.ok) throw new PokeApiError(`PokéAPI answered ${response.status} for ${path}`);
-    return (await response.json()) as T;
-  });
+  return answers.get(path, () => fetchJson<T>(`${API_URL}/${path}`, path, { allowMissing: true }));
 }
 
 export const getPokemon = (slug: string) => get<ApiPokemon>(`pokemon/${encodeURIComponent(slug)}`);
