@@ -3,7 +3,7 @@ import { t } from 'i18next';
 
 import { Event } from 'classes/base/event';
 
-import { addXpToUser, addXpToUserWeekly, getGuildLevelingConfiguration, getLevelFromXP } from 'database/leveling';
+import { addXpToUser, getGuildLevelingConfiguration, getLevelFromXP } from 'database/leveling';
 import { getUserData } from 'database/user';
 
 import { getTranslate } from 'utility/i18next';
@@ -48,7 +48,7 @@ export default new Event({
 
     // Make sure the user exists in the database
     await getUserData(member.id);
-    const [levelingData] = await Promise.all([addXpToUser(message.guildId, member.id, xpToAdd), addXpToUserWeekly(message.guildId, member.id, xpToAdd)]);
+    const levelingData = await addXpToUser(message.guildId, member.id, xpToAdd);
 
     const newLevel = getLevelFromXP(levelingData.xp);
     const oldLevel = getLevelFromXP(levelingData.xp - xpToAdd);

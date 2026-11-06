@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 
-import { applyMultiplier, earnsXp, getEarnedRewardRoles, getMultiplier, isWeeklyResetDue, startOfWeek } from 'utility/leveling/rules';
+import { applyMultiplier, earnsXp, getEarnedRewardRoles, getMultiplier, isResetDue, startOfMonth, startOfWeek } from 'utility/leveling/rules';
 
 const noFilters = { ignoredChannels: [], enabledChannels: [], ignoredRoles: [], enabledRoles: [] };
 // A thread in #general, which is in the Chat category
@@ -83,13 +83,33 @@ describe('the weekly reset', () => {
 
   test('is due once a new week started, also when the bot was offline at Monday 00:00', () => {
     const wednesday = new Date('2026-11-04T15:00:00Z');
-    expect(isWeeklyResetDue(new Date('2026-11-02T00:00:05Z'), new Date('2026-01-01'), wednesday)).toBe(false);
-    expect(isWeeklyResetDue(new Date('2026-10-26T00:00:05Z'), new Date('2026-01-01'), wednesday)).toBe(true);
+    expect(isResetDue('weekly', new Date('2026-11-02T00:00:05Z'), new Date('2026-01-01'), wednesday)).toBe(false);
+    expect(isResetDue('weekly', new Date('2026-10-26T00:00:05Z'), new Date('2026-01-01'), wednesday)).toBe(true);
   });
 
   test('without a reset yet, counts from when leveling was set up', () => {
     const wednesday = new Date('2026-11-04T15:00:00Z');
-    expect(isWeeklyResetDue(null, new Date('2026-11-03T10:00:00Z'), wednesday)).toBe(false);
-    expect(isWeeklyResetDue(null, new Date('2026-10-20T10:00:00Z'), wednesday)).toBe(true);
+    expect(isResetDue('weekly', null, new Date('2026-11-03T10:00:00Z'), wednesday)).toBe(false);
+    expect(isResetDue('weekly', null, new Date('2026-10-20T10:00:00Z'), wednesday)).toBe(true);
+  });
+});
+
+describe('the monthly reset', () => {
+  test('months start on the 1st at 00:00 UTC', () => {
+    expect(startOfMonth(new Date('2026-11-04T15:00:00Z'))).toEqual(new Date('2026-11-01T00:00:00Z'));
+    expect(startOfMonth(new Date('2026-11-30T23:59:00Z'))).toEqual(new Date('2026-11-01T00:00:00Z'));
+    expect(startOfMonth(new Date('2026-12-01T00:00:00Z'))).toEqual(new Date('2026-12-01T00:00:00Z'));
+  });
+
+  test('is due once a new month started, also when the bot was offline on the 1st', () => {
+    const now = new Date('2026-11-04T15:00:00Z');
+    expect(isResetDue('monthly', new Date('2026-11-01T00:00:05Z'), new Date('2026-01-01'), now)).toBe(false);
+    expect(isResetDue('monthly', new Date('2026-10-01T00:00:05Z'), new Date('2026-01-01'), now)).toBe(true);
+  });
+
+  test('without a reset yet, counts from when leveling was set up', () => {
+    const now = new Date('2026-11-04T15:00:00Z');
+    expect(isResetDue('monthly', null, new Date('2026-11-03T10:00:00Z'), now)).toBe(false);
+    expect(isResetDue('monthly', null, new Date('2026-10-20T10:00:00Z'), now)).toBe(true);
   });
 });

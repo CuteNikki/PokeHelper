@@ -68,6 +68,7 @@ export const levelingSettings = createSettingsPanel<LevelingConfig>({
   permissions: ['ManageGuild'],
   categories: [
     { id: 'general', label: (t: Translate) => t('leveling.settings.categories.general'), emoji: '⚙️' },
+    { id: 'winners', label: (t: Translate) => t('leveling.settings.categories.winners'), emoji: '🏆' },
     { id: 'filters', label: (t: Translate) => t('leveling.settings.categories.filters'), emoji: '🚫' },
     { id: 'rewards', label: (t: Translate) => t('leveling.settings.categories.rewards'), emoji: '🎁' },
     { id: 'channelMultipliers', label: (t: Translate) => t('leveling.settings.categories.channelMultipliers'), emoji: '📈' },
@@ -86,8 +87,8 @@ export const levelingSettings = createSettingsPanel<LevelingConfig>({
       label: (t) => t('leveling.settings.enabled.label'),
       description: (t) => t('leveling.settings.enabled.description'),
       get: (config) => config.enabled,
-      // Turning it on starts the count of the week, so the first reset is when the next week starts, not right away
-      set: (guildId, enabled) => update(guildId, enabled ? { enabled, weeklyLastResetAt: new Date() } : { enabled }),
+      // Turning it on starts the count of the week and month, so the first resets are when the next ones start, not right away
+      set: (guildId, enabled) => update(guildId, enabled ? { enabled, weeklyLastResetAt: new Date(), monthlyLastResetAt: new Date() } : { enabled }),
     },
     {
       type: 'boolean',
@@ -103,8 +104,8 @@ export const levelingSettings = createSettingsPanel<LevelingConfig>({
       type: 'channel',
       key: 'channel',
       category: 'general',
-      // Only matters while level ups are announced
-      hidden: (config) => !config.levelUpMessages,
+      // Only matters while level ups or winners are announced
+      hidden: (config) => !config.levelUpMessages && !config.weeklyResetMessages && !config.monthlyResetMessages,
       channelTypes: [ChannelType.GuildText, ChannelType.GuildAnnouncement],
       botPermissions: LEVEL_UP_CHANNEL_PERMISSIONS,
       label: (t) => t('leveling.settings.channel.label'),
@@ -115,12 +116,42 @@ export const levelingSettings = createSettingsPanel<LevelingConfig>({
     {
       type: 'role',
       key: 'weeklyReward',
-      category: 'general',
+      category: 'winners',
       assignable: true,
       label: (t) => t('leveling.settings.weeklyReward.label'),
       description: (t) => t('leveling.settings.weeklyReward.description'),
       get: (config) => config.weeklyReward,
       set: (guildId, weeklyReward) => update(guildId, { weeklyReward }),
+    },
+    {
+      type: 'boolean',
+      key: 'weeklyResetMessages',
+      category: 'winners',
+      defaultValue: true,
+      label: (t) => t('leveling.settings.weeklyResetMessages.label'),
+      description: (t) => t('leveling.settings.weeklyResetMessages.description'),
+      get: (config) => config.weeklyResetMessages,
+      set: (guildId, weeklyResetMessages) => update(guildId, { weeklyResetMessages }),
+    },
+    {
+      type: 'role',
+      key: 'monthlyReward',
+      category: 'winners',
+      assignable: true,
+      label: (t) => t('leveling.settings.monthlyReward.label'),
+      description: (t) => t('leveling.settings.monthlyReward.description'),
+      get: (config) => config.monthlyReward,
+      set: (guildId, monthlyReward) => update(guildId, { monthlyReward }),
+    },
+    {
+      type: 'boolean',
+      key: 'monthlyResetMessages',
+      category: 'winners',
+      defaultValue: true,
+      label: (t) => t('leveling.settings.monthlyResetMessages.label'),
+      description: (t) => t('leveling.settings.monthlyResetMessages.description'),
+      get: (config) => config.monthlyResetMessages,
+      set: (guildId, monthlyResetMessages) => update(guildId, { monthlyResetMessages }),
     },
     {
       type: 'channels',

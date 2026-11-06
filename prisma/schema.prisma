@@ -11,10 +11,11 @@ model User {
   userId String @id
 
   // Configuration and state
-  birthday     UserBirthday?    @relation("UserBirthday")
-  friendCodes  UserFriendCodes? @relation("UserFriendCodes")
-  levels       Level[]
-  levelsWeekly WeeklyLevel[]
+  birthday      UserBirthday?    @relation("UserBirthday")
+  friendCodes   UserFriendCodes? @relation("UserFriendCodes")
+  levels        Level[]
+  levelsWeekly  WeeklyLevel[]
+  levelsMonthly MonthlyLevel[]
 
   // Timestamps
   createdAt DateTime @default(now())
@@ -82,6 +83,7 @@ model Guild {
   birthdayRoles     BirthdayRole[]
   levels            Level[]
   levelsWeekly      WeeklyLevel[]
+  levelsMonthly     MonthlyLevel[]
 
   // Timestamps
   createdAt DateTime @default(now())
@@ -263,21 +265,29 @@ model GuildLeveling {
   guild   Guild  @relation("GuildLeveling", fields: [guildId], references: [guildId], onDelete: Cascade)
 
   // Configuration
-  enabled           Boolean               @default(false)
+  enabled              Boolean               @default(false)
   // Whether level ups are announced. Members level up and get their rewards either way
-  levelUpMessages   Boolean               @default(true)
-  channelId         String?
-  rewards           GuildLevelingReward[]
-  multipliers       LevelingMultiplier[]
-  weeklyReward      String? // roleId of the weekly reward
-  weeklyLastResetAt DateTime?
-  weeklyLastWinner  String? // userId of the last weekly winner
-  weeklyWinnerRole  String? // the role the last weekly winner got, which is taken away at the next reset even if the setting changed
+  levelUpMessages      Boolean               @default(true)
+  channelId            String?
+  rewards              GuildLevelingReward[]
+  multipliers          LevelingMultiplier[]
+  weeklyReward         String? // roleId of the weekly reward
+  weeklyLastResetAt    DateTime?
+  weeklyLastWinner     String? // userId of the last weekly winner
+  weeklyWinnerRole     String? // the role the last weekly winner got, which is taken away at the next reset even if the setting changed
+  // Whether the weekly winner is announced. The reset and the role happen either way
+  weeklyResetMessages  Boolean               @default(true)
+  monthlyReward        String? // roleId of the monthly reward
+  monthlyLastResetAt   DateTime?
+  monthlyLastWinner    String? // userId of the last monthly winner
+  monthlyWinnerRole    String? // the role the last monthly winner got, which is taken away at the next reset even if the setting changed
+  // Whether the monthly winner is announced. The reset and the role happen either way
+  monthlyResetMessages Boolean               @default(true)
   // Filters
-  ignoredChannels   String[]              @default([]) // if empty, no channels are ignored otherwise only the specified channels are ignored
-  enabledChannels   String[]              @default([]) // if empty, all channels are enabled otherwise only the specified channels are enabled
-  ignoredRoles      String[]              @default([]) // if empty, no roles are ignored otherwise only the specified roles are ignored
-  enabledRoles      String[]              @default([]) // if empty, all roles are enabled otherwise only the specified roles are enabled
+  ignoredChannels      String[]              @default([]) // if empty, no channels are ignored otherwise only the specified channels are ignored
+  enabledChannels      String[]              @default([]) // if empty, all channels are enabled otherwise only the specified channels are enabled
+  ignoredRoles         String[]              @default([]) // if empty, no roles are ignored otherwise only the specified roles are ignored
+  enabledRoles         String[]              @default([]) // if empty, all roles are enabled otherwise only the specified roles are enabled
 
   // Timestamps
   createdAt DateTime @default(now())
@@ -340,6 +350,24 @@ model WeeklyLevel {
 
   @@id([guildId, userId])
   @@map("UserLevelingWeekly")
+}
+
+model MonthlyLevel {
+  // State
+  xp Int @default(0)
+
+  // Relation
+  userId  String
+  user    User   @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  guildId String
+  guild   Guild  @relation(fields: [guildId], references: [guildId], onDelete: Cascade)
+
+  // Timestamps
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+
+  @@id([guildId, userId])
+  @@map("UserLevelingMonthly")
 }
 
 // Multiplies the XP for messages in a channel or category, or from members with a role. Only the highest one that applies counts

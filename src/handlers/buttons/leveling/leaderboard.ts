@@ -30,7 +30,7 @@ export default new Button({
     // Whoever pressed it, who is whoever opened the leaderboard, as only they can use its buttons
     let view = parsed.view;
     if (parsed.action === 'me') {
-      const position = await getLeaderboardPosition(interaction.guildId, interaction.user.id, view.weekly, view.sortOrder);
+      const position = await getLeaderboardPosition(interaction.guildId, interaction.user.id, view.period, view.sortOrder);
       if (position === null) return sendError(interaction, t('pagination.notListed'));
       view = { ...view, page: pageOfPosition(position, ITEMS_PER_PAGE) };
     }

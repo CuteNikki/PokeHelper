@@ -17,13 +17,13 @@ The bot only stores what its features need. Everything is tied to Discord IDs, w
 
 **About you**
 
-- **Leveling:** your XP in each server, all time and for the current week.
+- **Leveling:** your XP in each server, all time and for the current week and month.
 - **Counting:** how many numbers you counted and how many mistakes you made in each server, when you last counted, and the numbers you counted in each run, with their message IDs.
 - **Birthdays:** your birthday, your timezone if you set one, whether your age is shown, and the servers it's announced in. You set this yourself with `/birthday`.
 - **Friend codes:** the codes you add for the Nintendo Switch and Pokémon games. You add them yourself with `/friendcode set`, and anyone using the bot can look them up.
 - **Temporary voice channels:** the channels you own, who you let in, kept out or made a moderator, and the settings you saved for your next channel, like its name and user limit.
 - **Starboard:** which messages you starred, by reacting or with the button, and which of your messages others starred, so the posts can be updated and show who starred. What the messages say is in the posts on Discord, not in the database.
-- **Roles the bot gave you**, like a birthday role or the weekly leveling role, so it can take them away again.
+- **Roles the bot gave you**, like a birthday role or the weekly or monthly leveling role, so it can take them away again.
 
 **About servers**
 

@@ -78,64 +78,37 @@ export const deleteGuildLevelingReward = async (id: string) =>
     where: { id },
   });
 
-export const addXpToUser = (guildId: string, userId: string, xpToAdd: number) =>
-  prisma.level.upsert({
-    where: { guildId_userId: { guildId, userId } },
-    update: { xp: { increment: xpToAdd } },
-    create: { guildId, userId, xp: xpToAdd },
-  });
-
-export const getUserLevelingData = (guildId: string, userId: string) =>
-  prisma.level.findUnique({
-    where: { guildId_userId: { guildId, userId } },
-  });
-
-export const getTopUsersByXP = (guildId: string, take: number = 10, skip: number = 0, sortOrder: 'asc' | 'desc' = 'desc') =>
-  prisma.level.findMany({
-    where: { guildId },
-    // Ties by user, so the order is the same on every page and someone can be found in it
-    orderBy: [{ xp: sortOrder }, { userId: 'asc' }],
-    take,
-    skip,
-  });
-
-export const getUserRank = async (guildId: string, targetXp: number) => {
-  const usersWithMoreXp = await prisma.level.count({
-    where: {
-      guildId,
-      xp: {
-        gt: targetXp,
-      },
-    },
-  });
-
-  return usersWithMoreXp + 1;
-};
+/** Which XP: all of it, or what was earned since the last weekly or monthly reset. */
+export type LevelPeriod = 'allTime' | 'weekly' | 'monthly';
+/** The periods that start over, each with a winner. */
+export type ResetPeriod = Exclude<LevelPeriod, 'allTime'>;
 
 /**
- * Where someone is on the leaderboard, in the order it's shown, or null when they aren't on it.
- * @param weekly Whether it's the weekly leaderboard.
+ * The table of a period's XP. The three have the same columns, so they're used through the all-time table's type,
+ * as TypeScript can't call methods on a union of Prisma's tables.
  */
-export async function getLeaderboardPosition(guildId: string, userId: string, weekly: boolean, sortOrder: 'asc' | 'desc'): Promise<number | null> {
-  const own = weekly ? await getWeeklyUserLevelingData(guildId, userId) : await getUserLevelingData(guildId, userId);
-  if (!own) return null;
-  const where = { guildId, OR: [{ xp: sortOrder === 'desc' ? { gt: own.xp } : { lt: own.xp } }, { xp: own.xp, userId: { lt: userId } }] };
-  const ahead = weekly ? await prisma.weeklyLevel.count({ where }) : await prisma.level.count({ where });
-  return ahead + 1;
+const levelTable = (period: LevelPeriod) =>
+  (period === 'weekly' ? prisma.weeklyLevel : period === 'monthly' ? prisma.monthlyLevel : prisma.level) as unknown as typeof prisma.level;
+
+/** Add XP to someone's all-time, weekly and monthly XP. Returns the all-time XP. */
+export async function addXpToUser(guildId: string, userId: string, xpToAdd: number) {
+  const upsert = (period: LevelPeriod) =>
+    levelTable(period).upsert({
+      where: { guildId_userId: { guildId, userId } },
+      update: { xp: { increment: xpToAdd } },
+      create: { guildId, userId, xp: xpToAdd },
+    });
+  const [allTime] = await Promise.all([upsert('allTime'), upsert('weekly'), upsert('monthly')]);
+  return allTime;
 }
 
-export const getTotalUsersWithXP = (guildId: string) =>
-  prisma.level.count({
-    where: { guildId },
+export const getUserLevelingData = (guildId: string, userId: string, period: LevelPeriod = 'allTime') =>
+  levelTable(period).findUnique({
+    where: { guildId_userId: { guildId, userId } },
   });
 
-export const getTotalWeeklyUsersWithXP = (guildId: string) =>
-  prisma.weeklyLevel.count({
-    where: { guildId },
-  });
-
-export const getTopWeeklyUsersByXP = (guildId: string, take: number = 10, skip: number = 0, sortOrder: 'asc' | 'desc' = 'desc') =>
-  prisma.weeklyLevel.findMany({
+export const getTopUsersByXP = (guildId: string, period: LevelPeriod, take: number = 10, skip: number = 0, sortOrder: 'asc' | 'desc' = 'desc') =>
+  levelTable(period).findMany({
     where: { guildId },
     // Ties by user, so the order is the same on every page and someone can be found in it
     orderBy: [{ xp: sortOrder }, { userId: 'asc' }],
@@ -143,49 +116,35 @@ export const getTopWeeklyUsersByXP = (guildId: string, take: number = 10, skip: 
     skip,
   });
 
-export const addXpToUserWeekly = (guildId: string, userId: string, xpToAdd: number) =>
-  prisma.weeklyLevel.upsert({
-    where: { guildId_userId: { guildId, userId } },
-    update: { xp: { increment: xpToAdd } },
-    create: { guildId, userId, xp: xpToAdd },
-  });
+/** The rank of someone with this much XP in a period: 1 plus everyone with more. */
+export const getUserRank = async (guildId: string, targetXp: number, period: LevelPeriod = 'allTime') =>
+  (await levelTable(period).count({ where: { guildId, xp: { gt: targetXp } } })) + 1;
 
-export const getWeeklyUserLevelingData = (guildId: string, userId: string) =>
-  prisma.weeklyLevel.findUnique({
-    where: { guildId_userId: { guildId, userId } },
-  });
+/** Where someone is on a period's leaderboard, in the order it's shown, or null when they aren't on it. */
+export async function getLeaderboardPosition(guildId: string, userId: string, period: LevelPeriod, sortOrder: 'asc' | 'desc'): Promise<number | null> {
+  const own = await getUserLevelingData(guildId, userId, period);
+  if (!own) return null;
+  const where = { guildId, OR: [{ xp: sortOrder === 'desc' ? { gt: own.xp } : { lt: own.xp } }, { xp: own.xp, userId: { lt: userId } }] };
+  return (await levelTable(period).count({ where })) + 1;
+}
+
+export const getTotalUsersWithXP = (guildId: string, period: LevelPeriod = 'allTime') => levelTable(period).count({ where: { guildId } });
 
 /**
- * Record a weekly reset and start the new week from zero.
+ * Record a weekly or monthly reset and start the new period from zero.
  * @param winnerRole The role the winner got, or null if none was given.
  */
-export const processWeeklyResetTransaction = (guildId: string, newWinnerId: string | null, winnerRole: string | null) =>
+export const processResetTransaction = (guildId: string, period: ResetPeriod, newWinnerId: string | null, winnerRole: string | null) =>
   prisma.$transaction([
     prisma.guildLeveling.update({
       where: { guildId },
-      data: {
-        weeklyLastWinner: newWinnerId,
-        weeklyWinnerRole: winnerRole,
-        weeklyLastResetAt: new Date(),
-      },
+      data:
+        period === 'weekly'
+          ? { weeklyLastWinner: newWinnerId, weeklyWinnerRole: winnerRole, weeklyLastResetAt: new Date() }
+          : { monthlyLastWinner: newWinnerId, monthlyWinnerRole: winnerRole, monthlyLastResetAt: new Date() },
     }),
-    prisma.weeklyLevel.deleteMany({
-      where: { guildId },
-    }),
+    levelTable(period).deleteMany({ where: { guildId } }),
   ]);
-
-export const getWeeklyUserRank = async (guildId: string, targetXp: number) => {
-  const usersWithMoreXp = await prisma.weeklyLevel.count({
-    where: {
-      guildId,
-      xp: {
-        gt: targetXp,
-      },
-    },
-  });
-
-  return usersWithMoreXp + 1;
-};
 
 export const getActiveLevelingConfigs = () =>
   prisma.guildLeveling.findMany({

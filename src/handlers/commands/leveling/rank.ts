@@ -11,15 +11,7 @@ import {
 
 import { Command } from 'classes/base/command';
 
-import {
-  getGuildLevelingConfiguration,
-  getLevelFromXP,
-  getUserLevelingData,
-  getUserRank,
-  getWeeklyUserLevelingData,
-  getWeeklyUserRank,
-  getXPForLevel,
-} from 'database/leveling';
+import { getGuildLevelingConfiguration, getLevelFromXP, getUserLevelingData, getUserRank, getXPForLevel, type LevelPeriod } from 'database/leveling';
 
 import { getTranslate, type Translate } from 'utility/i18next';
 import { renderRankCard, type LevelProgress } from 'utility/leveling/rankCard';
@@ -73,16 +65,11 @@ export default new Command({
       return sendError(interaction, t('leveling.disabled'));
     }
 
-    const [allTimeData, weeklyData] = await Promise.all([
-      getUserLevelingData(interaction.guildId, targetUser.id),
-      getWeeklyUserLevelingData(interaction.guildId, targetUser.id),
-    ]);
-    const xpAllTime = allTimeData?.xp ?? 0;
-    const xpWeekly = weeklyData?.xp ?? 0;
-
-    const [rankAllTime, rankWeekly] = await Promise.all([getUserRank(interaction.guildId, xpAllTime), getWeeklyUserRank(interaction.guildId, xpWeekly)]);
-    const allTime = getProgress(xpAllTime, rankAllTime);
-    const weekly = getProgress(xpWeekly, rankWeekly);
+    const periodProgress = async (period: LevelPeriod) => {
+      const xp = (await getUserLevelingData(interaction.guildId, targetUser.id, period))?.xp ?? 0;
+      return getProgress(xp, await getUserRank(interaction.guildId, xp, period));
+    };
+    const [allTime, weekly, monthly] = await Promise.all([periodProgress('allTime'), periodProgress('weekly'), periodProgress('monthly')]);
     const displayName = targetMember?.displayName || targetUser.displayName || targetUser.username;
 
     const allTimeValues = progressValues(allTime, t);
@@ -93,6 +80,8 @@ export default new Command({
         t('leveling.rank.text.title', { user: userMention(targetUser.id) }),
         t('leveling.rank.text.allTime', allTimeValues),
         t('leveling.rank.text.weekly', weeklyValues),
+        // Only here, the card stays with all-time and weekly
+        t('leveling.rank.text.monthly', progressValues(monthly, t)),
       ].join('\n');
       return interaction.editReply({ ...createResponse(content, 'info'), allowedMentions: { parse: [] } });
     }

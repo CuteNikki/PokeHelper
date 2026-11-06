@@ -2,7 +2,7 @@ import { ApplicationIntegrationType, InteractionContextType, SlashCommandBuilder
 
 import { Command } from 'classes/base/command';
 
-import { getGuildLevelingConfiguration } from 'database/leveling';
+import { getGuildLevelingConfiguration, type LevelPeriod } from 'database/leveling';
 
 import { getTranslate } from 'utility/i18next';
 import { buildLeaderboard } from 'utility/leveling/leaderboard';
@@ -15,7 +15,13 @@ export default new Command({
     .setName('leaderboard')
     .setDescription('Check the server leaderboard for levels and XP.')
     .addIntegerOption((option) => option.setName('page').setDescription('The page number of the leaderboard to view.').setRequired(false).setMinValue(1))
-    .addBooleanOption((option) => option.setName('weekly').setDescription('Whether to view the weekly leaderboard.').setRequired(false))
+    .addStringOption((option) =>
+      option
+        .setName('period')
+        .setDescription('Which leaderboard to view. Defaults to all-time.')
+        .setRequired(false)
+        .addChoices({ name: 'All-time', value: 'allTime' }, { name: 'Weekly', value: 'weekly' }, { name: 'Monthly', value: 'monthly' }),
+    )
     .addBooleanOption((option) =>
       option.setName('text').setDescription('Show the leaderboard as text instead of an image, like for screen readers.').setRequired(false),
     ),
@@ -35,7 +41,7 @@ export default new Command({
     const view = {
       page: interaction.options.getInteger('page') || 1,
       sortOrder: 'desc' as const,
-      weekly: interaction.options.getBoolean('weekly') || false,
+      period: (interaction.options.getString('period') ?? 'allTime') as LevelPeriod,
       text: interaction.options.getBoolean('text') || false,
     };
     await interaction.editReply(await buildLeaderboard(view, interaction.guild, t));

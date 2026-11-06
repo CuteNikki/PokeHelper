@@ -14,15 +14,22 @@ import {
   type InteractionEditReplyOptions,
 } from 'discord.js';
 
-import { getLevelFromXP, getTopUsersByXP, getTopWeeklyUsersByXP, getTotalUsersWithXP, getTotalWeeklyUsersWithXP } from 'database/leveling';
+import { getLevelFromXP, getTopUsersByXP, getTotalUsersWithXP, type LevelPeriod } from 'database/leveling';
 
 import { drawAvatar, truncateText } from 'utility/canvas';
 import { formatCompactNumber } from 'utility/duration';
 import type { Translate } from 'utility/i18next';
-import { clampPage, leaderboardCustomId, type LeaderboardAction, type LeaderboardView } from 'utility/leveling/leaderboardView';
+import { clampPage, leaderboardCustomId, nextPeriod, type LeaderboardAction, type LeaderboardView } from 'utility/leveling/leaderboardView';
 import { findMeButton } from 'utility/pagination';
 
 export const ITEMS_PER_PAGE = 5;
+
+/** The title of each period's leaderboard. */
+const TITLE_KEYS = {
+  allTime: 'leveling.leaderboard.title',
+  weekly: 'leveling.leaderboard.titleWeekly',
+  monthly: 'leveling.leaderboard.titleMonthly',
+} as const satisfies Record<LevelPeriod, string>;
 
 // Avatars of recently shown leaderboards, kept for 15 minutes, as the same pages are often looked at a few times in a row
 const avatarCache = new Map<string, { image: Image; expiresAt: number }>();
@@ -236,6 +243,16 @@ export function renderLeaderboardCanvas(entries: LeaderboardEntry[], isTopPodium
   return canvas.toBuffer('image/png');
 }
 
+/** The button switching to the next of all-time, weekly and monthly, which starts over at the first page. */
+function periodButton(view: LeaderboardView, t: Translate) {
+  const period = nextPeriod(view.period);
+  return new ButtonBuilder()
+    .setCustomId(leaderboardCustomId('period', { ...view, period, page: 1 }))
+    .setStyle(ButtonStyle.Secondary)
+    .setEmoji('📅')
+    .setLabel(t(`leveling.leaderboard.showPeriod.${period}`));
+}
+
 /** The page buttons and the sort select, which stay the same in image and text mode. Each leads to the view it shows. */
 function buildControls(view: LeaderboardView, totalPages: number, t: Translate) {
   const button = (action: LeaderboardAction, page: number) =>
@@ -273,13 +290,14 @@ function buildControls(view: LeaderboardView, totalPages: number, t: Translate) 
     ),
   );
 
-  // On a row of their own, under the sorting they follow: finding yourself, and switching between the image and text, like for screen readers
+  // On a row of their own, under the sorting they follow: finding yourself, switching between all-time, weekly and monthly,
+  // and switching between the image and text, like for screen readers
   const mode = new ButtonBuilder()
     .setCustomId(leaderboardCustomId('mode', { ...view, text: !view.text }))
     .setStyle(ButtonStyle.Secondary)
     .setEmoji(view.text ? '🖼️' : '📝')
     .setLabel(t(view.text ? 'leveling.leaderboard.showImage' : 'leveling.leaderboard.showText'));
-  const rowMore = new ActionRowBuilder<ButtonBuilder>().addComponents(findMeButton(leaderboardCustomId('me', view), t), mode);
+  const rowMore = new ActionRowBuilder<ButtonBuilder>().addComponents(findMeButton(leaderboardCustomId('me', view), t), periodButton(view, t), mode);
 
   return [rowPageButtons, rowSortOrder, rowMore] as const;
 }
@@ -290,23 +308,23 @@ function buildControls(view: LeaderboardView, totalPages: number, t: Translate) 
  * @param options.t The translation, for whoever opened or paged the leaderboard.
  */
 export async function buildLeaderboard(requested: LeaderboardView, guild: Guild, t: Translate): Promise<InteractionEditReplyOptions> {
-  const { weekly, sortOrder, text } = requested;
-  const userCount = weekly ? await getTotalWeeklyUsersWithXP(guild.id) : await getTotalUsersWithXP(guild.id);
+  const { period, sortOrder, text } = requested;
+  const userCount = await getTotalUsersWithXP(guild.id, period);
   const totalPages = Math.max(1, Math.ceil(userCount / ITEMS_PER_PAGE));
   // The list may have shrunk since the buttons were made, or a page that doesn't exist was asked for
   const page = clampPage(requested.page, totalPages);
-  const title = t(weekly ? 'leveling.leaderboard.titleWeekly' : 'leveling.leaderboard.title', { guild: guild.name });
+  const title = t(TITLE_KEYS[period], { guild: guild.name });
   // Shown without a container around it, the image already has its own cards
   const heading = new TextDisplayBuilder().setContent(title);
 
   if (userCount === 0) {
     const none = new TextDisplayBuilder().setContent(t('leveling.leaderboard.none'));
-    return { components: [heading, none], flags: [MessageFlags.IsComponentsV2], allowedMentions: { parse: [] } };
+    // Still with the period button, as the weekly or monthly one is empty right after a reset, and without the image of the one switched from
+    const row = new ActionRowBuilder<ButtonBuilder>().addComponents(periodButton(requested, t));
+    return { components: [heading, none, row], attachments: [], flags: [MessageFlags.IsComponentsV2], allowedMentions: { parse: [] } };
   }
 
-  const pageData = weekly
-    ? await getTopWeeklyUsersByXP(guild.id, ITEMS_PER_PAGE, (page - 1) * ITEMS_PER_PAGE, sortOrder)
-    : await getTopUsersByXP(guild.id, ITEMS_PER_PAGE, (page - 1) * ITEMS_PER_PAGE, sortOrder);
+  const pageData = await getTopUsersByXP(guild.id, period, ITEMS_PER_PAGE, (page - 1) * ITEMS_PER_PAGE, sortOrder);
 
   // Fetch Discord users/members (Cache First)
   const entriesData = await Promise.all(

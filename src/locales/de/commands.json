@@ -125,9 +125,14 @@
         "name": "seite",
         "description": "Welche Seite der Bestenliste du sehen willst"
       },
-      "weekly": {
-        "name": "wöchentlich",
-        "description": "Ob die Wochen-Bestenliste gezeigt wird"
+      "period": {
+        "name": "zeitraum",
+        "description": "Welche Bestenliste du sehen willst. Ohne Angabe die Gesamt-Bestenliste",
+        "choices": {
+          "allTime": "Gesamt",
+          "weekly": "Diese Woche",
+          "monthly": "Diesen Monat"
+        }
       },
       "text": {
         "name": "text",

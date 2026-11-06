@@ -952,6 +952,7 @@
         "general": "Allgemein",
         "filters": "Filter",
         "rewards": "Level-Belohnungen",
+        "winners": "Sieger",
         "channelMultipliers": "Kanal-Multiplikatoren",
         "roleMultipliers": "Rollen-Multiplikatoren"
       },
@@ -965,11 +966,23 @@
       },
       "channel": {
         "label": "Level-Up-Kanal",
-        "description": "Wo Level-Ups angekündigt werden. Ohne Kanal tauchen sie in dem Kanal auf, in dem jemand aufgestiegen ist."
+        "description": "Wo Level-Ups und Sieger angekündigt werden. Ohne Kanal tauchen Level-Ups in dem Kanal auf, in dem jemand aufgestiegen ist."
       },
       "weeklyReward": {
         "label": "Rolle für den Wochensieger",
         "description": "Bekommt, wer in der Woche die meisten XP gesammelt hat, und wandert beim Wochen-Reset zum nächsten Sieger."
+      },
+      "weeklyResetMessages": {
+        "label": "Nachrichten zum Wochensieger",
+        "description": "Den Wochensieger ankündigen, wenn die Woche neu anfängt."
+      },
+      "monthlyReward": {
+        "label": "Rolle für den Monatssieger",
+        "description": "Bekommt, wer im Monat die meisten XP gesammelt hat, und wandert beim Monats-Reset zum nächsten Sieger."
+      },
+      "monthlyResetMessages": {
+        "label": "Nachrichten zum Monatssieger",
+        "description": "Den Monatssieger ankündigen, wenn der Monat neu anfängt."
       },
       "ignoredChannels": {
         "label": "Ignorierte Kanäle",
@@ -1019,11 +1032,20 @@
     "weeklyReset": {
       "message": "### Neue Woche, neues Glück! 🏆\nDie Wochen-XP sind wieder bei 0. {{winner}} hat letzte Woche mit **{{xp}}** XP am meisten gesammelt, Glückwunsch!\n\nDie Top-Schreiber der letzten Woche:"
     },
+    "monthlyReset": {
+      "message": "### Neuer Monat, neues Glück! 🏆\nDie Monats-XP sind wieder bei 0. {{winner}} hat letzten Monat mit **{{xp}}** XP am meisten gesammelt, Glückwunsch!\n\nDie Top-Schreiber des letzten Monats:"
+    },
     "leaderboard": {
       "entry": "{{position}}. {{user}} · {{xp}} XP (Level {{level}})",
       "none": "Hier hat noch niemand XP gesammelt. Fangt an zu schreiben!",
       "title": "### {{guild}} Bestenliste 🏆",
       "titleWeekly": "### {{guild}} Wochen-Bestenliste 🏆",
+      "titleMonthly": "### {{guild}} Monats-Bestenliste 🏆",
+      "showPeriod": {
+        "allTime": "Gesamt anzeigen",
+        "weekly": "Woche anzeigen",
+        "monthly": "Monat anzeigen"
+      },
       "showText": "Als Text anzeigen",
       "showImage": "Als Bild anzeigen"
     },
@@ -1036,6 +1058,7 @@
         "title": "### Rang von {{user}} 📊",
         "allTime": "**Gesamt:** Level **{{level}}** · Platz **#{{rank}}** · {{xpIntoLevel}}/{{xpRequired}} XP bis zum nächsten Level ({{xp}} XP insgesamt)",
         "weekly": "**Diese Woche:** Level **{{level}}** · Platz **#{{rank}}** · {{xpIntoLevel}}/{{xpRequired}} XP bis zum nächsten Level ({{xp}} XP insgesamt)",
+        "monthly": "**Diesen Monat:** Level **{{level}}** · Platz **#{{rank}}** · {{xpIntoLevel}}/{{xpRequired}} XP bis zum nächsten Level ({{xp}} XP insgesamt)",
         "allTimePlain": "gesamt Level {{level}}, Platz {{rank}}, {{xpIntoLevel}} von {{xpRequired}} XP bis zum nächsten Level",
         "weeklyPlain": "diese Woche Level {{level}}, Platz {{rank}}, {{xpIntoLevel}} von {{xpRequired}} XP bis zum nächsten Level"
       },
@@ -1043,9 +1066,13 @@
     },
     "tips": {
       "general": [
-        "Die Wochen-Rangliste fängt jeden Montag um 00:00 UTC neu an, auch wenn der Bot da offline war.",
         "Es gibt höchstens für eine Nachricht pro Minute XP, Spammen bringt also nichts.",
         "Ohne Level-Up-Nachrichten steigen Mitglieder trotzdem auf und bekommen ihre Belohnungsrollen, nur ohne Nachricht."
+      ],
+      "winners": [
+        "Die Wochen-Bestenliste fängt jeden Montag neu an und die Monats-Bestenliste am 1., beide um 00:00 UTC, auch wenn der Bot da offline war.",
+        "Sieger werden im Level-Up-Kanal angekündigt, ohne Kanal also gar nicht.",
+        "Ohne Sieger-Nachrichten fangen die Bestenlisten trotzdem neu an und die Sieger bekommen ihre Rolle."
       ],
       "filters": [
         "Eine Kategorie gilt für alle Kanäle darin, und Threads zählen wie der Kanal, in dem sie sind, bei ignorierten und erlaubten Kanälen gleich."

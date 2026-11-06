@@ -294,6 +294,9 @@
     "weeklyReset": {
       "message": "### New week, new chances! 🏆\nWeekly XP is back to 0. {{winner}} earned the most last week with {{xp}} XP, congrats!\n\nLast week's top chatters:"
     },
+    "monthlyReset": {
+      "message": "### New month, new chances! 🏆\nMonthly XP is back to 0. {{winner}} earned the most last month with {{xp}} XP, congrats!\n\nLast month's top chatters:"
+    },
     "disabled": "Leveling isn't turned on here. Turn it on with `/leveling-config settings`.",
     "rank": {
       "all": "ALL-TIME",
@@ -304,6 +307,7 @@
         "title": "### Rank of {{user}} 📊",
         "allTime": "**All-time:** level **{{level}}** · rank **#{{rank}}** · {{xpIntoLevel}}/{{xpRequired}} XP to the next level ({{xp}} XP in total)",
         "weekly": "**This week:** level **{{level}}** · rank **#{{rank}}** · {{xpIntoLevel}}/{{xpRequired}} XP to the next level ({{xp}} XP in total)",
+        "monthly": "**This month:** level **{{level}}** · rank **#{{rank}}** · {{xpIntoLevel}}/{{xpRequired}} XP to the next level ({{xp}} XP in total)",
         "allTimePlain": "all-time level {{level}}, rank {{rank}}, {{xpIntoLevel}} of {{xpRequired}} XP to the next level",
         "weeklyPlain": "this week level {{level}}, rank {{rank}}, {{xpIntoLevel}} of {{xpRequired}} XP to the next level"
       },
@@ -313,6 +317,12 @@
       "none": "Nobody has earned XP here yet. Start chatting!",
       "title": "### {{guild}} Leaderboard 🏆",
       "titleWeekly": "### {{guild}} Weekly Leaderboard 🏆",
+      "titleMonthly": "### {{guild}} Monthly Leaderboard 🏆",
+      "showPeriod": {
+        "allTime": "Show all-time",
+        "weekly": "Show weekly",
+        "monthly": "Show monthly"
+      },
       "entry": "{{position}}. {{user}} · {{xp}} XP (level {{level}})",
       "showText": "Show as text",
       "showImage": "Show as image"
@@ -323,6 +333,7 @@
         "general": "General",
         "filters": "Filters",
         "rewards": "Level Rewards",
+        "winners": "Winners",
         "channelMultipliers": "Channel Multipliers",
         "roleMultipliers": "Role Multipliers"
       },
@@ -336,11 +347,23 @@
       },
       "channel": {
         "label": "Level Up Channel",
-        "description": "Where level ups get announced. Without one, they show up in the channel the member leveled up in."
+        "description": "Where level ups and winners get announced. Without one, level ups show up in the channel the member leveled up in."
       },
       "weeklyReward": {
         "label": "Weekly Winner Role",
         "description": "Goes to whoever earned the most XP each week, and moves on to the next winner when the week resets."
+      },
+      "weeklyResetMessages": {
+        "label": "Weekly Winner Messages",
+        "description": "Announce the weekly winner when the week starts over."
+      },
+      "monthlyReward": {
+        "label": "Monthly Winner Role",
+        "description": "Goes to whoever earned the most XP each month, and moves on to the next winner when the month resets."
+      },
+      "monthlyResetMessages": {
+        "label": "Monthly Winner Messages",
+        "description": "Announce the monthly winner when the month starts over."
       },
       "ignoredChannels": {
         "label": "Ignored Channels",
@@ -389,9 +412,13 @@
     },
     "tips": {
       "general": [
-        "The weekly leaderboard starts over every Monday at 00:00 UTC, even if the bot was offline then.",
         "Members get XP for one message a minute at most, so spamming doesn't help.",
         "With level up messages off, members still level up and get their reward roles, just without a message."
+      ],
+      "winners": [
+        "The weekly leaderboard starts over every Monday and the monthly one on the 1st, both at 00:00 UTC, even if the bot was offline then.",
+        "Winners are announced in the level up channel, so without one they aren't announced.",
+        "With winner messages off, the leaderboards still start over and winners still get their role."
       ],
       "filters": [
         "A category covers every channel in it, and threads count as the channel they're in, for ignored and allowed channels alike."

@@ -19,7 +19,7 @@ _A Pokémon themed Discord bot_
 
 - XP for chatting, with rank cards and a leaderboard as images, or as text for screen readers, which the leaderboard switches between with a button
 - Level ups announced in their own channel, where the member chats, or not at all
-- A weekly leaderboard, with a role for the weekly winner
+- Weekly and monthly leaderboards, switched between with a button, with a role and an announcement for each winner that can be turned off
 - Level-up rewards, given out retroactively to members who already reached the level
 - XP multipliers for roles and channels
 - Ignore or allow only specific channels and roles
@@ -123,7 +123,7 @@ Days change at midnight UTC, and the bot puts the new look on within 15 minutes.
 | ------------------- | ----------------------------------------------------------------- |
 | `/counting`         | Current run, records, leaderboard, user stats and runs            |
 | `/rank`             | Your rank card or someone else's                                  |
-| `/leaderboard`      | The server's level leaderboard, all time or weekly                |
+| `/leaderboard`      | The server's level leaderboard, all time, weekly or monthly       |
 | `/birthday`         | Your birthday, timezone and where it gets announced               |
 | `/pokedex`          | Look up a Pokémon                                                 |
 | `/guess`            | Guess a Pokémon from its silhouette                               |

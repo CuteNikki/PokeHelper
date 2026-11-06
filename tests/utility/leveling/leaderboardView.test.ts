@@ -4,21 +4,28 @@ import {
   clampPage,
   leaderboardCustomId,
   leaderboardPageModalId,
+  nextPeriod,
   parseLeaderboardCustomId,
   parseLeaderboardPageModalId,
   type LeaderboardView,
 } from 'utility/leveling/leaderboardView';
 
-const view: LeaderboardView = { page: 3, sortOrder: 'asc', weekly: true, text: true };
+const view: LeaderboardView = { page: 3, sortOrder: 'asc', period: 'weekly', text: true };
 
 describe('leaderboard custom IDs', () => {
   test('carry the action and the whole view, which parse back', () => {
     expect(parseLeaderboardCustomId(leaderboardCustomId('next', view))).toEqual({ action: 'next', view });
-    expect(parseLeaderboardCustomId(leaderboardCustomId('first', { ...view, weekly: false, text: false }))).toEqual({
+    expect(parseLeaderboardCustomId(leaderboardCustomId('first', { ...view, period: 'allTime', text: false }))).toEqual({
       action: 'first',
-      view: { ...view, weekly: false, text: false },
+      view: { ...view, period: 'allTime', text: false },
     });
+    expect(parseLeaderboardCustomId(leaderboardCustomId('period', { ...view, period: 'monthly' }))?.view.period).toBe('monthly');
     expect(parseLeaderboardPageModalId(leaderboardPageModalId(view))).toEqual(view);
+  });
+
+  test('buttons from before monthly existed still work', () => {
+    expect(parseLeaderboardCustomId('lb:next:2:desc:w:i')).toEqual({ action: 'next', view: { page: 2, sortOrder: 'desc', period: 'weekly', text: false } });
+    expect(parseLeaderboardCustomId('lb:next:2:desc:a:t')?.view.period).toBe('allTime');
   });
 
   test('stay well within the 100 characters Discord allows', () => {
@@ -30,6 +37,12 @@ describe('leaderboard custom IDs', () => {
       expect(parseLeaderboardCustomId(id)).toBeNull();
     }
   });
+});
+
+test('the period button cycles through all-time, weekly and monthly', () => {
+  expect(nextPeriod('allTime')).toBe('weekly');
+  expect(nextPeriod('weekly')).toBe('monthly');
+  expect(nextPeriod('monthly')).toBe('allTime');
 });
 
 test('pages are kept within the pages there are', () => {

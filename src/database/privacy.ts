@@ -11,31 +11,44 @@ const onAList = (userId: string) => VOICE_LISTS.map((list) => ({ [list]: { has: 
 
 /** Everything stored about someone, in every server. Others' data is left out, like who else is on a list they're on. */
 export async function getUserData(userId: string) {
-  const [user, birthdayRoles, counting, countedNumbers, runsEnded, countingRecords, weeklyWins, voiceChannels, voiceSettings, onOthersSettings, starred] =
-    await Promise.all([
-      prisma.user.findUnique({ where: { userId }, include: { birthday: true, friendCodes: true, levels: true, levelsWeekly: true } }),
-      prisma.birthdayRole.findMany({ where: { userId } }),
-      prisma.countingUser.findMany({ where: { userId } }),
-      prisma.countingEntry.findMany({
-        where: { userId },
-        select: { guildId: true, number: true, messageId: true, countedAt: true },
-        orderBy: { countedAt: 'asc' },
-      }),
-      prisma.countingRun.findMany({ where: { endedByUserId: userId }, select: { guildId: true, finalNumber: true, endedAt: true } }),
-      prisma.guildCounting.findMany({
-        where: { OR: [{ highestNumberByUserId: userId }, { lastNumberByUserId: userId }] },
-        select: { guildId: true, highestNumberByUserId: true, highestNumber: true, lastNumberByUserId: true, lastNumber: true },
-      }),
-      prisma.guildLeveling.findMany({ where: { weeklyLastWinner: userId }, select: { guildId: true, weeklyLastResetAt: true } }),
-      prisma.tempVoiceChannel.findMany({ where: { OR: [{ ownerId: userId }, ...onAList(userId)] } }),
-      prisma.tempVoiceSettings.findMany({ where: { userId } }),
-      prisma.tempVoiceSettings.findMany({ where: { userId: { not: userId }, OR: onAList(userId) } }),
-      prisma.starboardEntry.findMany({ where: { OR: [{ authorId: userId }, { starredBy: { has: userId } }] } }),
-    ]);
+  const [
+    user,
+    birthdayRoles,
+    counting,
+    countedNumbers,
+    runsEnded,
+    countingRecords,
+    weeklyWins,
+    monthlyWins,
+    voiceChannels,
+    voiceSettings,
+    onOthersSettings,
+    starred,
+  ] = await Promise.all([
+    prisma.user.findUnique({ where: { userId }, include: { birthday: true, friendCodes: true, levels: true, levelsWeekly: true, levelsMonthly: true } }),
+    prisma.birthdayRole.findMany({ where: { userId } }),
+    prisma.countingUser.findMany({ where: { userId } }),
+    prisma.countingEntry.findMany({
+      where: { userId },
+      select: { guildId: true, number: true, messageId: true, countedAt: true },
+      orderBy: { countedAt: 'asc' },
+    }),
+    prisma.countingRun.findMany({ where: { endedByUserId: userId }, select: { guildId: true, finalNumber: true, endedAt: true } }),
+    prisma.guildCounting.findMany({
+      where: { OR: [{ highestNumberByUserId: userId }, { lastNumberByUserId: userId }] },
+      select: { guildId: true, highestNumberByUserId: true, highestNumber: true, lastNumberByUserId: true, lastNumber: true },
+    }),
+    prisma.guildLeveling.findMany({ where: { weeklyLastWinner: userId }, select: { guildId: true, weeklyLastResetAt: true } }),
+    prisma.guildLeveling.findMany({ where: { monthlyLastWinner: userId }, select: { guildId: true, monthlyLastResetAt: true } }),
+    prisma.tempVoiceChannel.findMany({ where: { OR: [{ ownerId: userId }, ...onAList(userId)] } }),
+    prisma.tempVoiceSettings.findMany({ where: { userId } }),
+    prisma.tempVoiceSettings.findMany({ where: { userId: { not: userId }, OR: onAList(userId) } }),
+    prisma.starboardEntry.findMany({ where: { OR: [{ authorId: userId }, { starredBy: { has: userId } }] } }),
+  ]);
 
   return {
     userId,
-    leveling: { allTime: user?.levels ?? [], weekly: user?.levelsWeekly ?? [], weeklyWins },
+    leveling: { allTime: user?.levels ?? [], weekly: user?.levelsWeekly ?? [], monthly: user?.levelsMonthly ?? [], weeklyWins, monthlyWins },
     birthday: user?.birthday ?? null,
     friendCodes: user?.friendCodes ?? null,
     birthdayRoles,
@@ -82,7 +95,7 @@ export async function deleteUserData(userId: string) {
   const without = (ids: string[]) => ids.filter((id) => id !== userId);
 
   await prisma.$transaction(async (tx) => {
-    // Levels, weekly levels, the birthday and friend codes go with the user
+    // Levels, weekly and monthly levels, the birthday and friend codes go with the user
     await tx.user.deleteMany({ where: { userId } });
     await tx.birthdayRole.deleteMany({ where: { userId } });
     await tx.countingUser.deleteMany({ where: { userId } });
@@ -91,6 +104,7 @@ export async function deleteUserData(userId: string) {
     await tx.guildCounting.updateMany({ where: { highestNumberByUserId: userId }, data: { highestNumberByUserId: null } });
     await tx.guildCounting.updateMany({ where: { lastNumberByUserId: userId }, data: { lastNumberByUserId: null } });
     await tx.guildLeveling.updateMany({ where: { weeklyLastWinner: userId }, data: { weeklyLastWinner: null } });
+    await tx.guildLeveling.updateMany({ where: { monthlyLastWinner: userId }, data: { monthlyLastWinner: null } });
     await tx.tempVoiceSettings.deleteMany({ where: { userId } });
     // Forgotten, so their posts aren't updated anymore. The posts are messages in the server, which its moderators can delete
     await tx.starboardEntry.deleteMany({ where: { authorId: userId } });
@@ -126,6 +140,7 @@ export const getGuildData = (guildId: string) =>
       leveling: { include: { rewards: true, multipliers: true } },
       levels: true,
       levelsWeekly: true,
+      levelsMonthly: true,
       logs: true,
       starboard: true,
       starboardEntries: true,
