@@ -1,8 +1,9 @@
-import { bold, ContainerBuilder, MessageFlags, SeparatorBuilder, subtext, TextDisplayBuilder } from 'discord.js';
+import { ContainerBuilder, MessageFlags, subtext, TextDisplayBuilder } from 'discord.js';
 
+import { formatNumber } from 'utility/duration';
 import type { Translate } from 'utility/i18next';
 import { getAbility, idFromUrl } from 'utility/pokedex/api';
-import { apiName, newestText, textIn } from 'utility/pokedex/lookup';
+import { addBlocks, apiName, labeled, newestText, textIn } from 'utility/pokedex/lookup';
 import { listWithMore, pokemonNames } from 'utility/pokedex/lookups/item';
 import { nameOf } from 'utility/pokedex/names';
 import type { ResponsePayload } from 'utility/response';
@@ -29,23 +30,23 @@ export async function buildAbility(slug: string, language: string, t: Translate)
     ability.pokemon.map((entry) => entry.pokemon.name),
     language,
   );
-  const pokemon = names.map((pokemonName, index) => (ability.pokemon[index]?.is_hidden ? t('pokedex.hiddenAbility', { name: pokemonName }) : pokemonName));
+  // Those that have it as their hidden ability apart, as they're harder to get with it
+  const usual = names.filter((_, index) => !ability.pokemon[index]?.is_hidden);
+  const hidden = names.filter((_, index) => ability.pokemon[index]?.is_hidden);
+  const list = (label: string, pokemon: string[]) =>
+    pokemon.length > 0 ? labeled(`${label} · ${formatNumber(pokemon.length, t)}`, listWithMore(pokemon, MAX_POKEMON, t)) : null;
 
   const header = [
     t('abilities.title', { name }),
     subtext(t('lookup.generation', { number: idFromUrl(ability.generation.url) })),
     description ? quote(description) : null,
   ];
-  const details = [
-    effect ? `${bold(t('abilities.effect'))} ${effect}` : null,
-    pokemon.length > 0 ? `${bold(t('abilities.pokemon'))} ${listWithMore(pokemon, MAX_POKEMON, t)}` : null,
-  ].filter(Boolean);
-
   const container = new ContainerBuilder()
     .setAccentColor(ThemeColors.info)
     .addTextDisplayComponents(new TextDisplayBuilder().setContent(header.filter(Boolean).join('\n')));
-  if (details.length > 0) {
-    container.addSeparatorComponents(new SeparatorBuilder()).addTextDisplayComponents(new TextDisplayBuilder().setContent(details.join('\n')));
-  }
+  addBlocks(container, [
+    effect && labeled(t('abilities.effect'), effect),
+    [list(t('abilities.pokemon'), usual), list(t('abilities.hidden'), hidden)].filter(Boolean).join('\n\n'),
+  ]);
   return { components: [container], flags: [MessageFlags.IsComponentsV2] };
 }

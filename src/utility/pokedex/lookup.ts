@@ -1,4 +1,13 @@
-import { ApplicationIntegrationType, type AutocompleteInteraction, InteractionContextType, SlashCommandBuilder } from 'discord.js';
+import {
+  ApplicationIntegrationType,
+  type AutocompleteInteraction,
+  bold,
+  type ContainerBuilder,
+  InteractionContextType,
+  SeparatorBuilder,
+  SlashCommandBuilder,
+  TextDisplayBuilder,
+} from 'discord.js';
 
 import { Command } from 'classes/base/command';
 
@@ -39,6 +48,17 @@ export function newestText<K extends string>(entries: InLanguages<K>, key: K, la
 export function textIn<K extends string>(entries: InLanguages<K>, key: K, language: string): string | null {
   const text = entries.find((entry) => entry.language.name === language)?.[key];
   return text ? cleanGameText(text) : null;
+}
+
+/** A label on its own line with its text below, like an effect, which reads better than both on one line once it's long. */
+export const labeled = (label: string, text: string) => `${bold(label)}\n${text}`;
+
+/** Add parts of an answer to its container, each set apart by a line. Empty ones are left out. */
+export function addBlocks(container: ContainerBuilder, blocks: (string | null | undefined | false)[]): ContainerBuilder {
+  for (const block of blocks) {
+    if (block) container.addSeparatorComponents(new SeparatorBuilder()).addTextDisplayComponents(new TextDisplayBuilder().setContent(block));
+  }
+  return container;
 }
 
 /** A name from PokéAPI's names in the language, or English. */

@@ -901,7 +901,8 @@
         "dynamax-adventure": "Dynamax Adventure",
         "overworld-special": "Rare, wandering around",
         "overworld-flying-special": "Rare, flying around",
-        "overworld-water-special": "Rare, swimming around"
+        "overworld-water-special": "Rare, swimming around",
+        "honey-tree": "Honey Tree"
       },
       "japan": "{{game}} (Japan)"
     }
@@ -1601,12 +1602,13 @@
     "title": "### {{name}} {{icon.zap}}",
     "notFound": "I couldn't find an ability called **{{name}}**. Pick one of the suggestions.",
     "effect": "Effect",
-    "pokemon": "Pokémon"
+    "pokemon": "Pokémon",
+    "hidden": "As hidden ability"
   },
   "berries": {
     "title": "### {{name}} {{icon.cherry}}",
     "notFound": "I couldn't find a berry called **{{name}}**. Pick one of the suggestions.",
-    "flavor": "Flavor",
+    "flavor": "Flavors",
     "flavors": {
       "spicy": "Spicy",
       "dry": "Dry",
@@ -1627,22 +1629,23 @@
     "growthTime": "{{hours}} h per stage",
     "harvest": "Harvest",
     "naturalGift": "Natural Gift",
-    "harvestCount": "up to {{count}}"
+    "harvestCount": "up to {{count}} a tree",
+    "giftPower": "{{type}}, {{power}} power"
   },
   "natures": {
     "title": "### {{name}} {{icon.leaf}}",
     "notFound": "I couldn't find a nature called **{{name}}**. Pick one of the suggestions, or leave it empty to see them all.",
-    "stats": "Stats",
-    "change": "+{{up}} −{{down}}",
-    "neutral": "No change",
+    "neutral": "No change, it raises and lowers the same stat",
     "likes": "Likes",
     "dislikes": "Dislikes",
     "listTitle": "### Natures {{icon.leaf}}",
-    "listNote": "Each raises one stat by 10% and lowers another by 10%, apart from the ones with no change."
+    "listNote": "Each raises one stat by 10% and lowers another by 10%, apart from the ones with no change.",
+    "neutralShort": "No change"
   },
   "locations": {
     "title": "### {{name}} {{icon.map}}",
     "notFound": "I couldn't find a place called **{{name}}**. Pick one of the suggestions.",
-    "none": "PokéAPI doesn't know of any wild Pokémon here."
+    "none": "PokéAPI doesn't know of any wild Pokémon here.",
+    "note": "From PokéAPI, which doesn't know every game yet. The chance is of meeting it that way there."
   }
 }

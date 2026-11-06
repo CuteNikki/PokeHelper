@@ -4,6 +4,7 @@ import { formatNumber } from 'utility/duration';
 import { withTypeEmoji } from 'utility/emojis';
 import type { Translate } from 'utility/i18next';
 import { getBerry, getItem } from 'utility/pokedex/api';
+import { CONDITION_TYPES, emojiBar } from 'utility/pokedex/bars';
 import { apiName, newestText } from 'utility/pokedex/lookup';
 import { getPokedexData, nameOf } from 'utility/pokedex/names';
 import { TYPE_COLORS } from 'utility/pokedex/types';
@@ -12,6 +13,8 @@ import { quote } from 'utility/text';
 import { ThemeColors } from 'utility/theme';
 
 const FLAVORS = ['spicy', 'dry', 'sweet', 'bitter', 'sour'] as const;
+/** The strongest a berry's flavor is, which fills its bar. */
+const MAX_POTENCY = 40;
 const FIRMNESSES = ['very-soft', 'soft', 'hard', 'very-hard', 'super-hard'] as const;
 const isOneOf = <T extends string>(list: readonly T[], value: string): value is T => (list as readonly string[]).includes(value);
 
@@ -35,10 +38,12 @@ export async function buildBerry(itemSlug: string, language: string, t: Translat
 
   const name = apiName(item.names, language) ?? nameOf('items', itemSlug, language);
   const description = newestText(item.flavor_text_entries, 'text', language);
-  const flavors = berry.flavors
-    .filter((flavor) => flavor.potency > 0)
-    .sort((a, b) => b.potency - a.potency)
-    .map((flavor) => `${flavorName(flavor.flavor.name, t)} ${formatNumber(flavor.potency, t)}`);
+  // Every flavor, in the games' order, as a bar in its Pokéblock's color, so berries can be told apart at a glance
+  const potency = (flavor: string) => berry.flavors.find((entry) => entry.flavor.name === flavor)?.potency ?? 0;
+  const flavors = FLAVORS.map(
+    (flavor) =>
+      `${emojiBar(potency(flavor), MAX_POTENCY, CONDITION_TYPES[flavor] ?? 'normal')} ${bold(formatNumber(potency(flavor), t))} ${flavorName(flavor, t)}`,
+  );
   const firmness = isOneOf(FIRMNESSES, berry.firmness.name) ? t(`berries.firmness.${berry.firmness.name}`) : berry.firmness.name;
   const giftType = berry.natural_gift_type.name;
 
@@ -55,12 +60,17 @@ export async function buildBerry(itemSlug: string, language: string, t: Translat
   }
 
   const details = [
-    flavors.length > 0 ? `${bold(t('berries.flavor'))} ${flavors.join(' · ')}` : null,
-    `${bold(t('berries.firmnessLabel'))} ${firmness} · ${bold(t('berries.size'))} ${formatNumber(berry.size / 10, t, { maximumFractionDigits: 1 })} cm`,
+    `${bold(t('berries.firmnessLabel'))} ${firmness}`,
+    `${bold(t('berries.size'))} ${formatNumber(berry.size / 10, t, { maximumFractionDigits: 1 })} cm`,
     // The games count the time to grow in stages, which are this many hours each
-    `${bold(t('berries.growth'))} ${t('berries.growthTime', { hours: formatNumber(berry.growth_time, t) })} · ${bold(t('berries.harvest'))} ${t('berries.harvestCount', { count: formatNumber(berry.max_harvest, t) })}`,
-    `${bold(t('berries.naturalGift'))} ${withTypeEmoji(giftType, nameOf('types', giftType, language))} · ${formatNumber(berry.natural_gift_power, t)}`,
-  ].filter(Boolean);
-  container.addSeparatorComponents(new SeparatorBuilder()).addTextDisplayComponents(new TextDisplayBuilder().setContent(details.join('\n')));
+    `${bold(t('berries.growth'))} ${t('berries.growthTime', { hours: formatNumber(berry.growth_time, t) })}`,
+    `${bold(t('berries.harvest'))} ${t('berries.harvestCount', { count: formatNumber(berry.max_harvest, t) })}`,
+    `${bold(t('berries.naturalGift'))} ${t('berries.giftPower', { type: withTypeEmoji(giftType, nameOf('types', giftType, language)), power: formatNumber(berry.natural_gift_power, t) })}`,
+  ];
+  container
+    .addSeparatorComponents(new SeparatorBuilder())
+    .addTextDisplayComponents(new TextDisplayBuilder().setContent([bold(t('berries.flavor')), ...flavors].join('\n')))
+    .addSeparatorComponents(new SeparatorBuilder())
+    .addTextDisplayComponents(new TextDisplayBuilder().setContent(details.join('\n')));
   return { components: [container], flags: [MessageFlags.IsComponentsV2] };
 }

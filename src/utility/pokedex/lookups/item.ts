@@ -1,9 +1,9 @@
-import { bold, ContainerBuilder, MessageFlags, SectionBuilder, SeparatorBuilder, subtext, TextDisplayBuilder, ThumbnailBuilder } from 'discord.js';
+import { bold, ContainerBuilder, MessageFlags, SectionBuilder, subtext, TextDisplayBuilder, ThumbnailBuilder } from 'discord.js';
 
 import { formatNumber } from 'utility/duration';
 import type { Translate } from 'utility/i18next';
 import { getItem, getItemCategory } from 'utility/pokedex/api';
-import { apiName, newestText, textIn } from 'utility/pokedex/lookup';
+import { addBlocks, apiName, labeled, newestText, textIn } from 'utility/pokedex/lookup';
 import { findBySlug, fromSlug, matchName, nameOf } from 'utility/pokedex/names';
 import type { ResponsePayload } from 'utility/response';
 import { quote } from 'utility/text';
@@ -59,13 +59,14 @@ export async function buildItem(slug: string, language: string, t: Translate): P
     container.addTextDisplayComponents(header);
   }
 
-  const details = [
-    effect ? `${bold(t('items.effect'))} ${effect}` : null,
-    item.fling_power ? `${bold(t('items.fling'))} ${formatNumber(item.fling_power, t)}` : null,
-    holders.length > 0 ? `${bold(t('items.heldBy'))} ${listWithMore(holders, MAX_HOLDERS, t)}` : null,
-  ].filter(Boolean);
-  if (details.length > 0) {
-    container.addSeparatorComponents(new SeparatorBuilder()).addTextDisplayComponents(new TextDisplayBuilder().setContent(details.join('\n')));
-  }
+  addBlocks(container, [
+    effect && labeled(t('items.effect'), effect),
+    [
+      item.fling_power ? `${bold(t('items.fling'))} ${formatNumber(item.fling_power, t)}` : null,
+      holders.length > 0 ? labeled(t('items.heldBy'), listWithMore(holders, MAX_HOLDERS, t)) : null,
+    ]
+      .filter(Boolean)
+      .join('\n\n'),
+  ]);
   return { components: [container], flags: [MessageFlags.IsComponentsV2] };
 }

@@ -62,12 +62,16 @@ const METHODS = [
   'overworld-special',
   'overworld-flying-special',
   'overworld-water-special',
+  'honey-tree',
   'wanderer',
   'max-raid',
   'dynamax-adventure',
 ] as const;
 type Method = (typeof METHODS)[number];
 const isMethod = (slug: string): slug is Method => (METHODS as readonly string[]).includes(slug);
+
+/** Where a way of meeting Pokémon goes when they're listed by it: grass first, then water and the rods, like the games. Others last. */
+export const methodOrder = (slug: string) => (isMethod(slug) ? METHODS.indexOf(slug) : METHODS.length);
 
 /**
  * One way a Pokémon is met in one game: the area it's in, or the Pokémon met in an area, how, at which levels, and the best chance.
@@ -85,27 +89,40 @@ export interface Sighting {
 /** What PokéAPI says about meeting a Pokémon in an area, in each game, with what it's about. */
 type Sightings = { name: string; group?: string; version_details: ApiEncounter['version_details'] }[];
 
+/** The levels a Pokémon is met at in some of its encounters. */
+const levelRange = (encounters: ApiEncounter['version_details'][number]['encounter_details']) => {
+  const levels = encounters.flatMap((encounter) => [encounter.min_level, encounter.max_level]);
+  return { minLevel: Math.min(...levels), maxLevel: Math.max(...levels) };
+};
+
 /**
  * The sightings by game, newest first, and in each game the ones with the best chances first.
+ * @param options.byMethod One sighting for each way it's met, with that way's levels and chance, like grass and surfing apart.
  * @returns Each game's slug with its sightings.
  */
-export function sightingsByGame(entries: Sightings): { version: string; sightings: Sighting[] }[] {
+export function sightingsByGame(entries: Sightings, { byMethod = false } = {}): { version: string; sightings: Sighting[] }[] {
   const order = getPokedexData().versionOrder;
   const games = new Map<string, { order: number; sightings: Sighting[] }>();
   for (const entry of entries) {
     for (const detail of entry.version_details) {
       const game = games.get(detail.version.name) ?? { order: order[detail.version.name] ?? idFromUrl(detail.version.url), sightings: [] };
       games.set(detail.version.name, game);
-      const levels = detail.encounter_details.flatMap((encounter) => [encounter.min_level, encounter.max_level]);
-      game.sightings.push({
-        name: entry.name,
-        ...(entry.group === undefined ? {} : { group: entry.group }),
-        methods: [...new Set(detail.encounter_details.map((encounter) => encounter.method.name))],
-        minLevel: Math.min(...levels),
-        maxLevel: Math.max(...levels),
+      const group = entry.group === undefined ? {} : { group: entry.group };
+      const methods = [...new Set(detail.encounter_details.map((encounter) => encounter.method.name))];
+      if (!byMethod) {
         // Pokémon walking around add up to more than 100
-        chance: Math.min(detail.max_chance, 100),
-      });
+        game.sightings.push({ name: entry.name, ...group, methods, ...levelRange(detail.encounter_details), chance: Math.min(detail.max_chance, 100) });
+        continue;
+      }
+      for (const method of methods) {
+        const encounters = detail.encounter_details.filter((encounter) => encounter.method.name === method);
+        // The chances of its slots for that way, together
+        const chance = Math.min(
+          encounters.reduce((sum, encounter) => sum + encounter.chance, 0),
+          100,
+        );
+        game.sightings.push({ name: entry.name, ...group, methods: [method], ...levelRange(encounters), chance });
+      }
     }
   }
   return [...games]
@@ -118,14 +135,19 @@ export const placesByGame = (encounters: ApiEncounter[]) =>
   sightingsByGame(encounters.map((encounter) => ({ name: encounter.location_area.name, version_details: encounter.version_details })));
 
 /** A sighting as a line, like `**Route 1** · Lv. 2–5 · Grass or cave · 50%`, with what it's about already named. */
-export function sightingLine(sighting: Sighting, name: string, t: Translate): string {
-  const method = (slug: string) => (isMethod(slug) ? t(`pokedex.where.methods.${slug}`) : fromSlug(slug));
+export function sightingLine(sighting: Sighting, name: string, t: Translate, { withMethods = true } = {}): string {
   const levels =
     sighting.minLevel === sighting.maxLevel
       ? t('pokedex.where.level', { level: formatNumber(sighting.minLevel, t) })
       : t('pokedex.where.levels', { min: formatNumber(sighting.minLevel, t), max: formatNumber(sighting.maxLevel, t) });
   const chance = formatNumber(sighting.chance / 100, t, { style: 'percent' });
-  return [bold(name), levels, [...new Set(sighting.methods.map(method))].join(', '), chance].join(' · ');
+  return [bold(name), levels, withMethods ? methodNames(sighting, t) : null, chance].filter(Boolean).join(' · ');
+}
+
+/** How a Pokémon is met, like `Old Rod, Good Rod`, with ways that are called the same only once. */
+export function methodNames(sighting: Sighting, t: Translate): string {
+  const method = (slug: string) => (isMethod(slug) ? t(`pokedex.where.methods.${slug}`) : fromSlug(slug));
+  return [...new Set(sighting.methods.map(method))].join(', ');
 }
 
 /** A game's name, with the ones only out in Japan marked, as they're called like the others, like Red. */

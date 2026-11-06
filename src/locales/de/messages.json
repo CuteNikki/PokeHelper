@@ -449,7 +449,8 @@
         "dynamax-adventure": "Dynamax-Abenteuer",
         "overworld-special": "Selten, läuft umher",
         "overworld-flying-special": "Selten, fliegt umher",
-        "overworld-water-special": "Selten, schwimmt umher"
+        "overworld-water-special": "Selten, schwimmt umher",
+        "honey-tree": "Honigbaum"
       },
       "japan": "{{game}} (Japan)"
     }
@@ -1540,7 +1541,8 @@
     "title": "### {{name}} {{icon.zap}}",
     "notFound": "Ich konnte keine Fähigkeit namens **{{name}}** finden. Wähl einen der Vorschläge.",
     "effect": "Effekt",
-    "pokemon": "Pokémon"
+    "pokemon": "Pokémon",
+    "hidden": "Als versteckte Fähigkeit"
   },
   "berries": {
     "title": "### {{name}} {{icon.cherry}}",
@@ -1566,22 +1568,23 @@
     "growthTime": "{{hours}} Std. pro Phase",
     "harvest": "Ernte",
     "naturalGift": "Beerenkräfte",
-    "harvestCount": "bis zu {{count}}"
+    "harvestCount": "bis zu {{count}} pro Baum",
+    "giftPower": "{{type}}, Stärke {{power}}"
   },
   "natures": {
     "title": "### {{name}} {{icon.leaf}}",
     "notFound": "Ich konnte kein Wesen namens **{{name}}** finden. Wähl einen der Vorschläge, oder lass es leer, um alle zu sehen.",
-    "stats": "Werte",
-    "change": "+{{up}} −{{down}}",
-    "neutral": "Keine Änderung",
+    "neutral": "Keine Änderung, es erhöht und senkt denselben Wert",
     "likes": "Mag",
     "dislikes": "Mag nicht",
     "listTitle": "### Wesen {{icon.leaf}}",
-    "listNote": "Jedes erhöht einen Wert um 10 % und senkt einen anderen um 10 %, außer denen ohne Änderung."
+    "listNote": "Jedes erhöht einen Wert um 10 % und senkt einen anderen um 10 %, außer denen ohne Änderung.",
+    "neutralShort": "Keine Änderung"
   },
   "locations": {
     "title": "### {{name}} {{icon.map}}",
     "notFound": "Ich konnte keinen Ort namens **{{name}}** finden. Wähl einen der Vorschläge.",
-    "none": "PokéAPI kennt hier keine wilden Pokémon."
+    "none": "PokéAPI kennt hier keine wilden Pokémon.",
+    "note": "Von PokéAPI, das noch nicht jedes Spiel kennt. Die Chance ist die, es dort auf diese Art zu treffen."
   }
 }
