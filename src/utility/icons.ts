@@ -44,6 +44,7 @@ export const ICONS = {
   'file-text': '📝',
   flag: '🏳️',
   folder: '📁',
+  'gamepad-2': '🎮',
   gavel: '🔨',
   gift: '🎁',
   handshake: '🤝',

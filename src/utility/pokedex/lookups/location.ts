@@ -2,7 +2,7 @@ import { ContainerBuilder, MessageFlags, SeparatorBuilder, type StringSelectMenu
 
 import { getTranslate, resolveLanguage, type Translate } from 'utility/i18next';
 import { answerPokeApiError, getLocation, getLocationArea } from 'utility/pokedex/api';
-import { gameName, gameSelect, sightingLine, sightingsByGame } from 'utility/pokedex/encounters';
+import { gameSelect, sightingLine, sightingsByGame } from 'utility/pokedex/encounters';
 import { apiName } from 'utility/pokedex/lookup';
 import { pokemonNames } from 'utility/pokedex/lookups/item';
 import { loadPokedexData, nameOf } from 'utility/pokedex/names';
@@ -38,13 +38,10 @@ export async function buildLocation(slug: string, language: string, t: Translate
   const container = new ContainerBuilder()
     .setAccentColor(ThemeColors.info)
     .addTextDisplayComponents(
-      new TextDisplayBuilder().setContent(
-        [t('locations.title', { name }), subtext([region, game ? gameName(game.version, language, t) : null].filter(Boolean).join(' · '))].join('\n'),
-      ),
-    )
-    .addSeparatorComponents(new SeparatorBuilder());
+      new TextDisplayBuilder().setContent([t('locations.title', { name }), region ? subtext(region) : null].filter(Boolean).join('\n')),
+    );
   if (!game) {
-    container.addTextDisplayComponents(new TextDisplayBuilder().setContent(t('locations.none')));
+    container.addSeparatorComponents(new SeparatorBuilder()).addTextDisplayComponents(new TextDisplayBuilder().setContent(t('locations.none')));
     return { components: [container], flags: [MessageFlags.IsComponentsV2] };
   }
 
@@ -62,9 +59,8 @@ export async function buildLocation(slug: string, language: string, t: Translate
   const more = game.sightings.length - shown.length;
   if (more > 0) lines.push(subtext(t('lookup.more', { count: more })));
 
+  // The game right below the title, as everything below is about it
   container
-    .addTextDisplayComponents(new TextDisplayBuilder().setContent(lines.join('\n')))
-    .addTextDisplayComponents(new TextDisplayBuilder().setContent(subtext(t('pokedex.where.note'))))
     .addActionRowComponents(
       gameSelect(
         `${LOCATION_GAME_PREFIX}${slug}`,
@@ -73,7 +69,10 @@ export async function buildLocation(slug: string, language: string, t: Translate
         language,
         t,
       ),
-    );
+    )
+    .addSeparatorComponents(new SeparatorBuilder())
+    .addTextDisplayComponents(new TextDisplayBuilder().setContent(lines.join('\n')))
+    .addTextDisplayComponents(new TextDisplayBuilder().setContent(subtext(t('pokedex.where.note'))));
   return { components: [container], flags: [MessageFlags.IsComponentsV2], allowedMentions: { parse: [] } };
 }
 

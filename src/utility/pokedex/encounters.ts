@@ -129,10 +129,10 @@ export function sightingLine(sighting: Sighting, name: string, t: Translate): st
 }
 
 /** A game's name, with the ones only out in Japan marked, as they're called like the others, like Red. */
-export const gameName = (version: string, language: string, t: Translate) =>
+const gameName = (version: string, language: string, t: Translate) =>
   version.endsWith('-japan') ? t('pokedex.where.japan', { game: nameOf('versions', version, language) }) : nameOf('versions', version, language);
 
-/** A select of games, with the one shown picked, that has the game as its value. */
+/** A select of games, with the one shown picked, that has the game as its value. Each has a gamepad, so it's clear they're games. */
 export function gameSelect(customId: string, versions: string[], shown: string, language: string, t: Translate) {
   return new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
     new StringSelectMenuBuilder()
@@ -141,6 +141,7 @@ export function gameSelect(customId: string, versions: string[], shown: string, 
       .addOptions(
         versions.slice(0, DiscordLimits.selectOptions).map((version) => ({
           label: gameName(version, language, t).slice(0, DiscordLimits.optionLabelLength),
+          emoji: buttonIcon('gamepad-2'),
           value: version,
           default: version === shown,
         })),
@@ -162,29 +163,24 @@ export async function buildWhereToFind(slug: string, version: string | null, lan
   const name = matchName(match, language);
   const games = placesByGame(encounters);
   const game = games.find((entry) => entry.version === version) ?? games[0];
-  const header = new TextDisplayBuilder().setContent(
-    [t('pokedex.where.title', { name }), game ? subtext(gameName(game.version, language, t)) : null].filter(Boolean).join('\n'),
-  );
   const container = new ContainerBuilder()
     .setAccentColor(ThemeColors.info)
     .addSectionComponents(
       new SectionBuilder()
-        .addTextDisplayComponents(header)
+        .addTextDisplayComponents(new TextDisplayBuilder().setContent(t('pokedex.where.title', { name })))
         .setThumbnailAccessory(new ThumbnailBuilder().setURL(artworkUrl(match.species.id, false)).setDescription(t('pokedex.picture', { name }))),
-    )
-    .addSeparatorComponents(new SeparatorBuilder());
+    );
 
   if (!game) {
-    container.addTextDisplayComponents(new TextDisplayBuilder().setContent(t('pokedex.where.none', { name })));
+    container.addSeparatorComponents(new SeparatorBuilder()).addTextDisplayComponents(new TextDisplayBuilder().setContent(t('pokedex.where.none', { name })));
     return { components: [container], flags: [MessageFlags.IsComponentsV2] };
   }
 
   const lines = game.sightings.slice(0, MAX_PLACES).map((place) => sightingLine(place, nameOf('areas', place.name, language), t));
   const more = game.sightings.length - MAX_PLACES;
   if (more > 0) lines.push(subtext(t('pokedex.where.more', { count: more })));
+  // The game right below the title, as everything below is about it
   container
-    .addTextDisplayComponents(new TextDisplayBuilder().setContent(lines.join('\n')))
-    .addTextDisplayComponents(new TextDisplayBuilder().setContent(subtext(t('pokedex.where.note'))))
     .addActionRowComponents(
       gameSelect(
         `${POKEDEX_WHERE_GAME_PREFIX}${slug}`,
@@ -193,7 +189,10 @@ export async function buildWhereToFind(slug: string, version: string | null, lan
         language,
         t,
       ),
-    );
+    )
+    .addSeparatorComponents(new SeparatorBuilder())
+    .addTextDisplayComponents(new TextDisplayBuilder().setContent(lines.join('\n')))
+    .addTextDisplayComponents(new TextDisplayBuilder().setContent(subtext(t('pokedex.where.note'))));
   return { components: [container], flags: [MessageFlags.IsComponentsV2] };
 }
 
