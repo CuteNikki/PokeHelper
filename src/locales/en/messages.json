@@ -347,7 +347,11 @@
       },
       "channel": {
         "label": "Level Up Channel",
-        "description": "Where level ups and winners get announced. Without one, level ups show up in the channel the member leveled up in."
+        "description": "Where level ups get announced. Without one, they show up in the channel the member leveled up in."
+      },
+      "winnersChannel": {
+        "label": "Winners Channel",
+        "description": "Where the weekly and monthly winners get announced."
       },
       "weeklyReward": {
         "label": "Weekly Winner Role",
@@ -417,7 +421,7 @@
       ],
       "winners": [
         "The weekly leaderboard starts over every Monday and the monthly one on the 1st, both at 00:00 UTC, even if the bot was offline then.",
-        "Winners are announced in the level up channel, so without one they aren't announced.",
+        "Without a winners channel, winners aren't announced.",
         "With winner messages off, the leaderboards still start over and winners still get their role."
       ],
       "filters": [

@@ -19,7 +19,7 @@ _A Pokémon themed Discord bot_
 
 - XP for chatting, with rank cards and a leaderboard as images, or as text for screen readers, which the leaderboard switches between with a button
 - Level ups announced in their own channel, where the member chats, or not at all
-- Weekly and monthly leaderboards, switched between with a button, with a role and an announcement for each winner that can be turned off
+- Weekly and monthly leaderboards, switched between with a button, with a role for each winner and announcements in their own channel that can be turned off
 - Level-up rewards, given out retroactively to members who already reached the level
 - XP multipliers for roles and channels
 - Ignore or allow only specific channels and roles

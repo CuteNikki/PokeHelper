@@ -104,14 +104,27 @@ export const levelingSettings = createSettingsPanel<LevelingConfig>({
       type: 'channel',
       key: 'channel',
       category: 'general',
-      // Only matters while level ups or winners are announced
-      hidden: (config) => !config.levelUpMessages && !config.weeklyResetMessages && !config.monthlyResetMessages,
+      // Only matters while level ups are announced
+      hidden: (config) => !config.levelUpMessages,
       channelTypes: [ChannelType.GuildText, ChannelType.GuildAnnouncement],
       botPermissions: LEVEL_UP_CHANNEL_PERMISSIONS,
       label: (t) => t('leveling.settings.channel.label'),
       description: (t) => t('leveling.settings.channel.description'),
       get: (config) => config.channelId,
       set: (guildId, channelId) => update(guildId, { channelId }),
+    },
+    {
+      type: 'channel',
+      key: 'winnersChannel',
+      category: 'winners',
+      // Only matters while winners are announced
+      hidden: (config) => !config.weeklyResetMessages && !config.monthlyResetMessages,
+      channelTypes: [ChannelType.GuildText, ChannelType.GuildAnnouncement],
+      botPermissions: LEVEL_UP_CHANNEL_PERMISSIONS,
+      label: (t) => t('leveling.settings.winnersChannel.label'),
+      description: (t) => t('leveling.settings.winnersChannel.description'),
+      get: (config) => config.winnersChannelId,
+      set: (guildId, winnersChannelId) => update(guildId, { winnersChannelId }),
     },
     {
       type: 'role',

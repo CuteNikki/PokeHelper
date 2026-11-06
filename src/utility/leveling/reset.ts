@@ -78,7 +78,7 @@ export async function runResetJob(client: Client, period: ResetPeriod) {
       // Without the announcement, the reset and the role still happen
       if (!topUser || !state.announce) continue;
 
-      const channel = config.channelId ? guild.channels.cache.get(config.channelId) : undefined;
+      const channel = config.winnersChannelId ? guild.channels.cache.get(config.winnersChannelId) : undefined;
       if (!channel?.isSendable()) continue;
 
       const format = (value: number) => value.toLocaleString(t('locale'));

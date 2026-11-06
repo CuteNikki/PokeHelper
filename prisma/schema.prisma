@@ -283,6 +283,8 @@ model GuildLeveling {
   monthlyWinnerRole    String? // the role the last monthly winner got, which is taken away at the next reset even if the setting changed
   // Whether the monthly winner is announced. The reset and the role happen either way
   monthlyResetMessages Boolean               @default(true)
+  // Where winners are announced. Without one, they aren't announced
+  winnersChannelId     String?
   // Filters
   ignoredChannels      String[]              @default([]) // if empty, no channels are ignored otherwise only the specified channels are ignored
   enabledChannels      String[]              @default([]) // if empty, all channels are enabled otherwise only the specified channels are enabled

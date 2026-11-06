@@ -966,7 +966,11 @@
       },
       "channel": {
         "label": "Level-Up-Kanal",
-        "description": "Wo Level-Ups und Sieger angekündigt werden. Ohne Kanal tauchen Level-Ups in dem Kanal auf, in dem jemand aufgestiegen ist."
+        "description": "Wo Level-Ups angekündigt werden. Ohne Kanal tauchen sie in dem Kanal auf, in dem jemand aufgestiegen ist."
+      },
+      "winnersChannel": {
+        "label": "Sieger-Kanal",
+        "description": "Wo die Wochen- und Monatssieger angekündigt werden."
       },
       "weeklyReward": {
         "label": "Rolle für den Wochensieger",
@@ -1071,7 +1075,7 @@
       ],
       "winners": [
         "Die Wochen-Bestenliste fängt jeden Montag neu an und die Monats-Bestenliste am 1., beide um 00:00 UTC, auch wenn der Bot da offline war.",
-        "Sieger werden im Level-Up-Kanal angekündigt, ohne Kanal also gar nicht.",
+        "Ohne Sieger-Kanal werden Sieger nicht angekündigt.",
         "Ohne Sieger-Nachrichten fangen die Bestenlisten trotzdem neu an und die Sieger bekommen ihre Rolle."
       ],
       "filters": [
