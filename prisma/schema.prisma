@@ -567,6 +567,8 @@ model StarboardEntry {
   authorId           String
   // The post on the starboard, null while it's below the threshold
   starboardMessageId String?  @unique
+  // The channel the post is in, which stays its channel when the starboard moves to another one
+  starboardChannelId String?
   // The names of the pictures uploaded with the post, as an update can only show those
   postImages         String[] @default([])
   // Who starred it, by reacting or with the button on the post. The author never counts

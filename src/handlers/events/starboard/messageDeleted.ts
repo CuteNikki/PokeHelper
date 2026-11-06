@@ -10,6 +10,6 @@ export default new Event({
   once: false,
   async execute(client, message) {
     const guild = message.guildId ? client.guilds.cache.get(message.guildId) : null;
-    if (guild) await handleDeletedMessage(guild, message.id, message.channelId);
+    if (guild) await handleDeletedMessage(guild, message.id);
   },
 });

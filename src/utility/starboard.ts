@@ -180,11 +180,14 @@ const isAgeRestricted = (channel: Message['channel']) => (channel.isThread() ? B
 /** One message at a time, so quick stars don't post it twice or lose one. */
 const queue = new KeyedQueue();
 
-/** The starboard channel, if it's set and there. */
-function starboardChannelOf(guild: Guild, config: GuildStarboard) {
-  const channel = config.channelId ? guild.channels.cache.get(config.channelId) : null;
+/** A starboard channel, if it's set and there. */
+function boardChannel(guild: Guild, channelId: string | null) {
+  const channel = channelId ? guild.channels.cache.get(channelId) : null;
   return channel?.isSendable() && channel.isTextBased() && !channel.isThread() ? channel : null;
 }
+
+/** The channel an entry's post is in, which stays where it was posted when the starboard moves to another channel. */
+const postChannelId = (config: GuildStarboard, entry: StarboardEntry) => entry.starboardChannelId ?? config.channelId;
 
 /** Everyone who reacted with the starboard's emoji, without bots, read 100 at a time. */
 async function reactorsOf(message: Message, emoji: string): Promise<string[]> {
@@ -201,10 +204,11 @@ async function reactorsOf(message: Message, emoji: string): Promise<string[]> {
   return ids;
 }
 
-/** Delete a post, after it's taken off its entry, so its deletion isn't taken for someone removing it by hand. */
-async function deletePost(guild: Guild, config: GuildStarboard, postId: string | null) {
+/** Delete an entry's post, after it's taken off the entry, so its deletion isn't taken for someone removing it by hand. */
+async function deletePost(guild: Guild, config: GuildStarboard, entry: StarboardEntry) {
+  const postId = entry.starboardMessageId;
   if (!postId) return;
-  await starboardChannelOf(guild, config)
+  await boardChannel(guild, postChannelId(config, entry))
     ?.messages.delete(postId)
     .catch((error: unknown) => {
       if (!isUnknownMessage(error)) logger.warn(error, `Couldn't remove the starboard post ${postId}`);
@@ -214,7 +218,7 @@ async function deletePost(guild: Guild, config: GuildStarboard, postId: string |
 /** Forget a message and take its post off the starboard, like when it's deleted. */
 async function forget(guild: Guild, config: GuildStarboard, entry: StarboardEntry) {
   await deleteStarboardEntry(entry.messageId);
-  await deletePost(guild, config, entry.starboardMessageId);
+  await deletePost(guild, config, entry);
 }
 
 /** How the stars of a message change: who to add, who to take off, or everyone off, like when a moderator removes the reactions. */
@@ -240,7 +244,7 @@ export function applyStarChange(starredBy: string[], change: StarChange, authorI
 export function changeStars(guild: Guild, message: Message | PartialMessage, change: StarChange): Promise<string[] | null> {
   return queue.run(message.id, async () => {
     const config = await getGuildStarboard(guild.id);
-    const starboard = config?.enabled ? starboardChannelOf(guild, config) : null;
+    const starboard = config?.enabled ? boardChannel(guild, config.channelId) : null;
     if (!config || !starboard || message.channelId === starboard.id || isIgnoredChannel(config, guild, message.channelId)) return null;
 
     const entry = await getStarboardEntry(message.id);
@@ -265,25 +269,27 @@ export function changeStars(guild: Guild, message: Message | PartialMessage, cha
     if (starredBy.length < thresholdOf(config)) {
       // Without stars there's nothing to remember
       if (starredBy.length === 0 && entry) await deleteStarboardEntry(entry.messageId);
-      else if (starredBy.length > 0) await saveStarboardEntry({ ...ids, starredBy, starboardMessageId: null, postImages: [] });
-      if (entry) await deletePost(guild, config, entry.starboardMessageId);
+      else if (starredBy.length > 0) await saveStarboardEntry({ ...ids, starredBy, starboardMessageId: null, starboardChannelId: null, postImages: [] });
+      if (entry) await deletePost(guild, config, entry);
       return starredBy;
     }
 
     const t = getTranslate(guild.preferredLocale);
-    if (entry?.starboardMessageId) {
+    // A post whose channel is gone, like an old starboard that was deleted, is posted anew
+    const postChannel = entry?.starboardMessageId ? boardChannel(guild, postChannelId(config, entry)) : null;
+    if (entry?.starboardMessageId && postChannel) {
       try {
         // Only the pictures uploaded with the post can be shown. Posts from before they were remembered are looked at once
         const uploaded =
           entry.postImages.length > 0 || imagesOf(full).length === 0
             ? entry.postImages
-            : [...(await starboard.messages.fetch(entry.starboardMessageId)).attachments.values()].map((file) => file.name);
-        await starboard.messages.edit(entry.starboardMessageId, buildStarboardPost(full, starredBy.length, emoji, uploaded, t));
-        await saveStarboardEntry({ ...ids, starredBy, postImages: uploaded });
+            : [...(await postChannel.messages.fetch(entry.starboardMessageId)).attachments.values()].map((file) => file.name);
+        await postChannel.messages.edit(entry.starboardMessageId, buildStarboardPost(full, starredBy.length, emoji, uploaded, t));
+        await saveStarboardEntry({ ...ids, starredBy, starboardChannelId: postChannel.id, postImages: uploaded });
       } catch (error) {
         // Deleted by hand while the bot was offline, so it stays off
         if (!isUnknownMessage(error)) throw error;
-        await saveStarboardEntry({ ...ids, starredBy, starboardMessageId: null, postImages: [], removed: true });
+        await saveStarboardEntry({ ...ids, starredBy, starboardMessageId: null, starboardChannelId: null, postImages: [], removed: true });
       }
       return starredBy;
     }
@@ -291,7 +297,7 @@ export function changeStars(guild: Guild, message: Message | PartialMessage, cha
     const files = await uploadsOf(full);
     const postImages = files.map((file) => file.name ?? '');
     const sent = await starboard.send({ ...buildStarboardPost(full, starredBy.length, emoji, postImages, t), files });
-    await saveStarboardEntry({ ...ids, starredBy, starboardMessageId: sent.id, postImages });
+    await saveStarboardEntry({ ...ids, starredBy, starboardMessageId: sent.id, starboardChannelId: starboard.id, postImages });
     return starredBy;
   });
 }
@@ -329,13 +335,14 @@ export async function isStarReaction(reaction: MessageReaction | PartialMessageR
 }
 
 /** A starred message was deleted: its post goes too. A post deleted by hand is remembered, so it isn't posted again. */
-export async function handleDeletedMessage(guild: Guild, messageId: string, channelId: string): Promise<void> {
+export async function handleDeletedMessage(guild: Guild, messageId: string): Promise<void> {
   const config = await getGuildStarboard(guild.id);
   if (!config) return;
 
-  if (channelId === config.channelId) {
-    const entry = await getStarboardEntryByPost(messageId);
-    if (entry) await updateStarboardEntry(entry.messageId, { starboardMessageId: null, postImages: [], removed: true });
+  // A post, also one on a starboard channel from before
+  const byPost = await getStarboardEntryByPost(messageId);
+  if (byPost) {
+    await updateStarboardEntry(byPost.messageId, { starboardMessageId: null, starboardChannelId: null, postImages: [], removed: true });
     return;
   }
 
