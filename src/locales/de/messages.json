@@ -354,7 +354,7 @@
           "meltan-candies": "400 Meltan-Bonbons in Pokémon GO"
         }
       },
-      "step": "{{from}} → {{to}}: {{how}}"
+      "step": "{{from}} > {{to}}: {{how}}"
     },
     "shiny": {
       "show": "Schillernd",

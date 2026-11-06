@@ -303,7 +303,7 @@ export async function buildPokedexEntry(match: PokedexMatch, view: PokedexView, 
   ];
   const statsText = [...stats.map((stat) => `${stat.label} ${stat.value}`), `${t('pokedex.stats.total')} ${total}`];
   const evolutionText = evolves
-    ? stages.map((stage) => stage.map((member) => (member.how ? `${speciesName(member)} (${member.how})` : speciesName(member))).join(' / ')).join(' → ')
+    ? stages.map((stage) => stage.map((member) => (member.how ? `${speciesName(member)} (${member.how})` : speciesName(member))).join(' / ')).join(' > ')
     : t('pokedex.evolution.none');
 
   // The accent is the color of its first type, like the games' Pokédex
