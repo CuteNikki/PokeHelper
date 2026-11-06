@@ -1,4 +1,14 @@
-import { ActionRowBuilder, bold, type ButtonBuilder, ContainerBuilder, MessageFlags, subtext, TextDisplayBuilder } from 'discord.js';
+import {
+  ActionRowBuilder,
+  bold,
+  heading as discordHeading,
+  HeadingLevel,
+  type ButtonBuilder,
+  ContainerBuilder,
+  MessageFlags,
+  subtext,
+  TextDisplayBuilder,
+} from 'discord.js';
 
 import { buttonIcon, typeEmoji, withTypeEmoji } from 'utility/emojis';
 import type { Translate } from 'utility/i18next';
@@ -52,7 +62,7 @@ export async function buildTypePage(slug: string, language: string, t: Translate
       .join(', ');
   // Each group only when it has a type, like Normal, which isn't super effective against anything
   const group = (label: string, types: { name: string }[]) => (types.length > 0 ? labeled(label, list(types)) : null);
-  const section = (heading: string, groups: (string | null)[]) => [bold(heading.toUpperCase()), ...groups.filter(Boolean)].join('\n\n');
+  const section = (heading: string, groups: (string | null)[]) => [discordHeading(heading, HeadingLevel.Three), ...groups.filter(Boolean)].join('\n\n');
 
   const container = new ContainerBuilder()
     .setAccentColor(TYPE_COLORS[slug] ?? ThemeColors.info)
