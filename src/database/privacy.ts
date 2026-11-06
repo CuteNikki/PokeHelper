@@ -157,3 +157,31 @@ export const getGuildData = (guildId: string) =>
 
 /** Delete everything stored about a server, as if the bot was just added. Everything else belongs to it and goes with it. */
 export const deleteGuildData = (guildId: string) => prisma.guild.deleteMany({ where: { guildId } });
+
+/** A role the bot gave someone and takes away again later, like a birthday or winner role. */
+export interface GivenRole {
+  guildId: string;
+  userId: string;
+  roleId: string;
+}
+
+/**
+ * The roles the bot gave and would take away later, for someone in every server or for everyone in a server.
+ * Deleting the data they're remembered by would leave them on for good, so they're taken away first.
+ */
+export async function getGivenRoles(where: { userId: string } | { guildId: string }): Promise<GivenRole[]> {
+  const winnerOf = 'userId' in where ? { OR: [{ weeklyLastWinner: where.userId }, { monthlyLastWinner: where.userId }] } : { guildId: where.guildId };
+  const [birthdayRoles, leveling] = await Promise.all([prisma.birthdayRole.findMany({ where }), prisma.guildLeveling.findMany({ where: winnerOf })]);
+
+  const winners = leveling.flatMap((config) =>
+    [
+      // The role they got, or for winners from before that was remembered, the one set now
+      { userId: config.weeklyLastWinner, roleId: config.weeklyWinnerRole ?? config.weeklyReward },
+      { userId: config.monthlyLastWinner, roleId: config.monthlyWinnerRole ?? config.monthlyReward },
+    ]
+      .filter((winner): winner is { userId: string; roleId: string } => winner.userId !== null && winner.roleId !== null)
+      .filter((winner) => !('userId' in where) || winner.userId === where.userId)
+      .map((winner) => ({ guildId: config.guildId, ...winner })),
+  );
+  return [...birthdayRoles.map(({ guildId, userId, roleId }) => ({ guildId, userId, roleId })), ...winners];
+}

@@ -10,15 +10,17 @@ import {
   SeparatorSpacingSize,
   TextDisplayBuilder,
   type ButtonInteraction,
+  type Client,
   type PermissionsString,
 } from 'discord.js';
 
 import { getGuildOrCreate } from 'database/guild';
-import { deleteGuildData, deleteUserData, getGuildData, getUserData } from 'database/privacy';
+import { deleteGuildData, deleteUserData, getGivenRoles, getGuildData, getUserData, type GivenRole } from 'database/privacy';
 
 import { runCountingTask } from 'utility/counting/game';
 import { buildConfirmation } from 'utility/confirm';
 import { getTranslate, type Translate } from 'utility/i18next';
+import { logger } from 'utility/logger';
 import { forgetLogConfig } from 'utility/logs/send';
 import { createResponse, sendError, type ResponsePayload } from 'utility/response';
 import type { SettingsContext } from 'utility/settings';
@@ -107,8 +109,22 @@ export async function handlePrivacyButton(interaction: ButtonInteraction): Promi
   return interaction.editReply({ components: [container], files: [jsonFile({ exportedAt, ...data }, name)], flags: [MessageFlags.IsComponentsV2] });
 }
 
+/** Take away roles the bot gave, as nothing would remember to take them away once their data is deleted. Failures are only logged. */
+async function takeBackRoles(client: Client, roles: GivenRole[]) {
+  for (const { guildId, userId, roleId } of roles) {
+    const member = await client.guilds.cache
+      .get(guildId)
+      ?.members.fetch(userId)
+      .catch(() => null);
+    if (member?.roles.cache.has(roleId)) {
+      await member.roles.remove(roleId).catch((error: unknown) => logger.warn(error, `Failed to take back role ${roleId} of ${userId} in guild ${guildId}`));
+    }
+  }
+}
+
 /** Delete everything about whoever confirmed, in every server. */
 export async function deleteOwnData(context: SettingsContext, t: Translate): Promise<ResponsePayload> {
+  await takeBackRoles(context.client, await getGivenRoles({ userId: context.userId }));
   await deleteUserData(context.userId);
   return createResponse(t('privacy.user.deleted'), 'warning');
 }
@@ -116,6 +132,7 @@ export async function deleteOwnData(context: SettingsContext, t: Translate): Pro
 /** Delete everything about the server, as if the bot was just added. */
 export async function deleteServerData(context: SettingsContext, t: Translate): Promise<ResponsePayload> {
   const guildId = context.guild!.id;
+  await takeBackRoles(context.client, await getGivenRoles({ guildId }));
   // After a count that's being handled, so it doesn't save into what was just deleted
   await runCountingTask(guildId, () => deleteGuildData(guildId));
   forgetLogConfig(guildId);
