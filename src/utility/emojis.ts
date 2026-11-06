@@ -22,7 +22,7 @@ export const MAX_EMOJI_NAME = 32;
 /** How much of a picture's fingerprint goes in its name, short enough that every name fits. */
 const FINGERPRINT_LENGTH = 5;
 /** The bot's own emojis, so emojis added to the application by hand are left alone. The second part are the names from before fingerprints. */
-const OWN_EMOJI = /^(bar|typ|btn|txt|sw)_[a-z0-9_]+_[0-9a-f]{5}$|^(statbar|typeicon|btn|icon|switch)\d+_/;
+const OWN_EMOJI = /^(bar|typ|btn|txt|sw|st)_[a-z0-9_]+_[0-9a-f]{5}$|^(statbar|typeicon|btn|icon|switch)\d+_/;
 
 /** The pieces of a bar: a rounded start, the middle, and a rounded end. */
 export type BarPiece = 'start' | 'middle' | 'end';
@@ -43,6 +43,8 @@ const buttonKey = (name: IconName) => `btn_${name.replaceAll('-', '_')}`;
 const textKey = (name: IconName) => `txt_${name.replaceAll('-', '_')}`;
 const SWITCH_ON = 'sw_on';
 const SWITCH_OFF = 'sw_off';
+const STAT_UP = 'st_up';
+const STAT_DOWN = 'st_down';
 
 /** Draw a piece of a bar, filling the width so the pieces join up. */
 function renderPiece(color: string, piece: BarPiece): Buffer {
@@ -74,6 +76,8 @@ export function wantedEmojis(): Map<string, () => Promise<Buffer | null>> {
   }
   wanted.set(SWITCH_ON, () => iconPng('check', 'on', SIZE));
   wanted.set(SWITCH_OFF, () => iconPng('x', 'off', SIZE));
+  wanted.set(STAT_UP, () => iconPng('plus', 'up', SIZE));
+  wanted.set(STAT_DOWN, () => iconPng('minus', 'down', SIZE));
   return wanted;
 }
 
@@ -134,6 +138,9 @@ export const textIcon = (name: IconName) => emojis.get(textKey(name)) ?? ICONS[n
 
 /** The icon of an On/Off switch, a check on green or an X on grey, or ✅ and ✖️ while it isn't there. */
 export const switchIcon = (on: boolean) => emojis.get(on ? SWITCH_ON : SWITCH_OFF) ?? (on ? ICONS.check : ICONS.x);
+
+/** The icon of a stat that goes up, a plus on green, or down, a minus on red, or ➕ and ➖ while it isn't there. */
+export const statChangeIcon = (up: boolean) => emojis.get(up ? STAT_UP : STAT_DOWN) ?? (up ? ICONS.plus : ICONS.minus);
 
 /** A type's name with its icon in front, or the name alone while the icons aren't there. */
 export const withTypeEmoji = (type: string, name: string) => {

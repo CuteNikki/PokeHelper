@@ -59,10 +59,12 @@ export const ICONS = {
   map: '🗺️',
   'map-pin': '📍',
   'memory-stick': '💾',
+  minus: '➖',
   'message-square': '💬',
   'messages-square': '🧵',
   paperclip: '📎',
   pencil: '✏️',
+  plus: '➕',
   power: '🔁',
   'refresh-cw': '🔁',
   'rotate-ccw': '🔁',
@@ -105,8 +107,8 @@ export const ICON_NAMES = Object.keys(ICONS) as IconName[];
  */
 export const textIcons: Record<IconName, string> = { ...ICONS };
 
-/** Where an icon goes: on a button, in text, or as a switch that's on or off. */
-export type IconLook = 'button' | 'text' | 'on' | 'off';
+/** Where an icon goes: on a button, in text, as a switch that's on or off, or as a stat that goes up or down. */
+export type IconLook = 'button' | 'text' | 'on' | 'off' | 'up' | 'down';
 
 /** The bot's blue, the accent of its messages. */
 const TEXT_ICON_COLOR = '#3b4cca';
@@ -120,6 +122,9 @@ const LOOKS: Record<IconLook, { scale: number; weight: number; background: strin
   // Discord's own green, dark enough for the white check, and a grey that looks turned off
   on: { scale: 0.62, weight: 2.75, background: '#23a55a' },
   off: { scale: 0.62, weight: 2.75, background: '#6d6f78' },
+  // The same green for a stat that goes up, and Discord's own red for one that goes down
+  up: { scale: 0.62, weight: 2.75, background: '#23a55a' },
+  down: { scale: 0.62, weight: 2.75, background: '#da373c' },
 };
 
 /** An icon in a look as a PNG at a size, like for an emoji, which Discord doesn't take as SVG. Null if its file can't be read. */
