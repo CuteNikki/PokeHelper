@@ -1,4 +1,4 @@
-import { Events } from 'discord.js';
+import { bold, Events } from 'discord.js';
 
 import { Event } from 'classes/base/event';
 
@@ -18,7 +18,7 @@ export default new Event({
       subject: userSubject(member.user),
       thumbnail: avatarOf(member),
       details: [
-        `**${t('logs.accountCreated')}** ${when(member.user.createdTimestamp)}\n**${t('logs.memberCount')}** ${formatNumber(member.guild.memberCount, t)}`,
+        `${bold(t('logs.accountCreated'))} ${when(member.user.createdTimestamp)}\n${bold(t('logs.memberCount'))} ${formatNumber(member.guild.memberCount, t)}`,
       ],
       ids: { user: member.id },
     }));

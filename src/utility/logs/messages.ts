@@ -6,7 +6,7 @@ import { textFile } from 'utility/logs/files';
 import { MAX_QUOTE_LINES, quoteText } from 'utility/logs/send';
 import { shorten } from 'utility/text';
 
-import { subtext } from 'discord.js';
+import { bold, subtext } from 'discord.js';
 
 /**
  * The text of edited and deleted messages, which can be up to 4000 characters, more than an entry has room for twice.
@@ -33,7 +33,7 @@ const fitsIn = (text: string, length: number) => text.length <= length && text.s
  */
 export function editedText(before: string | null, after: string, messageId: string, t: Translate): MessageText {
   const noText = t('logs.noText');
-  const heading = (key: 'logs.before' | 'logs.after', text: string) => `**${t(key)}**\n${text}`;
+  const heading = (key: 'logs.before' | 'logs.after', text: string) => `${bold(t(key))}\n${text}`;
 
   if (before === null) {
     return {

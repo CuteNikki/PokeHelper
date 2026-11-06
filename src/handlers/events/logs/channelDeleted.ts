@@ -1,4 +1,4 @@
-import { AuditLogEvent, Events } from 'discord.js';
+import { AuditLogEvent, bold, Events } from 'discord.js';
 
 import { Event } from 'classes/base/event';
 
@@ -18,7 +18,7 @@ export default new Event({
       // A mention of a deleted channel shows as unknown, so the name says which it was
       about: 'channel',
       subject: code(`#${channel.name}`),
-      details: (t) => [channel.parentId ? `**${t('logs.changes.category')}** ${channelRef(channel.guild, channel.parentId)}` : null],
+      details: (t) => [channel.parentId ? `${bold(t('logs.changes.category'))} ${channelRef(channel.guild, channel.parentId)}` : null],
       id: ['channel', channel.id],
       actions: [AuditLogEvent.ChannelDelete],
       targetId: channel.id,

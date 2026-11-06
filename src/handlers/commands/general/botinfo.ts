@@ -1,8 +1,8 @@
 import os from 'node:os';
 
 import {
+  bold,
   ContainerBuilder,
-  version as discordJsVersion,
   MessageFlags,
   SeparatorBuilder,
   SeparatorSpacingSize,
@@ -12,6 +12,7 @@ import {
   time,
   TimestampStyles,
   userMention,
+  version as discordJsVersion,
 } from 'discord.js';
 
 import { Command } from 'classes/base/command';
@@ -85,25 +86,25 @@ export default new Command({
 
     const sections = [
       [
-        `**${t('botinfo.general.title')}**`,
+        bold(t('botinfo.general.title')),
         t('botinfo.general.developer', { developer }),
         t('botinfo.general.created', { created: time(createdTimestamp, TimestampStyles.RelativeTime) }),
         t('botinfo.general.servers', { servers: formatNumber(totalGuilds, t) }),
         t('botinfo.general.users', { users: formatNumber(totalUsers, t) }),
       ],
-      [`**${t('botinfo.network.title')}**`, t('botinfo.network.gateway', { ping: pingText }), t('botinfo.network.database', { latency: dbLatency })],
+      [bold(t('botinfo.network.title')), t('botinfo.network.gateway', { ping: pingText }), t('botinfo.network.database', { latency: dbLatency })],
       [
-        `**${t('botinfo.uptime.title')}**`,
+        bold(t('botinfo.uptime.title')),
         t('botinfo.uptime.process', { time: formatDuration(process.uptime()) }),
         t('botinfo.uptime.system', { time: formatDuration(os.uptime()) }),
       ],
       [
-        `**${t('botinfo.memory.title')}**`,
+        bold(t('botinfo.memory.title')),
         t('botinfo.memory.process', { mb: processMb }),
         t('botinfo.memory.system', { used: usedGb, total: totalGb, percent: ramPercent }),
       ],
       [
-        `**${t('botinfo.host.title')}**`,
+        bold(t('botinfo.host.title')),
         t('botinfo.host.cpu', { name: cpuName, cores }),
         t('botinfo.host.cpuLoad', { percent: cpuPercent, loadAvg }),
         t('botinfo.host.runtime', { runtime: runtimeVersion, osType: os.type(), arch: os.arch() }),

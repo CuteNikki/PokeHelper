@@ -1,5 +1,6 @@
 import {
   ActionRowBuilder,
+  bold,
   ButtonBuilder,
   ButtonStyle,
   ContainerBuilder,
@@ -88,7 +89,7 @@ export function buildPanel({ channel, record }: TempChannel, t: Translate): Resp
   // Rows like the settings panels': a bold name and a short description, with the button on the right
   const row = (label: string, description: string, button: ButtonBuilder, value?: string) =>
     new SectionBuilder()
-      .addTextDisplayComponents(new TextDisplayBuilder().setContent([`**${label}**`, subtext(description), value].filter(Boolean).join('\n')))
+      .addTextDisplayComponents(new TextDisplayBuilder().setContent([bold(label), subtext(description), value].filter(Boolean).join('\n')))
       .setButtonAccessory(button);
   const toggle = (action: TempVoiceAction, on: boolean) =>
     new ButtonBuilder()
@@ -97,7 +98,7 @@ export function buildPanel({ channel, record }: TempChannel, t: Translate): Resp
       .setEmoji(on ? '✅' : '✖️')
       .setStyle(on ? ButtonStyle.Success : ButtonStyle.Secondary);
   // A bold name with a short description under it, like the rows above, for the pickers that have no row of their own
-  const heading = (label: string, description: string) => new TextDisplayBuilder().setContent(`**${label}**\n${subtext(description)}`);
+  const heading = (label: string, description: string) => new TextDisplayBuilder().setContent(`${bold(label)}\n${subtext(description)}`);
   // Who's on a list past what the picker shows, so they aren't forgotten
   const withHidden = (description: string, count: number) =>
     count > MAX_PICKED ? `${description} ${t('tempVoice.panel.moreHidden', { count: count - MAX_PICKED })}` : description;

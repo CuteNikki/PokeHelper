@@ -1,4 +1,4 @@
-import { channelMention, roleMention, time, TimestampStyles, userMention, type Guild, type GuildMember, type PartialUser, type User } from 'discord.js';
+import { bold, channelMention, type Guild, type GuildMember, type PartialUser, roleMention, time, TimestampStyles, type User, userMention } from 'discord.js';
 
 import type { Translate } from 'utility/i18next';
 import type { Doer } from 'utility/logs/audit';
@@ -41,7 +41,7 @@ export const roleRef = (guild: Guild, id: string) => {
 export const userRef = (guild: Guild, id: string) => userSubject(guild.client.users.cache.get(id), id);
 
 /** The reason someone gave, as a part of the entry, or null if they gave none. */
-export const reasonPart = (doer: Doer | null, t: Translate) => (doer?.reason ? `**${t('logs.reason')}**\n${quoteText(doer.reason)}` : null);
+export const reasonPart = (doer: Doer | null, t: Translate) => (doer?.reason ? `${bold(t('logs.reason'))}\n${quoteText(doer.reason)}` : null);
 
 /** A date, and how long ago or from now that is, like `4 November 2026 21:14 (3 years ago)`. */
 export const when = (date: Date | number | null) =>

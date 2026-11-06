@@ -1,6 +1,7 @@
 import {
   ActionRowBuilder,
   AttachmentBuilder,
+  bold,
   ButtonBuilder,
   type ButtonInteraction,
   ButtonStyle,
@@ -330,12 +331,12 @@ export async function buildPokedexEntry(match: PokedexMatch, view: PokedexView, 
 
     const firstType = pokemon.types.find((entry) => entry.slot === 1)?.type.name ?? 'normal';
     const about = [
-      `**${t('pokedex.details.type')}** ${types.map((type) => type.name).join(', ')}`,
-      ...details.map((detail) => `**${detail.label}** ${detail.value}`),
+      `${bold(t('pokedex.details.type'))} ${types.map((type) => type.name).join(', ')}`,
+      ...details.map((detail) => `${bold(detail.label)} ${detail.value}`),
     ];
     const statLines = [
       `### ${t('pokedex.stats.heading', { total: format(total) })}`,
-      ...stats.map((stat) => `${statBar(stat.value, firstType)} **${stat.value}** ${stat.label}`),
+      ...stats.map((stat) => `${statBar(stat.value, firstType)} ${bold(format(stat.value))} ${stat.label}`),
     ];
     container
       .addSeparatorComponents(new SeparatorBuilder())

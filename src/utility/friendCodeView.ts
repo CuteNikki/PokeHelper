@@ -1,20 +1,21 @@
 import {
   ActionRowBuilder,
+  bold,
   ButtonBuilder,
+  type ButtonInteraction,
   ButtonStyle,
   ContainerBuilder,
   escapeMarkdown,
+  type GuildMember,
   LabelBuilder,
   MessageFlags,
   ModalBuilder,
+  type ModalSubmitInteraction,
   SectionBuilder,
   TextDisplayBuilder,
   TextInputBuilder,
   TextInputStyle,
   ThumbnailBuilder,
-  type ButtonInteraction,
-  type GuildMember,
-  type ModalSubmitInteraction,
   type User,
 } from 'discord.js';
 
@@ -54,7 +55,7 @@ export async function buildFriendCodes(user: User, member: GuildMember | null, s
     return { components: [container], flags: [MessageFlags.IsComponentsV2] };
   }
 
-  const lines = codes.map(({ game, code }) => `**${t(`friendCodes.games.${game}`)}** · \`${formatFriendCode(game, code)}\``);
+  const lines = codes.map(({ game, code }) => `${bold(t(`friendCodes.games.${game}`))} · \`${formatFriendCode(game, code)}\``);
   const avatar = (member ?? user).displayAvatarURL({ extension: 'png', size: 128 });
   const container = new ContainerBuilder()
     .setAccentColor(ThemeColors.info)

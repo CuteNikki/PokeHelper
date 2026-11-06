@@ -1,4 +1,4 @@
-import { OverwriteType, PermissionsBitField, type Guild, type GuildBasedChannel, type PermissionsString, type Role } from 'discord.js';
+import { bold, type Guild, type GuildBasedChannel, OverwriteType, PermissionsBitField, type PermissionsString, type Role } from 'discord.js';
 
 import type { Translate } from 'utility/i18next';
 import { channelRef, roleRef, userRef } from 'utility/logs/format';
@@ -23,7 +23,7 @@ function show(value: Value, t: Translate): string {
  * `**Name**`, `Old: test`, `New: testing`. Values are given already formatted.
  */
 export const oldNew = (label: string, before: string, after: string, t: Translate) =>
-  `**${label}**\n${t('logs.changes.old')}: ${before}\n${t('logs.changes.new')}: ${after}`;
+  `${bold(label)}\n${t('logs.changes.old')}: ${before}\n${t('logs.changes.new')}: ${after}`;
 
 /** A block for a value that changed, or null if it's the same. Mentions are shown as they are, everything else in code. */
 function changed(label: string, before: Value, after: Value, t: Translate, mention?: (id: string) => string): string | null {
@@ -34,7 +34,7 @@ function changed(label: string, before: Value, after: Value, t: Translate, menti
 
 /** Permissions under a bold heading, one on each line in the server's language, like the roles someone was given. */
 const permissionList = (heading: string, permissions: PermissionsString[], t: Translate) =>
-  [`**${heading}**`, ...permissions.map((permission) => t(`permission.${permission}`))].join('\n');
+  [bold(heading), ...permissions.map((permission) => t(`permission.${permission}`))].join('\n');
 
 /**
  * The permissions given and taken between two sets, as a block for each way they changed, like `**Permissions added**` and the

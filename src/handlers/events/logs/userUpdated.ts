@@ -1,4 +1,4 @@
-import { Events } from 'discord.js';
+import { bold, Events } from 'discord.js';
 
 import { Event } from 'classes/base/event';
 
@@ -25,7 +25,7 @@ export default new Event({
         usernameChanged ? oldNew(t('logs.username'), code(before.username), code(after.username), t) : null,
         displayNameChanged ? oldNew(t('logs.displayName'), name(before.globalName, t), name(after.globalName, t), t) : null,
         // The new avatar is the picture on the entry
-        avatarChanged ? `**${t('logs.avatar')}** ${t('logs.avatarChanged')}` : null,
+        avatarChanged ? `${bold(t('logs.avatar'))} ${t('logs.avatarChanged')}` : null,
       ].filter((line): line is string => line !== null);
 
     for (const guild of client.guilds.cache.values()) {

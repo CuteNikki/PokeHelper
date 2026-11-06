@@ -1,4 +1,4 @@
-import { Events, messageLink, subtext } from 'discord.js';
+import { bold, Events, messageLink, subtext } from 'discord.js';
 
 import { Event } from 'classes/base/event';
 
@@ -36,8 +36,8 @@ export default new Event({
         by: doer,
         details: [
           ...(text?.details ?? [subtext(t('logs.notSeen'))]),
-          files.length > 0 ? `**${t('logs.attachments')}** ${files.join(', ')}` : null,
-          stickers.length > 0 ? `**${t('logs.stickers')}** ${stickers.join(', ')}` : null,
+          files.length > 0 ? `${bold(t('logs.attachments'))} ${files.join(', ')}` : null,
+          stickers.length > 0 ? `${bold(t('logs.stickers'))} ${stickers.join(', ')}` : null,
         ],
         ids: { ...(message.author ? { user: message.author.id } : {}), message: message.id, channel: message.channelId },
         link: { label: t('logs.jumpToContext'), url: messageLink(message.channelId, message.id, guild.id) },

@@ -2,6 +2,7 @@ import { createCanvas, type Image } from '@napi-rs/canvas';
 import {
   ActionRowBuilder,
   AttachmentBuilder,
+  bold,
   ButtonBuilder,
   type ButtonInteraction,
   ButtonStyle,
@@ -136,11 +137,11 @@ async function hintLines(game: GuessGame, species: PokedexSpecies, language: str
       const types = [...(pokemon?.types ?? [])]
         .sort((a, b) => a.slot - b.slot)
         .map((entry) => nameIn(getPokedexData().types[entry.type.name], language) || entry.type.name);
-      if (types.length > 0) lines.push(`**${t('pokedex.details.type')}** ${types.join(', ')}`);
+      if (types.length > 0) lines.push(`${bold(t('pokedex.details.type'))} ${types.join(', ')}`);
     } else if (hint === 'generation') {
-      lines.push(`**${t('guess.hints.generation')}** ${generationOf(species.id)}`);
+      lines.push(`${bold(t('guess.hints.generation'))} ${generationOf(species.id)}`);
     } else {
-      lines.push(`**${t('guess.hints.name')}** \`${nameHint(nameIn(species.names, language))}\``);
+      lines.push(`${bold(t('guess.hints.name'))} \`${nameHint(nameIn(species.names, language))}\``);
     }
   }
   return lines;

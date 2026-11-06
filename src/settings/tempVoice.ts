@@ -1,5 +1,6 @@
 import {
   ActionRowBuilder,
+  bold,
   ButtonBuilder,
   ButtonStyle,
   channelMention,
@@ -77,7 +78,7 @@ export function getTempVoiceSettings(creatorId: string): SettingsPanel {
       return creator?.guildId === guildId ? creator : null;
     },
     notConfigured: (t) => t('tempVoice.config.notFound'),
-    header: (creator, { guild }, t) => (guild ? `**${creatorName(creator, guild, t)}**\n${status(creator, guild, t)}` : null),
+    header: (creator, { guild }, t) => (guild ? `${bold(creatorName(creator, guild, t))}\n${status(creator, guild, t)}` : null),
     footer: (creator, t) => [
       new ButtonBuilder()
         .setCustomId(`${TEMP_VOICE_CONFIG_ID.delete}${creator.id}`)

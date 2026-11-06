@@ -1,6 +1,7 @@
 import {
   ActionRowBuilder,
   AttachmentBuilder,
+  bold,
   ButtonBuilder,
   type ButtonInteraction,
   ButtonStyle,
@@ -252,7 +253,7 @@ function buildText(matchups: Matchups, slug: string, t: Translate): ResponsePayl
     container.addSeparatorComponents(new SeparatorBuilder()).addTextDisplayComponents(new TextDisplayBuilder().setContent(`### ${t('pokedex.matchups.weak')}`));
     for (const entry of matchups.weak) {
       const lines = [
-        `**${entry.type.name}** ${entry.label}`,
+        `${bold(entry.type.name)} ${entry.label}`,
         // Labeled like the card
         entry.pokemon.length > 0 ? `${t('pokedex.matchups.pokemon')}: ${entry.pokemon.map((example) => example.name).join(' · ')}` : null,
         entry.moves.length > 0 ? `${t('pokedex.matchups.moves')}: ${entry.moves.join(' · ')}` : null,
@@ -276,7 +277,7 @@ function buildText(matchups: Matchups, slug: string, t: Translate): ResponsePayl
     ['immune', matchups.immune],
   ] as const) {
     if (entries.length === 0) continue;
-    const lines = entries.map((entry) => `**${entry.type.name}** ${entry.label}`);
+    const lines = entries.map((entry) => `${bold(entry.type.name)} ${entry.label}`);
     container
       .addSeparatorComponents(new SeparatorBuilder())
       .addTextDisplayComponents(new TextDisplayBuilder().setContent(`### ${t(`pokedex.matchups.${key}`)}\n${lines.join('\n')}`));

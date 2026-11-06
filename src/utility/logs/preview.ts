@@ -1,4 +1,4 @@
-import { type GuildMember, type SendableChannels, subtext } from 'discord.js';
+import { bold, type GuildMember, type SendableChannels, subtext } from 'discord.js';
 
 import { formatNumber } from 'utility/duration';
 import type { Translate } from 'utility/i18next';
@@ -84,7 +84,7 @@ export function previewEntries(member: GuildMember, channelId: string, t: Transl
       subject,
       thumbnail,
       by,
-      details: [...deleted.details, `**${t('logs.attachments')}** ${code('receipt.png')}`],
+      details: [...deleted.details, `${bold(t('logs.attachments'))} ${code('receipt.png')}`],
       ids: { user: member.id, message: '3', channel: channelId },
       link: link('logs.jumpToContext'),
     },
@@ -105,7 +105,10 @@ export function previewEntries(member: GuildMember, channelId: string, t: Transl
       subject,
       thumbnail,
       by,
-      details: [`**${t('logs.changes.added')}**\n${role(0, 'Melon')}\n${role(1, 'Light Salmon Pink')}`, `**${t('logs.changes.removed')}**\n${role(2, 'Bot')}`],
+      details: [
+        `${bold(t('logs.changes.added'))}\n${role(0, 'Melon')}\n${role(1, 'Light Salmon Pink')}`,
+        `${bold(t('logs.changes.removed'))}\n${role(2, 'Bot')}`,
+      ],
       ids: { user: member.id, role: roles.map((entry) => entry.id) },
     },
     {
@@ -115,7 +118,7 @@ export function previewEntries(member: GuildMember, channelId: string, t: Transl
       subject,
       thumbnail,
       by,
-      details: [`**${t('logs.changes.added')}**\n${role(0, 'Melon')}`],
+      details: [`${bold(t('logs.changes.added'))}\n${role(0, 'Melon')}`],
       ids: { user: member.id, ...(roles[0] ? { role: roles[0].id } : {}) },
     },
     {
@@ -145,7 +148,9 @@ export function previewEntries(member: GuildMember, channelId: string, t: Transl
       about: 'user',
       subject,
       thumbnail,
-      details: [`**${t('logs.accountCreated')}** ${when(member.user.createdTimestamp)}\n**${t('logs.memberCount')}** ${formatNumber(guild.memberCount, t)}`],
+      details: [
+        `${bold(t('logs.accountCreated'))} ${when(member.user.createdTimestamp)}\n${bold(t('logs.memberCount'))} ${formatNumber(guild.memberCount, t)}`,
+      ],
       ids: { user: member.id },
     },
     {
@@ -155,8 +160,8 @@ export function previewEntries(member: GuildMember, channelId: string, t: Transl
       subject,
       thumbnail,
       details: [
-        `**${t('logs.joined')}** ${when(member.joinedTimestamp)}`,
-        `**${t('logs.roles')}**\n${[role(0, 'Melon'), role(1, 'Light Salmon Pink'), role(2, 'Bot')].join('\n')}`,
+        `${bold(t('logs.joined'))} ${when(member.joinedTimestamp)}`,
+        `${bold(t('logs.roles'))}\n${[role(0, 'Melon'), role(1, 'Light Salmon Pink'), role(2, 'Bot')].join('\n')}`,
       ],
       ids: { user: member.id },
     },
@@ -187,7 +192,7 @@ export function previewEntries(member: GuildMember, channelId: string, t: Transl
       subject,
       thumbnail,
       by: byWithReason,
-      details: [`**${t('logs.until')}** ${when(Date.now() + 60 * 60 * 1000)}`, reasonPart(byWithReason, t)],
+      details: [`${bold(t('logs.until'))} ${when(Date.now() + 60 * 60 * 1000)}`, reasonPart(byWithReason, t)],
       ids: { user: member.id },
     },
     { kind: 'created', label: t('logs.labels.timeoutRemoved'), about: 'user', subject, thumbnail, by, ids: { user: member.id } },
@@ -197,7 +202,7 @@ export function previewEntries(member: GuildMember, channelId: string, t: Transl
       about: 'channel',
       subject: channelSubject(channelId, 'new-channel'),
       by,
-      details: [`**${t('logs.changes.category')}** ${code('#Text Channels')}`],
+      details: [`${bold(t('logs.changes.category'))} ${code('#Text Channels')}`],
       ids: { channel: channelId },
     },
     {
@@ -210,7 +215,7 @@ export function previewEntries(member: GuildMember, channelId: string, t: Transl
         [
           oldNew(t('logs.changes.name'), code('test'), code('testing'), t),
           oldNew(t('logs.changes.slowmode'), none, code('5'), t),
-          `**${t('logs.changes.nowDeniedFor', { who: code('@everyone') })}**\n${t('permission.SendMessages')}\n${t('permission.AddReactions')}`,
+          `${bold(t('logs.changes.nowDeniedFor', { who: code('@everyone') }))}\n${t('permission.SendMessages')}\n${t('permission.AddReactions')}`,
         ].join('\n\n'),
       ],
       ids: { channel: channelId },
@@ -224,8 +229,8 @@ export function previewEntries(member: GuildMember, channelId: string, t: Transl
       details: [
         [
           oldNew(t('logs.changes.color'), code('#ff9900'), code('#ffb347'), t),
-          `**${t('logs.changes.permissionsAdded')}**\n${t('permission.ManageMessages')}\n${t('permission.ManageThreads')}`,
-          `**${t('logs.changes.permissionsRemoved')}**\n${t('permission.MentionEveryone')}`,
+          `${bold(t('logs.changes.permissionsAdded'))}\n${t('permission.ManageMessages')}\n${t('permission.ManageThreads')}`,
+          `${bold(t('logs.changes.permissionsRemoved'))}\n${t('permission.MentionEveryone')}`,
         ].join('\n\n'),
       ],
       ids: { ...(roles[0] ? { role: roles[0].id } : {}) },
@@ -268,7 +273,7 @@ export function previewEntries(member: GuildMember, channelId: string, t: Transl
       subject: code('pokehelper'),
       thumbnail,
       by: { id: member.id, reason: null },
-      details: [`**${t('logs.invites.uses')}** ${t('logs.invites.unlimited')}\n**${t('logs.invites.expires')}** ${when(Date.now() + 7 * 86_400_000)}`],
+      details: [`${bold(t('logs.invites.uses'))} ${t('logs.invites.unlimited')}\n${bold(t('logs.invites.expires'))} ${when(Date.now() + 7 * 86_400_000)}`],
       ids: { invite: 'pokehelper' },
     },
     { kind: 'created', label: t('logs.labels.voiceJoined'), where, about: 'user', subject, thumbnail, ids: { user: member.id, channel: channelId } },

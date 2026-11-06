@@ -1,20 +1,21 @@
 import {
   ActionRowBuilder,
+  type ApplicationCommand,
+  type ApplicationCommandOption,
   ApplicationCommandOptionType,
   ApplicationCommandType,
   ApplicationIntegrationType,
+  bold,
   chatInputApplicationCommandMention,
+  type Collection,
   ContainerBuilder,
+  type Interaction,
+  type LocalizationMap,
   MessageFlags,
   SeparatorBuilder,
   SeparatorSpacingSize,
   StringSelectMenuBuilder,
   TextDisplayBuilder,
-  type ApplicationCommand,
-  type ApplicationCommandOption,
-  type Collection,
-  type Interaction,
-  type LocalizationMap,
 } from 'discord.js';
 
 import type { ExtendedClient } from 'classes/base/client';
@@ -136,7 +137,7 @@ export async function buildHelp(interaction: Interaction, category: string, t: T
   if (shown) {
     container.addTextDisplayComponents(new TextDisplayBuilder().setContent(`${t('help.title')}\n### ${label(shown[0])}\n${shown[1].join('\n')}`));
   } else {
-    const list = categories.map(([key]) => `**${label(key)}**${descriptions[key] ? ` · ${descriptions[key]}` : ''}`);
+    const list = categories.map(([key]) => `${bold(label(key))}${descriptions[key] ? ` · ${descriptions[key]}` : ''}`);
     container.addTextDisplayComponents(new TextDisplayBuilder().setContent(`${t('help.title')}\n${t('help.intro')}\n\n${list.join('\n')}`));
   }
 

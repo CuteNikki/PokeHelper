@@ -1,4 +1,4 @@
-import { Events } from 'discord.js';
+import { bold, Events } from 'discord.js';
 
 import { Event } from 'classes/base/event';
 
@@ -25,7 +25,7 @@ export default new Event({
       thumbnail: avatarOf(invite.inviter),
       by: invite.inviterId ? { id: invite.inviterId, reason: null } : null,
       details: [
-        `**${t('logs.invites.uses')}** ${invite.maxUses ? formatNumber(invite.maxUses, t) : t('logs.invites.unlimited')}\n**${t('logs.invites.expires')}** ${invite.expiresAt ? when(invite.expiresAt) : t('logs.invites.never')}`,
+        `${bold(t('logs.invites.uses'))} ${invite.maxUses ? formatNumber(invite.maxUses, t) : t('logs.invites.unlimited')}\n${bold(t('logs.invites.expires'))} ${invite.expiresAt ? when(invite.expiresAt) : t('logs.invites.never')}`,
       ],
       ids: { invite: invite.code },
     }));

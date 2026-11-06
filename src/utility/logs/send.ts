@@ -1,6 +1,7 @@
 import {
   ActionRowBuilder,
   type AttachmentBuilder,
+  bold,
   ButtonBuilder,
   ButtonStyle,
   ContainerBuilder,
@@ -111,10 +112,10 @@ export function buildLogEntry(entry: LogEntry, t: Translate, doer?: User | null)
   const header = new TextDisplayBuilder().setContent(
     [
       `### ${entry.label}`,
-      `**${t(`logs.about.${entry.about}`)}** ${entry.subject}`,
-      typeof entry.where === 'string' ? `**${t('logs.in')}** ${entry.where}` : null,
-      entry.where && typeof entry.where === 'object' ? `**${t('logs.from')}** ${entry.where.from}\n**${t('logs.to')}** ${entry.where.to}` : null,
-      entry.by ? `**${t('logs.byLabel')}** ${userSubject(doer, entry.by.id)}` : null,
+      `${bold(t(`logs.about.${entry.about}`))} ${entry.subject}`,
+      typeof entry.where === 'string' ? `${bold(t('logs.in'))} ${entry.where}` : null,
+      entry.where && typeof entry.where === 'object' ? `${bold(t('logs.from'))} ${entry.where.from}\n${bold(t('logs.to'))} ${entry.where.to}` : null,
+      entry.by ? `${bold(t('logs.byLabel'))} ${userSubject(doer, entry.by.id)}` : null,
       // When it happened, as Discord only shows the time of the first of several messages in a row
       subtext(time(new Date(), TimestampStyles.LongDateTime)),
     ]

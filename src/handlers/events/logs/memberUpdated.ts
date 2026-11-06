@@ -1,4 +1,4 @@
-import { AuditLogEvent, Events } from 'discord.js';
+import { AuditLogEvent, bold, Events } from 'discord.js';
 
 import { Event } from 'classes/base/event';
 
@@ -61,8 +61,8 @@ export default new Event({
         by: doer,
         // Blocks like the other changes: a bold heading, then a role on each line
         details: [
-          added.length > 0 ? `**${t('logs.changes.added')}**\n${added.join('\n')}` : null,
-          removed.length > 0 ? `**${t('logs.changes.removed')}**\n${removed.join('\n')}` : null,
+          added.length > 0 ? `${bold(t('logs.changes.added'))}\n${added.join('\n')}` : null,
+          removed.length > 0 ? `${bold(t('logs.changes.removed'))}\n${removed.join('\n')}` : null,
           reasonPart(doer, t),
         ],
         // The roles too, so their IDs can be copied with the member's and the moderator's
@@ -81,7 +81,7 @@ export default new Event({
         subject,
         thumbnail,
         // Like a profile's avatar: changed, with the new one as the picture, or removed
-        details: [`**${t('logs.avatar')}** ${t(after.avatar ? 'logs.avatarChanged' : 'logs.avatarRemoved')}`],
+        details: [`${bold(t('logs.avatar'))} ${t(after.avatar ? 'logs.avatarChanged' : 'logs.avatarRemoved')}`],
         ids,
       }));
     }
@@ -99,7 +99,7 @@ export default new Event({
         subject,
         thumbnail,
         by: doer,
-        details: [timedOut ? `**${t('logs.until')}** ${when(isUntil)}` : null, reasonPart(doer, t)],
+        details: [timedOut ? `${bold(t('logs.until'))} ${when(isUntil)}` : null, reasonPart(doer, t)],
         ids,
       }));
     }

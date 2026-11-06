@@ -1,6 +1,7 @@
 import {
   ApplicationIntegrationType,
   AttachmentBuilder,
+  bold,
   ChatInputCommandInteraction,
   ContainerBuilder,
   InteractionContextType,
@@ -159,7 +160,7 @@ async function handleProfileTheme(interaction: ChatInputCommandInteraction<'cach
   // Always uploaded again, so changed artwork can be put on without waiting for the next theme
   const result = await syncProfileTheme(interaction.client, true);
   const lines = [
-    `Wearing the **${result.theme}** theme${isThemeName(choice) ? ' until set back to auto' : ', the one of the day'}.`,
+    `Wearing the ${bold(result.theme)} theme${isThemeName(choice) ? ' until set back to auto' : ', the one of the day'}.`,
     `Avatar: ${SYNC_TEXT[result.avatar]}. Banner: ${SYNC_TEXT[result.banner]}. Status: ${result.status}`,
     profileThemesEnabled() ? null : subtext('PROFILE_THEMES is off here, so it only changes when you use this command.'),
   ];
@@ -172,8 +173,8 @@ async function handleThemeCalendar(interaction: ChatInputCommandInteraction<'cac
   const override = isThemeName(profile?.override) ? profile.override : null;
   const lines = [
     override
-      ? `Wearing **${override}**, picked by hand. \`/dev profile-theme auto\` goes back to the calendar below.`
-      : `Wearing **${wantedTheme(interaction.client, null)}**, the theme of the day.`,
+      ? `Wearing ${bold(override)}, picked by hand. \`/dev profile-theme auto\` goes back to the calendar below.`
+      : `Wearing ${bold(wantedTheme(interaction.client, null))}, the theme of the day.`,
     profileThemesEnabled() ? null : "-# PROFILE_THEMES is off here, so the bot doesn't change by itself.",
     ['```', ...scheduleLines(madeOn(interaction.client)), '```'].join('\n'),
   ];

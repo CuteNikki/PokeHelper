@@ -1,6 +1,7 @@
 import {
   ActionRowBuilder,
   type BaseInteraction,
+  bold,
   ButtonBuilder,
   ButtonStyle,
   channelMention,
@@ -410,7 +411,7 @@ function formatValue<C>(setting: Exclude<Setting<C>, { type: 'entries' | 'textEn
 }
 
 function describe<C>(setting: Setting<C> | AnyEntriesSetting<C>, t: Translate, extra: string[] = []): string {
-  const lines = [`**${setting.label(t)}**`, subtext(setting.description(t))];
+  const lines = [bold(setting.label(t)), subtext(setting.description(t))];
   // A default text is shown in place of the value instead, as it can be long
   if (!isEntries(setting) && setting.type !== 'text' && setting.defaultValue !== undefined) {
     lines.push(subtext(t('settings.default', { value: formatValue(setting, setting.defaultValue, t) })));
@@ -684,7 +685,7 @@ function textModal<C>(
  * @param customId What the button does, which its handler toggles.
  */
 export function buildSwitchSection(label: string, description: string, on: boolean, customId: string, t: Translate): SectionBuilder {
-  return new SectionBuilder().addTextDisplayComponents(new TextDisplayBuilder().setContent(`**${label}**\n${subtext(description)}`)).setButtonAccessory(
+  return new SectionBuilder().addTextDisplayComponents(new TextDisplayBuilder().setContent(`${bold(label)}\n${subtext(description)}`)).setButtonAccessory(
     new ButtonBuilder()
       .setCustomId(customId)
       .setLabel(t(on ? 'state.on' : 'state.off'))

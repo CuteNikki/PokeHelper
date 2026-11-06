@@ -1,4 +1,4 @@
-import { Events } from 'discord.js';
+import { bold, Events } from 'discord.js';
 
 import { Event } from 'classes/base/event';
 
@@ -18,9 +18,9 @@ export default new Event({
       subject: userSubject(member.user),
       thumbnail: avatarOf(member.user),
       details: [
-        member.joinedTimestamp ? `**${t('logs.joined')}** ${when(member.joinedTimestamp)}` : null,
+        member.joinedTimestamp ? `${bold(t('logs.joined'))} ${when(member.joinedTimestamp)}` : null,
         // A block like the other lists: a bold heading, then a role on each line
-        roles.length > 0 ? `**${t('logs.roles')}**\n${roles.join('\n')}` : null,
+        roles.length > 0 ? `${bold(t('logs.roles'))}\n${roles.join('\n')}` : null,
       ],
       ids: { user: member.id },
     }));
