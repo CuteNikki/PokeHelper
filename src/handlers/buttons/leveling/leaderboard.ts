@@ -21,11 +21,13 @@ export default new Button({
     const parsed = parseLeaderboardCustomId(interaction.customId);
     if (!parsed) return sendError(interaction, t('system.outdated'));
 
+    // The page button asks which page to go to in a popup, which has to be the first answer. Leveling being off is checked once it's sent
+    if (parsed.action === 'goto') return interaction.showModal(buildLeaderboardPageModal(parsed.view, t));
+
+    // Answered before anything is looked up, which can take a moment, as Discord gives up after 3 seconds. Errors still only go to whoever pressed
+    await interaction.deferUpdate();
     const levelingConfig = await getGuildLevelingConfiguration(interaction.guildId);
     if (!levelingConfig?.enabled) return sendError(interaction, t('leveling.disabled'));
-
-    // The page button asks which page to go to in a popup, which has to be the first answer
-    if (parsed.action === 'goto') return interaction.showModal(buildLeaderboardPageModal(parsed.view, t));
 
     // Whoever pressed it, who is whoever opened the leaderboard, as only they can use its buttons
     let view = parsed.view;
@@ -35,7 +37,6 @@ export default new Button({
       view = { ...view, page: pageOfPosition(position, ITEMS_PER_PAGE) };
     }
 
-    await interaction.deferUpdate();
     await interaction.editReply(await buildLeaderboard(view, interaction.guild, t));
   },
 });
