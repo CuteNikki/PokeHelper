@@ -30,7 +30,7 @@ const PERIOD_LABEL_KEYS = {
   monthly: 'leveling.rank.monthly',
 } as const satisfies Record<LevelPeriod, string>;
 
-const WIDTH = 880;
+const WIDTH = 700;
 const HEIGHT = 200;
 const PADDING = 36;
 const AVATAR_RADIUS = 64;
