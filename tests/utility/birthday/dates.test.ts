@@ -1,22 +1,9 @@
 import { describe, expect, test } from 'bun:test';
 
-import { ageInYear, getBirthdayActions, getLocalTime, isBirthdayOn, parseBirthday, resolveTimezone } from 'utility/birthday/dates';
+import { ageInYear, getBirthdayActions, isBirthdayOn, parseBirthday } from 'utility/birthday/dates';
 
 const birthday = (date: string) => new Date(`${date}T00:00:00Z`);
 const nothingDone = { roleYear: null, announcedYear: null, roleActive: false };
-
-describe('getLocalTime', () => {
-  test('uses the timezone', () => {
-    // 23:30 UTC on Jan 31 is already Feb 1 in Berlin
-    expect(getLocalTime(new Date('2026-01-31T23:30:00Z'), 'Europe/Berlin')).toEqual({ year: 2026, month: 2, day: 1, hour: 0 });
-    expect(getLocalTime(new Date('2026-01-31T23:30:00Z'), 'America/New_York')).toEqual({ year: 2026, month: 1, day: 31, hour: 18 });
-  });
-
-  test('falls back to UTC for missing or unknown timezones', () => {
-    expect(getLocalTime(new Date('2026-01-31T23:30:00Z'), null)).toEqual({ year: 2026, month: 1, day: 31, hour: 23 });
-    expect(getLocalTime(new Date('2026-01-31T23:30:00Z'), 'Not/AZone')).toEqual({ year: 2026, month: 1, day: 31, hour: 23 });
-  });
-});
 
 describe('isBirthdayOn', () => {
   test('matches the month and day, not the year', () => {
@@ -89,13 +76,5 @@ describe('parseBirthday', () => {
 
   test('refuses short years, years before 1900 and dates in the future', () => {
     for (const input of ['95-05-01', '1026-05-01', '2027-01-01', '2026-11-04', 'May 1', '']) expect(parseBirthday(input, now)).toBeNull();
-  });
-});
-
-describe('resolveTimezone', () => {
-  test('finds timezones whatever their case, and keeps how they are written', () => {
-    expect(resolveTimezone('europe/berlin')).toBe('Europe/Berlin');
-    expect(resolveTimezone(' America/New_York ')).toBe('America/New_York');
-    expect(resolveTimezone('Mars/Olympus')).toBeNull();
   });
 });

@@ -3,8 +3,9 @@ import { ButtonBuilder, ButtonStyle, type Client } from 'discord.js';
 import { getUserBirthday, setUserBirthdayDate, updateUserBirthday } from 'database/birthday';
 
 import { DiscordLimits } from 'utility/discordLimits';
-import { parseBirthday, resolveTimezone } from 'utility/birthday/dates';
+import { parseBirthday } from 'utility/birthday/dates';
 import { createSettingsPanel } from 'utility/settings';
+import { resolveTimezone } from 'utility/timezone';
 
 /** Custom ID of the button that asks whether to delete your birthday. */
 export const DELETE_BIRTHDAY_ID = 'my-birthday:delete';

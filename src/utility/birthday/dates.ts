@@ -1,32 +1,6 @@
+import { getWallTime, type WallTime } from 'utility/timezone';
 /** The hour, in a member's own time, from which their birthday is announced. */
 export const ANNOUNCEMENT_HOUR = 8;
-
-/** The date and hour it is in a timezone. */
-export interface LocalTime {
-  year: number;
-  /** 1 to 12. */
-  month: number;
-  day: number;
-  hour: number;
-}
-
-/**
- * The date and hour it is in a timezone, falling back to UTC for unknown or missing ones.
- * @param timezone An IANA timezone, like `Europe/Berlin`.
- */
-export function getLocalTime(now: Date, timezone: string | null): LocalTime {
-  const format = (timeZone: string) =>
-    new Intl.DateTimeFormat('en-US', { timeZone, year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', hourCycle: 'h23' }).formatToParts(now);
-
-  let parts: Intl.DateTimeFormatPart[];
-  try {
-    parts = format(timezone ?? 'UTC');
-  } catch {
-    parts = format('UTC');
-  }
-  const part = (type: Intl.DateTimeFormatPartTypes) => Number(parts.find((p) => p.type === type)?.value);
-  return { year: part('year'), month: part('month'), day: part('day'), hour: part('hour') };
-}
 
 const isLeapYear = (year: number) => (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
 
@@ -34,7 +8,7 @@ const isLeapYear = (year: number) => (year % 4 === 0 && year % 100 !== 0) || yea
  * Whether it's someone's birthday on a local date. Birthdays on February 29 are celebrated on February 28 in other years.
  * @param birthday The birthday, stored as midnight UTC of the date.
  */
-export function isBirthdayOn(birthday: Date, local: Pick<LocalTime, 'year' | 'month' | 'day'>): boolean {
+export function isBirthdayOn(birthday: Date, local: Pick<WallTime, 'year' | 'month' | 'day'>): boolean {
   const month = birthday.getUTCMonth() + 1;
   let day = birthday.getUTCDate();
   if (month === 2 && day === 29 && !isLeapYear(local.year)) day = 28;
@@ -66,7 +40,7 @@ export function getBirthdayActions(
   state: { roleYear: number | null; announcedYear: number | null; roleActive: boolean },
   now: Date,
 ): BirthdayActions {
-  const local = getLocalTime(now, birthday.timezone);
+  const local = getWallTime(now, birthday.timezone);
   const today = isBirthdayOn(birthday.date, local);
 
   return {
@@ -98,10 +72,4 @@ export function parseBirthday(input: string, now: Date): Date | null {
   if (date.getUTCFullYear() !== year || date.getUTCMonth() !== month - 1 || date.getUTCDate() !== day) return null;
   if (year < EARLIEST_YEAR || date.getTime() > now.getTime()) return null;
   return date;
-}
-
-/** The timezone with the case it's known by, like `Europe/Berlin` for `europe/berlin`, or null if there's no such timezone. */
-export function resolveTimezone(input: string): string | null {
-  const wanted = input.trim().toLowerCase();
-  return Intl.supportedValuesOf('timeZone').find((timezone) => timezone.toLowerCase() === wanted) ?? null;
 }

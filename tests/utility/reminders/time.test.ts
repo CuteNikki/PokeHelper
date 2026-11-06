@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 
-import { fromWallTime, nextOccurrence, parseDateTime, parseDuration, parseWhen } from 'utility/reminders/time';
+import { nextOccurrence, parseDateTime, parseDuration, parseWhen } from 'utility/reminders/time';
 import { buildVocabulary, type TimeWords } from 'utility/reminders/words';
 
 // A Wednesday afternoon in Berlin, which is UTC+1 in November
@@ -88,10 +88,6 @@ test('when a reminder is due, with limits', () => {
   expect(parseWhen('9999999999999999d', now, BERLIN)).toBe('tooFar');
 });
 
-test('times skipped when the clocks go forward come out an hour later', () => {
-  expect(fromWallTime({ year: 2027, month: 3, day: 28, hour: 2, minute: 30 }, BERLIN)).toEqual(new Date('2027-03-28T01:30:00Z'));
-});
-
 describe('repeating', () => {
   test('keeps the time on the clock over summer time', () => {
     const start = new Date('2027-03-27T08:00:00Z'); // 9:00 in Berlin, the day before the clocks go forward
@@ -110,10 +106,6 @@ describe('repeating', () => {
     expect(nextOccurrence(start, 'yearly', 'UTC', now)).toEqual(new Date('2027-01-05T09:00:00Z'));
     expect(nextOccurrence(start, 'daily', 'UTC', now)).toEqual(new Date('2026-11-05T09:00:00Z'));
   });
-});
-
-test('times that happen twice when the clocks go back are the first one', () => {
-  expect(fromWallTime({ year: 2027, month: 10, day: 31, hour: 2, minute: 30 }, BERLIN)).toEqual(new Date('2027-10-31T00:30:00Z'));
 });
 
 test('another language only needs its words', () => {

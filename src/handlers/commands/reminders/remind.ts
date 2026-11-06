@@ -5,11 +5,11 @@ import { Command } from 'classes/base/command';
 import { countUserReminders, createReminder, getReminderTimezone, getUserReminders, MAX_REMINDERS, setReminderTimezone } from 'database/reminders';
 
 import { DiscordLimits } from 'utility/discordLimits';
-import { resolveTimezone } from 'utility/birthday/dates';
 import { getTranslate } from 'utility/i18next';
-import { getWallTime, MAX_YEARS_AHEAD, parseDuration, parseWhen, type ReminderRepeat } from 'utility/reminders/time';
+import { MAX_YEARS_AHEAD, parseDuration, parseWhen, type ReminderRepeat } from 'utility/reminders/time';
 import { buildReminderList, formatDue } from 'utility/reminders/view';
 import { createResponse, sendError, sendResponse } from 'utility/response';
+import { getWallTime, resolveTimezone } from 'utility/timezone';
 
 const MAX_TEXT = 1000;
 
