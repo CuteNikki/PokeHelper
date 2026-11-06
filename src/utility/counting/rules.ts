@@ -197,6 +197,9 @@ export function replayCounts(
 }
 
 /** Show lives as hearts, like ❤️❤️🖤 for 2 of 3 lives left. */
+/** How often someone counted right, in percent. */
+export const accuracy = (counted: number, mistakes: number) => Math.round((counted / Math.max(1, counted + mistakes)) * 100);
+
 export const formatLives = (livesLeft: number, maxLives: number) => '❤️'.repeat(Math.max(0, livesLeft)) + '🖤'.repeat(Math.max(0, maxLives - livesLeft));
 
 /** The first milestone, after which they go 250, 500, 1000, 2500, 5000 and so on. */

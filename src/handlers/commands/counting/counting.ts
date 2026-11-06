@@ -18,7 +18,7 @@ import { getCountingUser, getCurrentRun, getEntriesForNumbers, getRunCount, getR
 
 import type { CountingRun, GuildCounting } from 'generated/prisma/client';
 import { buildCountingLeaderboard, buildCountingRuns } from 'utility/counting/pages';
-import { formatLives, getMilestones } from 'utility/counting/rules';
+import { accuracy, formatLives, getMilestones } from 'utility/counting/rules';
 import { DAY, formatDuration, formatNumber, HOUR } from 'utility/duration';
 import { createResponse, sendError, sendResponse } from 'utility/response';
 
@@ -64,8 +64,6 @@ export default new Command({
 /** Reply publicly, without pinging anyone that's mentioned. */
 const reply = (interaction: ChatInputCommandInteraction<'cached'>, lines: string[]) =>
   sendResponse(interaction, { ...createResponse(lines.join('\n'), 'info'), allowedMentions: { parse: [] } });
-
-const accuracy = (counted: number, mistakes: number) => Math.round((counted / Math.max(1, counted + mistakes)) * 100);
 
 async function buildInfo(counting: GuildCounting, t: Translate): Promise<string[]> {
   const [run, runCount] = await Promise.all([getCurrentRun(counting.guildId), getRunCount(counting.guildId)]);

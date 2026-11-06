@@ -13,6 +13,7 @@ import {
 import { getCounting } from 'database/counting';
 import { getRecentRuns, getTopCounters } from 'database/countingStats';
 
+import { accuracy } from 'utility/counting/rules';
 import { formatDuration, formatNumber } from 'utility/duration';
 import { getTranslate, type Translate } from 'utility/i18next';
 import { buildPageRow, clampPage, findMeButton, type PageButton, readPageInput } from 'utility/pagination';
@@ -50,8 +51,6 @@ function parseCountingPageModalId(customId: string): CountingList | null {
   const list = customId.slice(COUNTING_PAGE_MODAL_PREFIX.length);
   return LISTS.includes(list as CountingList) ? (list as CountingList) : null;
 }
-
-const accuracy = (counted: number, mistakes: number) => Math.round((counted / Math.max(1, counted + mistakes)) * 100);
 
 /**
  * The lines of a page, with buttons to the first, previous, next and last page and to ask for one when there's more than one,
