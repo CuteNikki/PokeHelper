@@ -518,6 +518,7 @@
       "kicked": "{{user}} rausgeworfen. Damit die Person nicht wiederkommt, nimm Aussperren.",
       "ownerCantBeBlocked": "Den Besitzer kannst du nicht aussperren.",
       "staffCantBeBlocked": "Moderatoren kommen in jeden Kanal, also kannst du sie nicht aussperren.",
+      "moderatorCantBeBlocked": "{{user}} moderiert diesen Kanal und kommt immer rein. Nimm die Person erst aus den Moderatoren des Kanals.",
       "blocked": "{{user}} ist jetzt aus dem Kanal ausgesperrt.",
       "cantTakeOver": "Die Person ist schon weg, also kann sie ihn nicht bekommen.",
       "alreadyOwner": "Der Kanal gehört schon {{user}}.",

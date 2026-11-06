@@ -982,6 +982,7 @@
       "kicked": "Kicked {{user}}. To keep them from coming back, use Keep out.",
       "ownerCantBeBlocked": "The owner can't be kept out.",
       "staffCantBeBlocked": "Moderators can join any channel, so they can't be kept out.",
+      "moderatorCantBeBlocked": "{{user}} moderates this channel and can always join it. Take them off the channel's moderators first.",
       "blocked": "{{user}} is kept out of this channel now.",
       "cantTakeOver": "They've left, so they can't have it.",
       "alreadyOwner": "It's {{user}}'s already.",

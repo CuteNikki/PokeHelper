@@ -182,7 +182,11 @@ async function handleMemberAction(interaction: ButtonInteraction<'cached'>, temp
     if (memberId === temp.record.ownerId) return answer(t('tempVoice.member.ownerCantBeBlocked'), 'error');
     const member = await interaction.guild.members.fetch(memberId).catch(() => null);
     if (member && isStaff(member)) return answer(t('tempVoice.member.staffCantBeBlocked'), 'error');
+    // The channel's moderators are always let in, so keeping one out wouldn't do anything
+    if (temp.record.moderators.includes(memberId)) return answer(t('tempVoice.member.moderatorCantBeBlocked', { user: mention }), 'error');
     await changeTempChannel(temp, interaction.member, (record) => ({ blocked: [...new Set([...record.blocked, memberId])] }));
+    // Not kept out when the channel changed meanwhile, like being handed over, or whoever pressed can't change it anymore
+    if (!temp.record.blocked.includes(memberId)) return answer(t('tempVoice.member.changedMeanwhile'), 'error');
     return answer(t('tempVoice.member.blocked', { user: mention }));
   }
 
