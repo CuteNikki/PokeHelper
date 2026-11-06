@@ -16,8 +16,10 @@ export default new SelectMenu({
     if (!interaction.inCachedGuild()) return;
     const t = getTranslate(interaction.locale);
 
+    // Answered before anything is looked up, which can take a moment, as Discord gives up after 3 seconds
+    await interaction.deferUpdate();
     const creator = await getTempVoiceCreator(interaction.values[0] ?? '');
-    if (creator?.guildId !== interaction.guildId) return interaction.update(createResponse(t('tempVoice.config.notFound'), 'error'));
-    return interaction.update(await getTempVoiceSettings(creator.id).render(settingsContext(interaction), t));
+    if (creator?.guildId !== interaction.guildId) return interaction.editReply(createResponse(t('tempVoice.config.notFound'), 'error'));
+    return interaction.editReply(await getTempVoiceSettings(creator.id).render(settingsContext(interaction), t));
   },
 });
