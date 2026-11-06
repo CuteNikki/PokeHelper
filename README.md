@@ -278,7 +278,10 @@ docker compose exec pokehelper bunx prisma migrate deploy
 
 Translations live in `src/locales/<language>/`: `messages.json` for the texts, `commands.json` for the command names and descriptions, and `time.json` for the words reminders understand, like units, weekdays and "tomorrow". English is the source; missing German texts fall back to it. A new language only needs its folder, and reminders understand the words of every language at once.
 
-The bot's description, shown on its profile and in the App Directory, lives in `DESCRIPTION.txt` and is put on the bot when it starts, up to 400 characters. Change it there, as a change in the developer portal is replaced with the next start.
+What the bot says about itself lives in `listing/`, to keep it up to date with the features:
+
+- `description.txt`: the description on its profile, up to 400 characters. It's put on the bot when it starts, so change it here, as a change in the developer portal is replaced with the next start.
+- `summary.txt` and `directory.md`: the summary, up to 200 characters, and the description of its App Directory page. Discord has no API for those, so they're pasted into the developer portal's Discovery settings by hand.
 
 ## 🤝 Contributing
 

@@ -3,10 +3,10 @@ import type { Client } from 'discord.js';
 import { logger } from 'utility/logger';
 
 /**
- * The bot's description on its profile and in the App Directory, kept here instead of only in the developer portal, so it's updated
+ * The bot's description on its profile, kept in the repository instead of only in the developer portal, so it's updated
  * along with the features. Put on the bot when it starts.
  */
-export const DESCRIPTION_PATH = 'DESCRIPTION.txt';
+export const DESCRIPTION_PATH = 'listing/description.txt';
 /** The most characters Discord takes for an application's description. */
 export const MAX_DESCRIPTION_LENGTH = 400;
 
