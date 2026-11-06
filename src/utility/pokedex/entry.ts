@@ -65,7 +65,7 @@ export interface PokedexView {
 }
 
 /**
- * Custom IDs of the entry's buttons are `pokedex:<prev|next|shiny|evo>:<slug>:<s|n>:<i|t>`, with the Pokémon they lead to and the view,
+ * Custom IDs of the entry's buttons are `pokedex:<action>:<slug>:<s|n>:<i|t>`, like `prev` or `shiny`, with the Pokémon they lead to and the view,
  * so they work however old the message is. The forms select is `pokedex:form:<s|n>:<i|t>`, with the form as its value.
  */
 export const POKEDEX_CUSTOM_ID_PREFIX = 'pokedex:';

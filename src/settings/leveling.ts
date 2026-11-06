@@ -13,8 +13,9 @@ type LevelingConfig = GuildLeveling & { rewards: GuildLevelingReward[]; multipli
 
 /** What the bot needs in the level up channel. */
 const LEVEL_UP_CHANNEL_PERMISSIONS: PermissionsString[] = ['ViewChannel', 'SendMessages'];
-/** The most entries in each list. Multipliers each get a row with a button, so they're limited by the components a message can have. */
+/** The most entries in each list. */
 const MAX_LIST = 20;
+/** Fewer for multipliers, as each gets a row with a button, and a message can only have so many components. */
 const MAX_MULTIPLIERS = 10;
 const MAX_LEVEL = 1000;
 const MAX_MULTIPLIER = 10;
