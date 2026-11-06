@@ -3,7 +3,9 @@ import {
   ButtonBuilder,
   ButtonStyle,
   ContainerBuilder,
+  DiscordAPIError,
   MessageFlags,
+  RESTJSONErrorCodes,
   SectionBuilder,
   SeparatorBuilder,
   SeparatorSpacingSize,
@@ -196,6 +198,8 @@ export function refreshPanel(temp: TempChannel) {
         // Not posted yet: it's being posted right now, and posting here too would make two
         if (!record.panelMessageId) return;
         await temp.channel.messages.edit(record.panelMessageId, buildPanel(current, serverTranslate(temp.channel.guild))).catch(async (error: unknown) => {
+          // Posted again only when it was deleted. Any other failure, like Discord having trouble, would leave two panels
+          if (!(error instanceof DiscordAPIError && error.code === RESTJSONErrorCodes.UnknownMessage)) throw error;
           logger.debug(error, 'Temporary voice channel panel gone, posting it again');
           await postPanel(current);
         });
