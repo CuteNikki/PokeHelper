@@ -32,16 +32,22 @@ export default new Event({
     const timestamps = client.cooldowns.ensure('leveling', () => new Collection());
     const lastXpAt = timestamps.get(cooldownKey);
     if (lastXpAt && Date.now() < lastXpAt + XP_COOLDOWN) return;
+    // Taken before waiting for the settings, so a burst of messages can't all get past the check meanwhile
+    const now = Date.now();
+    timestamps.set(cooldownKey, now);
+    // Given back if this message doesn't earn XP, so the next one still can
+    const giveBack = () => {
+      if (timestamps.get(cooldownKey) === now) timestamps.delete(cooldownKey);
+    };
 
     const levelingConfig = await getGuildLevelingConfiguration(message.guildId);
-    if (!levelingConfig?.enabled) return;
+    if (!levelingConfig?.enabled) return giveBack();
 
     // Filters and multipliers on a thread's channel or a channel's category apply too
     const context = { channelIds: getChannelChain(message.channel), roleIds: [...member.roles.cache.keys()] };
-    if (!earnsXp(levelingConfig, context)) return;
+    if (!earnsXp(levelingConfig, context)) return giveBack();
 
-    timestamps.set(cooldownKey, Date.now());
-    setTimeout(() => timestamps.delete(cooldownKey), XP_COOLDOWN);
+    setTimeout(giveBack, XP_COOLDOWN);
 
     const baseXp = Math.floor(Math.random() * (MAX_XP - MIN_XP + 1)) + MIN_XP;
     const xpToAdd = applyMultiplier(baseXp, getMultiplier(levelingConfig.multipliers, context));
