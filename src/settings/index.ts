@@ -51,7 +51,7 @@ async function checkPermissions(interaction: PanelInteraction, panel: SettingsPa
 /** Save a change, run the panel's follow-up work, like updating a posted role menu, and show the updated panel. */
 async function saveAndRender(interaction: PanelInteraction, panel: SettingsPanel, page: string, save: (() => Promise<unknown>) | undefined, t: Translate) {
   // Saving can wait behind other changes, like counting catching up, so defer to not run out of time to answer
-  await interaction.deferUpdate();
+  if (!interaction.deferred) await interaction.deferUpdate();
   const context = settingsContext(interaction);
   if (save) {
     await save();
@@ -73,6 +73,8 @@ export async function handleSettingsInteraction(interaction: ButtonInteraction |
   if (!id || !panel) return sendError(interaction, t('system.outdated'));
   if (!(await checkPermissions(interaction, panel, t))) return;
 
+  // Answered before the settings are loaded, unless it may open a popup, which has to be the first answer. Errors still only go to whoever used it
+  if (!panel.mayShowModal(id)) await interaction.deferUpdate();
   const input: SettingsInput = interaction.isAnySelectMenu() ? { type: 'select', values: interaction.values } : { type: 'button' };
   const result = await panel.handle(settingsContext(interaction), id, input, t);
 
@@ -81,7 +83,8 @@ export async function handleSettingsInteraction(interaction: ButtonInteraction |
   if (result.modal) return interaction.showModal(buildModal(result.modal));
 
   if (result.outdated) {
-    await interaction.update(await panel.render(settingsContext(interaction), t, result.page));
+    if (!interaction.deferred) await interaction.deferUpdate();
+    await interaction.editReply(await panel.render(settingsContext(interaction), t, result.page));
     await interaction.followUp({ ...createResponse(t('settings.outdated'), 'warning'), flags: [MessageFlags.IsComponentsV2, MessageFlags.Ephemeral] });
     return;
   }
@@ -103,6 +106,8 @@ export async function handleSettingsModal(interaction: ModalSubmitInteraction) {
   if (!id || !panel) return sendError(interaction, t('system.outdated'));
   if (!(await checkPermissions(interaction, panel, t))) return;
 
+  // Answered before the settings are loaded, which can take a moment. Errors still only go to whoever sent it
+  await interaction.deferUpdate();
   const result = await panel.submitModal(settingsContext(interaction), id, interaction.fields.getTextInputValue(MODAL_INPUT_ID), t);
   if (result.error) return sendError(interaction, result.error);
   await saveAndRender(interaction, panel, result.page, result.save, t);

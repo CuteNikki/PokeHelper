@@ -319,6 +319,11 @@ export interface SettingsPanel {
    * @param page The category to show. Defaults to the first.
    */
   render: (context: SettingsContext, t: Translate, page?: string) => Promise<ResponsePayload>;
+  /**
+   * Whether a button or select of the panel may open a popup, which has to be the first answer. Known without loading anything,
+   * so all others are answered right away, as loading the settings can take a moment and Discord gives up after 3 seconds.
+   */
+  mayShowModal: (id: ParsedSettingsCustomId) => boolean;
   /** Work out what a button or select of the panel should do. */
   handle: (context: SettingsContext, id: ParsedSettingsCustomId, input: SettingsInput, t: Translate) => Promise<SettingsResult>;
   /** Work out what a submitted popup should do, with what was typed into it. */
@@ -796,6 +801,14 @@ export function createSettingsPanel<C>(definition: SettingsPanelDefinition<C>): 
       }
 
       return { components: [container], flags: [MessageFlags.IsComponentsV2] };
+    },
+
+    mayShowModal(id) {
+      const setting = id.key === PAGE_KEY ? undefined : findSetting(id.key);
+      if (!setting) return false;
+      if (setting.type === 'text') return true;
+      // Adding one without presets asks for its value, and so does an entry's button after its last preset
+      return (setting.type === 'entries' || setting.type === 'textEntries') && id.argument !== 'remove';
     },
 
     async handle(context, id, input, t) {
