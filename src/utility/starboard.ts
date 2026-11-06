@@ -163,6 +163,9 @@ const isUnknownMessage = (error: unknown) => error instanceof DiscordAPIError &&
 const isGone = (error: unknown) =>
   error instanceof DiscordAPIError && (error.code === RESTJSONErrorCodes.UnknownMessage || error.code === RESTJSONErrorCodes.UnknownChannel);
 
+/** Whether a channel is age-restricted. Threads are as their channel is, as they have no setting of their own. */
+const isAgeRestricted = (channel: Message['channel']) => (channel.isThread() ? Boolean(channel.parent?.nsfw) : 'nsfw' in channel && channel.nsfw);
+
 /** One message at a time, so quick stars don't post it twice or lose one. */
 const queue = new KeyedQueue();
 
@@ -240,7 +243,7 @@ export function changeStars(guild: Guild, message: Message | PartialMessage, cha
       return null;
     }
     if (entry?.removed) return null;
-    if ('nsfw' in full.channel && full.channel.nsfw && !starboard.nsfw) return null;
+    if (isAgeRestricted(full.channel) && !starboard.nsfw) return null;
 
     const emoji = emojiOf(config);
     // An entry is deleted once nobody starred it, so an empty one is from before who starred was kept, and starts from the reactions too
