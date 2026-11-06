@@ -10,10 +10,10 @@ import { ThemeColors } from 'utility/theme';
 export const CONFIRM_CUSTOM_ID_PREFIX = 'confirm:';
 
 /**
- * A question with a confirm and a cancel button, for something that can't be undone.
- * @param action What happens when confirmed, one of the actions in `utility/confirmations`.
+ * A question with a confirm and a cancel button, for something that can't be undone, whose buttons have the custom IDs given.
+ * For a question whose buttons carry what they're about, like the role menu they delete.
  */
-export function buildConfirmation(action: string, text: { question: string; confirm: string; cancel: string }): ResponsePayload {
+export function buildQuestion(text: { question: string; confirm: string; cancel: string }, ids: { confirm: string; cancel: string }): ResponsePayload {
   return {
     components: [
       new ContainerBuilder()
@@ -21,14 +21,21 @@ export function buildConfirmation(action: string, text: { question: string; conf
         .addTextDisplayComponents(new TextDisplayBuilder().setContent(text.question))
         .addActionRowComponents(
           new ActionRowBuilder<ButtonBuilder>().addComponents(
-            new ButtonBuilder().setCustomId(`${CONFIRM_CUSTOM_ID_PREFIX}${action}:yes`).setLabel(text.confirm).setStyle(ButtonStyle.Danger),
-            new ButtonBuilder().setCustomId(`${CONFIRM_CUSTOM_ID_PREFIX}${action}:no`).setLabel(text.cancel).setStyle(ButtonStyle.Secondary),
+            new ButtonBuilder().setCustomId(ids.confirm).setLabel(text.confirm).setStyle(ButtonStyle.Danger),
+            new ButtonBuilder().setCustomId(ids.cancel).setLabel(text.cancel).setStyle(ButtonStyle.Secondary),
           ),
         ),
     ],
     flags: [MessageFlags.IsComponentsV2],
   };
 }
+
+/**
+ * A question with a confirm and a cancel button, for something that can't be undone.
+ * @param action What happens when confirmed, one of the actions in `utility/confirmations`.
+ */
+export const buildConfirmation = (action: string, text: { question: string; confirm: string; cancel: string }) =>
+  buildQuestion(text, { confirm: `${CONFIRM_CUSTOM_ID_PREFIX}${action}:yes`, cancel: `${CONFIRM_CUSTOM_ID_PREFIX}${action}:no` });
 
 /** The action and answer of a confirmation button, or null if it isn't one. */
 export function parseConfirmation(customId: string): { action: string; confirmed: boolean } | null {

@@ -1,5 +1,3 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ContainerBuilder, MessageFlags, TextDisplayBuilder } from 'discord.js';
-
 import { Button } from 'classes/base/button';
 
 import { getFeatureSwitches, setFeatureSwitch } from 'database/features';
@@ -7,11 +5,11 @@ import { getRoleMenu, getRoleMenus } from 'database/roleMenu';
 
 import { getRoleMenuSettings, renderRoleMenuList, ROLE_MENU_CUSTOM_ID, roleMenuName } from 'settings/roleMenu';
 
+import { buildQuestion } from 'utility/confirm';
 import { getTranslate } from 'utility/i18next';
 import { createResponse, sendError, withNotice } from 'utility/response';
 import { deleteRoleMenu, syncRoleMenuMessage } from 'utility/roleMenu';
 import { settingsContext } from 'utility/settings';
-import { ThemeColors } from 'utility/theme';
 
 /** The buttons that act on one menu, followed by its ID. */
 const MENU_ACTIONS = [ROLE_MENU_CUSTOM_ID.repost, ROLE_MENU_CUSTOM_ID.delete, ROLE_MENU_CUSTOM_ID.confirmDelete, ROLE_MENU_CUSTOM_ID.back];
@@ -57,26 +55,16 @@ export default new Button({
       }
 
       case ROLE_MENU_CUSTOM_ID.delete:
-        return interaction.update({
-          components: [
-            new ContainerBuilder()
-              .setAccentColor(ThemeColors.warning)
-              .addTextDisplayComponents(new TextDisplayBuilder().setContent(t('roleMenu.delete.question', { name: roleMenuName(menu, interaction.guild, t) })))
-              .addActionRowComponents(
-                new ActionRowBuilder<ButtonBuilder>().addComponents(
-                  new ButtonBuilder()
-                    .setCustomId(`${ROLE_MENU_CUSTOM_ID.confirmDelete}${menu.id}`)
-                    .setLabel(t('roleMenu.delete.confirm'))
-                    .setStyle(ButtonStyle.Danger),
-                  new ButtonBuilder()
-                    .setCustomId(`${ROLE_MENU_CUSTOM_ID.back}${menu.id}`)
-                    .setLabel(t('roleMenu.delete.cancel'))
-                    .setStyle(ButtonStyle.Secondary),
-                ),
-              ),
-          ],
-          flags: [MessageFlags.IsComponentsV2],
-        });
+        return interaction.update(
+          buildQuestion(
+            {
+              question: t('roleMenu.delete.question', { name: roleMenuName(menu, interaction.guild, t) }),
+              confirm: t('roleMenu.delete.confirm'),
+              cancel: t('roleMenu.delete.cancel'),
+            },
+            { confirm: `${ROLE_MENU_CUSTOM_ID.confirmDelete}${menu.id}`, cancel: `${ROLE_MENU_CUSTOM_ID.back}${menu.id}` },
+          ),
+        );
 
       case ROLE_MENU_CUSTOM_ID.confirmDelete: {
         await interaction.deferUpdate();

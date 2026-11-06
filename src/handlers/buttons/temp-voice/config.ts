@@ -1,5 +1,3 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ContainerBuilder, MessageFlags, TextDisplayBuilder } from 'discord.js';
-
 import { Button } from 'classes/base/button';
 
 import { getFeatureSwitches, setFeatureSwitch } from 'database/features';
@@ -7,10 +5,10 @@ import { deleteTempVoiceCreator, getTempVoiceCreator } from 'database/tempVoice'
 
 import { creatorName, getTempVoiceSettings, renderTempVoiceList, TEMP_VOICE_CONFIG_ID } from 'settings/tempVoice';
 
+import { buildQuestion } from 'utility/confirm';
 import { getTranslate } from 'utility/i18next';
 import { createResponse, sendError, withNotice } from 'utility/response';
 import { settingsContext } from 'utility/settings';
-import { ThemeColors } from 'utility/theme';
 
 /** The buttons that act on one join channel, followed by its ID. */
 const ACTIONS = [TEMP_VOICE_CONFIG_ID.delete, TEMP_VOICE_CONFIG_ID.confirmDelete, TEMP_VOICE_CONFIG_ID.back];
@@ -43,28 +41,16 @@ export default new Button({
 
     switch (action) {
       case TEMP_VOICE_CONFIG_ID.delete:
-        return interaction.update({
-          components: [
-            new ContainerBuilder()
-              .setAccentColor(ThemeColors.warning)
-              .addTextDisplayComponents(
-                new TextDisplayBuilder().setContent(t('tempVoice.config.deleteQuestion', { name: creatorName(creator, interaction.guild, t) })),
-              )
-              .addActionRowComponents(
-                new ActionRowBuilder<ButtonBuilder>().addComponents(
-                  new ButtonBuilder()
-                    .setCustomId(`${TEMP_VOICE_CONFIG_ID.confirmDelete}${creator.id}`)
-                    .setLabel(t('tempVoice.config.deleteConfirm'))
-                    .setStyle(ButtonStyle.Danger),
-                  new ButtonBuilder()
-                    .setCustomId(`${TEMP_VOICE_CONFIG_ID.back}${creator.id}`)
-                    .setLabel(t('tempVoice.config.deleteCancel'))
-                    .setStyle(ButtonStyle.Secondary),
-                ),
-              ),
-          ],
-          flags: [MessageFlags.IsComponentsV2],
-        });
+        return interaction.update(
+          buildQuestion(
+            {
+              question: t('tempVoice.config.deleteQuestion', { name: creatorName(creator, interaction.guild, t) }),
+              confirm: t('tempVoice.config.deleteConfirm'),
+              cancel: t('tempVoice.config.deleteCancel'),
+            },
+            { confirm: `${TEMP_VOICE_CONFIG_ID.confirmDelete}${creator.id}`, cancel: `${TEMP_VOICE_CONFIG_ID.back}${creator.id}` },
+          ),
+        );
 
       case TEMP_VOICE_CONFIG_ID.confirmDelete: {
         await interaction.deferUpdate();
