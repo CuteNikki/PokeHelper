@@ -1,23 +1,13 @@
-import {
-  ActionRowBuilder,
-  bold,
-  ContainerBuilder,
-  MessageFlags,
-  SectionBuilder,
-  SeparatorBuilder,
-  StringSelectMenuBuilder,
-  subtext,
-  TextDisplayBuilder,
-  ThumbnailBuilder,
-} from 'discord.js';
+import { ActionRowBuilder, bold, ContainerBuilder, MessageFlags, SeparatorBuilder, StringSelectMenuBuilder, subtext, TextDisplayBuilder } from 'discord.js';
 
 import { DiscordLimits } from 'utility/discordLimits';
 import { formatNumber } from 'utility/duration';
 import { buttonIcon } from 'utility/emojis';
 import type { Translate } from 'utility/i18next';
-import { type ApiEncounter, artworkUrl, getEncounters, idFromUrl } from 'utility/pokedex/api';
+import { type ApiEncounter, getEncounters, getPokemon, idFromUrl } from 'utility/pokedex/api';
 import { findBySlug, fromSlug, getPokedexData, matchName, nameOf } from 'utility/pokedex/names';
 import { gameSelectId, linkSelect, type PageContext } from 'utility/pokedex/pages';
+import { pokemonHeader } from 'utility/pokedex/pokemonHeader';
 import type { ResponsePayload } from 'utility/response';
 import { ThemeColors } from 'utility/theme';
 
@@ -220,19 +210,15 @@ export function gameSelect(
  */
 export async function buildWhereToFind(slug: string, language: string, t: Translate, context: PageContext): Promise<ResponsePayload | null> {
   const match = findBySlug(slug);
-  const encounters = match && (await getEncounters(slug));
-  if (!match || !encounters) return null;
+  const [encounters, pokemon] = match ? await Promise.all([getEncounters(slug), getPokemon(slug)]) : [null, null];
+  if (!match || !encounters || !pokemon) return null;
 
   const name = matchName(match, language);
   const games = placesByGame(encounters);
   const game = games.find((entry) => entry.version === context.page.game) ?? games[0];
   const container = new ContainerBuilder()
     .setAccentColor(ThemeColors.info)
-    .addSectionComponents(
-      new SectionBuilder()
-        .addTextDisplayComponents(new TextDisplayBuilder().setContent(t('pokedex.where.title', { name })))
-        .setThumbnailAccessory(new ThumbnailBuilder().setURL(artworkUrl(match.species.id, false)).setDescription(t('pokedex.picture', { name }))),
-    )
+    .addSectionComponents(await pokemonHeader(t('pokedex.where.title', { name }), match, pokemon, language, t))
     .addSeparatorComponents(new SeparatorBuilder());
 
   if (!game) {

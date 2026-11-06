@@ -1,12 +1,13 @@
-import { bold, ContainerBuilder, MessageFlags, SectionBuilder, SeparatorBuilder, subtext, TextDisplayBuilder, ThumbnailBuilder } from 'discord.js';
+import { bold, ContainerBuilder, MessageFlags, SeparatorBuilder, subtext, TextDisplayBuilder } from 'discord.js';
 
 import { DiscordLimits } from 'utility/discordLimits';
 import { formatNumber } from 'utility/duration';
 import type { Translate } from 'utility/i18next';
-import { type ApiPokemon, artworkUrl, getPokemon } from 'utility/pokedex/api';
+import { type ApiPokemon, getPokemon } from 'utility/pokedex/api';
 import { gameName, gameSelect } from 'utility/pokedex/encounters';
 import { findBySlug, fromSlug, getPokedexData, matchName, nameOf } from 'utility/pokedex/names';
 import { gameSelectId, linkSelect, type PageContext } from 'utility/pokedex/pages';
+import { pokemonHeader } from 'utility/pokedex/pokemonHeader';
 import type { ResponsePayload } from 'utility/response';
 import { ThemeColors } from 'utility/theme';
 
@@ -84,11 +85,7 @@ export async function buildLearnset(slug: string, language: string, t: Translate
     games.find((entry) => entry.group === context.page.game) ?? games.find((entry) => entry.moves.some((learned) => learned.method === 'level-up')) ?? games[0];
   const container = new ContainerBuilder()
     .setAccentColor(ThemeColors.info)
-    .addSectionComponents(
-      new SectionBuilder()
-        .addTextDisplayComponents(new TextDisplayBuilder().setContent(t('pokedex.moves.title', { name })))
-        .setThumbnailAccessory(new ThumbnailBuilder().setURL(artworkUrl(match.species.id, false)).setDescription(t('pokedex.picture', { name }))),
-    )
+    .addSectionComponents(await pokemonHeader(t('pokedex.moves.title', { name }), match, pokemon, language, t))
     .addSeparatorComponents(new SeparatorBuilder());
   if (!game) {
     container.addTextDisplayComponents(new TextDisplayBuilder().setContent(t('pokedex.moves.none', { name })));

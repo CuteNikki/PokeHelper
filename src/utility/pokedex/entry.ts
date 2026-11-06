@@ -23,12 +23,11 @@ import {
 
 import { DiscordLimits } from 'utility/discordLimits';
 import { formatNumber } from 'utility/duration';
-import { FALLBACK_LANGUAGE, getTranslate, resolveLanguage, type Translate } from 'utility/i18next';
+import { getTranslate, resolveLanguage, type Translate } from 'utility/i18next';
 import { buildTextModal } from 'utility/modal';
 import {
   answerPokeApiError,
   type ApiEvolutionLink,
-  type ApiSpecies,
   artworkUrl,
   getEvolutionChain,
   getImage,
@@ -41,6 +40,7 @@ import { evolutionCondition } from 'utility/pokedex/evolution';
 import { newestText } from 'utility/pokedex/lookup';
 import { matchupsButton } from 'utility/pokedex/matchups';
 import { linkSelect, pageButton, pokemonPage } from 'utility/pokedex/pages';
+import { kindOf } from 'utility/pokedex/pokemonHeader';
 import { rememberTextView } from 'utility/pokedex/viewPreference';
 import { TYPE_COLORS } from 'utility/pokedex/types';
 import { buttonIcon, withTypeEmoji } from 'utility/emojis';
@@ -130,12 +130,6 @@ const GROWTH_RATES = ['slow', 'medium', 'fast', 'medium-slow', 'slow-then-very-f
 /** How fast it levels up, like `Medium Fast`, as the games call it. */
 const growthRate = (slug: string, t: Translate) =>
   (GROWTH_RATES as readonly string[]).includes(slug) ? t(`pokedex.growth.${slug as (typeof GROWTH_RATES)[number]}`) : fromSlug(slug);
-
-/** A species' kind in the language, or English, like "Mouse Pokémon". */
-function genus(species: ApiSpecies, language: string): string | null {
-  const find = (lang: string) => species.genera.find((entry) => entry.language.name === lang)?.genus;
-  return find(language) ?? find(FALLBACK_LANGUAGE) ?? null;
-}
 
 /** A species in an evolution chain, with the one it evolves from and how, unless it's the first. */
 interface EvolutionMember {
@@ -284,9 +278,7 @@ export async function buildPokedexEntry(match: PokedexMatch, view: PokedexView, 
   const evolves = stages.length > 1;
   const speciesName = (entry: { id: number; slug: string }) => nameIn(speciesById(entry.id)?.names, language) || entry.slug;
 
-  const kind = [genus(species, language), species.is_mythical ? t('pokedex.mythical') : species.is_legendary ? t('pokedex.legendary') : null]
-    .filter(Boolean)
-    .join(' · ');
+  const kind = kindOf(species, language, t);
   const entry = newestText(species.flavor_text_entries, 'flavor_text', language);
   const abilities = [...pokemon.abilities]
     .sort((a, b) => a.slot - b.slot)
