@@ -1,4 +1,5 @@
 import { DAY, HOUR, MINUTE } from 'utility/duration';
+import { getVocabulary, type Vocabulary } from 'utility/reminders/words';
 
 /** How often a reminder comes back, or null for once. */
 export type ReminderRepeat = 'daily' | 'weekly' | 'monthly' | 'yearly';
@@ -20,18 +21,12 @@ interface WallTime {
   minute: number;
 }
 
-/** What a unit adds: a fixed time, or months on the calendar, so a month from January 31 is the end of February. */
-type Unit = { ms: number } | { months: number };
-
-/** Units of durations by how they're written, in English and German. */
-const UNITS: Record<string, Unit> = {};
-const addUnit = (unit: Unit, ...names: string[]) => names.forEach((name) => (UNITS[name] = unit));
-addUnit({ ms: MINUTE }, 'm', 'min', 'mins', 'minute', 'minutes', 'minuten');
-addUnit({ ms: HOUR }, 'h', 'hr', 'hrs', 'hour', 'hours', 'std', 'stunde', 'stunden');
-addUnit({ ms: DAY }, 'd', 'day', 'days', 't', 'tag', 'tage', 'tagen');
-addUnit({ ms: 7 * DAY }, 'w', 'wk', 'wks', 'week', 'weeks', 'wo', 'woche', 'wochen');
-addUnit({ months: 1 }, 'mo', 'month', 'months', 'monat', 'monate', 'monaten');
-addUnit({ months: 12 }, 'y', 'yr', 'yrs', 'year', 'years', 'j', 'jahr', 'jahre', 'jahren');
+/** Words of the vocabulary for a regular expression, the longest first, so `friday` is tried before `fri`. */
+const alternatives = (words: Iterable<string>) =>
+  [...words]
+    .sort((a, b) => b.length - a.length)
+    .map((word) => word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+    .join('|');
 
 const daysInMonth = (year: number, month: number) => new Date(Date.UTC(year, month, 0)).getUTCDate();
 
@@ -48,25 +43,27 @@ function addMonths(time: number, months: number): number {
 }
 
 /**
- * Parse a duration like `10m`, `2h 30m`, `1,5 Std` or `in 3 days and 4 hours`, in English or German.
+ * Parse a duration like `10m`, `2h 30m`, `1,5 Std` or `in 3 days and 4 hours`, with the units of any language.
  * @returns When it ends, counted from now, or null if it isn't a duration.
  */
-export function parseDuration(input: string, now: Date): Date | null {
-  const text = input
+export function parseDuration(input: string, now: Date, words: Vocabulary = getVocabulary()): Date | null {
+  // Commas and joining words between the parts, like `1h and 30m` or `1 Tag, 2 Std`, and a word in front, like `in`
+  const tokens = input
     .trim()
     .toLowerCase()
-    .replace(/^in\s+/, '')
-    // Words and commas between the parts, like `1h and 30m` or `1 Tag, 2 Std`
-    .replace(/,\s|\s(and|und)\s/g, ' ');
+    .replace(/,(?!\d)/g, ' ')
+    .split(/\s+/)
+    .filter((token, index) => token && !words.joiners.has(token) && !(index === 0 && words.durationPrefixes.has(token)));
+  const text = tokens.join(' ');
   if (!text) return null;
 
   let time = now.getTime();
   let rest = text;
-  const part = /^\s*(\d+(?:[.,]\d+)?)\s*([a-zäöü]+)\.?/;
+  const part = /^\s*(\d+(?:[.,]\d+)?)\s*(\p{L}+)\.?/u;
   let match: RegExpExecArray | null;
   while ((match = part.exec(rest))) {
     const amount = Number(match[1]!.replace(',', '.'));
-    const unit = UNITS[match[2]!];
+    const unit = words.units.get(match[2]!);
     if (!unit) return null;
     if ('ms' in unit) time += amount * unit.ms;
     else {
@@ -118,26 +115,30 @@ export function fromWallTime(wall: WallTime, timezone: string): Date {
   return new Date(matches.length > 0 ? Math.min(...matches) : asUtc - Math.min(...offsets));
 }
 
-/** Weekdays by how they're written, in English and German, as the day of the week they are, 0 for Sunday. */
-const WEEKDAYS: Record<string, number> = {};
-const addWeekday = (day: number, ...names: string[]) => names.forEach((name) => (WEEKDAYS[name] = day));
-addWeekday(0, 'sunday', 'sun', 'sonntag');
-addWeekday(1, 'monday', 'mon', 'montag');
-addWeekday(2, 'tuesday', 'tue', 'tues', 'dienstag');
-addWeekday(3, 'wednesday', 'wed', 'mittwoch');
-addWeekday(4, 'thursday', 'thu', 'thur', 'thurs', 'donnerstag');
-addWeekday(5, 'friday', 'fri', 'freitag');
-addWeekday(6, 'saturday', 'sat', 'samstag', 'sonnabend');
-const WEEKDAY = new RegExp(
-  `(?<![a-zäöü])(?:(?:next|this|coming|nächsten|nächster|nächste|kommenden|diesen)\\s+)?(${Object.keys(WEEKDAYS).join('|')})(?![a-zäöü])`,
-);
+/** A date found in what was typed, and what's left of it. The year is null when it wasn't given. */
+interface DatePart {
+  year: number | null;
+  month: number;
+  day: number;
+  /** Whether it was a weekday, which moves a week on once its time passed today. */
+  weekday?: boolean;
+  rest: string;
+}
 
 /**
- * A date like `24.12.`, `24.12.2026`, `2026-12-24`, today, tomorrow or a weekday. The year is null when it wasn't given.
- * A weekday is the next one, today included, and `weekday` says it was one, so it can move a week on once its time passed.
+ * A date like `24.12.`, `24.12.2026`, `2026-12-24`, a day counted from today like `tomorrow`, or a weekday, which is the next one,
+ * today included.
  */
-function parseDatePart(text: string, today: WallTime): { year: number | null; month: number; day: number; weekday?: boolean; rest: string } | null {
+function parseDatePart(text: string, today: WallTime, words: Vocabulary): DatePart | null {
   const take = (match: RegExpExecArray) => text.slice(0, match.index) + ' ' + text.slice(match.index + match[0].length);
+  const fromToday = (days: number) => new Date(Date.UTC(today.year, today.month - 1, today.day + days));
+  const asPart = (date: Date, match: RegExpExecArray, weekday?: boolean): DatePart => ({
+    year: date.getUTCFullYear(),
+    month: date.getUTCMonth() + 1,
+    day: date.getUTCDate(),
+    weekday,
+    rest: take(match),
+  });
 
   const iso = /(?<!\d)(\d{4})-(\d{1,2})-(\d{1,2})(?!\d)/.exec(text);
   if (iso) return { year: Number(iso[1]), month: Number(iso[2]), day: Number(iso[3]), rest: take(iso) };
@@ -148,19 +149,18 @@ function parseDatePart(text: string, today: WallTime): { year: number | null; mo
     return { year, month: Number(dotted[2]), day: Number(dotted[1]), rest: take(dotted) };
   }
 
-  const word = /(?<![a-zäöü])(today|heute|tomorrow|morgen|übermorgen)(?![a-zäöü])/.exec(text);
-  if (word) {
-    const days = { today: 0, heute: 0, tomorrow: 1, morgen: 1, übermorgen: 2 }[word[1] as 'today'];
-    const date = new Date(Date.UTC(today.year, today.month - 1, today.day + days));
-    return { year: date.getUTCFullYear(), month: date.getUTCMonth() + 1, day: date.getUTCDate(), rest: take(word) };
+  if (words.relativeDays.size > 0) {
+    const relative = new RegExp(`(?<!\\p{L})(${alternatives(words.relativeDays.keys())})(?!\\p{L})`, 'u').exec(text);
+    if (relative) return asPart(fromToday(words.relativeDays.get(relative[1]!)!), relative);
   }
 
-  const weekday = WEEKDAY.exec(text);
-  if (weekday) {
-    const todayDate = new Date(Date.UTC(today.year, today.month - 1, today.day));
-    const ahead = (WEEKDAYS[weekday[1]!]! - todayDate.getUTCDay() + 7) % 7;
-    const date = new Date(Date.UTC(today.year, today.month - 1, today.day + ahead));
-    return { year: date.getUTCFullYear(), month: date.getUTCMonth() + 1, day: date.getUTCDate(), weekday: true, rest: take(weekday) };
+  if (words.weekdays.size > 0) {
+    const prefixes = words.weekdayPrefixes.size > 0 ? `(?:(?:${alternatives(words.weekdayPrefixes)})\\s+)?` : '';
+    const weekday = new RegExp(`(?<!\\p{L})${prefixes}(${alternatives(words.weekdays.keys())})(?!\\p{L})`, 'u').exec(text);
+    if (weekday) {
+      const ahead = (words.weekdays.get(weekday[1]!)! - fromToday(0).getUTCDay() + 7) % 7;
+      return asPart(fromToday(ahead), weekday, true);
+    }
   }
   return null;
 }
@@ -169,40 +169,41 @@ function parseDatePart(text: string, today: WallTime): { year: number | null; mo
  * A time like `18:00`, `6pm`, `6:30 pm`, `18 Uhr` or, after a date, just `18`.
  * @returns The hour and minute, or null if it isn't a time.
  */
-function parseTimePart(text: string, afterDate: boolean): { hour: number; minute: number } | null {
-  const match = /^(\d{1,2})(?:[:.](\d{2}))?\s*(am|pm|uhr|h)?$/.exec(text);
+function parseTimePart(text: string, afterDate: boolean, words: Vocabulary): { hour: number; minute: number } | null {
+  const match = /^(\d{1,2})(?:[:.](\d{2}))?\s*(\p{L}+)?$/u.exec(text);
   if (!match) return null;
   const [hourText, minuteText, suffix] = [match[1]!, match[2], match[3]];
+  const half = suffix && words.am.has(suffix) ? 'am' : suffix && words.pm.has(suffix) ? 'pm' : null;
+  if (suffix && !half && !words.hourSuffixes.has(suffix)) return null;
   // A lone number is only a time after a date, otherwise it's more likely a duration without its unit
   if (!minuteText && !suffix && !afterDate) return null;
   let hour = Number(hourText);
   const minute = minuteText ? Number(minuteText) : 0;
-  if (suffix === 'am' || suffix === 'pm') {
+  if (half) {
     if (hour < 1 || hour > 12) return null;
-    hour = (hour % 12) + (suffix === 'pm' ? 12 : 0);
+    hour = (hour % 12) + (half === 'pm' ? 12 : 0);
   }
   return hour <= 23 && minute <= 59 ? { hour, minute } : null;
 }
 
 /**
- * Parse a date and time like `18:00`, `tomorrow 9am`, `friday 18:00`, `24.12. 18:00` or `2026-12-24`, in someone's timezone.
- * A time without a date is today, or tomorrow once it passed. A weekday is the next one, or a week later once its time passed
- * today. A date without a year is the next time it comes, and a date without a time is at 9:00.
+ * Parse a date and time like `18:00`, `tomorrow 9am`, `friday 18:00`, `24.12. 18:00` or `2026-12-24`, in someone's timezone,
+ * with the words of any language. A time without a date is today, or tomorrow once it passed. A weekday is the next one, or a week
+ * later once its time passed today. A date without a year is the next time it comes, and a date without a time is at 9:00.
  * @returns When it is, or why it can't be used.
  */
-export function parseDateTime(input: string, now: Date, timezone: string): Date | WhenError {
+export function parseDateTime(input: string, now: Date, timezone: string, words: Vocabulary = getVocabulary()): Date | WhenError {
   const today = getWallTime(now, timezone);
   let text = input.trim().toLowerCase();
-  const date = parseDatePart(text, today);
+  const date = parseDatePart(text, today, words);
   if (date) text = date.rest;
-  // Words between the date and the time, like `on 24.12. at 18:00` or `am Freitag um 18 Uhr`
-  text = text
-    .replace(/(?<![\d\s])\s*(?:^|\s)(at|um|on|am)(?=\s|$)/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
-  text = text.replace(/^(at|um|on|am)\s+/, '');
+  // Words around the date and time, like `on 24.12. at 18:00` or `am Freitag um 18 Uhr`. One that's also am or pm right after
+  // a number, like `am` in `6 am`, is part of the time instead
+  const tokens = text.split(/\s+/).filter(Boolean);
+  const isHalf = (token: string, index: number) => /\d$/.test(tokens[index - 1] ?? '') && (words.am.has(token) || words.pm.has(token));
+  text = tokens.filter((token, index) => !words.connectors.has(token) || isHalf(token, index)).join(' ');
 
-  const time = text ? parseTimePart(text, date !== null) : null;
+  const time = text ? parseTimePart(text, date !== null, words) : null;
   if (text && !time) return 'invalid';
   if (!date && !time) return 'invalid';
 
@@ -235,8 +236,8 @@ export function parseDateTime(input: string, now: Date, timezone: string): Date 
  * When a reminder is due, from a duration like `2h 30m` or a date and time like `tomorrow 18:00`.
  * @param timezone The user's timezone, for dates and times.
  */
-export function parseWhen(input: string, now: Date, timezone: string): Date | WhenError {
-  const result = parseDuration(input, now) ?? parseDateTime(input, now, timezone);
+export function parseWhen(input: string, now: Date, timezone: string, words: Vocabulary = getVocabulary()): Date | WhenError {
+  const result = parseDuration(input, now, words) ?? parseDateTime(input, now, timezone, words);
   if (typeof result === 'string') return result;
   if (result.getTime() <= now.getTime()) return 'past';
   if (result.getTime() > addMonths(now.getTime(), MAX_YEARS_AHEAD * 12)) return 'tooFar';

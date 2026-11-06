@@ -1,0 +1,31 @@
+{
+  "units": {
+    "minute": ["m", "min", "mins", "minute", "minutes"],
+    "hour": ["h", "hr", "hrs", "hour", "hours"],
+    "day": ["d", "day", "days"],
+    "week": ["w", "wk", "wks", "week", "weeks"],
+    "month": ["mo", "month", "months"],
+    "year": ["y", "yr", "yrs", "year", "years"]
+  },
+  "relativeDays": {
+    "today": ["today"],
+    "tomorrow": ["tomorrow"],
+    "dayAfterTomorrow": []
+  },
+  "weekdays": {
+    "monday": ["monday", "mon"],
+    "tuesday": ["tuesday", "tue", "tues"],
+    "wednesday": ["wednesday", "wed"],
+    "thursday": ["thursday", "thu", "thur", "thurs"],
+    "friday": ["friday", "fri"],
+    "saturday": ["saturday", "sat"],
+    "sunday": ["sunday", "sun"]
+  },
+  "weekdayPrefixes": ["next", "this", "coming"],
+  "durationPrefixes": ["in"],
+  "joiners": ["and"],
+  "connectors": ["at", "on"],
+  "am": ["am"],
+  "pm": ["pm"],
+  "hourSuffixes": ["h"]
+}

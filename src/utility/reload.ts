@@ -10,6 +10,8 @@ import { loadCommands } from 'loading/commands';
 import { loadEvents } from 'loading/events';
 import { loadSelectMenus } from 'loading/selects';
 
+import { clearVocabulary } from 'utility/reminders/words';
+
 export const RELOAD_TARGETS = ['commands', 'buttons', 'selects', 'events', 'locales'] as const;
 export type ReloadTarget = (typeof RELOAD_TARGETS)[number];
 
@@ -57,6 +59,8 @@ export async function reload(client: ExtendedClient, targets: readonly ReloadTar
       case 'locales': {
         const start = performance.now();
         await i18next.reloadResources();
+        // The words times are written with are read again the next time they're needed
+        clearVocabulary();
         results.push({ target, count: null, duration: performance.now() - start });
         break;
       }

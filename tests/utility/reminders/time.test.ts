@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 
 import { fromWallTime, nextOccurrence, parseDateTime, parseDuration, parseWhen } from 'utility/reminders/time';
+import { buildVocabulary, type TimeWords } from 'utility/reminders/words';
 
 // A Wednesday afternoon in Berlin, which is UTC+1 in November
 const now = new Date('2026-11-04T15:00:00Z');
@@ -104,4 +105,31 @@ describe('repeating', () => {
 
 test('times that happen twice when the clocks go back are the first one', () => {
   expect(fromWallTime({ year: 2027, month: 10, day: 31, hour: 2, minute: 30 }, BERLIN)).toEqual(new Date('2027-10-31T00:30:00Z'));
+});
+
+test('another language only needs its words', () => {
+  const french: TimeWords = {
+    units: { minute: ['min'], hour: ['heure', 'heures'], day: ['jour', 'jours'], week: ['semaine', 'semaines'], month: ['mois'], year: ['an', 'ans'] },
+    relativeDays: { today: ["aujourd'hui"], tomorrow: ['demain'], dayAfterTomorrow: ['après-demain'] },
+    weekdays: {
+      monday: ['lundi'],
+      tuesday: ['mardi'],
+      wednesday: ['mercredi'],
+      thursday: ['jeudi'],
+      friday: ['vendredi'],
+      saturday: ['samedi'],
+      sunday: ['dimanche'],
+    },
+    weekdayPrefixes: ['prochain'],
+    durationPrefixes: ['dans'],
+    joiners: ['et'],
+    connectors: ['à'],
+    am: [],
+    pm: [],
+    hourSuffixes: ['h'],
+  };
+  const words = buildVocabulary([french]);
+  expect(parseWhen('dans 2 heures et 30 min', now, BERLIN, words)).toEqual(new Date('2026-11-04T17:30:00Z'));
+  expect(parseWhen('demain à 9h', now, BERLIN, words)).toEqual(new Date('2026-11-05T08:00:00Z'));
+  expect(parseWhen('vendredi 18:00', now, BERLIN, words)).toEqual(new Date('2026-11-06T17:00:00Z'));
 });

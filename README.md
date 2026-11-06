@@ -252,7 +252,7 @@ docker compose exec pokehelper bunx prisma migrate deploy
 | `bun run profile`  | Upload them to the bot: `--avatar art/out/standard/avatar.gif --banner art/out/standard/banner.gif` |
 | `bun run themes`   | Which seasonal look the bot wears when, over the next twelve months                                 |
 
-Translations live in `src/locales/<language>/messages.json`. English is the source; missing German texts fall back to it.
+Translations live in `src/locales/<language>/`: `messages.json` for the texts, `commands.json` for the command names and descriptions, and `time.json` for the words reminders understand, like units, weekdays and "tomorrow". English is the source; missing German texts fall back to it. A new language only needs its folder, and reminders understand the words of every language at once.
 
 ## 🤝 Contributing
 

@@ -1,0 +1,31 @@
+{
+  "units": {
+    "minute": ["min", "minute", "minuten"],
+    "hour": ["std", "stunde", "stunden"],
+    "day": ["t", "tag", "tage", "tagen"],
+    "week": ["wo", "woche", "wochen"],
+    "month": ["monat", "monate", "monaten"],
+    "year": ["j", "jahr", "jahre", "jahren"]
+  },
+  "relativeDays": {
+    "today": ["heute"],
+    "tomorrow": ["morgen"],
+    "dayAfterTomorrow": ["übermorgen"]
+  },
+  "weekdays": {
+    "monday": ["montag"],
+    "tuesday": ["dienstag"],
+    "wednesday": ["mittwoch"],
+    "thursday": ["donnerstag"],
+    "friday": ["freitag"],
+    "saturday": ["samstag", "sonnabend"],
+    "sunday": ["sonntag"]
+  },
+  "weekdayPrefixes": ["nächsten", "nächster", "nächste", "kommenden", "diesen"],
+  "durationPrefixes": ["in"],
+  "joiners": ["und"],
+  "connectors": ["um", "am"],
+  "am": [],
+  "pm": [],
+  "hourSuffixes": ["uhr"]
+}
