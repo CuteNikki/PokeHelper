@@ -875,8 +875,8 @@
         "old-rod": "Old Rod",
         "good-rod": "Good Rod",
         "super-rod": "Super Rod",
-        "rock-smash": "Rock Smash",
-        "headbutt": "Headbutt",
+        "rock-smash": "Smashing rocks",
+        "headbutt": "Headbutting trees",
         "gift": "Gift",
         "gift-egg": "Egg gift",
         "static": "Only one",
@@ -899,7 +899,7 @@
         "overworld-special": "Rare, wandering around",
         "overworld-flying-special": "Rare, flying around",
         "overworld-water-special": "Rare, swimming around",
-        "honey-tree": "Honey Tree",
+        "honey-tree": "Honey on trees",
         "bubbling-spots": "Bubbling spots"
       },
       "japan": "{{game}} (Japan)"

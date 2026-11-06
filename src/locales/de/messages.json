@@ -423,8 +423,8 @@
         "old-rod": "Angel",
         "good-rod": "Profiangel",
         "super-rod": "Superangel",
-        "rock-smash": "Zertrümmerer",
-        "headbutt": "Kopfnuss",
+        "rock-smash": "Felsen zertrümmern",
+        "headbutt": "Kopfnuss gegen Bäume",
         "gift": "Geschenk",
         "gift-egg": "Ei als Geschenk",
         "static": "Nur eins",
@@ -447,7 +447,7 @@
         "overworld-special": "Selten, läuft umher",
         "overworld-flying-special": "Selten, fliegt umher",
         "overworld-water-special": "Selten, schwimmt umher",
-        "honey-tree": "Honigbaum",
+        "honey-tree": "Honig an Bäumen",
         "bubbling-spots": "Sprudelnde Stellen"
       },
       "japan": "{{game}} (Japan)"
