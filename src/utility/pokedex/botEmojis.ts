@@ -1,20 +1,23 @@
 import { createCanvas } from '@napi-rs/canvas';
 import { formatEmoji, type Client } from 'discord.js';
 
+import { iconNames, iconPng, type IconLook } from 'utility/icons';
 import { logger } from 'utility/logger';
 import { typeIconPng } from 'utility/pokedex/typeIcons';
 import { TYPE_COLORS } from 'utility/pokedex/types';
 
 /**
- * The bot's own emojis: the pieces stat bars are made of, in every type's color, and the type icons. They're uploaded to the bot's
- * application when they're missing, so they work in every server without being added to one.
+ * The bot's own emojis: the pieces stat bars are made of, in every type's color, the type icons, and the interface icons for
+ * buttons and text. They're uploaded to the bot's application when they're missing, so they work in every server without being
+ * added to one.
  *
  * The version is part of their names. Change it after changing how a set looks, so the old ones are replaced.
  */
 const STAT_BAR_PREFIX = 'statbar1';
 const TYPE_ICON_PREFIX = 'typeicon2';
+const ICON_PREFIXES: Record<IconLook, string> = { button: 'btn1', text: 'icon1' };
 /** The names of the bot's own emojis of any version, so old ones are deleted and emojis added by hand are left alone. */
-const OWN_EMOJI = /^(statbar|typeicon)\d+_/;
+const OWN_EMOJI = /^(statbar|typeicon|btn|icon)\d+_/;
 
 /** The pieces of a bar: a rounded start, the middle, and a rounded end. */
 export type BarPiece = 'start' | 'middle' | 'end';
@@ -30,7 +33,9 @@ const emojis = new Map<string, string>();
 
 /** A bar piece's name: the color is a type, or `empty`. */
 const barName = (color: string, piece: BarPiece) => `${STAT_BAR_PREFIX}_${color}_${piece}`;
-const iconName = (type: string) => `${TYPE_ICON_PREFIX}_${type}`;
+const typeIconName = (type: string) => `${TYPE_ICON_PREFIX}_${type}`;
+/** An interface icon's name. Emoji names can't have dashes, which Lucide's names have. */
+const interfaceIconName = (name: string, look: IconLook) => `${ICON_PREFIXES[look]}_${name.replaceAll('-', '_')}`;
 
 /** Draw a piece of a bar, filling the width so the pieces join up. */
 function renderPiece(color: string, piece: BarPiece): Buffer {
@@ -55,13 +60,17 @@ function wantedEmojis(): Map<string, () => Promise<Buffer | null>> {
   for (const [name, color] of colors) {
     for (const piece of PIECES) wanted.set(barName(name, piece), () => Promise.resolve(renderPiece(color, piece)));
   }
-  for (const type of Object.keys(TYPE_COLORS)) wanted.set(iconName(type), () => typeIconPng(type, SIZE));
+  for (const type of Object.keys(TYPE_COLORS)) wanted.set(typeIconName(type), () => typeIconPng(type, SIZE));
+  for (const name of iconNames()) {
+    for (const look of ['button', 'text'] as const) wanted.set(interfaceIconName(name, look), () => iconPng(name, look, SIZE));
+  }
   return wanted;
 }
 
 /**
  * Upload the emojis the bot doesn't have yet, and delete those of older versions.
- * Until this is done, or if it fails, {@link statBarEmoji} and {@link typeEmoji} have nothing, and the text does without them.
+ * Until this is done, or if it fails, {@link statBarEmoji} and {@link typeEmoji} have nothing, and the text does without them, while
+ * {@link buttonIcon} and {@link textIcon} give the normal emoji they're given.
  */
 export async function syncBotEmojis(client: Client<true>): Promise<void> {
   const wanted = wantedEmojis();
@@ -93,7 +102,13 @@ export async function syncBotEmojis(client: Client<true>): Promise<void> {
 export const statBarEmoji = (color: string, piece: BarPiece) => emojis.get(barName(color, piece)) ?? null;
 
 /** The emoji of a type's icon, or null if it isn't there. */
-export const typeEmoji = (type: string) => emojis.get(iconName(type)) ?? null;
+export const typeEmoji = (type: string) => emojis.get(typeIconName(type)) ?? null;
+
+/** An interface icon for a button, white on its own, like `search`, or the normal emoji given while it isn't there. */
+export const buttonIcon = (name: string, fallback: string) => emojis.get(interfaceIconName(name, 'button')) ?? fallback;
+
+/** An interface icon for text, on the bot's blue, like `server`, or the normal emoji given while it isn't there. */
+export const textIcon = (name: string, fallback: string) => emojis.get(interfaceIconName(name, 'text')) ?? fallback;
 
 /** A type's name with its icon in front, or the name alone while the icons aren't there. */
 export const withTypeEmoji = (type: string, name: string) => {
