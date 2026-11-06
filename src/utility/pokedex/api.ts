@@ -131,5 +131,12 @@ const ARTWORK_URL = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sp
 /** The official artwork of a species by its Pokédex number, without asking PokéAPI where it is. */
 export const artworkUrl = (id: number, shiny: boolean) => `${ARTWORK_URL}/${shiny ? 'shiny/' : ''}${id}.png`;
 
+/** Load a picture, with a timeout, as loading it from its URL directly would wait forever on a connection that hangs. */
+async function fetchImage(url: string): Promise<Image> {
+  const response = await fetch(url, { signal: AbortSignal.timeout(TIMEOUT) });
+  if (!response.ok) throw new PokeApiError(`The picture at ${url} answered ${response.status}`);
+  return loadImage(Buffer.from(await response.arrayBuffer()));
+}
+
 /** A picture, cached. Null if it can't be loaded, so a missing picture leaves a gap instead of failing. */
-export const getImage = (url: string): Promise<Image | null> => images.get(url, () => loadImage(url)).catch(() => null);
+export const getImage = (url: string): Promise<Image | null> => images.get(url, () => fetchImage(url)).catch(() => null);
