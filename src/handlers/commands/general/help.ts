@@ -1,4 +1,4 @@
-import { ApplicationIntegrationType, InteractionContextType, SlashCommandBuilder } from 'discord.js';
+import { ApplicationIntegrationType, InteractionContextType, MessageFlags, SlashCommandBuilder } from 'discord.js';
 
 import { Command } from 'classes/base/command';
 
@@ -16,6 +16,8 @@ export default new Command({
 
   async execute(interaction) {
     const t = getTranslate(interaction.locale);
+    // Looking up the commands and what's turned on here takes a few requests
+    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
     const help = await buildHelp(interaction, HELP_OVERVIEW, t).catch((error: unknown) => {
       logger.error(error, 'Failed to fetch the registered commands for /help');
       return null;
