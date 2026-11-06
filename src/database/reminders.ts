@@ -33,10 +33,11 @@ export const getReminder = (id: string) => prisma.reminder.findUnique({ where: {
 /** The reminders that are due, the oldest first. */
 export const getDueReminders = (now: Date) => prisma.reminder.findMany({ where: { dueAt: { lte: now } }, orderBy: { dueAt: 'asc' } });
 
-/** Move a repeating reminder to its next time. */
-export const rescheduleReminder = (id: string, dueAt: Date) => prisma.reminder.update({ where: { id }, data: { dueAt } });
+/** Move a repeating reminder to its next time. Returns whether it's still there, as it may have been deleted meanwhile. */
+export const rescheduleReminder = async (id: string, dueAt: Date) => (await prisma.reminder.updateMany({ where: { id }, data: { dueAt } })).count > 0;
 
-export const deleteReminder = (id: string) => prisma.reminder.deleteMany({ where: { id } });
+/** Delete a reminder. Returns whether it was still there. */
+export const deleteReminder = async (id: string) => (await prisma.reminder.deleteMany({ where: { id } })).count > 0;
 
 /** The timezone someone's reminders are in, or null if they haven't picked one. */
 export const getReminderTimezone = async (userId: string) =>

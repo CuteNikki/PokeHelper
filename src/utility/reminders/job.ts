@@ -42,9 +42,9 @@ export async function runReminderJob(client: Client) {
   for (const reminder of await getDueReminders(now)) {
     try {
       const next = reminder.repeat ? nextOccurrence(reminder.startAt, reminder.repeat, reminder.timezone, now) : null;
-      // Saved before sending, so a crash in between doesn't send it again and again
-      if (next) await rescheduleReminder(reminder.id, next);
-      else await deleteReminder(reminder.id);
+      // Saved before sending, so a crash in between doesn't send it again and again. One deleted meanwhile isn't sent
+      const stillThere = next ? await rescheduleReminder(reminder.id, next) : await deleteReminder(reminder.id);
+      if (!stillThere) continue;
 
       const ways = reminder.delivery === 'dm' ? [sendDm, sendInChannel] : [sendInChannel, sendDm];
       let delivered = false;
