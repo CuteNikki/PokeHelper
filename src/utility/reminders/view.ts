@@ -16,6 +16,7 @@ import type { Reminder } from 'generated/prisma/client';
 import type { Translate } from 'utility/i18next';
 import type { ResponsePayload } from 'utility/response';
 import { DiscordLimits } from 'utility/discordLimits';
+import { MINUTE } from 'utility/duration';
 import { ThemeColors } from 'utility/theme';
 
 /** The select that deletes a reminder from the list. */
@@ -24,7 +25,11 @@ export const REMINDER_DELETE_ID = 'reminder-delete';
 export const REMINDER_STOP_PREFIX = 'reminder-stop:';
 
 /** How late a reminder can go off before it says it's late, like after the bot was offline. */
-const LATE_AFTER = 2 * 60_000;
+const LATE_AFTER = 2 * MINUTE;
+/** The most of a reminder's text the list shows. */
+const MAX_LIST_TEXT = 200;
+/** Room left under Discord's text limit, for anything a translation adds. */
+const TEXT_MARGIN = 100;
 
 /** Shortened to fit, with an ellipsis when it was cut. */
 const shorten = (text: string, length: number) => (text.length > length ? `${text.slice(0, length - 1)}…` : text);
@@ -81,14 +86,17 @@ export function buildReminderList(reminders: Reminder[], t: Translate): Response
     return { components: [container], flags: [MessageFlags.IsComponentsV2] };
   }
 
-  const lines = reminders.map((reminder, index) =>
+  const line = (reminder: Reminder, index: number, text: string) =>
     t('reminders.list.entry', {
       position: (index + 1).toLocaleString(t('locale')),
-      text: shorten(reminder.text.replace(/\s+/g, ' '), 200),
+      text,
       due: formatDue(reminder.dueAt),
       details: describe(reminder, t),
-    }),
-  );
+    });
+  // The texts share what's left of Discord's limit for a message's text, so a long list still fits
+  const rest = t('reminders.list.title').length + reminders.reduce((sum, reminder, index) => sum + line(reminder, index, '').length + 1, 0);
+  const perText = Math.min(MAX_LIST_TEXT, Math.floor((DiscordLimits.messageTextLength - TEXT_MARGIN - rest) / reminders.length));
+  const lines = reminders.map((reminder, index) => line(reminder, index, shorten(reminder.text.replace(/\s+/g, ' '), perText)));
   container.addTextDisplayComponents(new TextDisplayBuilder().setContent(lines.join('\n')));
 
   const select = new StringSelectMenuBuilder()
@@ -102,7 +110,7 @@ export function buildReminderList(reminders: Reminder[], t: Translate): Response
           .setDescription(
             shorten(
               `${reminder.dueAt.toLocaleString(t('locale'), { timeZone: reminder.timezone, dateStyle: 'medium', timeStyle: 'short' })} · ${describe(reminder, t)}`,
-              100,
+              DiscordLimits.optionLabelLength,
             ),
           ),
       ),

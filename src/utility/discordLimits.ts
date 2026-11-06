@@ -12,4 +12,6 @@ export const DiscordLimits = {
   modalLabelLength: 45,
   /** Characters in the custom ID of a button, select or popup. */
   customIdLength: 100,
+  /** Characters of text in all of a Components V2 message's text displays together. */
+  messageTextLength: 4000,
 } as const;
