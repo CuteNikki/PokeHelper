@@ -116,10 +116,6 @@ export const getTopUsersByXP = (guildId: string, period: LevelPeriod, take: numb
     skip,
   });
 
-/** The rank of someone with this much XP in a period: 1 plus everyone with more. */
-export const getUserRank = async (guildId: string, targetXp: number, period: LevelPeriod = 'allTime') =>
-  (await levelTable(period).count({ where: { guildId, xp: { gt: targetXp } } })) + 1;
-
 /** Where someone is on a period's leaderboard, in the order it's shown, or null when they aren't on it. */
 export async function getLeaderboardPosition(guildId: string, userId: string, period: LevelPeriod, sortOrder: 'asc' | 'desc'): Promise<number | null> {
   const own = await getUserLevelingData(guildId, userId, period);
@@ -129,6 +125,10 @@ export async function getLeaderboardPosition(guildId: string, userId: string, pe
 }
 
 export const getTotalUsersWithXP = (guildId: string, period: LevelPeriod = 'allTime') => levelTable(period).count({ where: { guildId } });
+
+/** Someone's rank in a period: their place on the leaderboard, ties included, or right after everyone on it when they aren't. */
+export const getUserRank = async (guildId: string, userId: string, period: LevelPeriod) =>
+  (await getLeaderboardPosition(guildId, userId, period, 'desc')) ?? (await getTotalUsersWithXP(guildId, period)) + 1;
 
 /**
  * Record a weekly or monthly reset and start the new period from zero.

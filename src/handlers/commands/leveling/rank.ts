@@ -58,16 +58,19 @@ export default new Command({
     const ephemeral = interaction.options.getBoolean('ephemeral') ?? true;
     const asText = interaction.options.getBoolean('text') ?? false;
 
+    // Checked before answering, so the error only goes to whoever asked, even when the rank would be public
+    const levelingConfig = await getGuildLevelingConfiguration(interaction.guildId);
+    if (!levelingConfig?.enabled) return sendError(interaction, t('leveling.disabled'));
+
     await interaction.deferReply({ flags: ephemeral ? [MessageFlags.Ephemeral] : undefined });
 
-    const levelingConfig = await getGuildLevelingConfiguration(interaction.guildId);
-    if (!levelingConfig || !levelingConfig.enabled) {
-      return sendError(interaction, t('leveling.disabled'));
-    }
-
+    // The same place as on the leaderboard, where ties are ordered too
     const periodProgress = async (period: LevelPeriod) => {
-      const xp = (await getUserLevelingData(interaction.guildId, targetUser.id, period))?.xp ?? 0;
-      return getProgress(xp, await getUserRank(interaction.guildId, xp, period));
+      const [data, rank] = await Promise.all([
+        getUserLevelingData(interaction.guildId, targetUser.id, period),
+        getUserRank(interaction.guildId, targetUser.id, period),
+      ]);
+      return getProgress(data?.xp ?? 0, rank);
     };
     const [allTime, weekly, monthly] = await Promise.all([periodProgress('allTime'), periodProgress('weekly'), periodProgress('monthly')]);
     const displayName = targetMember?.displayName || targetUser.displayName || targetUser.username;
