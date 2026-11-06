@@ -72,6 +72,8 @@ export async function renderStickyList(guild: Guild, t: Translate): Promise<Resp
         [subtext(t('sticky.list.count', { count: stickies.length, max: formatNumber(MAX_STICKIES, t) })), ...entries].join('\n'),
       ),
     )
+    // Large, like before the buttons at the bottom of the settings panels
+    .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large))
     .addActionRowComponents(
       new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
         new StringSelectMenuBuilder()
