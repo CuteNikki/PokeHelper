@@ -12,7 +12,7 @@ import { loadFonts } from 'loading/fonts';
 import { loadSelectMenus } from 'loading/selects';
 
 import { initI18Next } from 'utility/i18next';
-import { logger, table } from 'utility/logger';
+import { exitAfterLogging, logger, table } from 'utility/logger';
 import { measure } from 'utility/measure';
 import { isRenameLimit } from 'utility/tempVoice/channel';
 
@@ -44,8 +44,7 @@ process.on('unhandledRejection', (reason) => logger.error({ err: reason }, t('sy
 process.on('uncaughtException', (error) => {
   // The process is in an unknown state after an uncaught exception, so exit and let the container restart it
   logger.fatal({ err: error }, t('system.process.uncaughtException'));
-  // The log is written in the background, so it gets a moment to be written before the process is gone
-  setTimeout(() => process.exit(1), 500);
+  exitAfterLogging(1);
 });
 
 await Promise.all([

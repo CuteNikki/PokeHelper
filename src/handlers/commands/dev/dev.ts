@@ -25,7 +25,7 @@ import { prisma } from 'database/index';
 
 import { registerCommands } from 'utility/commandRegistration';
 import { guildTranslate } from 'utility/i18next';
-import { logger } from 'utility/logger';
+import { exitAfterLogging, logger } from 'utility/logger';
 import { changedSinceStart, reload, RELOAD_TARGETS, type ReloadTarget } from 'utility/reload';
 import { sendPreview } from 'utility/logs/preview';
 import { isThemeName, madeOn, profileThemesEnabled, syncProfileTheme, themeOverview, wantedTheme } from 'utility/profileTheme';
@@ -138,7 +138,7 @@ async function handleRestart(interaction: ChatInputCommandInteraction<'cached'>)
 
   await interaction.client.destroy();
   await prisma.$disconnect();
-  process.exit(0);
+  exitAfterLogging(0);
 }
 
 /** Post sample log entries in this channel, in the server's language like real ones, to see how they look. */

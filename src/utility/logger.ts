@@ -89,6 +89,18 @@ export const logger = pino(
   }),
 );
 
+/** How long the last lines get to be written before the process exits. */
+const LOG_WRITE_TIME = 500;
+
+/**
+ * Exit the process once the last lines are logged. They're written in the background, so exiting right away would lose them.
+ * @param code The exit code, 1 for a crash.
+ */
+export function exitAfterLogging(code: number) {
+  logger.flush();
+  setTimeout(() => process.exit(code), LOG_WRITE_TIME);
+}
+
 /**
  * Calculates the width of a string, accounting for emojis and special characters.
  * @param str The string to calculate the width of.
