@@ -110,11 +110,16 @@ export function drawContained(ctx: SKRSContext2D, image: Image, x: number, y: nu
   ctx.drawImage(image, x + (size - width) / 2, y + (size - height) / 2, width, height);
 }
 
-/** The room between a badge's icon and its edge. */
+/** The room above and below a badge's symbol. */
 const BADGE_ICON_INSET = 5;
+/** The room between a badge's symbol and its name. */
+const BADGE_ICON_GAP = 5;
+/** The room at either end of a badge's content, and the least there is when the badge has a width that's set. */
+const BADGE_PADDING = 14;
+const BADGE_MIN_PADDING = 8;
 
 /**
- * A Pokémon type's badge: its symbol at the start, if there is one, and its name on a pill in its color, in dark text on light colors.
+ * A Pokémon type's badge: its symbol and its name on a pill in its color, in dark text on light colors, together in the middle.
  * The symbol is drawn as given, so it should be in {@link colorOn} the type's color, without a background.
  * As wide as given, with a name too long for it shortened, or as wide as its name needs.
  * @returns How wide it is.
@@ -129,19 +134,20 @@ export function drawTypeBadge(
 ): number {
   ctx.font = 'bold 15px "Roboto"';
   const label = type.name.toUpperCase();
-  const iconSize = type.icon ? height - BADGE_ICON_INSET * 2 : 0;
-  // The name is centered in what's left after the icon
-  const textStart = type.icon ? BADGE_ICON_INSET + iconSize : 0;
-  const badgeWidth = width ?? textStart + ctx.measureText(label).width + 32;
+  const iconWidth = type.icon ? height - BADGE_ICON_INSET * 2 + BADGE_ICON_GAP : 0;
+  const badgeWidth = width ?? BADGE_PADDING * 2 + iconWidth + ctx.measureText(label).width;
+  const text = truncateText(ctx, label, badgeWidth - BADGE_MIN_PADDING * 2 - iconWidth);
+  // The symbol and the name as one, in the middle of the badge
+  const start = x + (badgeWidth - iconWidth - ctx.measureText(text).width) / 2;
   ctx.fillStyle = type.color;
   ctx.beginPath();
   ctx.roundRect(x, y, badgeWidth, height, height / 2);
   ctx.fill();
-  if (type.icon) ctx.drawImage(type.icon, x + BADGE_ICON_INSET, y + BADGE_ICON_INSET, iconSize, iconSize);
-  ctx.textAlign = 'center';
+  if (type.icon) ctx.drawImage(type.icon, start, y + BADGE_ICON_INSET, height - BADGE_ICON_INSET * 2, height - BADGE_ICON_INSET * 2);
+  ctx.textAlign = 'left';
   ctx.textBaseline = 'middle';
   ctx.fillStyle = colorOn(type.color);
-  ctx.fillText(truncateText(ctx, label, badgeWidth - textStart - 16), x + textStart + (badgeWidth - textStart) / 2, y + height / 2 + 1);
+  ctx.fillText(text, start + iconWidth, y + height / 2 + 1);
   return badgeWidth;
 }
 
