@@ -4,6 +4,8 @@ import type { Client } from 'discord.js';
 import { logger } from 'utility/logger';
 import { TYPE_COLORS } from 'utility/pokedex/types';
 
+import { formatEmoji } from 'discord.js';
+
 /**
  * The bot's own emojis that stat bars are made of, in every type's color. They're drawn here and uploaded to the bot's application
  * when they're missing, so they work in every server without being added to one.
@@ -64,7 +66,7 @@ export async function syncStatBarEmojis(client: Client<true>): Promise<void> {
   for (const emoji of existing.values()) {
     if (!emoji.name?.startsWith('statbar')) continue;
     if (wanted.has(emoji.name)) {
-      emojis.set(emoji.name, `<:${emoji.name}:${emoji.id}>`);
+      emojis.set(emoji.name, formatEmoji({ id: emoji.id, name: emoji.name }));
     } else {
       await emoji.delete().catch((error: unknown) => logger.warn(error, `Failed to delete the old stat bar emoji ${emoji.name}`));
     }
@@ -76,7 +78,7 @@ export async function syncStatBarEmojis(client: Client<true>): Promise<void> {
   // One after another, as uploading is rate limited
   for (const [name, render] of missing) {
     const emoji = await client.application.emojis.create({ name, attachment: render() });
-    emojis.set(name, `<:${name}:${emoji.id}>`);
+    emojis.set(name, formatEmoji({ id: emoji.id, name }));
   }
   logger.info(`Uploaded ${missing.length} stat bar emojis`);
 }

@@ -4,6 +4,7 @@ import {
   ButtonStyle,
   ContainerBuilder,
   DiscordAPIError,
+  formatEmoji,
   type Guild,
   heading,
   HeadingLevel,
@@ -172,7 +173,7 @@ export function parseEmoji(input: string, emojis: Iterable<CustomEmoji>): string
   if (UNICODE_EMOJI.test(text)) return text;
 
   const list = [...emojis];
-  const format = (emoji: CustomEmoji) => `<${emoji.animated ? 'a' : ''}:${emoji.name}:${emoji.id}>`;
+  const format = (emoji: CustomEmoji) => formatEmoji({ id: emoji.id, name: emoji.name ?? undefined, animated: Boolean(emoji.animated) });
 
   const id = CUSTOM_EMOJI.exec(text)?.[1];
   if (id) {
