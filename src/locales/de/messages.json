@@ -418,7 +418,7 @@
       "select": "Wähle ein Spiel",
       "none": "{{name}} kommt in keinem Spiel, das PokéAPI kennt, in freier Wildbahn vor. Vielleicht durch Entwicklung, ein Ei oder ein Event.",
       "level": "Lv. {{level}}",
-      "levels": "Lv. {{min}}–{{max}}",
+      "levels": "Lv. {{min}}-{{max}}",
       "methods": {
         "walk": "Gras oder Höhle",
         "surf": "Surfen",

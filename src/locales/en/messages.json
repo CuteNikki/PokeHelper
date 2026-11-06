@@ -856,7 +856,7 @@
       "select": "Pick a game",
       "none": "{{name}} isn't found in the wild in any game PokéAPI knows. It may come from evolving, an egg or an event.",
       "level": "Lv. {{level}}",
-      "levels": "Lv. {{min}}–{{max}}",
+      "levels": "Lv. {{min}}-{{max}}",
       "methods": {
         "walk": "Grass or cave",
         "surf": "Surfing",

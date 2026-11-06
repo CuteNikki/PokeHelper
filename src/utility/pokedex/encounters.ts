@@ -158,7 +158,7 @@ export function sightingLines(
   return lines;
 }
 
-/** A sighting as a line under the heading of how it's met, like `Route 1 · Lv. 2–5 · 50%`, with what it's about already named. */
+/** A sighting as a line under the heading of how it's met, like `Route 1 · Lv. 2-5 · 50%`, with what it's about already named. */
 function sightingLine(sighting: Sighting, name: string, t: Translate): string {
   const levels =
     sighting.minLevel === sighting.maxLevel
