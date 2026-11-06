@@ -26,22 +26,25 @@ export default new Button({
     const t = getTranslate(interaction.locale);
     const { customId } = interaction;
 
-    if (customId === TEMP_VOICE_CONFIG_ID.list) return interaction.update(await renderTempVoiceList(interaction.guild, t));
+    // Answered before anything is looked up, which can take a moment, as Discord gives up after 3 seconds. None of them opens a popup
+    await interaction.deferUpdate();
+
+    if (customId === TEMP_VOICE_CONFIG_ID.list) return interaction.editReply(await renderTempVoiceList(interaction.guild, t));
 
     if (customId === TEMP_VOICE_CONFIG_ID.toggle) {
       const { tempVoiceEnabled } = await getFeatureSwitches(interaction.guildId);
       await setFeatureSwitch(interaction.guildId, 'tempVoiceEnabled', !tempVoiceEnabled);
-      return interaction.update(await renderTempVoiceList(interaction.guild, t));
+      return interaction.editReply(await renderTempVoiceList(interaction.guild, t));
     }
 
     const action = ACTIONS.find((prefix) => customId.startsWith(prefix));
     if (!action) return sendError(interaction, t('system.outdated'));
     const creator = await getTempVoiceCreator(customId.slice(action.length));
-    if (creator?.guildId !== interaction.guildId) return interaction.update(createResponse(t('tempVoice.config.notFound'), 'error'));
+    if (creator?.guildId !== interaction.guildId) return interaction.editReply(createResponse(t('tempVoice.config.notFound'), 'error'));
 
     switch (action) {
       case TEMP_VOICE_CONFIG_ID.delete:
-        return interaction.update(
+        return interaction.editReply(
           buildQuestion(
             {
               question: t('tempVoice.config.deleteQuestion', { name: creatorName(creator, interaction.guild, t) }),
@@ -53,14 +56,13 @@ export default new Button({
         );
 
       case TEMP_VOICE_CONFIG_ID.confirmDelete: {
-        await interaction.deferUpdate();
         // The channel itself stays, it's only no longer a join channel. Channels made with it stay until they're empty
         await deleteTempVoiceCreator(creator.id);
         return interaction.editReply(withNotice(t('tempVoice.config.deleted'), 'success', await renderTempVoiceList(interaction.guild, t)));
       }
 
       case TEMP_VOICE_CONFIG_ID.back:
-        return interaction.update(await getTempVoiceSettings(creator.id).render(settingsContext(interaction), t));
+        return interaction.editReply(await getTempVoiceSettings(creator.id).render(settingsContext(interaction), t));
     }
   },
 });
