@@ -1,7 +1,7 @@
 import { MINUTE, SECOND } from 'utility/duration';
 import { supportedLanguages } from 'utility/i18next';
 import { logger } from 'utility/logger';
-import { API_URL, fetchJson, PokeApiError } from 'utility/pokedex/api';
+import { API_URL, fetchJson, idFromUrl, PokeApiError } from 'utility/pokedex/api';
 
 const GRAPHQL_URL = 'https://graphql.pokeapi.co/v1beta2';
 /** The names are one big answer, which takes longer than others. */
@@ -58,6 +58,8 @@ export type PokedexData = Record<NameTable, NamesBySlug> & {
   species: PokedexSpecies[];
   /** The item of each berry, which has the berry's name, like `cheri-berry` for `cheri`. */
   berries: Record<string, string>;
+  /** Where each game goes when they're listed by when they came out, smaller first. Games that aren't in it go by PokéAPI's order. */
+  versionOrder: Record<string, number>;
 };
 
 /** A species, or one of its forms. */
@@ -81,6 +83,7 @@ type NamesQuery = Record<NameTable, NamedRows> & {
     }[];
   }[];
   berries: { name: string; item: { name: string } | null }[];
+  versionOrder: { name: string; versiongroup: { id: number; generation_id: number } | null }[];
 };
 
 /** The names of every species, form and everything else with a name in the bot's languages, in one request. */
@@ -105,6 +108,7 @@ function namesQuery(languages: string[]) {
     }
     ${tables.join('\n    ')}
     berries: berry { name item { name } }
+    versionOrder: version { name versiongroup { id generation_id } }
   }`;
 }
 
@@ -136,6 +140,12 @@ function parseNames(result: NamesQuery, languages: string[]): PokedexData {
         }),
     })),
     berries: Object.fromEntries(result.berries.map((berry) => [berry.name, berry.item?.name ?? `${berry.name}-berry`])),
+    // By generation, then by the games of one, which PokéAPI mostly numbers in the order they came out
+    versionOrder: Object.fromEntries(
+      result.versionOrder.flatMap((version) =>
+        version.versiongroup ? [[version.name, version.versiongroup.generation_id * 1000 + version.versiongroup.id]] : [],
+      ),
+    ),
   };
 }
 
@@ -143,9 +153,6 @@ type Listed = { name: string; url: string }[];
 
 /** PokéAPI's lists by their name, with the species and Pokémon for the forms. */
 export type PokedexLists = Record<NameTable, Listed> & { species: Listed; pokemon: Listed; berries: Listed };
-
-/** The number at the end of a PokéAPI URL, like 25 in `.../pokemon-species/25/`. */
-const idFromUrl = (url: string) => Number(url.match(/\/(\d+)\/?$/)?.[1]) || 0;
 
 /**
  * Names from PokéAPI's lists, for when its GraphQL, which has the real names, is down. The lists only have slugs, so the names are
@@ -176,6 +183,7 @@ export function namesFromLists(lists: Pick<PokedexLists, 'species' | 'pokemon'> 
           pokemons: entry.forms.map((form) => ({ name: form, is_default: false, pokemonforms: [] })),
         })),
       berries: (lists.berries ?? []).map((entry) => ({ name: entry.name, item: null })),
+      versionOrder: [],
     },
     languages,
   );
@@ -186,6 +194,7 @@ const emptyData = (): PokedexData => ({
   ...(Object.fromEntries(NAME_TABLE_KEYS.map((key) => [key, {}])) as Record<NameTable, NamesBySlug>),
   species: [],
   berries: {},
+  versionOrder: {},
 });
 
 const EMPTY = emptyData();

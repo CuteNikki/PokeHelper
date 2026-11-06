@@ -38,6 +38,7 @@ import {
 } from 'utility/pokedex/api';
 import { renderPokedexCard, STAT_BAR_MAX } from 'utility/pokedex/card';
 import { evolutionCondition } from 'utility/pokedex/evolution';
+import { whereToFindButton } from 'utility/pokedex/encounters';
 import { matchupsButton } from 'utility/pokedex/matchups';
 import { TYPE_COLORS } from 'utility/pokedex/types';
 import { buttonIcon, statBarEmoji, withTypeEmoji, type BarPiece } from 'utility/emojis';
@@ -232,6 +233,7 @@ function buildControls(match: PokedexMatch, view: PokedexView, hasShiny: boolean
       .setLabel(t(view.shiny ? 'pokedex.shiny.hide' : 'pokedex.shiny.show'))
       .setDisabled(!hasShiny),
     matchupsButton(slug, view.text, t),
+    whereToFindButton(slug, t),
   ];
   // Switches between the card and text, like for screen readers, keeping the Pokémon and whether it's shiny
   const mode = new ButtonBuilder()

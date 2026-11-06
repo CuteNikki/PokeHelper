@@ -181,3 +181,20 @@ export const artworkUrl = (id: number, shiny: boolean) => `${ARTWORK_URL}/${shin
 
 /** A picture, cached. Null if it can't be loaded, so a missing picture leaves a gap instead of failing. */
 export const getImage = (url: string): Promise<Image | null> => images.get(url, () => fetchImage(url)).catch(() => null);
+
+/** Where a Pokémon is found in one area, in each game it's there in. */
+export interface ApiEncounter {
+  location_area: Named;
+  version_details: {
+    version: Named;
+    /** The best chance of meeting it there, in percent. */
+    max_chance: number;
+    encounter_details: { min_level: number; max_level: number; chance: number; method: Named }[];
+  }[];
+}
+
+/** Where a Pokémon or form is found in the wild, by its slug. Empty when it isn't. */
+export const getEncounters = (slug: string) => get<ApiEncounter[]>(`pokemon/${encodeURIComponent(slug)}/encounters`);
+
+/** The number at the end of a PokéAPI URL, like 25 in `.../version/25/`. */
+export const idFromUrl = (url: string) => Number(url.match(/\/(\d+)\/?$/)?.[1]) || 0;
