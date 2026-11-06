@@ -1,4 +1,9 @@
 import { loadImage, type Image } from '@napi-rs/canvas';
+import type { RepliableInteraction } from 'discord.js';
+
+import type { Translate } from 'utility/i18next';
+import { logger } from 'utility/logger';
+import { replaceWithError, sendError } from 'utility/response';
 
 export const API_URL = 'https://pokeapi.co/api/v2';
 const TIMEOUT = 10_000;
@@ -64,6 +69,16 @@ export interface ApiMove {
 
 /** Thrown when PokéAPI can't be reached or answers with an error, but not when something doesn't exist. */
 export class PokeApiError extends Error {}
+
+/**
+ * Tell whoever asked that PokéAPI can't be reached, for an error from asking it. Any other error is thrown on, as it's a bug.
+ * @param options.replace Replace a public "thinking" reply with the error only they see, instead of answering only them.
+ */
+export async function answerPokeApiError(interaction: RepliableInteraction, error: unknown, t: Translate, { replace = false } = {}) {
+  if (!(error instanceof PokeApiError)) throw error;
+  logger.warn(error, error.message);
+  return replace ? replaceWithError(interaction, t('pokedex.unavailable')) : sendError(interaction, t('pokedex.unavailable'));
+}
 
 /** A cache that keeps the most recently used, up to a limit. Waiting answers are kept too, so asking twice at once fetches once. */
 class RecentCache {

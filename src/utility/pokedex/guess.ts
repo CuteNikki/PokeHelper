@@ -21,8 +21,7 @@ import {
 } from 'discord.js';
 
 import { getTranslate, resolveLanguage, type Translate } from 'utility/i18next';
-import { logger } from 'utility/logger';
-import { artworkUrl, getImage, getPokemon, PokeApiError } from 'utility/pokedex/api';
+import { answerPokeApiError, artworkUrl, getImage, getPokemon } from 'utility/pokedex/api';
 import { buildPokedexEntry } from 'utility/pokedex/entry';
 import { findPokemon, getPokedexData, isNameOf, loadPokedexData, matchName, nameIn, speciesById, type PokedexSpecies } from 'utility/pokedex/names';
 import { sendError, sendResponse, type ResponsePayload } from 'utility/response';
@@ -234,13 +233,6 @@ function buildGuessModal(game: GuessGame, t: Translate) {
     );
 }
 
-/** Errors only whoever pressed sees, so the game stays as it was. PokéAPI being away is said, anything else is thrown. */
-async function unavailable(interaction: ButtonInteraction | ModalSubmitInteraction, error: unknown, t: Translate) {
-  if (!(error instanceof PokeApiError)) throw error;
-  logger.warn(error, error.message);
-  return sendError(interaction, t('pokedex.unavailable'));
-}
-
 /** Show a game on the message the button or popup is on, in place of what was there, picture included. */
 async function showGame(
   interaction: ButtonInteraction | ModalSubmitInteraction,
@@ -256,7 +248,7 @@ async function showGame(
     // The old picture goes, so the message only has the new one
     return await interaction.editReply({ ...payload, attachments: [] });
   } catch (error) {
-    return unavailable(interaction, error, t);
+    return answerPokeApiError(interaction, error, t);
   }
 }
 
@@ -273,7 +265,7 @@ export async function handleGuessButton(interaction: ButtonInteraction): Promise
   try {
     await loadPokedexData();
   } catch (error) {
-    return unavailable(interaction, error, t);
+    return answerPokeApiError(interaction, error, t);
   }
 
   switch (action) {
@@ -295,7 +287,7 @@ export async function handleGuessButton(interaction: ButtonInteraction): Promise
         if (!entry) return sendError(interaction, t('system.outdated'));
         return await sendResponse(interaction, entry);
       } catch (error) {
-        return unavailable(interaction, error, t);
+        return answerPokeApiError(interaction, error, t);
       }
     }
   }
@@ -310,7 +302,7 @@ export async function handleGuessModal(interaction: ModalSubmitInteraction): Pro
   try {
     await loadPokedexData();
   } catch (error) {
-    return unavailable(interaction, error, t);
+    return answerPokeApiError(interaction, error, t);
   }
   const species = speciesById(game.speciesId);
   if (!species) return sendError(interaction, t('system.outdated'));

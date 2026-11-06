@@ -4,8 +4,7 @@ import { Command } from 'classes/base/command';
 
 import { DiscordLimits } from 'utility/discordLimits';
 import { getTranslate, resolveLanguage } from 'utility/i18next';
-import { logger } from 'utility/logger';
-import { PokeApiError } from 'utility/pokedex/api';
+import { answerPokeApiError } from 'utility/pokedex/api';
 import { buildPokedexEntry } from 'utility/pokedex/entry';
 import { findPokemon, formatDexNumber, loadPokedexData, matchName, matchSlug, searchPokemon } from 'utility/pokedex/names';
 import { replaceWithError, sendResponse } from 'utility/response';
@@ -59,9 +58,7 @@ export default new Command({
       if (!entry) return replaceWithError(interaction, t('pokedex.notFound', { name: input }));
       return sendResponse(interaction, entry);
     } catch (error) {
-      if (!(error instanceof PokeApiError)) throw error;
-      logger.warn(error, error.message);
-      return replaceWithError(interaction, t('pokedex.unavailable'));
+      return answerPokeApiError(interaction, error, t, { replace: true });
     }
   },
 });

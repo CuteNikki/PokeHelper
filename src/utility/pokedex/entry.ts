@@ -29,17 +29,16 @@ import {
 import { DiscordLimits } from 'utility/discordLimits';
 import { formatNumber } from 'utility/duration';
 import { FALLBACK_LANGUAGE, getTranslate, resolveLanguage, type Translate } from 'utility/i18next';
-import { logger } from 'utility/logger';
 import {
+  answerPokeApiError,
+  type ApiEvolutionLink,
+  type ApiSpecies,
   artworkUrl,
   getEvolutionChain,
   getImage,
   getPokemon,
   getSpecies,
-  PokeApiError,
   speciesIdFromUrl,
-  type ApiEvolutionLink,
-  type ApiSpecies,
 } from 'utility/pokedex/api';
 import { renderPokedexCard, STAT_BAR_MAX } from 'utility/pokedex/card';
 import { matchupsButton } from 'utility/pokedex/matchups';
@@ -429,9 +428,7 @@ export async function updatePokedexEntry(
     if (!entry) return sendError(interaction, t('system.outdated'));
     return await interaction.editReply(entry);
   } catch (error) {
-    if (!(error instanceof PokeApiError)) throw error;
-    logger.warn(error, error.message);
-    return sendError(interaction, t('pokedex.unavailable'));
+    return answerPokeApiError(interaction, error, t);
   }
 }
 
@@ -464,9 +461,7 @@ export async function handlePokedexSearchModal(interaction: ModalSubmitInteracti
   try {
     await loadPokedexData();
   } catch (error) {
-    if (!(error instanceof PokeApiError)) throw error;
-    logger.warn(error, error.message);
-    return sendError(interaction, t('pokedex.unavailable'));
+    return answerPokeApiError(interaction, error, t);
   }
   const match = findPokemon(input);
   if (!match) return sendError(interaction, t('pokedex.notFound', { name: input }));

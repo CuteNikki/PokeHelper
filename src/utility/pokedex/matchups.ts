@@ -18,8 +18,7 @@ import {
 } from 'discord.js';
 
 import { FALLBACK_LANGUAGE, getTranslate, resolveLanguage, type Translate } from 'utility/i18next';
-import { logger } from 'utility/logger';
-import { artworkUrl, getImage, getMove, getPokemon, getType, PokeApiError, type ApiDamageRelations } from 'utility/pokedex/api';
+import { answerPokeApiError, type ApiDamageRelations, artworkUrl, getImage, getMove, getPokemon, getType } from 'utility/pokedex/api';
 import { renderMatchupCard } from 'utility/pokedex/matchupCard';
 import { findBySlug, getPokedexData, loadPokedexData, matchName, nameIn, type PokedexMatch } from 'utility/pokedex/names';
 import { TYPE_COLORS } from 'utility/pokedex/types';
@@ -315,8 +314,6 @@ export async function showMatchups(interaction: ButtonInteraction): Promise<unkn
     if (parsed.switch) return interaction.editReply({ ...reply, attachments: [] });
     return sendResponse(interaction, reply);
   } catch (error) {
-    if (!(error instanceof PokeApiError)) throw error;
-    logger.warn(error, error.message);
-    return sendError(interaction, t('pokedex.unavailable'));
+    return answerPokeApiError(interaction, error, t);
   }
 }

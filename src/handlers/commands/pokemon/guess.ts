@@ -3,8 +3,7 @@ import { ApplicationIntegrationType, InteractionContextType, SlashCommandBuilder
 import { Command } from 'classes/base/command';
 
 import { getTranslate, resolveLanguage } from 'utility/i18next';
-import { logger } from 'utility/logger';
-import { PokeApiError } from 'utility/pokedex/api';
+import { answerPokeApiError } from 'utility/pokedex/api';
 import { buildGuessGame, GENERATIONS, newGame } from 'utility/pokedex/guess';
 import { loadPokedexData } from 'utility/pokedex/names';
 import { replaceWithError, sendResponse } from 'utility/response';
@@ -29,9 +28,7 @@ export default new Command({
       if (!payload) return replaceWithError(interaction, t('pokedex.unavailable'));
       return sendResponse(interaction, payload);
     } catch (error) {
-      if (!(error instanceof PokeApiError)) throw error;
-      logger.warn(error, error.message);
-      return replaceWithError(interaction, t('pokedex.unavailable'));
+      return answerPokeApiError(interaction, error, t, { replace: true });
     }
   },
 });
