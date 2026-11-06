@@ -61,7 +61,7 @@ The bot and its database run on a server rented from LUME Solutions (Mario Kurz)
 The data isn't sold, and isn't shared or used for anything other than the bot's features.
 
 - **Discord:** the bot works through Discord, so everything it shows passes through Discord. Discord processes this data under its own [privacy policy](https://discord.com/privacy).
-- **PokéAPI:** the bot uses [PokéAPI](https://pokeapi.co/) for Pokémon names, pictures and details. Only Pokémon are looked up there, and no data about you is sent.
+- **PokéAPI:** the bot uses [PokéAPI](https://pokeapi.co/) for Pokémon names, pictures and details, and for moves, items, abilities, berries, natures and places. Only these are looked up there, and no data about you is sent.
 
 ## How long data is kept
 
