@@ -3,6 +3,7 @@ import { t } from 'i18next';
 
 import { Event } from 'classes/base/event';
 
+import { findHandler } from 'utility/customId';
 import { getTranslate } from 'utility/i18next';
 import { logger } from 'utility/logger';
 import { takeBurst } from 'utility/rateLimit';
@@ -16,20 +17,7 @@ export default new Event({
     // Replies are in the user's language, while logs stay in English for developers
     const translate = getTranslate(interaction.locale);
 
-    let selectMenu = client.selectMenus.get(interaction.customId); // Retrieve the select menu from the client's selectMenus collection
-
-    /**
-     * Custom ID matching: If the select menu is not found by exact custom ID, we can check if any select menu has a custom ID that is included in the interaction's custom ID
-     */
-    if (!selectMenu) {
-      for (const [, menu] of client.selectMenus) {
-        if (!interaction.customId.includes(menu.options.customId) || !menu.options.includesCustomId) {
-          continue;
-        }
-        selectMenu = menu;
-        break;
-      }
-    }
+    const selectMenu = findHandler(client.selectMenus, interaction.customId);
 
     // Every button and select is handled by its custom ID, so one without a handler is from an older version of the bot
     if (!selectMenu) {

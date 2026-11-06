@@ -3,6 +3,7 @@ import { t } from 'i18next';
 
 import { Event } from 'classes/base/event';
 
+import { findHandler } from 'utility/customId';
 import { getTranslate } from 'utility/i18next';
 import { logger } from 'utility/logger';
 import { takeBurst } from 'utility/rateLimit';
@@ -16,20 +17,7 @@ export default new Event({
     // Replies are in the user's language, while logs stay in English for developers
     const translate = getTranslate(interaction.locale);
 
-    let button = client.buttons.get(interaction.customId); // Retrieve the button from the client's buttons collection
-
-    /**
-     * Custom ID matching: If the button is not found by exact custom ID, we can check if any button has a custom ID that is included in the interaction's custom ID
-     */
-    if (!button) {
-      for (const [, btn] of client.buttons) {
-        if (!interaction.customId.includes(btn.options.customId) || !btn.options.includesCustomId) {
-          continue;
-        }
-        button = btn;
-        break;
-      }
-    }
+    const button = findHandler(client.buttons, interaction.customId);
 
     // Every button and select is handled by its custom ID, so one without a handler is from an older version of the bot
     if (!button) {
