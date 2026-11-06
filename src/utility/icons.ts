@@ -8,12 +8,13 @@ import { createCanvas, loadImage } from '@napi-rs/canvas';
  * comment in each file), kept as SVG in `assets/icons`, named like on lucide.dev. Adding one is adding its file there.
  *
  * Each is made in two looks: on its own in white for buttons, which have a background of their own, and on a rounded square in
- * the bot's blue for text, where it stands on its own.
+ * the bot's blue for text, where it stands on its own. On and Off switches get a check on green and an X on grey, as their color
+ * says which they are.
  */
 const ICONS_PATH = 'assets/icons';
 
-/** Where an icon goes: on a button, or in text. */
-export type IconLook = 'button' | 'text';
+/** Where an icon goes: on a button, in text, or as a switch that's on or off. */
+export type IconLook = 'button' | 'text' | 'on' | 'off';
 
 /** The bot's blue, the accent of its messages. */
 const TEXT_ICON_COLOR = '#3b4cca';
@@ -24,6 +25,9 @@ const LOOKS: Record<IconLook, { scale: number; weight: number; background: strin
   // Thicker and bigger on buttons, where it's the only thing there
   button: { scale: 0.9, weight: 2.5, background: null },
   text: { scale: 0.62, weight: 2.25, background: TEXT_ICON_COLOR },
+  // Discord's own green, dark enough for the white check, and a grey that looks turned off
+  on: { scale: 0.62, weight: 2.75, background: '#23a55a' },
+  off: { scale: 0.62, weight: 2.75, background: '#6d6f78' },
 };
 
 /** The names of the icons there are. */

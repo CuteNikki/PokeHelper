@@ -20,6 +20,7 @@ import {
 
 import { getTempVoiceChannel, updateTempVoiceChannel } from 'database/tempVoice';
 
+import { switchIcon } from 'utility/pokedex/botEmojis';
 import { guildTranslate, type Translate } from 'utility/i18next';
 import { logger } from 'utility/logger';
 import type { ResponsePayload } from 'utility/response';
@@ -91,7 +92,7 @@ export function buildPanel({ channel, record }: TempChannel, t: Translate): Resp
     new ButtonBuilder()
       .setCustomId(tempVoiceCustomId(action, id))
       .setLabel(t(on ? 'state.on' : 'state.off'))
-      .setEmoji(on ? '✅' : '✖️')
+      .setEmoji(switchIcon(on))
       .setStyle(on ? ButtonStyle.Success : ButtonStyle.Secondary);
   // A bold name with a short description under it, like the rows above, for the pickers that have no row of their own
   const heading = (label: string, description: string) => new TextDisplayBuilder().setContent(`${bold(label)}\n${subtext(description)}`);

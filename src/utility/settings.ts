@@ -23,6 +23,7 @@ import {
   subtext,
   TextDisplayBuilder,
 } from 'discord.js';
+import { switchIcon } from 'utility/pokedex/botEmojis';
 import type { Translate } from 'utility/i18next';
 
 import { formatNumber } from 'utility/duration';
@@ -452,7 +453,7 @@ function addSetting<C>(container: ContainerBuilder, context: SettingsContext, pa
           new ButtonBuilder()
             .setCustomId(customId(panelId, page, setting.key, undefined, value ? '1' : '0'))
             .setLabel(formatValue(setting, value, t))
-            .setEmoji(value ? '✅' : '✖️')
+            .setEmoji(switchIcon(value))
             .setStyle(value ? ButtonStyle.Success : ButtonStyle.Secondary),
         ),
       );
@@ -706,7 +707,7 @@ export function buildSwitchSection(label: string, description: string, on: boole
     new ButtonBuilder()
       .setCustomId(customId)
       .setLabel(t(on ? 'state.on' : 'state.off'))
-      .setEmoji(on ? '✅' : '✖️')
+      .setEmoji(switchIcon(on))
       .setStyle(on ? ButtonStyle.Success : ButtonStyle.Secondary),
   );
 }

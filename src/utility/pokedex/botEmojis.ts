@@ -15,9 +15,9 @@ import { TYPE_COLORS } from 'utility/pokedex/types';
  */
 const STAT_BAR_PREFIX = 'statbar1';
 const TYPE_ICON_PREFIX = 'typeicon2';
-const ICON_PREFIXES: Record<IconLook, string> = { button: 'btn1', text: 'icon1' };
+const ICON_PREFIXES: Record<IconLook, string> = { button: 'btn1', text: 'icon1', on: 'switch1', off: 'switch1' };
 /** The names of the bot's own emojis of any version, so old ones are deleted and emojis added by hand are left alone. */
-const OWN_EMOJI = /^(statbar|typeicon|btn|icon)\d+_/;
+const OWN_EMOJI = /^(statbar|typeicon|btn|icon|switch)\d+_/;
 
 /** The pieces of a bar: a rounded start, the middle, and a rounded end. */
 export type BarPiece = 'start' | 'middle' | 'end';
@@ -36,6 +36,8 @@ const barName = (color: string, piece: BarPiece) => `${STAT_BAR_PREFIX}_${color}
 const typeIconName = (type: string) => `${TYPE_ICON_PREFIX}_${type}`;
 /** An interface icon's name. Emoji names can't have dashes, which Lucide's names have. */
 const interfaceIconName = (name: string, look: IconLook) => `${ICON_PREFIXES[look]}_${name.replaceAll('-', '_')}`;
+const SWITCH_ON = `${ICON_PREFIXES.on}_on`;
+const SWITCH_OFF = `${ICON_PREFIXES.off}_off`;
 
 /** Draw a piece of a bar, filling the width so the pieces join up. */
 function renderPiece(color: string, piece: BarPiece): Buffer {
@@ -64,6 +66,8 @@ function wantedEmojis(): Map<string, () => Promise<Buffer | null>> {
   for (const name of iconNames()) {
     for (const look of ['button', 'text'] as const) wanted.set(interfaceIconName(name, look), () => iconPng(name, look, SIZE));
   }
+  wanted.set(SWITCH_ON, () => iconPng('check', 'on', SIZE));
+  wanted.set(SWITCH_OFF, () => iconPng('x', 'off', SIZE));
   return wanted;
 }
 
@@ -109,6 +113,9 @@ export const buttonIcon = (name: string, fallback: string) => emojis.get(interfa
 
 /** An interface icon for text, on the bot's blue, like `server`, or the normal emoji given while it isn't there. */
 export const textIcon = (name: string, fallback: string) => emojis.get(interfaceIconName(name, 'text')) ?? fallback;
+
+/** The icon of an On/Off switch, a check on green or an X on grey, or ✅ and ✖️ while it isn't there. */
+export const switchIcon = (on: boolean) => emojis.get(on ? SWITCH_ON : SWITCH_OFF) ?? (on ? '✅' : '✖️');
 
 /** A type's name with its icon in front, or the name alone while the icons aren't there. */
 export const withTypeEmoji = (type: string, name: string) => {
