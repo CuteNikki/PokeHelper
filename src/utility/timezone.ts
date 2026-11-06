@@ -59,8 +59,19 @@ export function fromWallTime(wall: WallTime, timezone: string): Date {
   return new Date(matches.length > 0 ? Math.min(...matches) : asUtc - Math.min(...offsets));
 }
 
-/** The timezone with the case it's known by, like `Europe/Berlin` for `europe/berlin`, or null if there's no such timezone. */
+/**
+ * The timezone with the case it's known by, like `Europe/Berlin` for `europe/berlin`, or null if there's no such timezone.
+ * Spaces work like underscores, so `new york` finds `America/New_York` as the suggestions do, and older names Intl still knows,
+ * like `Asia/Calcutta` or `Etc/UTC`, count too, although they aren't in its list.
+ */
 export function resolveTimezone(input: string): string | null {
-  const wanted = input.trim().toLowerCase();
-  return Intl.supportedValuesOf('timeZone').find((timezone) => timezone.toLowerCase() === wanted) ?? null;
+  const wanted = input.trim().replace(/\s+/g, '_');
+  if (!wanted) return null;
+  const listed = Intl.supportedValuesOf('timeZone').find((timezone) => timezone.toLowerCase() === wanted.toLowerCase());
+  if (listed) return listed;
+  try {
+    return new Intl.DateTimeFormat('en-US', { timeZone: wanted }).resolvedOptions().timeZone;
+  } catch {
+    return null;
+  }
 }

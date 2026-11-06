@@ -31,4 +31,11 @@ test('timezones are found whatever their case, and keep how they are written', (
   expect(resolveTimezone('europe/berlin')).toBe('Europe/Berlin');
   expect(resolveTimezone(' America/New_York ')).toBe('America/New_York');
   expect(resolveTimezone('Mars/Olympus')).toBeNull();
+  expect(resolveTimezone('')).toBeNull();
+});
+
+test('spaces work like underscores, and older names count too', () => {
+  expect(resolveTimezone('america/new york')).toBe('America/New_York');
+  expect(resolveTimezone('Asia/Calcutta')).toBe('Asia/Calcutta');
+  expect(resolveTimezone('etc/utc')).toBe('Etc/UTC');
 });
