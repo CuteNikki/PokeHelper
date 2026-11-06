@@ -11,6 +11,7 @@ import {
 
 import { getStarboardEntryByPost, type StarboardEntry } from 'database/starboard';
 
+import { formatNumber } from 'utility/duration';
 import { getTranslate, type Translate } from 'utility/i18next';
 import { sendError, sendResponse, type ResponsePayload } from 'utility/response';
 import { STAR_BUTTON_ID, STARBOARD_BUTTON_PREFIX, STARRED_BY_BUTTON_ID, toggleStar } from 'utility/starboard';
@@ -51,7 +52,7 @@ function buildStarredBy(entry: StarboardEntry, postId: string, requested: number
         new ButtonBuilder()
           .setCustomId(`${PAGE_PREFIX}${postId}:current`)
           .setStyle(ButtonStyle.Secondary)
-          .setLabel(t('pagination.page.label', { current: (page + 1).toLocaleString(t('locale')), total: pages.toLocaleString(t('locale')) }))
+          .setLabel(t('pagination.page.label', { current: formatNumber(page + 1, t), total: formatNumber(pages, t) }))
           .setDisabled(true),
         button(page + 1, t('pagination.next.icon')),
       ),

@@ -33,6 +33,7 @@ import {
   type StarboardEntry,
 } from 'database/starboard';
 
+import { formatNumber } from 'utility/duration';
 import { getTranslate, type Translate } from 'utility/i18next';
 import { logger } from 'utility/logger';
 import { KeyedQueue } from 'utility/queue';
@@ -144,11 +145,7 @@ function buildStarboardPost(message: Message, stars: number, emoji: string, uplo
   container.addActionRowComponents(
     new ActionRowBuilder<ButtonBuilder>().addComponents(
       // The count on the star button, like a reaction, which pressing adds to
-      new ButtonBuilder()
-        .setCustomId(STAR_BUTTON_ID)
-        .setStyle(ButtonStyle.Secondary)
-        .setEmoji(emoji)
-        .setLabel(stars.toLocaleString(t('locale'))),
+      new ButtonBuilder().setCustomId(STAR_BUTTON_ID).setStyle(ButtonStyle.Secondary).setEmoji(emoji).setLabel(formatNumber(stars, t)),
       new ButtonBuilder().setCustomId(STARRED_BY_BUTTON_ID).setStyle(ButtonStyle.Secondary).setLabel(t('starboard.post.who')),
       new ButtonBuilder().setStyle(ButtonStyle.Link).setURL(message.url).setLabel(t('starboard.post.jump')),
     ),

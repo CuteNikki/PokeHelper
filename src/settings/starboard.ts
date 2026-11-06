@@ -2,6 +2,7 @@ import { ChannelType } from 'discord.js';
 
 import { getOrCreateGuildStarboard, updateGuildStarboard, type GuildStarboard } from 'database/starboard';
 
+import { formatNumber } from 'utility/duration';
 import { parseEmoji } from 'utility/roleMenu';
 import { createSettingsPanel } from 'utility/settings';
 import { DEFAULT_STAR_EMOJI, DEFAULT_THRESHOLD, MAX_THRESHOLD, STARBOARD_CHANNEL_PERMISSIONS } from 'utility/starboard';
@@ -74,7 +75,7 @@ export const starboardSettings = createSettingsPanel<GuildStarboard>({
       label: (t) => t('starboard.settings.threshold.label'),
       description: (t) => t('starboard.settings.threshold.description'),
       defaultText: () => String(DEFAULT_THRESHOLD),
-      formatValue: (value, t) => Number(value).toLocaleString(t('locale')),
+      formatValue: (value, t) => formatNumber(Number(value), t),
       validate: (text, t) => (parseThreshold(text) ? null : t('starboard.settings.threshold.invalid', { max: MAX_THRESHOLD })),
       get: (config) => (config.threshold === null ? null : String(config.threshold)),
       set: (guildId, text) => updateGuildStarboard(guildId, { threshold: text ? parseThreshold(text) : null }),

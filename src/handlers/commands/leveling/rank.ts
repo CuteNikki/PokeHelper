@@ -13,6 +13,7 @@ import { Command } from 'classes/base/command';
 
 import { getGuildLevelingConfiguration, getLevelFromXP, getUserLevelingData, getUserRank, getXPForLevel, type LevelPeriod } from 'database/leveling';
 
+import { formatNumber } from 'utility/duration';
 import { getTranslate, type Translate } from 'utility/i18next';
 import { renderRankCard, type LevelProgress } from 'utility/leveling/rankCard';
 import { createResponse, sendError } from 'utility/response';
@@ -26,13 +27,12 @@ function getProgress(xp: number, rank: number): LevelProgress & { xp: number } {
 
 /** The values of a progress line, formatted for the language. */
 function progressValues(progress: LevelProgress & { xp: number }, t: Translate) {
-  const format = (value: number) => value.toLocaleString(t('locale'));
   return {
-    level: format(progress.level),
-    rank: format(progress.rank),
-    xpIntoLevel: format(progress.xpIntoLevel),
-    xpRequired: format(progress.xpRequired),
-    xp: format(progress.xp),
+    level: formatNumber(progress.level, t),
+    rank: formatNumber(progress.rank, t),
+    xpIntoLevel: formatNumber(progress.xpIntoLevel, t),
+    xpRequired: formatNumber(progress.xpRequired, t),
+    xp: formatNumber(progress.xp, t),
   };
 }
 

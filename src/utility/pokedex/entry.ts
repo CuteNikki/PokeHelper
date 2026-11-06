@@ -23,6 +23,7 @@ import {
 } from 'discord.js';
 
 import { DiscordLimits } from 'utility/discordLimits';
+import { formatNumber } from 'utility/duration';
 import { FALLBACK_LANGUAGE, getTranslate, resolveLanguage, type Translate } from 'utility/i18next';
 import { logger } from 'utility/logger';
 import {
@@ -268,7 +269,7 @@ export async function buildPokedexEntry(match: PokedexMatch, view: PokedexView, 
   const chain = species.evolution_chain ? await getEvolutionChain(species.evolution_chain.url) : null;
 
   const data = getPokedexData();
-  const format = (value: number) => value.toLocaleString(t('locale'), { maximumFractionDigits: 1 });
+  const format = (value: number) => formatNumber(value, t, { maximumFractionDigits: 1 });
   const name = matchName(match, language);
   const number = formatDexNumber(match.species.id);
 

@@ -3,6 +3,7 @@ import { ChannelType, type PermissionsString } from 'discord.js';
 import { getOrCreateGuildLevelingConfiguration, setLevelingMultiplier, setLevelingReward, updateGuildLevelingConfiguration } from 'database/leveling';
 
 import type { GuildLevelingReward, LevelingMultiplier, MultiplierTarget, GuildLeveling } from 'generated/prisma/client';
+import { formatNumber } from 'utility/duration';
 import type { Translate } from 'utility/i18next';
 import { grantRewardToQualifiedMembers } from 'utility/leveling/rewards';
 import { logFailure } from 'utility/response';
@@ -46,7 +47,7 @@ function multiplierSetting(type: MultiplierTarget): EntriesSetting<LevelingConfi
     max: MAX_MULTIPLIERS,
     presets: [0.5, 1.5, 2, 3],
     defaultValue: 2,
-    formatValue: (value, t) => t('leveling.settings.multiplier', { value: value.toLocaleString(t('locale')) }),
+    formatValue: (value, t) => t('leveling.settings.multiplier', { value: formatNumber(value, t) }),
     input: {
       label: (t) => t('leveling.settings.multipliers.input'),
       placeholder: () => '1.5',

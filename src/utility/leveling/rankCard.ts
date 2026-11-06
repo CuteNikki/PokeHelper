@@ -1,7 +1,7 @@
 import { createCanvas, type Image } from '@napi-rs/canvas';
 
 import { drawAvatar, drawPokeball, fitFontSize, truncateText } from 'utility/canvas';
-import { formatCompactNumber } from 'utility/duration';
+import { formatCompactNumber, formatNumber } from 'utility/duration';
 import type { Translate } from 'utility/i18next';
 
 /** A member's level progress, all-time or weekly. */
@@ -42,7 +42,6 @@ const COLORS = {
 export function renderRankCard(data: RankCardData, t: Translate): Buffer {
   const canvas = createCanvas(WIDTH, HEIGHT);
   const ctx = canvas.getContext('2d');
-  const format = (value: number) => value.toLocaleString(t('locale'));
   // Big ranks and XP are shortened, like 12.3k. The text option and the alt text have the exact numbers
   const compact = (value: number) => formatCompactNumber(value, t);
 
@@ -116,7 +115,7 @@ export function renderRankCard(data: RankCardData, t: Translate): Buffer {
   const levelLabel = t('leveling.rank.level').toUpperCase();
   const xpLabel = t('leveling.rank.exp').toUpperCase();
   const statsText = (label: string, progress: LevelProgress) =>
-    `${label}: ${levelLabel} ${format(progress.level)}  |  ${compact(progress.xpIntoLevel)}/${compact(progress.xpRequired)} ${xpLabel}`;
+    `${label}: ${levelLabel} ${formatNumber(progress.level, t)}  |  ${compact(progress.xpIntoLevel)}/${compact(progress.xpRequired)} ${xpLabel}`;
   const allTimeStats = statsText(t('leveling.rank.all').toUpperCase(), data.allTime);
   const weeklyStats = statsText(t('leveling.rank.weekly').toUpperCase(), data.weekly);
 

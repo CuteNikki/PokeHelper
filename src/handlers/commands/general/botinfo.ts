@@ -18,6 +18,7 @@ import { Command } from 'classes/base/command';
 
 import { getDatabaseLatency } from 'database/index';
 
+import { formatNumber } from 'utility/duration';
 import { getTranslate } from 'utility/i18next';
 import { ThemeColors } from 'utility/theme';
 
@@ -43,7 +44,6 @@ export default new Command({
     // Pinging the database and fetching the application can take a moment
     await interaction.deferReply();
     const t = getTranslate(interaction.locale);
-    const format = (value: number) => value.toLocaleString(t('locale'));
 
     const dbLatency = await getDatabaseLatency();
     const wsPing = interaction.client.ws.ping;
@@ -88,8 +88,8 @@ export default new Command({
         `**${t('botinfo.general.title')}**`,
         t('botinfo.general.developer', { developer }),
         t('botinfo.general.created', { created: time(createdTimestamp, TimestampStyles.RelativeTime) }),
-        t('botinfo.general.servers', { servers: format(totalGuilds) }),
-        t('botinfo.general.users', { users: format(totalUsers) }),
+        t('botinfo.general.servers', { servers: formatNumber(totalGuilds, t) }),
+        t('botinfo.general.users', { users: formatNumber(totalUsers, t) }),
       ],
       [`**${t('botinfo.network.title')}**`, t('botinfo.network.gateway', { ping: pingText }), t('botinfo.network.database', { latency: dbLatency })],
       [

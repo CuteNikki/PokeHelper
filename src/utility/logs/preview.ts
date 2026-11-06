@@ -1,5 +1,6 @@
 import { type GuildMember, type SendableChannels } from 'discord.js';
 
+import { formatNumber } from 'utility/duration';
 import type { Translate } from 'utility/i18next';
 import { oldNew } from 'utility/logs/changes';
 import { transcriptFile, type TranscriptMessage } from 'utility/logs/files';
@@ -144,9 +145,7 @@ export function previewEntries(member: GuildMember, channelId: string, t: Transl
       about: 'user',
       subject,
       thumbnail,
-      details: [
-        `**${t('logs.accountCreated')}** ${when(member.user.createdTimestamp)}\n**${t('logs.memberCount')}** ${guild.memberCount.toLocaleString(t('locale'))}`,
-      ],
+      details: [`**${t('logs.accountCreated')}** ${when(member.user.createdTimestamp)}\n**${t('logs.memberCount')}** ${formatNumber(guild.memberCount, t)}`],
       ids: { user: member.id },
     },
     {

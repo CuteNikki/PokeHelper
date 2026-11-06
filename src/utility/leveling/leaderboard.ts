@@ -122,7 +122,7 @@ function drawRowCard(ctx: SKRSContext2D, entry: LeaderboardEntry, x: number, y: 
   ctx.textAlign = 'right';
   ctx.font = 'bold 17px "Roboto"';
   ctx.fillStyle = colors.textGray;
-  ctx.fillText(`${t('leveling.rank.level').toUpperCase()}: ${level.toLocaleString(t('locale'))}`, rightX, centerY - 10);
+  ctx.fillText(`${t('leveling.rank.level').toUpperCase()}: ${formatNumber(level, t)}`, rightX, centerY - 10);
   ctx.fillText(`${t('leveling.rank.exp').toUpperCase()}: ${formatCompactNumber(entry.xp, t)}`, rightX, centerY + 14);
 }
 
@@ -228,7 +228,7 @@ export function renderLeaderboardCanvas(entries: LeaderboardEntry[], isTopPodium
 
       ctx.font = 'bold 16px "Roboto"';
       ctx.fillStyle = item.color;
-      ctx.fillText(`${t('leveling.rank.level').toUpperCase()}: ${level.toLocaleString(t('locale'))}`, avatarX, item.y + (isFirst ? 124 : 112));
+      ctx.fillText(`${t('leveling.rank.level').toUpperCase()}: ${formatNumber(level, t)}`, avatarX, item.y + (isFirst ? 124 : 112));
 
       // XP
       ctx.font = 'bold 15px "Roboto"';
@@ -347,10 +347,10 @@ export async function buildLeaderboard(requested: LeaderboardView, guild: Guild,
 
   const lines = entriesData.map((entry) =>
     t('leveling.leaderboard.entry', {
-      position: entry.position.toLocaleString(t('locale')),
+      position: formatNumber(entry.position, t),
       user: text ? userMention(entry.userId) : entry.displayName,
-      xp: entry.xp.toLocaleString(t('locale')),
-      level: getLevelFromXP(entry.xp).toLocaleString(t('locale')),
+      xp: formatNumber(entry.xp, t),
+      level: formatNumber(getLevelFromXP(entry.xp), t),
     }),
   );
   const controls = buildControls({ ...requested, page }, totalPages, t);

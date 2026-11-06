@@ -3,6 +3,7 @@ import { ContainerBuilder, MessageFlags, TextDisplayBuilder, userMention, type C
 import { getActiveLevelingConfigs, getLevelFromXP, getTopUsersByXP, processResetTransaction, type ResetPeriod } from 'database/leveling';
 
 import type { GuildLeveling } from 'generated/prisma/client';
+import { formatNumber } from 'utility/duration';
 import { getTranslate } from 'utility/i18next';
 import { isResetDue } from 'utility/leveling/rules';
 import { logger } from 'utility/logger';
@@ -80,14 +81,12 @@ export async function runResetJob(client: Client, period: ResetPeriod) {
 
       const channel = config.winnersChannelId ? guild.channels.cache.get(config.winnersChannelId) : undefined;
       if (!channel?.isSendable()) continue;
-
-      const format = (value: number) => value.toLocaleString(t('locale'));
       const ranking = topUsers.map((entry, index) =>
         t('leveling.leaderboard.entry', {
           user: userMention(entry.userId),
-          level: format(getLevelFromXP(entry.xp)),
-          xp: format(entry.xp),
-          position: format(index + 1),
+          level: formatNumber(getLevelFromXP(entry.xp), t),
+          xp: formatNumber(entry.xp, t),
+          position: formatNumber(index + 1, t),
         }),
       );
       await channel
@@ -97,7 +96,7 @@ export async function runResetJob(client: Client, period: ResetPeriod) {
               .setAccentColor(ThemeColors.warning)
               .addTextDisplayComponents(
                 new TextDisplayBuilder().setContent(
-                  [t(`leveling.${period}Reset.message`, { winner: userMention(topUser.userId), xp: format(topUser.xp) }), ...ranking].join('\n'),
+                  [t(`leveling.${period}Reset.message`, { winner: userMention(topUser.userId), xp: formatNumber(topUser.xp, t) }), ...ranking].join('\n'),
                 ),
               ),
           ],

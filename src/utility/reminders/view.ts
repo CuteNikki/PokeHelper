@@ -16,7 +16,7 @@ import type { Reminder } from 'generated/prisma/client';
 import type { Translate } from 'utility/i18next';
 import type { ResponsePayload } from 'utility/response';
 import { DiscordLimits } from 'utility/discordLimits';
-import { MINUTE } from 'utility/duration';
+import { formatNumber, MINUTE } from 'utility/duration';
 import { shorten } from 'utility/text';
 import { ThemeColors } from 'utility/theme';
 
@@ -86,7 +86,7 @@ export function buildReminderList(reminders: Reminder[], t: Translate): Response
 
   const line = (reminder: Reminder, index: number, text: string) =>
     t('reminders.list.entry', {
-      position: (index + 1).toLocaleString(t('locale')),
+      position: formatNumber(index + 1, t),
       text,
       due: formatDue(reminder.dueAt),
       details: describe(reminder, t),

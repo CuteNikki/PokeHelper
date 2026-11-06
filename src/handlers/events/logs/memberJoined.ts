@@ -2,6 +2,7 @@ import { Events } from 'discord.js';
 
 import { Event } from 'classes/base/event';
 
+import { formatNumber } from 'utility/duration';
 import { when, avatarOf, userSubject } from 'utility/logs/format';
 import { sendLog } from 'utility/logs/send';
 
@@ -17,7 +18,7 @@ export default new Event({
       subject: userSubject(member.user),
       thumbnail: avatarOf(member),
       details: [
-        `**${t('logs.accountCreated')}** ${when(member.user.createdTimestamp)}\n**${t('logs.memberCount')}** ${member.guild.memberCount.toLocaleString(t('locale'))}`,
+        `**${t('logs.accountCreated')}** ${when(member.user.createdTimestamp)}\n**${t('logs.memberCount')}** ${formatNumber(member.guild.memberCount, t)}`,
       ],
       ids: { user: member.id },
     }));

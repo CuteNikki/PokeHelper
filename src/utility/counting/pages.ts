@@ -82,7 +82,7 @@ function buildPage(list: CountingList, lines: string[], page: number, pages: num
         new ButtonBuilder()
           .setCustomId(`${COUNTING_PAGE_PREFIX}${list}:${page}:goto`)
           .setStyle(ButtonStyle.Secondary)
-          .setLabel(t('pagination.page.label', { current: (page + 1).toLocaleString(t('locale')), total: pages.toLocaleString(t('locale')) })),
+          .setLabel(t('pagination.page.label', { current: formatNumber(page + 1, t), total: formatNumber(pages, t) })),
         button(page + 1, t('pagination.next.icon')),
         button(pages - 1, t('pagination.last.icon'))
           .setCustomId(`${COUNTING_PAGE_PREFIX}${list}:${pages - 1}:last`)
