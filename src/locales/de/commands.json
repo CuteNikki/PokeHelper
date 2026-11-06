@@ -213,6 +213,9 @@
   "Friend codes": {
     "name": "Freundescodes"
   },
+  "Rank": {
+    "name": "Rang"
+  },
   "help": {
     "name": "hilfe",
     "description": "Alle Befehle, die du hier benutzen kannst"
