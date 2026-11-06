@@ -28,9 +28,9 @@ export const STICKY_TEXT_INPUT_ID = 'text';
 export const MAX_STICKY_LENGTH = 2000;
 
 /** How long a channel has to be quiet before its sticky message is posted again, so a conversation doesn't move it with every message. */
-const QUIET_DELAY = 10 * SECOND;
+export const QUIET_DELAY = 10 * SECOND;
 /** The longest it waits in a channel that never gets quiet, so it doesn't stay up in the chat for long. */
-const MAX_DELAY = 30 * SECOND;
+export const MAX_DELAY = 30 * SECOND;
 
 /** The channels with a sticky message, so other channels' messages don't ask the database. A channel that's in it by mistake only costs a lookup. */
 const stickyChannels = new Set<string>();

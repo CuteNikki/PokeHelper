@@ -17,10 +17,11 @@ import { getFeatureSwitches } from 'database/features';
 import { getGuildStickies, MAX_STICKIES } from 'database/sticky';
 
 import { DiscordLimits } from 'utility/discordLimits';
-import { formatNumber } from 'utility/duration';
+import { formatNumber, SECOND } from 'utility/duration';
 import type { Translate } from 'utility/i18next';
 import type { ResponsePayload } from 'utility/response';
 import { buildSwitchSection } from 'utility/settings';
+import { MAX_DELAY, QUIET_DELAY } from 'utility/sticky';
 import { shorten } from 'utility/text';
 import { ThemeColors } from 'utility/theme';
 
@@ -53,8 +54,17 @@ export async function renderStickyList(guild: Guild, t: Translate): Promise<Resp
     .addSectionComponents(buildSwitchSection(t('sticky.list.enabled.label'), t('sticky.list.enabled.description'), stickiesEnabled, STICKY_TOGGLE_ID, t))
     .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large));
 
+  // How they work, like the tips of the settings panels, with the waits they really use
+  const tipsText = (): string => {
+    const tips: string[] = t('sticky.list.tips', { returnObjects: true, quiet: formatNumber(QUIET_DELAY / SECOND, t), max: formatNumber(MAX_DELAY / SECOND, t) });
+    return [t('settings.tips'), ...tips.map((tip) => subtext(`• ${tip}`))].join('\n');
+  };
+
   if (stickies.length === 0) {
-    container.addTextDisplayComponents(new TextDisplayBuilder().setContent(t('sticky.list.none')));
+    container
+      .addTextDisplayComponents(new TextDisplayBuilder().setContent(t('sticky.list.none')))
+      .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large))
+      .addTextDisplayComponents(new TextDisplayBuilder().setContent(tipsText()));
     return { components: [container], flags: [MessageFlags.IsComponentsV2] };
   }
 
@@ -74,6 +84,8 @@ export async function renderStickyList(guild: Guild, t: Translate): Promise<Resp
         [subtext(t('sticky.list.count', { count: stickies.length, max: formatNumber(MAX_STICKIES, t) })), ...entries].join('\n'),
       ),
     )
+    .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large))
+    .addTextDisplayComponents(new TextDisplayBuilder().setContent(tipsText()))
     // Large, like before the buttons at the bottom of the settings panels
     .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large))
     .addActionRowComponents(

@@ -1537,7 +1537,11 @@
       "entry": "{{position}}. {{channel}}",
       "entryPosted": "{{position}}. {{channel}} · [Hinspringen]({{link}})",
       "placeholder": "Such dir eine aus, um sie zu ändern",
-      "gone": "Diese Sticky-Nachricht wurde inzwischen entfernt. Mit `/sticky liste` siehst du die Liste nochmal."
+      "gone": "Diese Sticky-Nachricht wurde inzwischen entfernt. Mit `/sticky liste` siehst du die Liste nochmal.",
+      "tips": [
+        "Nachdem jemand schreibt, rutscht die Sticky-Nachricht wieder nach unten, sobald es im Kanal {{quiet}} Sekunden ruhig war, oder spätestens nach {{max}} Sekunden, wenn weiter geschrieben wird.",
+        "Jeder Kanal kann eine Sticky-Nachricht haben."
+      ]
     }
   },
   "lookup": {

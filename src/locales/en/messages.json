@@ -1593,7 +1593,11 @@
       "entry": "{{position}}. {{channel}}",
       "entryPosted": "{{position}}. {{channel}} · [Jump to it]({{link}})",
       "placeholder": "Pick one to change it",
-      "gone": "That sticky message was removed meanwhile. Here's the list again with `/sticky list`."
+      "gone": "That sticky message was removed meanwhile. Here's the list again with `/sticky list`.",
+      "tips": [
+        "After someone writes, the sticky message moves back to the bottom once the channel has been quiet for {{quiet}} seconds, or after {{max}} seconds at most while people keep chatting.",
+        "Each channel can have one sticky message."
+      ]
     }
   },
   "lookup": {
