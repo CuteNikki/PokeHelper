@@ -33,7 +33,7 @@ import {
   type PokedexSpecies,
   speciesById,
 } from 'utility/pokedex/names';
-import { sendError, sendResponse, type ResponsePayload } from 'utility/response';
+import { replaceWithError, sendError, sendResponse, type ResponsePayload } from 'utility/response';
 import { escapeCode, shorten } from 'utility/text';
 import { ThemeColors } from 'utility/theme';
 
@@ -296,12 +296,14 @@ export async function handleGuessButton(interaction: ButtonInteraction): Promise
 
   // Answered before the names are loaded, which takes a while after a restart. The Pokédex entry is a message of its own, so the game
   // stays to look back at, and the rest change the game
-  if (action === 'dex') await interaction.deferReply();
+  const dex = action === 'dex';
+  if (dex) await interaction.deferReply();
   else await interaction.deferUpdate();
   try {
     await loadPokedexData();
   } catch (error) {
-    return answerPokeApiError(interaction, error, t);
+    // The entry's reply is public, so an error takes its place where only the presser sees it
+    return answerPokeApiError(interaction, error, t, { replace: dex });
   }
 
   switch (action) {
@@ -315,13 +317,13 @@ export async function handleGuessButton(interaction: ButtonInteraction): Promise
     }
     case 'dex': {
       const species = speciesById(game.speciesId);
-      if (!species) return sendError(interaction, t('system.outdated'));
+      if (!species) return replaceWithError(interaction, t('system.outdated'));
       try {
         const entry = await buildPokedexEntry({ species, form: null }, { shiny: false, text: false }, resolveLanguage(interaction.locale), t);
-        if (!entry) return sendError(interaction, t('system.outdated'));
+        if (!entry) return replaceWithError(interaction, t('system.outdated'));
         return await sendResponse(interaction, entry);
       } catch (error) {
-        return answerPokeApiError(interaction, error, t);
+        return answerPokeApiError(interaction, error, t, { replace: true });
       }
     }
   }
