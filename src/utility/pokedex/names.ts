@@ -60,6 +60,8 @@ export type PokedexData = Record<NameTable, NamesBySlug> & {
   berries: Record<string, string>;
   /** Where each game goes when they're listed by when they came out, smaller first. Games that aren't in it go by PokéAPI's order. */
   versionOrder: Record<string, number>;
+  /** The region of each place, as several have the same name, like the Pokémon League. */
+  locationRegions: Record<string, string>;
 };
 
 /** A species, or one of its forms. */
@@ -84,6 +86,7 @@ type NamesQuery = Record<NameTable, NamedRows> & {
   }[];
   berries: { name: string; item: { name: string } | null }[];
   versionOrder: { name: string; versiongroup: { id: number; generation_id: number } | null }[];
+  locationRegions: { name: string; region: { name: string } | null }[];
 };
 
 /** The names of every species, form and everything else with a name in the bot's languages, in one request. */
@@ -109,6 +112,7 @@ function namesQuery(languages: string[]) {
     ${tables.join('\n    ')}
     berries: berry { name item { name } }
     versionOrder: version { name versiongroup { id generation_id } }
+    locationRegions: location { name region { name } }
   }`;
 }
 
@@ -146,6 +150,7 @@ function parseNames(result: NamesQuery, languages: string[]): PokedexData {
         version.versiongroup ? [[version.name, version.versiongroup.generation_id * 1000 + version.versiongroup.id]] : [],
       ),
     ),
+    locationRegions: Object.fromEntries(result.locationRegions.flatMap((location) => (location.region ? [[location.name, location.region.name]] : []))),
   };
 }
 
@@ -184,6 +189,7 @@ export function namesFromLists(lists: Pick<PokedexLists, 'species' | 'pokemon'> 
         })),
       berries: (lists.berries ?? []).map((entry) => ({ name: entry.name, item: null })),
       versionOrder: [],
+      locationRegions: [],
     },
     languages,
   );
@@ -195,6 +201,7 @@ const emptyData = (): PokedexData => ({
   species: [],
   berries: {},
   versionOrder: {},
+  locationRegions: {},
 });
 
 const EMPTY = emptyData();

@@ -57,6 +57,8 @@ export function lookupCommand(options: {
   option: { name: string; description: string; required?: boolean };
   /** Which of the table can be looked up, like only the items that are berries. */
   only?: (slug: string) => boolean;
+  /** What tells suggestions with the same name apart, after it, like the region of a place. */
+  suggestionDetail?: (slug: string, language: string) => string | null;
   /** The answer when nothing was given, for an option that isn't required. */
   empty?: (language: string, t: Translate) => Promise<ResponsePayload> | ResponsePayload;
   /** Not found is null, when PokéAPI doesn't know it after all. */
@@ -83,7 +85,13 @@ export function lookupCommand(options: {
       ]);
       if (!loaded) return interaction.respond([]);
       const slugs = searchNamed(options.table, interaction.options.getFocused(), DiscordLimits.autocompleteChoices, options.only);
-      return interaction.respond(slugs.map((slug) => ({ name: nameOf(options.table, slug, language).slice(0, DiscordLimits.optionLabelLength), value: slug })));
+      return interaction.respond(
+        slugs.map((slug) => {
+          const detail = options.suggestionDetail?.(slug, language);
+          const name = nameOf(options.table, slug, language);
+          return { name: (detail ? `${name} · ${detail}` : name).slice(0, DiscordLimits.optionLabelLength), value: slug };
+        }),
+      );
     },
 
     async execute(interaction) {
