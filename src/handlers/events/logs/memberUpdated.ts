@@ -5,7 +5,7 @@ import { Event } from 'classes/base/event';
 import { whoDid } from 'utility/logs/audit';
 import { oldNew } from 'utility/logs/changes';
 import { avatarOf, reasonPart, roleSubject, userSubject, when } from 'utility/logs/format';
-import { sendLog } from 'utility/logs/send';
+import { sendLog, shouldLog } from 'utility/logs/send';
 import { code } from 'utility/text';
 
 /** A member changed: their nickname, roles or server avatar, or a timeout given or taken away. Each is its own log. */
@@ -20,7 +20,8 @@ export default new Event({
     const thumbnail = avatarOf(after);
     const ids = { user: after.id };
 
-    if (before.nickname !== after.nickname) {
+    // Each checks it's logged first, as finding out who did it can wait for the audit log for a while
+    if (before.nickname !== after.nickname && (await shouldLog(guild, 'memberNickname'))) {
       const doer = await whoDid(guild.id, AuditLogEvent.MemberUpdate, after.id);
       await sendLog(guild, 'memberNickname', (t) => ({
         kind: 'updated',
@@ -44,7 +45,7 @@ export default new Event({
 
     const added = after.roles.cache.filter((role) => !before.roles.cache.has(role.id)).map((role) => roleSubject(role.id, role.name));
     const removed = before.roles.cache.filter((role) => !after.roles.cache.has(role.id)).map((role) => roleSubject(role.id, role.name));
-    if (added.length > 0 || removed.length > 0) {
+    if ((added.length > 0 || removed.length > 0) && (await shouldLog(guild, 'memberRoles'))) {
       const doer = await whoDid(guild.id, AuditLogEvent.MemberRoleUpdate, after.id);
       // Roles the bot gives and takes, like birthday or reward roles, are logged too, so it's clear where they came from
       await sendLog(guild, 'memberRoles', (t) => ({
@@ -90,7 +91,7 @@ export default new Event({
     const isUntil = after.communicationDisabledUntilTimestamp ?? 0;
     const timedOut = isUntil > Date.now();
     // A timeout running out on its own isn't a change anyone made
-    if (wasUntil !== isUntil && (timedOut || wasUntil > Date.now())) {
+    if (wasUntil !== isUntil && (timedOut || wasUntil > Date.now()) && (await shouldLog(guild, 'memberTimedOut'))) {
       const doer = await whoDid(guild.id, AuditLogEvent.MemberUpdate, after.id);
       await sendLog(guild, 'memberTimedOut', (t) => ({
         kind: timedOut ? 'deleted' : 'created',
