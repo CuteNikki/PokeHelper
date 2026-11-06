@@ -1388,6 +1388,7 @@
       "whoTitle": "### Starred by ⭐",
       "own": "You can't star your own message.",
       "gone": "This message isn't on the starboard anymore.",
+      "closed": "Stars can't be changed right now, as the starboard is turned off or doesn't count this channel anymore.",
       "nobody": "Nobody has starred this yet."
     },
     "resetConfiguration": {

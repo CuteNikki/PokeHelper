@@ -924,6 +924,7 @@
       "whoTitle": "### Sterne von ⭐",
       "own": "Deiner eigenen Nachricht kannst du keinen Stern geben.",
       "gone": "Diese Nachricht ist nicht mehr im Starboard.",
+      "closed": "Sterne können gerade nicht geändert werden, weil das Starboard aus ist oder diesen Kanal nicht mehr zählt.",
       "nobody": "Noch niemand hat einen Stern gegeben."
     },
     "resetConfiguration": {

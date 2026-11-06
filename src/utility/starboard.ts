@@ -305,9 +305,9 @@ export function changeStars(guild: Guild, message: Message | PartialMessage, cha
 
 /**
  * Star or unstar a message with the button on its post.
- * @returns Whether they starred it now, or null if the message is gone.
+ * @returns `gone` if the message is gone, `closed` if its stars don't count right now, like with the starboard turned off.
  */
-export async function toggleStar(guild: Guild, entry: StarboardEntry, userId: string): Promise<boolean | null> {
+export async function toggleStar(guild: Guild, entry: StarboardEntry, userId: string): Promise<'changed' | 'gone' | 'closed'> {
   let message: Message | null = null;
   try {
     // Fetched when it isn't cached, like an archived thread after a restart
@@ -320,11 +320,10 @@ export async function toggleStar(guild: Guild, entry: StarboardEntry, userId: st
   if (!message) {
     const config = await getGuildStarboard(guild.id);
     if (config) await queue.run(entry.messageId, () => forget(guild, config, entry));
-    return null;
+    return 'gone';
   }
   // Toggled where it runs, so two quick presses undo each other
-  const starredBy = await changeStars(guild, message, { toggle: userId });
-  return starredBy?.includes(userId) ?? null;
+  return (await changeStars(guild, message, { toggle: userId })) ? 'changed' : 'closed';
 }
 
 /** Whether a reaction could change a starboard, checked before the message is looked at. */

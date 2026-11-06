@@ -56,6 +56,6 @@ export async function handleStarboardButton(interaction: ButtonInteraction): Pro
 
   // The post is updated with the new count, so the press only needs an answer
   await interaction.deferUpdate();
-  const starred = await toggleStar(interaction.guild, entry, interaction.user.id);
-  if (starred === null) return sendError(interaction, t('starboard.post.gone'));
+  const result = await toggleStar(interaction.guild, entry, interaction.user.id);
+  if (result !== 'changed') return sendError(interaction, t(`starboard.post.${result}`));
 }
