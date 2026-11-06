@@ -47,6 +47,8 @@ _A Pokémon themed Discord bot_
 - A Moves button with the moves it learns in each game, by leveling up, TM, egg and tutor
 - Every page links to the ones it's about, like an ability to its Pokémon or a place to the Pokémon there, with a Back button
 - `/dex` searches everything at once, Pokémon, moves, items and the rest, in any language
+- `/type` shows what a type is strong and weak against, or the chart of all types as an image or text
+- `/team` shows which types up to six Pokémon are weak to together
 - `/move`, `/item`, `/ability`, `/berry`, `/nature` and `/location` look up the rest, with suggestions in every language too
 - Names, pictures and details come from [PokéAPI](https://pokeapi.co/), so nothing has to be downloaded first
 - `/guess`: guess a Pokémon from its silhouette, in any language, with up to three hints
@@ -142,6 +144,8 @@ Days change at midnight UTC, and the bot puts the new look on within 15 minutes.
 | `/pokedex`          | Look up a Pokémon                                                 |
 | `/guess`            | Guess a Pokémon from its silhouette                               |
 | `/dex`              | Search everything: Pokémon, moves, items, abilities and places    |
+| `/type`             | A type's strengths and weaknesses, or the chart of all types      |
+| `/team`             | Which types your team is weak to                                  |
 | `/move`             | Look up a move: type, power, accuracy, PP, effect and contests    |
 | `/item`             | Look up an item: picture, effect and who holds it                 |
 | `/ability`          | Look up an ability and which Pokémon have it                      |
