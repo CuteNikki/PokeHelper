@@ -40,6 +40,9 @@ const formatDuration = (seconds: number) => {
   return parts.join(' ');
 };
 
+/** Memory is shown with one decimal, like 1.5 GB. */
+const ONE_DECIMAL = { minimumFractionDigits: 1, maximumFractionDigits: 1 };
+
 export default new Command({
   data: new SlashCommandBuilder().setName('botinfo').setDescription('Displays current status, host metrics, and statistics.'),
 
@@ -50,7 +53,7 @@ export default new Command({
 
     const dbLatency = await getDatabaseLatency();
     const wsPing = interaction.client.ws.ping;
-    const pingText = wsPing >= 0 ? `${wsPing} ms` : '...';
+    const pingText = wsPing >= 0 ? `${formatNumber(wsPing, t)} ms` : '...';
 
     // Application & Guild statistics
     const totalGuilds = interaction.client.guilds.cache.size;
@@ -63,7 +66,7 @@ export default new Command({
 
     // Memory stats
     const processMem = process.memoryUsage();
-    const processMb = (processMem.heapUsed / 1024 / 1024).toFixed(1);
+    const processMb = formatNumber(processMem.heapUsed / 1024 / 1024, t, ONE_DECIMAL);
     const totalMemBytes = os.totalmem();
     const freeMemBytes = os.freemem();
     const usedMemBytes = totalMemBytes - freeMemBytes;
@@ -71,7 +74,7 @@ export default new Command({
     // The system reports the usable memory, which is a bit less than what's installed as some is reserved by the hardware,
     // like 31.1 for 32 GB. Rounding up gives the installed amount
     const totalGb = Math.ceil(totalMemBytes / 1024 / 1024 / 1024);
-    const usedGb = (usedMemBytes / 1024 / 1024 / 1024).toFixed(1);
+    const usedGb = formatNumber(usedMemBytes / 1024 / 1024 / 1024, t, ONE_DECIMAL);
     const ramPercent = Math.round((usedMemBytes / totalMemBytes) * 100);
 
     // Host stats
@@ -82,7 +85,7 @@ export default new Command({
         .trim() || t('botinfo.na');
     const cores = os.cpus().length;
     const loadAvgRaw = os.loadavg()[0] || 0;
-    const loadAvg = loadAvgRaw.toFixed(2);
+    const loadAvg = formatNumber(loadAvgRaw, t, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     const cpuPercent = Math.min(Math.round((loadAvgRaw / cores) * 100), 100);
     const runtimeVersion = process.versions.bun ? `Bun v${process.versions.bun}` : `Node ${process.version}`;
 
@@ -94,7 +97,7 @@ export default new Command({
         t('botinfo.general.servers', { servers: formatNumber(totalGuilds, t) }),
         t('botinfo.general.users', { users: formatNumber(totalUsers, t) }),
       ],
-      [bold(t('botinfo.network.title')), t('botinfo.network.gateway', { ping: pingText }), t('botinfo.network.database', { latency: dbLatency })],
+      [bold(t('botinfo.network.title')), t('botinfo.network.gateway', { ping: pingText }), t('botinfo.network.database', { latency: formatNumber(dbLatency, t) })],
       [
         bold(t('botinfo.uptime.title')),
         t('botinfo.uptime.process', { time: formatDuration(process.uptime()) }),
@@ -103,12 +106,12 @@ export default new Command({
       [
         bold(t('botinfo.memory.title')),
         t('botinfo.memory.process', { mb: processMb }),
-        t('botinfo.memory.system', { used: usedGb, total: totalGb, percent: ramPercent }),
+        t('botinfo.memory.system', { used: usedGb, total: formatNumber(totalGb, t), percent: formatNumber(ramPercent, t) }),
       ],
       [
         bold(t('botinfo.host.title')),
-        t('botinfo.host.cpu', { name: cpuName, cores }),
-        t('botinfo.host.cpuLoad', { percent: cpuPercent, loadAvg }),
+        t('botinfo.host.cpu', { name: cpuName, cores: formatNumber(cores, t) }),
+        t('botinfo.host.cpuLoad', { percent: formatNumber(cpuPercent, t), loadAvg }),
         t('botinfo.host.runtime', { runtime: runtimeVersion, osType: os.type(), arch: os.arch() }),
         t('botinfo.host.nodeApi', { version: process.version }),
         t('botinfo.host.discordJs', { version: discordJsVersion }),
