@@ -1730,13 +1730,10 @@
   "team": {
     "title": "### Your team {{icon.users}}",
     "dangers": "Watch out for",
-    "noDangers": "No type hits more of them super effectively than resist it. Nicely covered!",
-    "others": "Every other type",
-    "weak_one": "{{shown}} weak",
-    "weak_other": "{{shown}} weak",
-    "resist_one": "{{shown}} resists",
-    "resist_other": "{{shown}} resist",
+    "noDangers": "Nothing hits more than one of them hard. Nicely covered!",
     "notFound": "I couldn't find a Pokémon called **{{name}}**. Pick them from the suggestions.",
-    "note": "From their types. Abilities like Levitate aren't counted."
+    "note": "From their types. Abilities like Levitate aren't counted.",
+    "weakSpots": "Weak spots",
+    "covered": "Covered"
   }
 }

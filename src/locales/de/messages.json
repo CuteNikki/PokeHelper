@@ -1669,13 +1669,10 @@
   "team": {
     "title": "### Dein Team {{icon.users}}",
     "dangers": "Pass auf bei",
-    "noDangers": "Kein Typ trifft mehr von ihnen sehr effektiv, als ihm widerstehen. Gut abgedeckt!",
-    "others": "Alle anderen Typen",
-    "weak_one": "{{shown}} schwach",
-    "weak_other": "{{shown}} schwach",
-    "resist_one": "{{shown}} resistent",
-    "resist_other": "{{shown}} resistent",
+    "noDangers": "Nichts trifft mehr als eins von ihnen hart. Gut abgedeckt!",
     "notFound": "Ich konnte kein Pokémon namens **{{name}}** finden. Wähl sie aus den Vorschlägen.",
-    "note": "Nach ihren Typen. Fähigkeiten wie Schwebe zählen nicht mit."
+    "note": "Nach ihren Typen. Fähigkeiten wie Schwebe zählen nicht mit.",
+    "weakSpots": "Schwachstellen",
+    "covered": "Abgedeckt"
   }
 }
