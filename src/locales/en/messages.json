@@ -1625,5 +1625,16 @@
     "harvest": "Harvest",
     "naturalGift": "Natural Gift",
     "harvestCount": "up to {{count}}"
+  },
+  "natures": {
+    "title": "### {{name}} {{icon.leaf}}",
+    "notFound": "I couldn't find a nature called **{{name}}**. Pick one of the suggestions, or leave it empty to see them all.",
+    "stats": "Stats",
+    "change": "+{{up}} −{{down}}",
+    "neutral": "No change",
+    "likes": "Likes",
+    "dislikes": "Dislikes",
+    "listTitle": "### Natures {{icon.leaf}}",
+    "listNote": "Each raises one stat by 10% and lowers another by 10%, apart from the ones with no change."
   }
 }

@@ -361,5 +361,15 @@
         "description": "Die Beere, mit Namen"
       }
     }
+  },
+  "nature": {
+    "name": "wesen",
+    "description": "Schlag ein Wesen nach, oder sieh alle: welche Werte es erhöht und senkt",
+    "options": {
+      "nature": {
+        "name": "wesen",
+        "description": "Das Wesen, mit Namen. Leer lassen für alle"
+      }
+    }
   }
 }

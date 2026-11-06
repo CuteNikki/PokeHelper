@@ -171,6 +171,17 @@ export interface ApiBerry {
   natural_gift_type: Named;
 }
 
+/** A nature, which raises one stat and lowers another, unless both are the same, when it does nothing. */
+export interface ApiNature {
+  id: number;
+  name: string;
+  names: { name: string; language: Named }[];
+  increased_stat: Named | null;
+  decreased_stat: Named | null;
+  likes_flavor: Named | null;
+  hates_flavor: Named | null;
+}
+
 /** A kind of item, like Standard balls. */
 export interface ApiItemCategory {
   id: number;
@@ -242,6 +253,7 @@ export const getItem = (slug: string) => get<ApiItem>(`item/${encodeURIComponent
 export const getItemCategory = (slug: string) => get<ApiItemCategory>(`item-category/${encodeURIComponent(slug)}`);
 export const getAbility = (slug: string) => get<ApiAbility>(`ability/${encodeURIComponent(slug)}`);
 export const getBerry = (slug: string) => get<ApiBerry>(`berry/${encodeURIComponent(slug)}`);
+export const getNature = (slug: string) => get<ApiNature>(`nature/${encodeURIComponent(slug)}`);
 export const getContestEffect = (id: number) => get<ApiContestEffect>(`contest-effect/${id}`);
 
 /** The evolution chain at a URL from {@link ApiSpecies.evolution_chain}. */

@@ -94,8 +94,8 @@ export function lookupCommand(options: {
       // PokéAPI can take a moment the first time something is looked up
       await interaction.deferReply();
       try {
-        if (!input && options.empty) return await sendResponse(interaction, await options.empty(language, t));
         await loadPokedexData();
+        if (!input && options.empty) return await sendResponse(interaction, await options.empty(language, t));
         // What's typed doesn't have to be one of the suggestions, so it's looked up by any name
         const slug = input ? findNamed(options.table, input, options.only) : null;
         const answer = slug ? await options.build(slug, language, t) : null;

@@ -1564,5 +1564,16 @@
     "harvest": "Ernte",
     "naturalGift": "Beerenkräfte",
     "harvestCount": "bis zu {{count}}"
+  },
+  "natures": {
+    "title": "### {{name}} {{icon.leaf}}",
+    "notFound": "Ich konnte kein Wesen namens **{{name}}** finden. Wähl einen der Vorschläge, oder lass es leer, um alle zu sehen.",
+    "stats": "Werte",
+    "change": "+{{up}} −{{down}}",
+    "neutral": "Keine Änderung",
+    "likes": "Mag",
+    "dislikes": "Mag nicht",
+    "listTitle": "### Wesen {{icon.leaf}}",
+    "listNote": "Jedes erhöht einen Wert um 10 % und senkt einen anderen um 10 %, außer denen ohne Änderung."
   }
 }
