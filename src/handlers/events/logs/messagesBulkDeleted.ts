@@ -3,6 +3,7 @@ import { AuditLogEvent, Events, subtext } from 'discord.js';
 import { Event } from 'classes/base/event';
 
 import { whoDid } from 'utility/logs/audit';
+import { isBotDelete } from 'utility/logs/botDeletes';
 import { toTranscriptMessage, transcriptFile } from 'utility/logs/files';
 import { channelSubject } from 'utility/logs/format';
 import { isIgnoredChannel, sendLog, shouldLog } from 'utility/logs/send';
@@ -11,8 +12,11 @@ import { isIgnoredChannel, sendLog, shouldLog } from 'utility/logs/send';
 export default new Event({
   name: Events.MessageBulkDelete,
   once: false,
-  async execute(_client, messages, channel) {
+  async execute(_client, deleted, channel) {
     const { guild } = channel;
+    // Checked for each, so none stays remembered after its delete
+    const messages = deleted.filter((message) => !isBotDelete(message.id));
+    if (messages.size === 0) return;
     const config = await shouldLog(guild, 'messagesBulkDeleted');
     if (!config || isIgnoredChannel(config, guild, channel.id)) return;
     const doer = await whoDid(guild.id, AuditLogEvent.MessageBulkDelete, channel.id);

@@ -3,6 +3,7 @@ import { bold, Events, messageLink, subtext } from 'discord.js';
 import { Event } from 'classes/base/event';
 
 import { whoDeleted } from 'utility/logs/audit';
+import { isBotDelete } from 'utility/logs/botDeletes';
 import { avatarOf, channelRef, userSubject } from 'utility/logs/format';
 import { deletedText } from 'utility/logs/messages';
 import { isIgnoredChannel, isIgnoredMember, sendLog, shouldLog } from 'utility/logs/send';
@@ -14,7 +15,7 @@ export default new Event({
   once: false,
   async execute(client, message) {
     const guild = message.guildId ? client.guilds.cache.get(message.guildId) : null;
-    if (!guild || message.author?.bot || message.webhookId) return;
+    if (!guild || message.author?.bot || message.webhookId || isBotDelete(message.id)) return;
     const config = await shouldLog(guild, 'messageDeleted');
     if (!config || isIgnoredChannel(config, guild, message.channelId) || isIgnoredMember(config, message.member)) return;
 

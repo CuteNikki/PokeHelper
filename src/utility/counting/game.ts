@@ -28,6 +28,7 @@ import { parseCount } from 'utility/counting/parse';
 import { formatNumber, SECOND } from 'utility/duration';
 import { guildTranslate } from 'utility/i18next';
 import { logger } from 'utility/logger';
+import { markBotDelete } from 'utility/logs/botDeletes';
 import { KeyedQueue } from 'utility/queue';
 import { createResponse, logFailure } from 'utility/response';
 
@@ -65,12 +66,14 @@ const toCountMessage = (message: Message): CountMessage => ({
   createdAt: message.createdAt,
 });
 
-/** Delete a message, ignoring that it's already gone. */
-const deleteMessage = (message: Message) =>
-  message.delete().catch((error: unknown) => {
+/** Delete a message, ignoring that it's already gone. It isn't logged, as wrong counts would flood the log. */
+const deleteMessage = (message: Message) => {
+  markBotDelete(message.id);
+  return message.delete().catch((error: unknown) => {
     if (error instanceof DiscordAPIError && error.code === RESTJSONErrorCodes.UnknownMessage) return;
     logger.error(error, `Failed to delete counting message ${message.id}`);
   });
+};
 
 /**
  * Check a message sent in a counting channel. Must run inside {@link runCountingTask}.
@@ -259,6 +262,7 @@ async function syncCounting(client: Client, counting: GuildCounting): Promise<Gu
 async function deleteMessages(channel: GuildTextBasedChannel, messages: Message[]) {
   for (let i = 0; i < messages.length; i += 100) {
     const chunk = messages.slice(i, i + 100);
+    for (const message of chunk) markBotDelete(message.id);
     const deleted = await channel.bulkDelete(chunk, true).catch(logFailure('Failed to bulk delete counting messages'));
     const remaining = chunk.filter((message) => !deleted?.has(message.id));
     for (const message of remaining) await deleteMessage(message);
