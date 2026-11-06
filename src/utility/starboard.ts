@@ -159,6 +159,9 @@ async function uploadsOf(message: Message): Promise<AttachmentBuilder[]> {
 }
 
 const isUnknownMessage = (error: unknown) => error instanceof DiscordAPIError && error.code === RESTJSONErrorCodes.UnknownMessage;
+/** Whether a fetch failed because the message or its channel is gone, and not for a moment, like Discord having trouble. */
+const isGone = (error: unknown) =>
+  error instanceof DiscordAPIError && (error.code === RESTJSONErrorCodes.UnknownMessage || error.code === RESTJSONErrorCodes.UnknownChannel);
 
 /** One message at a time, so quick stars don't post it twice or lose one. */
 const queue = new KeyedQueue();
@@ -226,9 +229,13 @@ export function changeStars(guild: Guild, message: Message | PartialMessage, cha
     const starboard = config?.enabled ? starboardChannelOf(guild, config) : null;
     if (!config || !starboard || message.channelId === starboard.id || isIgnoredChannel(config, guild, message.channelId)) return null;
 
-    const full = message.partial ? await message.fetch().catch(() => null) : message;
     const entry = await getStarboardEntry(message.id);
-    if (!full) {
+    let full: Message;
+    try {
+      full = message.partial ? await message.fetch() : message;
+    } catch (error) {
+      // Only a message that's really gone is forgotten. Any other failure, like Discord having trouble, leaves it as it is
+      if (!isGone(error)) throw error;
       if (entry) await forget(guild, config, entry);
       return null;
     }
@@ -273,8 +280,15 @@ export function changeStars(guild: Guild, message: Message | PartialMessage, cha
  * @returns Whether they starred it now, or null if the message is gone.
  */
 export async function toggleStar(guild: Guild, entry: StarboardEntry, userId: string): Promise<boolean | null> {
-  const channel = guild.channels.cache.get(entry.channelId);
-  const message = channel?.isTextBased() ? await channel.messages.fetch(entry.messageId).catch(() => null) : null;
+  let message: Message | null = null;
+  try {
+    // Fetched when it isn't cached, like an archived thread after a restart
+    const channel = guild.channels.cache.get(entry.channelId) ?? (await guild.client.channels.fetch(entry.channelId));
+    if (channel?.isTextBased()) message = await channel.messages.fetch(entry.messageId);
+  } catch (error) {
+    // Only a message that's really gone is forgotten. Any other failure leaves it as it is
+    if (!isGone(error)) throw error;
+  }
   if (!message) {
     const config = await getGuildStarboard(guild.id);
     if (config) await queue.run(entry.messageId, () => forget(guild, config, entry));
