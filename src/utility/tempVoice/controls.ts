@@ -228,6 +228,10 @@ export async function handleTempVoiceSelect(interaction: AnySelectMenuInteractio
   const t = getTranslate(interaction.locale);
   const parsed = parseTempVoiceCustomId(interaction.customId);
   if (!parsed || !interaction.inCachedGuild()) return sendError(interaction, t('system.outdated'));
+  // Answered before the channel is looked up, which can take a moment, as Discord gives up after 3 seconds. Someone picked from who's
+  // here gets a question of their own, the lists change the panel. Errors still only go to whoever picked
+  if (parsed.action === 'member') await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
+  else await interaction.deferUpdate();
   const temp = await controlledChannel(interaction, parsed.channelId, MODERATOR_ACTIONS.includes(parsed.action), t);
   if (!temp) return;
 
@@ -254,7 +258,6 @@ export async function handleTempVoiceSelect(interaction: AnySelectMenuInteractio
       else ids.push(id);
     }
 
-    await interaction.deferUpdate();
     const field = list === 'moderators' ? 'moderators' : list === 'allow' ? 'allowed' : 'blocked';
     // The picker only shows the first ones of a long list, so those after them weren't there to unpick and stay on it
     const change = (record: { allowed: string[]; blocked: string[]; moderators: string[] }) => ({
@@ -282,7 +285,7 @@ export async function handleTempVoiceSelect(interaction: AnySelectMenuInteractio
         .setLabel(label)
         .setStyle(style);
     const question = createResponse(t('tempVoice.member.question', { user: userMention(target) }));
-    return interaction.reply({
+    return interaction.editReply({
       components: [
         ...(question.components ?? []),
         new ActionRowBuilder<ButtonBuilder>().addComponents(
@@ -292,7 +295,7 @@ export async function handleTempVoiceSelect(interaction: AnySelectMenuInteractio
           button('keepout', t('tempVoice.member.keepout'), ButtonStyle.Danger),
         ),
       ],
-      flags: [MessageFlags.IsComponentsV2, MessageFlags.Ephemeral],
+      flags: [MessageFlags.IsComponentsV2],
       allowedMentions: { parse: [] },
     });
   }
