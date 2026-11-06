@@ -244,6 +244,7 @@
       "confirmButton": "Alles entfernen",
       "cancelButton": "Abbrechen",
       "cancelled": "Es wurde nichts entfernt.",
+      "nothing": "Hier gibt es nichts zurückzusetzen, es gibt noch kein Zählspiel.",
       "success": "Das Zählspiel und seine Statistiken sind weg. Mit `/zählen-einstellungen einrichten` kannst du ein neues starten."
     },
     "tips": [

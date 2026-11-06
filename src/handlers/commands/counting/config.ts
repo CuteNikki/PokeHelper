@@ -16,10 +16,10 @@ import { createCounting, getCounting } from 'database/counting';
 
 import { COUNTING_CHANNEL_PERMISSIONS, countingSettings } from 'settings/counting';
 
-import { buildConfirmation } from 'utility/confirm';
+import { askToReset, showSettingsPanel } from 'utility/configCommand';
 import { runCountingTask } from 'utility/counting/game';
 import { getTranslate } from 'utility/i18next';
-import { createResponse, sendResponse } from 'utility/response';
+import { createResponse } from 'utility/response';
 import { formatPermissions, missingBotPermissions, settingsContext } from 'utility/settings';
 
 export default new Command({
@@ -46,9 +46,9 @@ export default new Command({
       case 'setup':
         return handleSetup(interaction);
       case 'settings':
-        return handleSettings(interaction);
+        return showSettingsPanel(interaction, countingSettings);
       case 'reset':
-        return handleReset(interaction);
+        return askToReset(interaction, 'counting', async () => Boolean(await getCounting(interaction.guildId)));
     }
   },
 });
@@ -94,37 +94,4 @@ async function handleSetup(interaction: ChatInputCommandInteraction<'cached'>): 
   const success = createResponse(t('counting.setup.success', { channel: channelMention(channel.id) }), 'success');
   const settings = await countingSettings.render(settingsContext(interaction), t);
   return interaction.editReply({ ...settings, components: [...(success.components ?? []), ...(settings.components ?? [])] });
-}
-
-/**
- * Handle the settings subcommand for the counting game, which shows the interactive settings panel.
- * @param interaction {ChatInputCommandInteraction<CacheType>} The interaction object for the command.
- * @returns {Promise<unknown>} A promise that resolves when the panel is shown.
- */
-async function handleSettings(interaction: ChatInputCommandInteraction<'cached'>): Promise<unknown> {
-  const t = getTranslate(interaction.locale);
-  return sendResponse(interaction, await countingSettings.render(settingsContext(interaction), t), { ephemeral: true });
-}
-
-/**
- * Handle the reset subcommand for the counting game, which removes it with all its stats after a confirmation.
- * @param interaction {ChatInputCommandInteraction<CacheType>} The interaction object for the command.
- * @returns {Promise<unknown>} A promise that resolves when the reset is complete or cancelled.
- */
-async function handleReset(interaction: ChatInputCommandInteraction<'cached'>): Promise<unknown> {
-  const t = getTranslate(interaction.locale);
-  await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
-
-  if (!(await getCounting(interaction.guildId))) {
-    return interaction.editReply(createResponse(t('counting.none'), 'error'));
-  }
-
-  // The confirm button resets, whenever it's clicked
-  return interaction.editReply(
-    buildConfirmation('counting-reset', {
-      question: t('counting.resetConfiguration.confirm'),
-      confirm: t('counting.resetConfiguration.confirmButton'),
-      cancel: t('counting.resetConfiguration.cancelButton'),
-    }),
-  );
 }

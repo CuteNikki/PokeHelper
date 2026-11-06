@@ -1,11 +1,4 @@
-import {
-  ApplicationIntegrationType,
-  InteractionContextType,
-  MessageFlags,
-  PermissionFlagsBits,
-  SlashCommandBuilder,
-  type ChatInputCommandInteraction,
-} from 'discord.js';
+import { ApplicationIntegrationType, InteractionContextType, PermissionFlagsBits, SlashCommandBuilder } from 'discord.js';
 
 import { Command } from 'classes/base/command';
 
@@ -13,10 +6,7 @@ import { getGuildLogs } from 'database/logs';
 
 import { logSettings } from 'settings/logs';
 
-import { buildConfirmation } from 'utility/confirm';
-import { getTranslate } from 'utility/i18next';
-import { createResponse, sendResponse } from 'utility/response';
-import { settingsContext } from 'utility/settings';
+import { askToReset, showSettingsPanel } from 'utility/configCommand';
 
 export default new Command({
   data: new SlashCommandBuilder()
@@ -32,30 +22,9 @@ export default new Command({
     if (!interaction.inCachedGuild()) return;
     switch (interaction.options.getSubcommand()) {
       case 'settings':
-        return handleSettings(interaction);
+        return showSettingsPanel(interaction, logSettings);
       case 'reset':
-        return handleReset(interaction);
+        return askToReset(interaction, 'logs', async () => Boolean(await getGuildLogs(interaction.guildId)));
     }
   },
 });
-
-async function handleSettings(interaction: ChatInputCommandInteraction<'cached'>): Promise<unknown> {
-  const t = getTranslate(interaction.locale);
-  // Loading the panel can create the configuration, so defer in case that takes a moment
-  await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
-  return sendResponse(interaction, await logSettings.render(settingsContext(interaction), t));
-}
-
-/** Remove the server's log settings after a confirmation. What was already logged stays in the channels. */
-async function handleReset(interaction: ChatInputCommandInteraction<'cached'>): Promise<unknown> {
-  const t = getTranslate(interaction.locale);
-  await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
-  if (!(await getGuildLogs(interaction.guildId))) return interaction.editReply(createResponse(t('logs.resetConfiguration.nothing'), 'info'));
-  return interaction.editReply(
-    buildConfirmation('logs-reset', {
-      question: t('logs.resetConfiguration.confirm'),
-      confirm: t('logs.resetConfiguration.confirmButton'),
-      cancel: t('logs.resetConfiguration.cancelButton'),
-    }),
-  );
-}

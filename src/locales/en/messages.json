@@ -549,6 +549,7 @@
       "confirmButton": "Remove everything",
       "cancelButton": "Cancel",
       "cancelled": "Nothing was removed.",
+      "nothing": "There's nothing to reset, there's no counting game here yet.",
       "success": "The counting game and its stats are gone. Use `/counting-config setup` to start a new one."
     },
     "tips": [
