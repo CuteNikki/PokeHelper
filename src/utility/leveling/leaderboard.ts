@@ -105,7 +105,7 @@ function drawRowCard(ctx: SKRSContext2D, entry: LeaderboardEntry, x: number, y: 
  * @returns The page as a PNG.
  */
 function renderLeaderboardCanvas(entries: LeaderboardEntry[], isTopPodiumView: boolean, t: Translate): Buffer {
-  const width = 760;
+  const width = 640;
   const margin = 30;
   const podiumTopY = 110;
   const podiumHeight = 170;
@@ -134,10 +134,14 @@ function renderLeaderboardCanvas(entries: LeaderboardEntry[], isTopPodiumView: b
   };
 
   if (usesPodium) {
+    // The sides share the width with the first, which is a little wider, with a small gap between them
+    const gap = 6;
+    const sideW = (width - margin * 2 - gap * 2 - 10) / 3;
+    const firstW = sideW + 10;
     const top3 = [
-      { entry: entries[1], x: 30, w: 226, h: podiumHeight - 20, y: podiumTopY + 20, color: colors.accentSilver, rank: 2 },
-      { entry: entries[0], x: 262, w: 236, h: podiumHeight, y: podiumTopY, color: colors.accentGold, rank: 1 },
-      { entry: entries[2], x: 504, w: 226, h: podiumHeight - 20, y: podiumTopY + 20, color: colors.accentBronze, rank: 3 },
+      { entry: entries[1], x: margin, w: sideW, h: podiumHeight - 20, y: podiumTopY + 20, color: colors.accentSilver, rank: 2 },
+      { entry: entries[0], x: margin + sideW + gap, w: firstW, h: podiumHeight, y: podiumTopY, color: colors.accentGold, rank: 1 },
+      { entry: entries[2], x: margin + sideW + firstW + gap * 2, w: sideW, h: podiumHeight - 20, y: podiumTopY + 20, color: colors.accentBronze, rank: 3 },
     ];
 
     for (const item of top3) {
