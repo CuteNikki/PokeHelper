@@ -82,20 +82,27 @@ export function isIgnoredChannel(config: Pick<GuildStarboard, 'ignoredChannelIds
 const emojiOf = (config: Pick<GuildStarboard, 'emoji'>) => config.emoji ?? DEFAULT_STAR_EMOJI;
 const thresholdOf = (config: Pick<GuildStarboard, 'threshold'>) => config.threshold ?? DEFAULT_THRESHOLD;
 
-/** The name a picture is uploaded with, which the post refers to it by. Always the same for a message, so a post can be updated without uploading again. */
-const imageName = (index: number, name: string) => `star-${index}-${name.replace(/[^\w.-]/g, '_')}`;
+/**
+ * The names a picture can be uploaded with, which the post refers to it by. By the picture's ID, so taking one picture off the message
+ * doesn't rename the others, and by its place, which posts from before were uploaded with.
+ */
+const imageNames = (id: string, index: number, name: string) => {
+  const safe = name.replace(/[^\w.-]/g, '_');
+  return [`star-${id}-${safe}`, `star-${index}-${safe}`];
+};
 
 /** The message's pictures that can be uploaded again, in order. */
 const imagesOf = (message: Message) =>
   [...message.attachments.values()]
     .filter((file) => file.contentType?.startsWith('image/') && file.size <= MAX_IMAGE_SIZE)
     .slice(0, MAX_IMAGES)
-    .map((file, index) => ({ file, name: imageName(index, file.name) }));
+    .map((file, index) => ({ file, names: imageNames(file.id, index, file.name) }));
 
 /**
  * A starboard post: who wrote it, where and when, the text and pictures, and buttons to star, see who starred, and go to the message.
+ * @param uploaded The names of the pictures on the post, as one whose upload failed can't be shown.
  */
-export function buildStarboardPost(message: Message, stars: number, emoji: string, t: Translate): ResponsePayload {
+function buildStarboardPost(message: Message, stars: number, emoji: string, uploaded: string[], t: Translate): ResponsePayload {
   const text = message.content.length > MAX_TEXT ? `${message.content.slice(0, MAX_TEXT)}…` : message.content;
 
   // Who wrote it on one line with where and when, like an embed's author, as a thumbnail would take a large square beside the text.
@@ -109,7 +116,10 @@ export function buildStarboardPost(message: Message, stars: number, emoji: strin
     );
   if (text) container.addSeparatorComponents(new SeparatorBuilder()).addTextDisplayComponents(new TextDisplayBuilder().setContent(text));
 
-  const images = imagesOf(message);
+  const images = imagesOf(message).flatMap(({ file, names }) => {
+    const name = names.find((candidate) => uploaded.includes(candidate));
+    return name ? [{ file, name }] : [];
+  });
   // Without pictures of its own, the picture of a link, like a GIF, which isn't on Discord's servers and keeps working
   const linked = images.length === 0 ? (message.embeds.find((embed) => embed.image ?? embed.thumbnail) ?? null) : null;
   const linkedUrl = linked?.image?.url ?? linked?.thumbnail?.url;
@@ -117,9 +127,9 @@ export function buildStarboardPost(message: Message, stars: number, emoji: strin
     container.addMediaGalleryComponents(
       new MediaGalleryBuilder().addItems(
         images.map(
-          ({ file, name: fileName }) =>
+          ({ file, name }) =>
             (item) =>
-              item.setURL(`attachment://${fileName}`).setSpoiler(file.spoiler),
+              item.setURL(`attachment://${name}`).setSpoiler(file.spoiler),
         ),
       ),
     );
@@ -149,10 +159,11 @@ export function buildStarboardPost(message: Message, stars: number, emoji: strin
 /** The pictures to upload with a new post. */
 async function uploadsOf(message: Message): Promise<AttachmentBuilder[]> {
   const files = await Promise.all(
-    imagesOf(message).map(async ({ file, name }) => {
+    imagesOf(message).map(async ({ file, names }) => {
       const response = await fetch(file.url, { signal: AbortSignal.timeout(15_000) }).catch(() => null);
       if (!response?.ok) return null;
-      return new AttachmentBuilder(Buffer.from(await response.arrayBuffer()), { name });
+      const data = await response.arrayBuffer().catch(() => null);
+      return data ? new AttachmentBuilder(Buffer.from(data), { name: names[0] }) : null;
     }),
   );
   return files.filter((file): file is AttachmentBuilder => file !== null);
@@ -254,26 +265,33 @@ export function changeStars(guild: Guild, message: Message | PartialMessage, cha
     if (starredBy.length < thresholdOf(config)) {
       // Without stars there's nothing to remember
       if (starredBy.length === 0 && entry) await deleteStarboardEntry(entry.messageId);
-      else if (starredBy.length > 0) await saveStarboardEntry({ ...ids, starredBy, starboardMessageId: null });
+      else if (starredBy.length > 0) await saveStarboardEntry({ ...ids, starredBy, starboardMessageId: null, postImages: [] });
       if (entry) await deletePost(guild, config, entry.starboardMessageId);
       return starredBy;
     }
 
-    const post = buildStarboardPost(full, starredBy.length, emoji, getTranslate(guild.preferredLocale));
+    const t = getTranslate(guild.preferredLocale);
     if (entry?.starboardMessageId) {
       try {
-        await starboard.messages.edit(entry.starboardMessageId, post);
-        await saveStarboardEntry({ ...ids, starredBy });
+        // Only the pictures uploaded with the post can be shown. Posts from before they were remembered are looked at once
+        const uploaded =
+          entry.postImages.length > 0 || imagesOf(full).length === 0
+            ? entry.postImages
+            : [...(await starboard.messages.fetch(entry.starboardMessageId)).attachments.values()].map((file) => file.name);
+        await starboard.messages.edit(entry.starboardMessageId, buildStarboardPost(full, starredBy.length, emoji, uploaded, t));
+        await saveStarboardEntry({ ...ids, starredBy, postImages: uploaded });
       } catch (error) {
         // Deleted by hand while the bot was offline, so it stays off
         if (!isUnknownMessage(error)) throw error;
-        await saveStarboardEntry({ ...ids, starredBy, starboardMessageId: null, removed: true });
+        await saveStarboardEntry({ ...ids, starredBy, starboardMessageId: null, postImages: [], removed: true });
       }
       return starredBy;
     }
 
-    const sent = await starboard.send({ ...post, files: await uploadsOf(full) });
-    await saveStarboardEntry({ ...ids, starredBy, starboardMessageId: sent.id });
+    const files = await uploadsOf(full);
+    const postImages = files.map((file) => file.name ?? '');
+    const sent = await starboard.send({ ...buildStarboardPost(full, starredBy.length, emoji, postImages, t), files });
+    await saveStarboardEntry({ ...ids, starredBy, starboardMessageId: sent.id, postImages });
     return starredBy;
   });
 }
@@ -317,7 +335,7 @@ export async function handleDeletedMessage(guild: Guild, messageId: string, chan
 
   if (channelId === config.channelId) {
     const entry = await getStarboardEntryByPost(messageId);
-    if (entry) await updateStarboardEntry(entry.messageId, { starboardMessageId: null, removed: true });
+    if (entry) await updateStarboardEntry(entry.messageId, { starboardMessageId: null, postImages: [], removed: true });
     return;
   }
 

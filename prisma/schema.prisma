@@ -567,6 +567,8 @@ model StarboardEntry {
   authorId           String
   // The post on the starboard, null while it's below the threshold
   starboardMessageId String?  @unique
+  // The names of the pictures uploaded with the post, as an update can only show those
+  postImages         String[] @default([])
   // Who starred it, by reacting or with the button on the post. The author never counts
   starredBy          String[] @default([])
   // Deleted from the starboard by hand, so it isn't posted again
