@@ -19,7 +19,7 @@ import {
 
 import { getTempVoiceCreators } from 'database/tempVoice';
 
-import { SECOND } from 'utility/duration';
+import { formatNumber, SECOND } from 'utility/duration';
 import { getTranslate, guildTranslate, type Translate } from 'utility/i18next';
 import { logger } from 'utility/logger';
 import { createResponse, sendError } from 'utility/response';
@@ -56,6 +56,8 @@ const LIMIT_INPUT_ID = 'limit';
 const MAX_LIMIT = 99;
 /** A moment for everyone in a channel to read that it's being deleted. */
 const DELETE_DELAY = 3 * SECOND;
+/** The most people a channel keeps out, as each is a permission on every channel the owner makes, and their next one would take long to make. */
+const MAX_KEPT_OUT = 50;
 
 /**
  * The channel a control is for, if whoever used it may change it. Otherwise answers why not.
@@ -188,6 +190,9 @@ async function handleMemberAction(interaction: ButtonInteraction<'cached'>, temp
     if (member && isStaff(member)) return answer(t('tempVoice.member.staffCantBeBlocked'), 'error');
     // The channel's moderators are always let in, so keeping one out wouldn't do anything
     if (temp.record.moderators.includes(memberId)) return answer(t('tempVoice.member.moderatorCantBeBlocked', { user: mention }), 'error');
+    if (!temp.record.blocked.includes(memberId) && temp.record.blocked.length >= MAX_KEPT_OUT) {
+      return answer(t('tempVoice.member.keptOutFull', { max: formatNumber(MAX_KEPT_OUT, t) }), 'error');
+    }
     await changeTempChannel(temp, interaction.member, (record) => ({ blocked: [...new Set([...record.blocked, memberId])] }));
     // Not kept out when the channel changed meanwhile, like being handed over, or whoever pressed can't change it anymore
     if (!temp.record.blocked.includes(memberId)) return answer(t('tempVoice.member.changedMeanwhile'), 'error');

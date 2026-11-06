@@ -521,6 +521,7 @@
       "staffCantBeBlocked": "Moderatoren kommen in jeden Kanal, also kannst du sie nicht aussperren.",
       "moderatorCantBeBlocked": "{{user}} moderiert diesen Kanal und kommt immer rein. Nimm die Person erst aus den Moderatoren des Kanals.",
       "blocked": "{{user}} ist jetzt aus dem Kanal ausgesperrt.",
+      "keptOutFull": "Du kannst höchstens {{max}} Leute aussperren. Lass erst jemanden wieder rein.",
       "cantTakeOver": "Die Person ist schon weg, also kann sie ihn nicht bekommen.",
       "alreadyOwner": "Der Kanal gehört schon {{user}}.",
       "changedMeanwhile": "Der Kanal hat in der Zwischenzeit den Besitzer gewechselt oder wurde gelöscht.",

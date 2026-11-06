@@ -985,6 +985,7 @@
       "staffCantBeBlocked": "Moderators can join any channel, so they can't be kept out.",
       "moderatorCantBeBlocked": "{{user}} moderates this channel and can always join it. Take them off the channel's moderators first.",
       "blocked": "{{user}} is kept out of this channel now.",
+      "keptOutFull": "You can keep out {{max}} people at most. Let someone back in first.",
       "cantTakeOver": "They've left, so they can't have it.",
       "alreadyOwner": "It's {{user}}'s already.",
       "changedMeanwhile": "This channel changed hands or was deleted in the meantime.",
