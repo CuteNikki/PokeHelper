@@ -3,10 +3,10 @@ import { Button } from 'classes/base/button';
 import { getGuildLevelingConfiguration } from 'database/leveling';
 
 import { getTranslate } from 'utility/i18next';
-import { buildRankCard, parseRankCustomId, RANK_CUSTOM_ID_PREFIX } from 'utility/leveling/rank';
+import { buildRank, parseRankCustomId, RANK_CUSTOM_ID_PREFIX } from 'utility/leveling/rank';
 import { sendError } from 'utility/response';
 
-/** The rank card's button switching between all-time, weekly and monthly. It carries the user and period, so it works however old the card is. */
+/** The rank message's buttons, switching between all-time, weekly and monthly, and between image and text. Each carries the view it leads to. */
 export default new Button({
   customId: RANK_CUSTOM_ID_PREFIX,
   includesCustomId: true,
@@ -25,7 +25,6 @@ export default new Button({
     if (!user) return sendError(interaction, t('system.outdated'));
 
     await interaction.deferUpdate();
-    // Replacing the card, not adding to it
-    await interaction.editReply({ ...(await buildRankCard(interaction.guild, user, parsed.period, t)), attachments: [] });
+    await interaction.editReply(await buildRank(interaction.guild, user, parsed.view, t));
   },
 });
