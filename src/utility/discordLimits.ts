@@ -16,4 +16,6 @@ export const DiscordLimits = {
   customIdLength: 100,
   /** Characters of text in all of a Components V2 message's text displays together. */
   messageTextLength: 4000,
+  /** Characters in an image's description, which screen readers read out. */
+  mediaDescriptionLength: 1024,
 } as const;

@@ -1,13 +1,5 @@
 import { loadImage } from '@napi-rs/canvas';
-import {
-  ApplicationIntegrationType,
-  AttachmentBuilder,
-  InteractionContextType,
-  MediaGalleryBuilder,
-  MessageFlags,
-  SlashCommandBuilder,
-  userMention,
-} from 'discord.js';
+import { ApplicationIntegrationType, InteractionContextType, MessageFlags, SlashCommandBuilder, userMention } from 'discord.js';
 
 import { Command } from 'classes/base/command';
 
@@ -16,7 +8,7 @@ import { getGuildLevelingConfiguration, getLevelFromXP, getUserLevelingData, get
 import { formatNumber } from 'utility/duration';
 import { getTranslate, type Translate } from 'utility/i18next';
 import { renderRankCard, type LevelProgress } from 'utility/leveling/rankCard';
-import { createResponse, sendError } from 'utility/response';
+import { createResponse, imageWithDescription, sendError } from 'utility/response';
 
 /** A member's level progress from their XP and rank. */
 function getProgress(xp: number, rank: number): LevelProgress & { xp: number } {
@@ -92,16 +84,16 @@ export default new Command({
     const avatar = await loadImage(targetUser.displayAvatarURL({ extension: 'png', size: 256 })).catch(() => null);
     const image = renderRankCard({ displayName, username: targetUser.username, avatar, allTime, weekly }, t);
 
-    // The image's description is read out by screen readers, as the card itself is only pixels
     const description = t('leveling.rank.altText', {
       user: displayName,
       allTime: t('leveling.rank.text.allTimePlain', allTimeValues),
       weekly: t('leveling.rank.text.weeklyPlain', weeklyValues),
     });
 
+    const { gallery, file } = imageWithDescription('rank-card.png', image, description);
     return interaction.editReply({
-      components: [new MediaGalleryBuilder().addItems((item) => item.setURL('attachment://rank-card.png').setDescription(description.slice(0, 1024)))],
-      files: [new AttachmentBuilder(image, { name: 'rank-card.png' })],
+      components: [gallery],
+      files: [file],
       flags: [MessageFlags.IsComponentsV2],
       allowedMentions: { parse: [] },
     });

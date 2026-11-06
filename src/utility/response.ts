@@ -1,6 +1,16 @@
-import { ContainerBuilder, MessageFlags, TextDisplayBuilder, type BaseMessageOptions, type Message, type RepliableInteraction } from 'discord.js';
+import {
+  AttachmentBuilder,
+  type BaseMessageOptions,
+  ContainerBuilder,
+  MediaGalleryBuilder,
+  type Message,
+  MessageFlags,
+  type RepliableInteraction,
+  TextDisplayBuilder,
+} from 'discord.js';
 import { t } from 'i18next';
 
+import { DiscordLimits } from 'utility/discordLimits';
 import { logger } from 'utility/logger';
 import { ThemeColors, type ResponseKind } from 'utility/theme';
 
@@ -21,6 +31,17 @@ export const createResponse = (content: string, kind: ResponseKind = 'info'): Re
   components: [new ContainerBuilder().setAccentColor(ThemeColors[kind]).addTextDisplayComponents(new TextDisplayBuilder().setContent(content))],
   flags: [MessageFlags.IsComponentsV2],
 });
+
+/**
+ * A picture for a message, with what's on it as its description, which screen readers read out, as the picture is only pixels.
+ * @returns The gallery to put in the message, and the file to send with it.
+ */
+export function imageWithDescription(name: string, image: Buffer, description: string) {
+  const gallery = new MediaGalleryBuilder().addItems((item) =>
+    item.setURL(`attachment://${name}`).setDescription(description.slice(0, DiscordLimits.mediaDescriptionLength)),
+  );
+  return { gallery, file: new AttachmentBuilder(image, { name }) };
+}
 
 /** A message with a notice above it, like a success message above the list it led back to. */
 export const withNotice = (content: string, kind: ResponseKind, payload: ResponsePayload): ResponsePayload => ({

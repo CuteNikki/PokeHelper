@@ -9,7 +9,6 @@ import {
   heading,
   HeadingLevel,
   LabelBuilder,
-  MediaGalleryBuilder,
   MessageFlags,
   ModalBuilder,
   type ModalMessageModalSubmitInteraction,
@@ -56,7 +55,7 @@ import {
   speciesById,
   type PokedexMatch,
 } from 'utility/pokedex/names';
-import { sendError, type ResponsePayload } from 'utility/response';
+import { imageWithDescription, type ResponsePayload, sendError } from 'utility/response';
 import { quote } from 'utility/text';
 import { ThemeColors } from 'utility/theme';
 
@@ -383,8 +382,6 @@ export async function buildPokedexEntry(match: PokedexMatch, view: PokedexView, 
       evolution,
       evolutionLabel: t('pokedex.evolution.title'),
     });
-    files.push(new AttachmentBuilder(card, { name: 'pokedex.png' }));
-
     // The card is only pixels, so its description has everything on it for screen readers
     const description = t('pokedex.altText', {
       name: `${shownName} ${number}`,
@@ -395,9 +392,9 @@ export async function buildPokedexEntry(match: PokedexMatch, view: PokedexView, 
       evolution: evolutionText,
       entry: entry ?? '',
     });
-    container.addMediaGalleryComponents(
-      new MediaGalleryBuilder().addItems((item) => item.setURL('attachment://pokedex.png').setDescription(description.slice(0, 1024))),
-    );
+    const { gallery, file } = imageWithDescription('pokedex.png', card, description);
+    files.push(file);
+    container.addMediaGalleryComponents(gallery);
   }
 
   const { navigation, forms } = buildControls(match, shownView, Boolean(shinyPicture), language, t);

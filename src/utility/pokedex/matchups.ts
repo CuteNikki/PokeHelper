@@ -1,6 +1,5 @@
 import {
   ActionRowBuilder,
-  AttachmentBuilder,
   bold,
   ButtonBuilder,
   type ButtonInteraction,
@@ -8,7 +7,6 @@ import {
   ContainerBuilder,
   heading,
   HeadingLevel,
-  MediaGalleryBuilder,
   MessageFlags,
   SectionBuilder,
   SeparatorBuilder,
@@ -22,7 +20,7 @@ import { answerPokeApiError, type ApiDamageRelations, artworkUrl, getImage, getM
 import { renderMatchupCard } from 'utility/pokedex/matchupCard';
 import { findBySlug, getPokedexData, loadPokedexData, matchName, nameIn, type PokedexMatch } from 'utility/pokedex/names';
 import { TYPE_COLORS } from 'utility/pokedex/types';
-import { sendError, sendResponse, type ResponsePayload } from 'utility/response';
+import { imageWithDescription, type ResponsePayload, sendError, sendResponse } from 'utility/response';
 import { ThemeColors } from 'utility/theme';
 
 /**
@@ -225,13 +223,12 @@ async function buildCard(matchups: Matchups, slug: string, t: Translate): Promis
     .filter(Boolean)
     .join(' ');
 
+  const { gallery, file } = imageWithDescription('matchups.png', card, description);
   const container = new ContainerBuilder()
     .setAccentColor(matchups.types[0]?.color ?? ThemeColors.info)
-    .addMediaGalleryComponents(
-      new MediaGalleryBuilder().addItems((item) => item.setURL('attachment://matchups.png').setDescription(description.slice(0, 1024))),
-    )
+    .addMediaGalleryComponents(gallery)
     .addActionRowComponents(new ActionRowBuilder<ButtonBuilder>().addComponents(switchButton(slug, false, t)));
-  return { components: [container], files: [new AttachmentBuilder(card, { name: 'matchups.png' })], flags: [MessageFlags.IsComponentsV2] };
+  return { components: [container], files: [file], flags: [MessageFlags.IsComponentsV2] };
 }
 
 /** The matchups as text, a type to a line, with the Pokémon's picture and one of the Pokémon to use against each weakness. */

@@ -1,11 +1,9 @@
 import { createCanvas, loadImage, type Image, type SKRSContext2D } from '@napi-rs/canvas';
 import {
   ActionRowBuilder,
-  AttachmentBuilder,
   ButtonBuilder,
   ButtonStyle,
   Guild,
-  MediaGalleryBuilder,
   MessageFlags,
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder,
@@ -21,6 +19,7 @@ import { formatCompactNumber, formatNumber, MINUTE } from 'utility/duration';
 import type { Translate } from 'utility/i18next';
 import { leaderboardCustomId, nextPeriod, type LeaderboardView } from 'utility/leveling/leaderboardView';
 import { buildPageRow, clampPage, findMeButton, type PageButton } from 'utility/pagination';
+import { imageWithDescription } from 'utility/response';
 
 export const ITEMS_PER_PAGE = 5;
 
@@ -357,14 +356,12 @@ export async function buildLeaderboard(requested: LeaderboardView, guild: Guild,
   const isTopPodiumView = page === 1 && sortOrder === 'desc';
   const imageBuffer = renderLeaderboardCanvas(entries, isTopPodiumView, t);
 
-  // The image's description is read out by screen readers, as the leaderboard itself is only pixels
-  const image = new MediaGalleryBuilder().addItems((item) =>
-    item.setURL('attachment://leaderboard.png').setDescription(`${title.replace(/^#+\s*/, '')}: ${lines.join('; ')}`.slice(0, 1024)),
-  );
+  // Without the heading's #, which a screen reader would read out
+  const { gallery, file } = imageWithDescription('leaderboard.png', imageBuffer, `${title.replace(/^#+\s*/, '')}: ${lines.join('; ')}`);
 
   return {
-    components: [heading, image, ...controls],
-    files: [new AttachmentBuilder(imageBuffer, { name: 'leaderboard.png' })],
+    components: [heading, gallery, ...controls],
+    files: [file],
     flags: [MessageFlags.IsComponentsV2],
     allowedMentions: { parse: [] },
   };
