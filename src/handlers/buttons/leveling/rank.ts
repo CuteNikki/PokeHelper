@@ -18,13 +18,14 @@ export default new Button({
     const parsed = parseRankCustomId(interaction.customId);
     if (!parsed) return sendError(interaction, t('system.outdated'));
 
+    // Answered before anything is looked up, which can take a moment, as Discord gives up after 3 seconds. Errors still only go to whoever pressed
+    await interaction.deferUpdate();
     const levelingConfig = await getGuildLevelingConfiguration(interaction.guildId);
     if (!levelingConfig?.enabled) return sendError(interaction, t('leveling.disabled'));
 
     const user = await interaction.client.users.fetch(parsed.userId).catch(() => null);
     if (!user) return sendError(interaction, t('system.outdated'));
 
-    await interaction.deferUpdate();
     await interaction.editReply(await buildRank(interaction.guild, user, parsed.view, t));
   },
 });
