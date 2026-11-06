@@ -213,7 +213,7 @@ export const levelingSettings = createSettingsPanel<LevelingConfig>({
       target: 'role',
       assignable: true,
       max: MAX_LIST,
-      formatValue: (value, t) => t('leveling.settings.rewards.level', { level: value }),
+      formatValue: (value, t) => t('leveling.settings.rewards.level', { level: formatNumber(value, t) }),
       formatEntry: (target, value) => `${value}: ${target}`,
       input: {
         label: (t) => t('leveling.settings.rewards.input'),
