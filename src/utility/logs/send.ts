@@ -28,6 +28,7 @@ import { copyIdsButton, type LogIds } from 'utility/logs/copyIds';
 import { CHANNEL_FIELDS, LOG_GROUPS, logChannelOf, type LogEvent } from 'utility/logs/events';
 import { userSubject } from 'utility/logs/format';
 import { missingBotPermissions } from 'utility/settings';
+import { quote } from 'utility/text';
 import { ThemeColors } from 'utility/theme';
 
 /** What the bot needs in a log channel. */
@@ -101,8 +102,7 @@ export const MAX_QUOTE_LINES = 15;
 /** A text as a quote, so it stands apart from the entry's own text, cut short if it's long or has many lines. */
 export function quoteText(text: string) {
   const lines = shorten(text).split('\n');
-  const shown = lines.length > MAX_QUOTE_LINES ? [...lines.slice(0, MAX_QUOTE_LINES), '…'] : lines;
-  return shown.map((line) => `> ${line}`).join('\n');
+  return quote((lines.length > MAX_QUOTE_LINES ? [...lines.slice(0, MAX_QUOTE_LINES), '…'] : lines).join('\n'));
 }
 
 /**

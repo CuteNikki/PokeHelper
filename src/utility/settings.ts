@@ -27,6 +27,7 @@ import type { ResponsePayload } from 'utility/response';
 import { DiscordLimits } from 'utility/discordLimits';
 import { createResponse } from 'utility/response';
 import { getRoleProblem, isRoleAboveMember } from 'utility/roles';
+import { quote } from 'utility/text';
 import { ThemeColors } from 'utility/theme';
 
 /**
@@ -547,13 +548,6 @@ function addSetting<C>(container: ContainerBuilder, context: SettingsContext, pa
       return;
   }
 }
-
-/** Quote every line of a text. */
-const quote = (text: string) =>
-  text
-    .split('\n')
-    .map((line) => `> ${line}`)
-    .join('\n');
 
 /** A warning for an entry whose channel or role was deleted, or whose role the bot can't give. */
 function entryWarning<C>(guild: Guild, setting: AnyEntriesSetting<C>, targetId: string, t: Translate): string {

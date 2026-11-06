@@ -5,3 +5,10 @@ export const escapeCode = (text: string) => text.replace(/`/g, 'ˋ');
 
 /** A name in code, so whatever it's called can't turn into formatting, like a name with stars or underscores. */
 export const code = (text: string) => inlineCode(escapeCode(text));
+
+/** A text as a quote, every line of it. */
+export const quote = (text: string) =>
+  text
+    .split('\n')
+    .map((line) => `> ${line}`)
+    .join('\n');
