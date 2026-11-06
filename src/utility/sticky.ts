@@ -57,7 +57,7 @@ export function forgetStickyChannel(channelId: string) {
 
 /** A sticky message as it's posted: a small label above its text. Nobody is pinged by it, as it's posted again and again. */
 export const buildStickyMessage = (text: string, label: string): ResponsePayload => ({
-  components: [new ContainerBuilder().setAccentColor(ThemeColors.info).addTextDisplayComponents(new TextDisplayBuilder().setContent(`${label}\n${text}`))],
+  components: [new ContainerBuilder().setAccentColor(ThemeColors.info).addTextDisplayComponents(new TextDisplayBuilder().setContent(`${label}\n\n${text}`))],
   flags: [MessageFlags.IsComponentsV2],
   allowedMentions: { parse: [] },
 });
