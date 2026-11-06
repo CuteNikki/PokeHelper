@@ -17,7 +17,7 @@ import {
 import { getLevelFromXP, getTopUsersByXP, getTotalUsersWithXP, type LevelPeriod } from 'database/leveling';
 
 import { drawAvatar, truncateText } from 'utility/canvas';
-import { formatCompactNumber } from 'utility/duration';
+import { formatCompactNumber, formatNumber } from 'utility/duration';
 import type { Translate } from 'utility/i18next';
 import { clampPage, leaderboardCustomId, nextPeriod, type LeaderboardAction, type LeaderboardView } from 'utility/leveling/leaderboardView';
 import { findMeButton } from 'utility/pagination';
@@ -265,7 +265,7 @@ function buildControls(view: LeaderboardView, totalPages: number, t: Translate) 
     button('prev', view.page - 1 || 1)
       .setEmoji(t('pagination.previous.icon'))
       .setDisabled(view.page === 1),
-    button('goto', view.page).setLabel(t('pagination.page.label', { current: view.page, total: totalPages })),
+    button('goto', view.page).setLabel(t('pagination.page.label', { current: formatNumber(view.page, t), total: formatNumber(totalPages, t) })),
     button('next', Math.min(view.page + 1, totalPages))
       .setEmoji(t('pagination.next.icon'))
       .setDisabled(view.page === totalPages),
