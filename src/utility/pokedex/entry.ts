@@ -414,7 +414,7 @@ export async function updatePokedexEntry(
   view: PokedexView,
 ): Promise<unknown> {
   const t = getTranslate(interaction.locale);
-  await interaction.deferUpdate();
+  if (!interaction.deferred) await interaction.deferUpdate();
   try {
     await loadPokedexData();
     const match = findBySlug(slug);
@@ -446,6 +446,8 @@ export async function handlePokedexSearchModal(interaction: ModalSubmitInteracti
   if (!view || !interaction.isFromMessage()) return sendError(interaction, t('system.outdated'));
 
   const input = interaction.fields.getTextInputValue(SEARCH_INPUT_ID);
+  // Answered before the names are loaded, which takes a while after a restart
+  await interaction.deferUpdate();
   try {
     await loadPokedexData();
   } catch (error) {

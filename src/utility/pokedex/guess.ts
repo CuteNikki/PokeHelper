@@ -273,7 +273,7 @@ async function showGame(
   t: Translate,
   lastGuess?: string,
 ): Promise<unknown> {
-  await interaction.deferUpdate();
+  if (!interaction.deferred) await interaction.deferUpdate();
   try {
     const payload = await buildGuessGame(game, outcome, resolveLanguage(interaction.locale), t, lastGuess);
     if (!payload) return sendError(interaction, t('system.outdated'));
@@ -294,6 +294,10 @@ export async function handleGuessButton(interaction: ButtonInteraction): Promise
   // The popup has to be the first answer, before anything is loaded
   if (action === 'guess') return interaction.showModal(buildGuessModal(game, t));
 
+  // Answered before the names are loaded, which takes a while after a restart. The Pokédex entry is a message of its own, so the game
+  // stays to look back at, and the rest change the game
+  if (action === 'dex') await interaction.deferReply();
+  else await interaction.deferUpdate();
   try {
     await loadPokedexData();
   } catch (error) {
@@ -310,10 +314,8 @@ export async function handleGuessButton(interaction: ButtonInteraction): Promise
       return next ? showGame(interaction, next, 'playing', t) : sendError(interaction, t('system.outdated'));
     }
     case 'dex': {
-      // As a message of its own, so the game stays to look back at
       const species = speciesById(game.speciesId);
       if (!species) return sendError(interaction, t('system.outdated'));
-      await interaction.deferReply();
       try {
         const entry = await buildPokedexEntry({ species, form: null }, { shiny: false, text: false }, resolveLanguage(interaction.locale), t);
         if (!entry) return sendError(interaction, t('system.outdated'));
@@ -331,6 +333,8 @@ export async function handleGuessModal(interaction: ModalSubmitInteraction): Pro
   const game = decodeGame(interaction.customId.slice(GUESS_MODAL_PREFIX.length).split(':'));
   if (!game || !interaction.isFromMessage()) return sendError(interaction, t('system.outdated'));
 
+  // Answered before the names are loaded, which takes a while after a restart
+  await interaction.deferUpdate();
   try {
     await loadPokedexData();
   } catch (error) {
