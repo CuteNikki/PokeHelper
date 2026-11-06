@@ -274,5 +274,52 @@
         "description": "Setz die Starboard-Einstellungen dieses Servers zurück"
       }
     }
+  },
+  "remind": {
+    "name": "erinnerung",
+    "description": "Lass dich später an etwas erinnern",
+    "options": {
+      "set": {
+        "name": "setzen",
+        "description": "Setz eine Erinnerung, einmal oder wiederholt",
+        "options": {
+          "when": {
+            "name": "wann",
+            "description": "Z. B. 10m, 2 Std 30 Min, 18:00, morgen 9 Uhr oder 24.12. 18:00"
+          },
+          "text": {
+            "name": "text",
+            "description": "Woran ich dich erinnern soll"
+          },
+          "repeat": {
+            "name": "wiederholen",
+            "description": "Ob sie wiederkommt. Ohne Angabe einmal",
+            "choices": {
+              "once": "Einmal",
+              "daily": "Täglich",
+              "weekly": "Wöchentlich",
+              "monthly": "Monatlich",
+              "yearly": "Jährlich"
+            }
+          },
+          "send-to": {
+            "name": "senden-an",
+            "description": "Wohin sie geht. Ohne Angabe per DM, mit diesem Kanal, falls deine DMs zu sind",
+            "choices": {
+              "dm": "Meine DMs",
+              "channel": "Diesen Kanal"
+            }
+          },
+          "timezone": {
+            "name": "zeitzone",
+            "description": "Deine Zeitzone für Daten und Uhrzeiten, z. B. Europe/Berlin. Wird gemerkt"
+          }
+        }
+      },
+      "list": {
+        "name": "liste",
+        "description": "Sieh und lösch deine Erinnerungen"
+      }
+    }
   }
 }

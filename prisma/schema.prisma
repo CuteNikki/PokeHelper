@@ -11,15 +11,61 @@ model User {
   userId String @id
 
   // Configuration and state
-  birthday      UserBirthday?    @relation("UserBirthday")
-  friendCodes   UserFriendCodes? @relation("UserFriendCodes")
-  levels        Level[]
-  levelsWeekly  WeeklyLevel[]
-  levelsMonthly MonthlyLevel[]
+  birthday         UserBirthday?    @relation("UserBirthday")
+  friendCodes      UserFriendCodes? @relation("UserFriendCodes")
+  levels           Level[]
+  levelsWeekly     WeeklyLevel[]
+  levelsMonthly    MonthlyLevel[]
+  reminders        Reminder[]
+  // The timezone dates and times of reminders are in. Separate from the birthday's, which is only set to announce it on time
+  reminderTimezone String?
 
   // Timestamps
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+// Something someone wants to be reminded of, which goes off once or again and again
+model Reminder {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  // What and when
+  text     String
+  dueAt    DateTime
+  // When it first went off, which repeats count from, so a reminder on the 31st stays on the last day of shorter months
+  startAt  DateTime
+  repeat   ReminderRepeat?
+  // The timezone it was set in, which repeats keep the time on the clock in
+  timezone String
+
+  // Where it goes: a DM, or the channel it was set in. Each falls back to the other
+  delivery  ReminderDelivery
+  channelId String?
+  guildId   String?
+  // The language it was set in, which it's sent in
+  locale    String
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Indexes
+  @@index([dueAt])
+  @@index([userId])
+}
+
+enum ReminderRepeat {
+  daily
+  weekly
+  monthly
+  yearly
+}
+
+enum ReminderDelivery {
+  dm
+  channel
 }
 
 model UserBirthday {

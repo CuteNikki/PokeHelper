@@ -268,6 +268,7 @@
       "temp-voice": "Eigene Sprachkanäle",
       "starboard": "Nachrichten mit den meisten Reaktionen, gesammelt",
       "logs": "Was auf dem Server passiert, geloggt",
+      "reminders": "Lass dich später an etwas erinnern",
       "general": "Über den Bot"
     },
     "categories": {
@@ -279,6 +280,7 @@
       "temp-voice": "Sprachkanäle",
       "starboard": "Starboard",
       "logs": "Logs",
+      "reminders": "Erinnerungen",
       "general": "Allgemein"
     },
     "unavailable": "Die Befehle können gerade nicht angezeigt werden. Versuch es gleich nochmal."
@@ -1332,6 +1334,49 @@
       "runtime": "> **Laufzeitumgebung:** {{runtime}} auf {{osType}} ({{arch}})",
       "nodeApi": "> **Node-API:** {{version}}",
       "discordJs": "> **Discord.JS:** v{{version}}"
+    }
+  },
+  "reminders": {
+    "set": {
+      "title": "### Erinnerung gesetzt ⏰",
+      "when": "Ich erinnere dich {{due}}.",
+      "details": "-# {{repeat}} · {{delivery}}",
+      "utc": "-# Das ist in UTC. Gib deine `zeitzone` an, um deine eigene Zeit zu nutzen, sie wird fürs nächste Mal gemerkt.",
+      "invalid": "Ich hab nicht verstanden, wann. Versuch es mit sowas wie `10m`, `2 Std 30 Min`, `18:00`, `morgen 9 Uhr` oder `24.12. 18:00`.",
+      "past": "Das ist schon vorbei.",
+      "tooFar": "Das ist zu weit weg, Erinnerungen gehen bis zu {{max}} Jahre im Voraus.",
+      "invalidTimezone": "Die Zeitzone kenne ich nicht. Such dir eine aus der Liste aus, z. B. `Europe/Berlin`.",
+      "full": "Du hast schon {{max}} Erinnerungen, mehr gehen nicht. Lösch erst eine mit `/erinnerung liste`."
+    },
+    "repeat": {
+      "once": "Einmal",
+      "daily": "Jeden Tag",
+      "weekly": "Jede Woche",
+      "monthly": "Jeden Monat",
+      "yearly": "Jedes Jahr"
+    },
+    "delivery": {
+      "dm": "Per DM",
+      "channel": "Im Kanal"
+    },
+    "message": {
+      "title": "### Erinnerung ⏰",
+      "titleFor": "### Erinnerung für {{user}} ⏰",
+      "set": "Gesetzt {{time}}",
+      "late": "War {{time}} fällig, da war ich offline",
+      "next": "Nächste {{time}}",
+      "stop": "Nicht mehr erinnern"
+    },
+    "stop": {
+      "done": "Gestoppt, diese Erinnerung kommt nicht wieder.",
+      "gone": "Diese Erinnerung wurde schon gelöscht.",
+      "notYours": "Nur wer die Erinnerung gesetzt hat, kann sie stoppen."
+    },
+    "list": {
+      "title": "### Deine Erinnerungen ⏰",
+      "none": "Du hast keine Erinnerungen. Setz eine mit `/erinnerung setzen`.",
+      "entry": "**{{position}}.** {{text}}\n-# {{due}} · {{details}}",
+      "delete": "Erinnerung löschen"
     }
   }
 }

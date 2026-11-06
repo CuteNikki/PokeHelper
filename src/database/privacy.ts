@@ -25,7 +25,10 @@ export async function getUserData(userId: string) {
     onOthersSettings,
     starred,
   ] = await Promise.all([
-    prisma.user.findUnique({ where: { userId }, include: { birthday: true, friendCodes: true, levels: true, levelsWeekly: true, levelsMonthly: true } }),
+    prisma.user.findUnique({
+      where: { userId },
+      include: { birthday: true, friendCodes: true, levels: true, levelsWeekly: true, levelsMonthly: true, reminders: true },
+    }),
     prisma.birthdayRole.findMany({ where: { userId } }),
     prisma.countingUser.findMany({ where: { userId } }),
     prisma.countingEntry.findMany({
@@ -51,6 +54,7 @@ export async function getUserData(userId: string) {
     leveling: { allTime: user?.levels ?? [], weekly: user?.levelsWeekly ?? [], monthly: user?.levelsMonthly ?? [], weeklyWins, monthlyWins },
     birthday: user?.birthday ?? null,
     friendCodes: user?.friendCodes ?? null,
+    reminders: { timezone: user?.reminderTimezone ?? null, list: user?.reminders ?? [] },
     birthdayRoles,
     starboard: {
       // Their messages that were starred, with who starred them. What they said is in the posts on Discord, not stored here

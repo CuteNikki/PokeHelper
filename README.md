@@ -54,6 +54,15 @@ _A Pokémon themed Discord bot_
 - A Copy button with the codes to paste into the games, as text can't be selected on phones
 - Anyone who sees someone's codes can add their own right from there
 
+### ⏰ Reminders
+
+- `/remind` in a few minutes, hours or days, or at a date and time, like `2h 30m`, `tomorrow 9am` or `24.12. 18:00`, in English or German
+- Once, or every day, week, month or year, keeping the time on the clock over summer time
+- By DM, or in the channel it was set in, each falling back to the other
+- Times in your own timezone, picked once just for reminders
+- A list to see and delete them, and a button to stop repeating ones where they show up
+- Reminders missed while the bot was offline still go off once it's back
+
 ### 🔊 Temporary Voice Channels
 
 - Join a channel to get a voice channel of your own, deleted once everyone left
@@ -128,6 +137,7 @@ Days change at midnight UTC, and the bot puts the new look on within 15 minutes.
 | `/pokedex`          | Look up a Pokémon                                                 |
 | `/guess`            | Guess a Pokémon from its silhouette                               |
 | `/friendcode`       | Add your friend codes, or show yours or someone else's            |
+| `/remind`           | Set a reminder, once or repeating, and see and delete yours       |
 | `/voice`            | The control panel of your temporary voice channel                 |
 | `/help`             | All commands, by category                                         |
 | `/privacy`          | Download or delete your data, or the server's                     |

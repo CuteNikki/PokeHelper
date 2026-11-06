@@ -33,7 +33,7 @@ export const HELP_CATEGORY_SELECT_ID = 'help:category';
 export const HELP_OVERVIEW = 'overview';
 
 /** The order of the categories, by the folder their commands are in. Others come after them. */
-const CATEGORY_ORDER = ['pokemon', 'leveling', 'birthday', 'counting', 'role-menu', 'temp-voice', 'starboard', 'logs', 'general'];
+const CATEGORY_ORDER = ['pokemon', 'leveling', 'birthday', 'counting', 'role-menu', 'temp-voice', 'starboard', 'logs', 'reminders', 'general'];
 let registered: Collection<string, ApplicationCommand> | null = null;
 
 /**

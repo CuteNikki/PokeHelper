@@ -4,11 +4,14 @@ import { Event } from 'classes/base/event';
 
 import { runBirthdayJob } from 'utility/birthday/job';
 import { runResetJob } from 'utility/leveling/reset';
+import { runReminderJob } from 'utility/reminders/job';
 import { runProfileThemeJob } from 'utility/profileTheme';
 import { scheduleJob } from 'utility/scheduler';
 
 /** How often the jobs check what's due. Often enough that birthdays are on time, rarely enough to stay cheap. */
 const JOB_INTERVAL = 15 * 60 * 1000;
+/** How often reminders are checked, so they go off at most this late. */
+const REMINDER_INTERVAL = 15 * 1000;
 
 /** Started once the bot is ready, as the jobs need the guilds, and running right away catches up on what was missed while offline. */
 export default new Event({
@@ -22,5 +25,7 @@ export default new Event({
       await runResetJob(client, 'monthly');
     });
     scheduleJob('profile theme', JOB_INTERVAL, () => runProfileThemeJob(client));
+    // Often, as reminders are often only minutes away
+    scheduleJob('reminders', REMINDER_INTERVAL, () => runReminderJob(client));
   },
 });
