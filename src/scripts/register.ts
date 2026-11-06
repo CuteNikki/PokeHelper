@@ -47,4 +47,6 @@ try {
   }
 } catch (error) {
   logger.error(error, 'Failed to register commands:');
+  // So a deploy script running this stops, instead of going on as if the commands were registered
+  process.exitCode = 1;
 }
