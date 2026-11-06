@@ -1342,7 +1342,7 @@
       "when": "Ich erinnere dich {{due}}.",
       "details": "-# {{repeat}} · {{delivery}}",
       "utc": "-# Das ist in UTC. Gib deine `zeitzone` an, um deine eigene Zeit zu nutzen, sie wird fürs nächste Mal gemerkt.",
-      "invalid": "Ich hab nicht verstanden, wann. Versuch es mit sowas wie `10m`, `2 Std 30 Min`, `18:00`, `morgen 9 Uhr` oder `24.12. 18:00`.",
+      "invalid": "Ich hab nicht verstanden, wann. Versuch es mit sowas wie `10m`, `2 Std 30 Min`, `18:00`, `morgen 9 Uhr`, `Freitag 18 Uhr` oder `24.12. 18:00`.",
       "past": "Das ist schon vorbei.",
       "tooFar": "Das ist zu weit weg, Erinnerungen gehen bis zu {{max}} Jahre im Voraus.",
       "invalidTimezone": "Die Zeitzone kenne ich nicht. Such dir eine aus der Liste aus, z. B. `Europe/Berlin`.",

@@ -24,7 +24,7 @@ export default new Command({
         .setName('set')
         .setDescription('Set a reminder, once or repeating')
         .addStringOption((option) =>
-          option.setName('when').setDescription('Like 10m, 2h 30m, 18:00, tomorrow 9am or 24.12. 18:00').setRequired(true).setMaxLength(100),
+          option.setName('when').setDescription('Like 10m, 2h 30m, 18:00, tomorrow 9am, friday 6pm or 24.12. 18:00').setRequired(true).setMaxLength(100),
         )
         .addStringOption((option) => option.setName('text').setDescription('What to remind you of').setRequired(true).setMaxLength(MAX_TEXT))
         .addStringOption((option) =>

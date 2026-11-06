@@ -56,7 +56,7 @@ _A Pokémon themed Discord bot_
 
 ### ⏰ Reminders
 
-- `/remind` in a few minutes, hours or days, or at a date and time, like `2h 30m`, `tomorrow 9am` or `24.12. 18:00`, in English or German
+- `/remind` in a few minutes, hours or days, or at a date and time, like `2h 30m`, `tomorrow 9am`, `friday 6pm` or `24.12. 18:00`, in English or German
 - Once, or every day, week, month or year, keeping the time on the clock over summer time
 - By DM, or in the channel it was set in, each falling back to the other
 - Times in your own timezone, picked once just for reminders

@@ -285,7 +285,7 @@
         "options": {
           "when": {
             "name": "wann",
-            "description": "Z. B. 10m, 2 Std 30 Min, 18:00, morgen 9 Uhr oder 24.12. 18:00"
+            "description": "Z. B. 10m, 2 Std 30 Min, 18:00, morgen 9 Uhr, Freitag 18 Uhr oder 24.12. 18:00"
           },
           "text": {
             "name": "text",

@@ -118,8 +118,25 @@ export function fromWallTime(wall: WallTime, timezone: string): Date {
   return new Date(matches.length > 0 ? Math.min(...matches) : asUtc - Math.min(...offsets));
 }
 
-/** A date like `24.12.`, `24.12.2026`, `2026-12-24`, or today or tomorrow. The year is null when it wasn't given. */
-function parseDatePart(text: string, today: WallTime): { year: number | null; month: number; day: number; rest: string } | null {
+/** Weekdays by how they're written, in English and German, as the day of the week they are, 0 for Sunday. */
+const WEEKDAYS: Record<string, number> = {};
+const addWeekday = (day: number, ...names: string[]) => names.forEach((name) => (WEEKDAYS[name] = day));
+addWeekday(0, 'sunday', 'sun', 'sonntag');
+addWeekday(1, 'monday', 'mon', 'montag');
+addWeekday(2, 'tuesday', 'tue', 'tues', 'dienstag');
+addWeekday(3, 'wednesday', 'wed', 'mittwoch');
+addWeekday(4, 'thursday', 'thu', 'thur', 'thurs', 'donnerstag');
+addWeekday(5, 'friday', 'fri', 'freitag');
+addWeekday(6, 'saturday', 'sat', 'samstag', 'sonnabend');
+const WEEKDAY = new RegExp(
+  `(?<![a-zäöü])(?:(?:next|this|coming|nächsten|nächster|nächste|kommenden|diesen)\\s+)?(${Object.keys(WEEKDAYS).join('|')})(?![a-zäöü])`,
+);
+
+/**
+ * A date like `24.12.`, `24.12.2026`, `2026-12-24`, today, tomorrow or a weekday. The year is null when it wasn't given.
+ * A weekday is the next one, today included, and `weekday` says it was one, so it can move a week on once its time passed.
+ */
+function parseDatePart(text: string, today: WallTime): { year: number | null; month: number; day: number; weekday?: boolean; rest: string } | null {
   const take = (match: RegExpExecArray) => text.slice(0, match.index) + ' ' + text.slice(match.index + match[0].length);
 
   const iso = /(?<!\d)(\d{4})-(\d{1,2})-(\d{1,2})(?!\d)/.exec(text);
@@ -136,6 +153,14 @@ function parseDatePart(text: string, today: WallTime): { year: number | null; mo
     const days = { today: 0, heute: 0, tomorrow: 1, morgen: 1, übermorgen: 2 }[word[1] as 'today'];
     const date = new Date(Date.UTC(today.year, today.month - 1, today.day + days));
     return { year: date.getUTCFullYear(), month: date.getUTCMonth() + 1, day: date.getUTCDate(), rest: take(word) };
+  }
+
+  const weekday = WEEKDAY.exec(text);
+  if (weekday) {
+    const todayDate = new Date(Date.UTC(today.year, today.month - 1, today.day));
+    const ahead = (WEEKDAYS[weekday[1]!]! - todayDate.getUTCDay() + 7) % 7;
+    const date = new Date(Date.UTC(today.year, today.month - 1, today.day + ahead));
+    return { year: date.getUTCFullYear(), month: date.getUTCMonth() + 1, day: date.getUTCDate(), weekday: true, rest: take(weekday) };
   }
   return null;
 }
@@ -160,9 +185,9 @@ function parseTimePart(text: string, afterDate: boolean): { hour: number; minute
 }
 
 /**
- * Parse a date and time like `18:00`, `tomorrow 9am`, `24.12. 18:00` or `2026-12-24`, in someone's timezone.
- * A time without a date is today, or tomorrow once it passed. A date without a year is the next time it comes, and a date
- * without a time is at 9:00.
+ * Parse a date and time like `18:00`, `tomorrow 9am`, `friday 18:00`, `24.12. 18:00` or `2026-12-24`, in someone's timezone.
+ * A time without a date is today, or tomorrow once it passed. A weekday is the next one, or a week later once its time passed
+ * today. A date without a year is the next time it comes, and a date without a time is at 9:00.
  * @returns When it is, or why it can't be used.
  */
 export function parseDateTime(input: string, now: Date, timezone: string): Date | WhenError {
@@ -170,7 +195,7 @@ export function parseDateTime(input: string, now: Date, timezone: string): Date 
   let text = input.trim().toLowerCase();
   const date = parseDatePart(text, today);
   if (date) text = date.rest;
-  // Words between the date and the time, like `on 24.12. at 18:00` or `am 24.12. um 18 Uhr`
+  // Words between the date and the time, like `on 24.12. at 18:00` or `am Freitag um 18 Uhr`
   text = text
     .replace(/(?<![\d\s])\s*(?:^|\s)(at|um|on|am)(?=\s|$)/g, ' ')
     .replace(/\s+/g, ' ')
@@ -192,10 +217,10 @@ export function parseDateTime(input: string, now: Date, timezone: string): Date 
 
   let result = fromWallTime(wall, timezone);
   if (result.getTime() <= now.getTime()) {
-    if (!date) {
-      // A time that already passed today is tomorrow
-      const tomorrow = new Date(Date.UTC(wall.year, wall.month - 1, wall.day + 1));
-      result = fromWallTime({ ...wall, year: tomorrow.getUTCFullYear(), month: tomorrow.getUTCMonth() + 1, day: tomorrow.getUTCDate() }, timezone);
+    if (!date || date.weekday) {
+      // A time that already passed today is tomorrow, and a weekday whose time passed today is next week
+      const later = new Date(Date.UTC(wall.year, wall.month - 1, wall.day + (date ? 7 : 1)));
+      result = fromWallTime({ ...wall, year: later.getUTCFullYear(), month: later.getUTCMonth() + 1, day: later.getUTCDate() }, timezone);
     } else if (date.year === null) {
       // A date without a year that already passed this year is next year, February 29 included when there is one
       const year = wall.year + 1;

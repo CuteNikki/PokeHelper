@@ -51,12 +51,22 @@ describe('dates and times', () => {
     expect(parseDateTime('today 10:00', now, BERLIN)).toBe('past');
   });
 
+  test('weekdays are the next one, or a week later once their time passed', () => {
+    // It's Wednesday 16:00 in Berlin
+    expect(parseDateTime('friday 9am', now, BERLIN)).toEqual(new Date('2026-11-06T08:00:00Z'));
+    expect(parseDateTime('next fri 18:00', now, BERLIN)).toEqual(new Date('2026-11-06T17:00:00Z'));
+    expect(parseDateTime('am Freitag um 18 Uhr', now, BERLIN)).toEqual(new Date('2026-11-06T17:00:00Z'));
+    expect(parseDateTime('montag', now, BERLIN)).toEqual(new Date('2026-11-09T08:00:00Z'));
+    expect(parseDateTime('wednesday 18:00', now, BERLIN)).toEqual(new Date('2026-11-04T17:00:00Z'));
+    expect(parseDateTime('wednesday 9:00', now, BERLIN)).toEqual(new Date('2026-11-11T08:00:00Z'));
+  });
+
   test('summer time is taken into account', () => {
     expect(parseDateTime('1.7. 12:00', now, BERLIN)).toEqual(new Date('2027-07-01T10:00:00Z'));
   });
 
   test('others are not dates', () => {
-    for (const input of ['31.2.', '25:00', '13pm', 'next friday', '24.12. soon', '18']) expect(parseDateTime(input, now, BERLIN)).toBe('invalid');
+    for (const input of ['31.2.', '25:00', '13pm', 'next week', '24.12. soon', '18']) expect(parseDateTime(input, now, BERLIN)).toBe('invalid');
   });
 });
 
