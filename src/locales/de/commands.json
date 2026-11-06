@@ -341,5 +341,15 @@
         "description": "Das Item, mit Namen"
       }
     }
+  },
+  "ability": {
+    "name": "fähigkeit",
+    "description": "Schlag eine Fähigkeit nach: was sie macht und welche Pokémon sie haben",
+    "options": {
+      "ability": {
+        "name": "fähigkeit",
+        "description": "Die Fähigkeit, mit Namen"
+      }
+    }
   }
 }

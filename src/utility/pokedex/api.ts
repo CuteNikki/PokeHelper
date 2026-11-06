@@ -143,6 +143,17 @@ export interface ApiItem {
   held_by_pokemon: { pokemon: Named }[];
 }
 
+export interface ApiAbility {
+  id: number;
+  name: string;
+  names: { name: string; language: Named }[];
+  generation: Named;
+  effect_entries: InLanguages<'effect' | 'short_effect'>;
+  flavor_text_entries: InLanguages<'flavor_text'>;
+  /** The Pokémon that can have it, and whether it's their hidden ability. */
+  pokemon: { is_hidden: boolean; pokemon: Named }[];
+}
+
 /** A kind of item, like Standard balls. */
 export interface ApiItemCategory {
   id: number;
@@ -212,6 +223,7 @@ export const getMove = (slug: string) => get<ApiMove>(`move/${encodeURIComponent
 export const getType = (name: string) => get<ApiType>(`type/${encodeURIComponent(name)}`);
 export const getItem = (slug: string) => get<ApiItem>(`item/${encodeURIComponent(slug)}`);
 export const getItemCategory = (slug: string) => get<ApiItemCategory>(`item-category/${encodeURIComponent(slug)}`);
+export const getAbility = (slug: string) => get<ApiAbility>(`ability/${encodeURIComponent(slug)}`);
 export const getContestEffect = (id: number) => get<ApiContestEffect>(`contest-effect/${id}`);
 
 /** The evolution chain at a URL from {@link ApiSpecies.evolution_chain}. */

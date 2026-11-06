@@ -1593,5 +1593,11 @@
     "effect": "Effect",
     "fling": "Fling power",
     "heldBy": "Held by wild Pokémon"
+  },
+  "abilities": {
+    "title": "### {{name}} {{icon.zap}}",
+    "notFound": "I couldn't find an ability called **{{name}}**. Pick one of the suggestions.",
+    "effect": "Effect",
+    "pokemon": "Pokémon"
   }
 }

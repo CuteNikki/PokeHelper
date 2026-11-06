@@ -1532,5 +1532,11 @@
     "effect": "Effekt",
     "fling": "Schleuder-Stärke",
     "heldBy": "Wilde Pokémon, die es tragen"
+  },
+  "abilities": {
+    "title": "### {{name}} {{icon.zap}}",
+    "notFound": "Ich konnte keine Fähigkeit namens **{{name}}** finden. Wähl einen der Vorschläge.",
+    "effect": "Effekt",
+    "pokemon": "Pokémon"
   }
 }
