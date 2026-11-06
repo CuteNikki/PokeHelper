@@ -110,23 +110,37 @@ export function drawContained(ctx: SKRSContext2D, image: Image, x: number, y: nu
   ctx.drawImage(image, x + (size - width) / 2, y + (size - height) / 2, width, height);
 }
 
+/** The room between a badge's icon and its edge. */
+const BADGE_ICON_INSET = 3;
+
 /**
- * A Pokémon type's badge: its name on a pill in its color, in dark text on light colors. As wide as given, with a name too long for it
- * shortened, or as wide as its name needs.
+ * A Pokémon type's badge: its icon at the start, if there is one, and its name on a pill in its color, in dark text on light colors.
+ * As wide as given, with a name too long for it shortened, or as wide as its name needs.
  * @returns How wide it is.
  */
-export function drawTypeBadge(ctx: SKRSContext2D, type: { name: string; color: string }, x: number, y: number, height: number, width?: number): number {
+export function drawTypeBadge(
+  ctx: SKRSContext2D,
+  type: { name: string; color: string; icon?: Image | null },
+  x: number,
+  y: number,
+  height: number,
+  width?: number,
+): number {
   ctx.font = 'bold 15px "Roboto"';
   const label = type.name.toUpperCase();
-  const badgeWidth = width ?? ctx.measureText(label).width + 32;
+  const iconSize = type.icon ? height - BADGE_ICON_INSET * 2 : 0;
+  // The name is centered in what's left after the icon
+  const textStart = type.icon ? BADGE_ICON_INSET + iconSize : 0;
+  const badgeWidth = width ?? textStart + ctx.measureText(label).width + 32;
   ctx.fillStyle = type.color;
   ctx.beginPath();
   ctx.roundRect(x, y, badgeWidth, height, height / 2);
   ctx.fill();
+  if (type.icon) ctx.drawImage(type.icon, x + BADGE_ICON_INSET, y + BADGE_ICON_INSET, iconSize, iconSize);
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillStyle = isLight(type.color) ? '#1e1e2e' : '#ffffff';
-  ctx.fillText(truncateText(ctx, label, badgeWidth - 16), x + badgeWidth / 2, y + height / 2 + 1);
+  ctx.fillText(truncateText(ctx, label, badgeWidth - textStart - 16), x + textStart + (badgeWidth - textStart) / 2, y + height / 2 + 1);
   return badgeWidth;
 }
 

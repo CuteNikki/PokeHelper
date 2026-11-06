@@ -19,6 +19,7 @@ import { FALLBACK_LANGUAGE, getTranslate, resolveLanguage, type Translate } from
 import { answerPokeApiError, type ApiDamageRelations, artworkUrl, getImage, getMove, getPokemon, getType } from 'utility/pokedex/api';
 import { renderMatchupCard } from 'utility/pokedex/matchupCard';
 import { withTypeEmoji } from 'utility/pokedex/botEmojis';
+import { typeIcon } from 'utility/pokedex/typeIcons';
 import { findBySlug, getPokedexData, loadPokedexData, matchName, nameIn, type PokedexMatch } from 'utility/pokedex/names';
 import { TYPE_COLORS } from 'utility/pokedex/types';
 import { imageWithDescription, type ResponsePayload, sendError, sendResponse } from 'utility/response';
@@ -181,26 +182,31 @@ async function getMatchups(slug: string, language: string): Promise<Matchups | n
 
 /** The matchups as a card, like the Pokédex entry, with everything on it in its description for screen readers. */
 async function buildCard(matchups: Matchups, slug: string, t: Translate): Promise<ResponsePayload> {
-  const cardType = (type: MatchupType) => ({ name: type.name, color: toHex(type.color) });
+  const cardType = async (type: MatchupType) => ({ name: type.name, color: toHex(type.color), icon: await typeIcon(type.slug) });
   const [artwork, weak] = await Promise.all([
     matchups.picture ? getImage(matchups.picture) : null,
     Promise.all(
       matchups.weak.map(async (entry) => ({
-        type: cardType(entry.type),
+        type: await cardType(entry.type),
         multiplier: entry.label,
         pokemon: await Promise.all(entry.pokemon.map(async (example) => ({ name: example.name, image: await getImage(artworkUrl(example.id, false)) }))),
         moves: entry.moves,
       })),
     ),
   ]);
+  const [types, resists, immune] = await Promise.all([
+    Promise.all(matchups.types.map(cardType)),
+    Promise.all(matchups.resists.map(async (entry) => ({ type: await cardType(entry.type), multiplier: entry.label }))),
+    Promise.all(matchups.immune.map(async (entry) => ({ type: await cardType(entry.type), multiplier: entry.label }))),
+  ]);
   const card = renderMatchupCard({
     name: matchups.name,
     artwork,
-    types: matchups.types.map(cardType),
+    types,
     title: t('pokedex.matchups.button'),
     weak,
-    resists: matchups.resists.map((entry) => ({ type: cardType(entry.type), multiplier: entry.label })),
-    immune: matchups.immune.map((entry) => ({ type: cardType(entry.type), multiplier: entry.label })),
+    resists,
+    immune,
     labels: {
       weak: t('pokedex.matchups.weak'),
       resists: t('pokedex.matchups.resists'),

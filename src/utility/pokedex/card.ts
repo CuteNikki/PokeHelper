@@ -5,6 +5,8 @@ import { drawContained, drawTypeBadge, truncateText, withAlpha } from 'utility/c
 export interface PokedexCardType {
   name: string;
   color: string;
+  /** Drawn at the start of its badge, when there is one. */
+  icon?: Image | null;
 }
 
 export interface PokedexCardEvolution {

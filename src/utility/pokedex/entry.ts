@@ -40,6 +40,7 @@ import { renderPokedexCard, STAT_BAR_MAX } from 'utility/pokedex/card';
 import { matchupsButton } from 'utility/pokedex/matchups';
 import { TYPE_COLORS } from 'utility/pokedex/types';
 import { statBarEmoji, withTypeEmoji, type BarPiece } from 'utility/pokedex/botEmojis';
+import { typeIcon } from 'utility/pokedex/typeIcons';
 import {
   findBySlug,
   findPokemon,
@@ -371,12 +372,13 @@ export async function buildPokedexEntry(match: PokedexMatch, view: PokedexView, 
     ]);
 
     const toHex = (color: number) => `#${color.toString(16).padStart(6, '0')}`;
+    const icons = await Promise.all(types.map((type) => typeIcon(type.slug)));
     const card = renderPokedexCard({
       name: shownName,
       number,
       genus: kind || null,
       artwork,
-      types: types.map((type) => ({ name: type.name, color: toHex(type.color) })),
+      types: types.map((type, index) => ({ name: type.name, color: toHex(type.color), icon: icons[index] })),
       stats,
       totalLabel: t('pokedex.stats.total'),
       entry,
