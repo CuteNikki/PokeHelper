@@ -173,9 +173,10 @@ export async function renderTempVoiceList(guild: Guild, t: Translate): Promise<R
     return { components: [container], flags: [MessageFlags.IsComponentsV2] };
   }
 
-  const lines = creators.map((creator) => {
+  const lines = creators.map((creator, index) => {
     const category = creatorCategory(guild, creator);
     return t('tempVoice.config.list.item', {
+      position: index + 1,
       channel: channelMention(creator.channelId),
       category: category ? channelMention(category.id) : t('tempVoice.config.status.noCategoryShort'),
     });

@@ -706,7 +706,7 @@
         },
         "count": "{{count, number}}/{{max}} Beitrittskanäle",
         "none": "Hier gibt es noch keine Beitrittskanäle. Erstell einen mit `/sprachkanal-einstellungen erstellen`.",
-        "item": "- {{channel}} · neue Kanäle in {{category}}",
+        "item": "{{position}}. {{channel}} · neue Kanäle in {{category}}",
         "placeholder": "Wähl einen Beitrittskanal aus, um ihn zu ändern"
       }
     },

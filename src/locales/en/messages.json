@@ -1146,7 +1146,7 @@
         },
         "count": "{{count, number}}/{{max}} join channels",
         "none": "There are no join channels here yet. Make one with `/voice-config create`.",
-        "item": "- {{channel}} · new channels in {{category}}",
+        "item": "{{position}}. {{channel}} · new channels in {{category}}",
         "placeholder": "Pick a join channel to change it"
       }
     },
