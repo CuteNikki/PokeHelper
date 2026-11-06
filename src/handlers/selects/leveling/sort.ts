@@ -20,10 +20,11 @@ export default new SelectMenu({
     const parsed = parseLeaderboardCustomId(interaction.customId);
     if (!parsed) return sendError(interaction, t('system.outdated'));
 
+    // Answered before anything is looked up, which can take a moment, as Discord gives up after 3 seconds. Errors still only go to whoever picked
+    await interaction.deferUpdate();
     const levelingConfig = await getGuildLevelingConfiguration(interaction.guildId);
     if (!levelingConfig?.enabled) return sendError(interaction, t('leveling.disabled'));
 
-    await interaction.deferUpdate();
     await interaction.editReply(await buildLeaderboard({ ...parsed.view, sortOrder: parseSortOrder(interaction.values[0]) }, interaction.guild, t));
   },
 });
