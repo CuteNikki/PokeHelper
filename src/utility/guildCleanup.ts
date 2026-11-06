@@ -2,10 +2,10 @@ import type { Client } from 'discord.js';
 
 import { clearGuildsLeft, deleteGuildsLeftBefore, markOtherGuildsLeft } from 'database/guild';
 
+import { DAY } from 'utility/duration';
 import { logger } from 'utility/logger';
 import { logFailure } from 'utility/response';
 
-const DAY = 24 * 60 * 60 * 1000;
 /** How long a guild's data is kept after the bot was removed, in case it's added back. */
 export const KEEP_DATA_AFTER_LEAVING = 30 * DAY;
 

@@ -1,8 +1,9 @@
 import type { Translate } from 'utility/i18next';
 
-const MINUTE = 60_000;
-const HOUR = 60 * MINUTE;
-const DAY = 24 * HOUR;
+/** Time units in milliseconds. */
+export const MINUTE = 60_000;
+export const HOUR = 60 * MINUTE;
+export const DAY = 24 * HOUR;
 
 /**
  * Format a duration with its two largest units, like `3d 4h`, `2h 15m` or `45m`.

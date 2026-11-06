@@ -1,6 +1,6 @@
 import { loadImage, type Image } from '@napi-rs/canvas';
 
-const API_URL = 'https://pokeapi.co/api/v2';
+export const API_URL = 'https://pokeapi.co/api/v2';
 const TIMEOUT = 10_000;
 
 type Named = { name: string; url: string };

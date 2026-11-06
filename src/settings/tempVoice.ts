@@ -25,6 +25,7 @@ import {
 
 import type { Translate } from 'utility/i18next';
 import type { ResponsePayload } from 'utility/response';
+import { DiscordLimits } from 'utility/discordLimits';
 import { buildSwitchSection, createSettingsPanel, formatPermissions, type SettingsPanel } from 'utility/settings';
 import { creatorCategory, missingCreatorPermissions, TEMP_VOICE_PERMISSIONS } from 'utility/tempVoice/channel';
 import { ThemeColors } from 'utility/theme';
@@ -180,7 +181,9 @@ export async function renderTempVoiceList(guild: Guild, t: Translate): Promise<R
           .setCustomId(TEMP_VOICE_CONFIG_ID.open)
           .setPlaceholder(t('tempVoice.config.list.placeholder'))
           .addOptions(
-            creators.map((creator) => new StringSelectMenuOptionBuilder().setLabel(creatorName(creator, guild, t).slice(0, 100)).setValue(creator.id)),
+            creators.map((creator) =>
+              new StringSelectMenuOptionBuilder().setLabel(creatorName(creator, guild, t).slice(0, DiscordLimits.optionLabelLength)).setValue(creator.id),
+            ),
           ),
       ),
     );

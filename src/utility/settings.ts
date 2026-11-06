@@ -24,6 +24,7 @@ import {
 import type { Translate } from 'utility/i18next';
 
 import type { ResponsePayload } from 'utility/response';
+import { DiscordLimits } from 'utility/discordLimits';
 import { createResponse } from 'utility/response';
 import { getRoleProblem, isRoleAboveMember } from 'utility/roles';
 import { ThemeColors } from 'utility/theme';
@@ -42,8 +43,6 @@ const PAGE_KEY = '_page';
 const NONE = '-';
 /** In place of the shown value, marks the custom ID of a popup. */
 const MODAL_MARK = 'modal';
-/** Discord shows at most 25 options in a select. */
-const MAX_SELECT_OPTIONS = 25;
 /** How much of a text setting is shown in the panel. */
 const TEXT_PREVIEW_LENGTH = 300;
 
@@ -465,7 +464,7 @@ function addSetting<C>(container: ContainerBuilder, context: SettingsContext, pa
         .setChannelTypes(setting.channelTypes)
         .setPlaceholder(t(setting.type === 'channel' ? 'settings.channel.placeholder' : 'settings.channels.placeholder'))
         .setMinValues(setting.type === 'channel' && setting.required ? 1 : 0)
-        .setMaxValues(setting.type === 'channel' ? 1 : Math.min(setting.max, MAX_SELECT_OPTIONS));
+        .setMaxValues(setting.type === 'channel' ? 1 : Math.min(setting.max, DiscordLimits.selectOptions));
       if (existing.length > 0) select.setDefaultChannels(existing);
       const warning = existing.length < saved.length ? [`⚠️ ${t(setting.type === 'channel' ? 'settings.channel.missing' : 'settings.channels.missing')}`] : [];
       // Permissions can be taken away after the channel was picked
@@ -486,7 +485,7 @@ function addSetting<C>(container: ContainerBuilder, context: SettingsContext, pa
         .setCustomId(customId(panelId, page, setting.key))
         .setPlaceholder(t(setting.type === 'role' ? 'settings.role.placeholder' : 'settings.roles.placeholder'))
         .setMinValues(setting.type === 'role' && setting.required ? 1 : 0)
-        .setMaxValues(setting.type === 'role' ? 1 : Math.min(setting.max, MAX_SELECT_OPTIONS));
+        .setMaxValues(setting.type === 'role' ? 1 : Math.min(setting.max, DiscordLimits.selectOptions));
       if (existing.length > 0) select.setDefaultRoles(existing);
       const warning = existing.length < saved.length ? [`⚠️ ${t(setting.type === 'role' ? 'settings.role.missing' : 'settings.roles.missing')}`] : [];
       // The role or the bot's own roles can change after the role was picked
@@ -516,7 +515,7 @@ function addSetting<C>(container: ContainerBuilder, context: SettingsContext, pa
       return;
     }
     case 'multiChoice': {
-      const options = setting.options(config, context, t).slice(0, MAX_SELECT_OPTIONS);
+      const options = setting.options(config, context, t).slice(0, DiscordLimits.selectOptions);
       if (options.length === 0) {
         container.addTextDisplayComponents(new TextDisplayBuilder().setContent(describe(setting, t, [setting.noOptions(t)])));
         return;
@@ -532,7 +531,7 @@ function addSetting<C>(container: ContainerBuilder, context: SettingsContext, pa
             .setMaxValues(options.length)
             .addOptions(
               options.map((option) =>
-                new StringSelectMenuOptionBuilder().setLabel(option.label.slice(0, 100)).setValue(option.value).setDefault(saved.includes(option.value)),
+                new StringSelectMenuOptionBuilder().setLabel(option.label.slice(0, DiscordLimits.optionLabelLength)).setValue(option.value).setDefault(saved.includes(option.value)),
               ),
             ),
         ),
@@ -612,7 +611,7 @@ function addEntries<C>(container: ContainerBuilder, guild: Guild, panelId: strin
           .setCustomId(customId(panelId, page, setting.key, 'remove'))
           .setPlaceholder(t('settings.entries.remove'))
           .addOptions(
-            entries.slice(0, MAX_SELECT_OPTIONS).map((entry) =>
+            entries.slice(0, DiscordLimits.selectOptions).map((entry) =>
               new StringSelectMenuOptionBuilder()
                 .setLabel(targetName(guild, setting.target, entry.targetId, t))
                 .setDescription(setting.formatValue(entry.value, t))

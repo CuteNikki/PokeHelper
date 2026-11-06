@@ -2,13 +2,12 @@ import { ButtonBuilder, ButtonStyle, type Client } from 'discord.js';
 
 import { getUserBirthday, setUserBirthdayDate, updateUserBirthday } from 'database/birthday';
 
+import { DiscordLimits } from 'utility/discordLimits';
 import { parseBirthday, resolveTimezone } from 'utility/birthday/dates';
 import { createSettingsPanel } from 'utility/settings';
 
 /** Custom ID of the button that asks whether to delete your birthday. */
 export const DELETE_BIRTHDAY_ID = 'my-birthday:delete';
-/** Discord shows at most 25 options in a select. */
-const MAX_GUILDS = 25;
 
 interface MyBirthday {
   /** Whether a birthday is set. Until then only the date is shown, as the rest doesn't matter yet. */
@@ -30,7 +29,7 @@ const toInput = (date: Date) => date.toISOString().slice(0, 10);
 export function birthdayGuildOptions(client: Client, userId: string, saved: string[]) {
   return client.guilds.cache
     .filter((guild) => guild.members.cache.has(userId) || saved.includes(guild.id))
-    .first(MAX_GUILDS)
+    .first(DiscordLimits.selectOptions)
     .map((guild) => ({ value: guild.id, label: guild.name }));
 }
 

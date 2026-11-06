@@ -19,6 +19,7 @@ import { getTempVoiceChannel, updateTempVoiceChannel } from 'database/tempVoice'
 import { getTranslate, type Translate } from 'utility/i18next';
 import { logger } from 'utility/logger';
 import type { ResponsePayload } from 'utility/response';
+import { DiscordLimits } from 'utility/discordLimits';
 import { channelLabel, MAX_MODERATORS, type TempChannel } from 'utility/tempVoice/channel';
 import { ThemeColors } from 'utility/theme';
 
@@ -56,7 +57,7 @@ export const MODERATOR_ACTIONS: TempVoiceAction[] = ['allow', 'block', 'limit', 
 
 /** Discord's user selects pick at most 25 people. */
 /** Discord's pickers show at most 25. Longer lists show their first 25, and the rest are kept when the picker is used. */
-export const MAX_PICKED = 25;
+export const MAX_PICKED = DiscordLimits.selectOptions;
 /** How long to wait for more changes before editing the panel, so a few people joining at once edit it once. */
 const REFRESH_DELAY = 1_000;
 
@@ -121,7 +122,7 @@ export function buildPanel({ channel, record }: TempChannel, t: Translate): Resp
   if (others.size > 0) {
     someone
       .setPlaceholder(t('tempVoice.panel.memberPlaceholder'))
-      .addOptions(others.first(MAX_PICKED).map((member) => ({ label: member.displayName.slice(0, 100), value: member.id })));
+      .addOptions(others.first(MAX_PICKED).map((member) => ({ label: member.displayName.slice(0, DiscordLimits.optionLabelLength), value: member.id })));
   } else {
     someone.setPlaceholder(t('tempVoice.panel.nobodyHere')).addOptions({ label: '-', value: 'nobody' }).setDisabled(true);
   }

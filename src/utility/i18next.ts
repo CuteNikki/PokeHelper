@@ -4,8 +4,8 @@ import i18next, { use, type TFunction } from 'i18next';
 import i18NextFsBackend from 'i18next-fs-backend';
 import { logger } from 'utility/logger';
 
-const LOCALES_PATH = 'src/locales';
-const FALLBACK_LANGUAGE = 'en';
+export const LOCALES_PATH = 'src/locales';
+export const FALLBACK_LANGUAGE = 'en';
 const nameSpaces = ['messages'];
 
 /** The languages the bot has translations for, one folder each in src/locales. */

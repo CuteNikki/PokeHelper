@@ -4,14 +4,13 @@ import { Command } from 'classes/base/command';
 
 import { countUserReminders, createReminder, getReminderTimezone, getUserReminders, MAX_REMINDERS, setReminderTimezone } from 'database/reminders';
 
+import { DiscordLimits } from 'utility/discordLimits';
 import { resolveTimezone } from 'utility/birthday/dates';
 import { getTranslate } from 'utility/i18next';
 import { getWallTime, MAX_YEARS_AHEAD, parseDuration, parseWhen, type ReminderRepeat } from 'utility/reminders/time';
 import { buildReminderList, formatDue } from 'utility/reminders/view';
 import { createResponse, sendError, sendResponse } from 'utility/response';
 
-/** Discord shows at most 25 autocomplete choices. */
-const MAX_CHOICES = 25;
 const MAX_TEXT = 1000;
 
 export default new Command({
@@ -64,7 +63,7 @@ export default new Command({
     const now = new Date();
     const choices = Intl.supportedValuesOf('timeZone')
       .filter((timezone) => timezone.toLowerCase().includes(search))
-      .slice(0, MAX_CHOICES)
+      .slice(0, DiscordLimits.autocompleteChoices)
       .map((timezone) => {
         // With the time it is there, which helps finding the right one
         const wall = getWallTime(now, timezone);

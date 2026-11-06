@@ -25,6 +25,7 @@ import { getGuildLevelingConfiguration } from 'database/leveling';
 
 import type { Translate } from 'utility/i18next';
 import type { ResponsePayload } from 'utility/response';
+import { DiscordLimits } from 'utility/discordLimits';
 import { ThemeColors } from 'utility/theme';
 
 /** The custom ID of the select that picks a category of /help, with the category as its value. */
@@ -144,7 +145,7 @@ export async function buildHelp(interaction: Interaction, category: string, t: T
     .setPlaceholder(t('help.select'))
     .addOptions(
       { label: t('help.overview'), value: HELP_OVERVIEW, emoji: '📖', default: !shown },
-      ...categories.map(([key]) => ({ label: label(key).slice(0, 100), value: key, default: key === shown?.[0] })),
+      ...categories.map(([key]) => ({ label: label(key).slice(0, DiscordLimits.optionLabelLength), value: key, default: key === shown?.[0] })),
     );
   container
     .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large))

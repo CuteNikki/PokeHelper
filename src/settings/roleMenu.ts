@@ -19,6 +19,7 @@ import { getRoleMenu, getRoleMenus, setRoleMenuRole, updateRoleMenu, type RoleMe
 
 import type { Translate } from 'utility/i18next';
 import type { ResponsePayload } from 'utility/response';
+import { DiscordLimits } from 'utility/discordLimits';
 import { MAX_MENU_ROLES, MAX_ROLE_MENUS, moveRoleMenu, parseEmoji, ROLE_MENU_CHANNEL_PERMISSIONS, syncRoleMenuMessage } from 'utility/roleMenu';
 import { buildSwitchSection, createSettingsPanel, formatPermissions, missingBotPermissions, type SettingsPanel } from 'utility/settings';
 import { ThemeColors } from 'utility/theme';
@@ -249,12 +250,12 @@ export async function renderRoleMenuList(guild: Guild, t: Translate): Promise<Re
           .addOptions(
             menus.map((menu) =>
               new StringSelectMenuOptionBuilder()
-                .setLabel(roleMenuName(menu, guild, t).slice(0, 100))
+                .setLabel(roleMenuName(menu, guild, t).slice(0, DiscordLimits.optionLabelLength))
                 .setDescription(
                   t('roleMenu.list.optionDescription', {
                     channel: `#${guild.channels.cache.get(menu.channelId)?.name ?? '?'}`,
                     roles: t('roleMenu.list.roles', { count: menu.roles.length }),
-                  }).slice(0, 100),
+                  }).slice(0, DiscordLimits.optionLabelLength),
                 )
                 .setValue(menu.id),
             ),

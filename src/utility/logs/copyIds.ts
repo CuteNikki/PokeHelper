@@ -9,6 +9,7 @@ import {
   type ModalSubmitInteraction,
 } from 'discord.js';
 
+import { DiscordLimits } from 'utility/discordLimits';
 import { getTranslate, type Translate } from 'utility/i18next';
 import { sendError } from 'utility/response';
 
@@ -29,8 +30,6 @@ export type IdKind = keyof typeof ID_KINDS;
 /** The IDs of an entry by what they are. Roles and channels can be several, like the roles someone was given, or where someone moved from and to. */
 export type LogIds = Partial<Record<Exclude<IdKind, 'role' | 'channel'>, string>> & { role?: string | string[]; channel?: string | string[] };
 
-/** Discord's limit for custom IDs. The IDs that don't fit are left out, the first ones are the ones most often wanted. */
-const MAX_CUSTOM_ID = 100;
 /** A popup fits five fields. */
 const MAX_FIELDS = 5;
 
@@ -38,8 +37,9 @@ const MAX_FIELDS = 5;
 export function copyIdsButton(ids: LogIds, t: Translate): ButtonBuilder | null {
   const entries = (Object.keys(ID_KINDS) as IdKind[]).flatMap((kind) => [ids[kind] ?? []].flat().map((id) => `${ID_KINDS[kind]}${id}`));
   const parts: string[] = [];
+  // IDs that don't fit in the custom ID are left out, the first ones are the ones most often wanted
   for (const part of [...new Set(entries)].slice(0, MAX_FIELDS)) {
-    if (COPY_IDS_PREFIX.length + [...parts, part].join('.').length > MAX_CUSTOM_ID) break;
+    if (COPY_IDS_PREFIX.length + [...parts, part].join('.').length > DiscordLimits.customIdLength) break;
     parts.push(part);
   }
   if (parts.length === 0) return null;
@@ -75,15 +75,12 @@ export async function showCopyIds(interaction: ButtonInteraction): Promise<unkno
           // The name too, to tell apart several of a kind, like the member and who did it, or several roles
           const name = nameOf(interaction, kind, id);
           return new LabelBuilder()
-            .setLabel((name ? `${t(`logs.copy.${kind}`)} · ${name}` : t(`logs.copy.${kind}`)).slice(0, MAX_LABEL))
+            .setLabel((name ? `${t(`logs.copy.${kind}`)} · ${name}` : t(`logs.copy.${kind}`)).slice(0, DiscordLimits.modalLabelLength))
             .setTextInputComponent(new TextInputBuilder().setCustomId(`${kind}${index}`).setStyle(TextInputStyle.Short).setValue(id).setRequired(false));
         }),
       ),
   );
 }
-
-/** Discord's limit for a field's label. */
-const MAX_LABEL = 45;
 
 /** What an ID is called, as far as the bot knows it, like a username or a role's name. */
 function nameOf(interaction: ButtonInteraction, kind: IdKind, id: string): string | null {

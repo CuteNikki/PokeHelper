@@ -15,6 +15,7 @@ import {
 import type { Reminder } from 'generated/prisma/client';
 import type { Translate } from 'utility/i18next';
 import type { ResponsePayload } from 'utility/response';
+import { DiscordLimits } from 'utility/discordLimits';
 import { ThemeColors } from 'utility/theme';
 
 /** The select that deletes a reminder from the list. */
@@ -97,7 +98,7 @@ export function buildReminderList(reminders: Reminder[], t: Translate): Response
       reminders.map((reminder, index) =>
         new StringSelectMenuOptionBuilder()
           .setValue(reminder.id)
-          .setLabel(shorten(`${index + 1}. ${reminder.text.replace(/\s+/g, ' ')}`, 100))
+          .setLabel(shorten(`${index + 1}. ${reminder.text.replace(/\s+/g, ' ')}`, DiscordLimits.optionLabelLength))
           .setDescription(
             shorten(
               `${reminder.dueAt.toLocaleString(t('locale'), { timeZone: reminder.timezone, dateStyle: 'medium', timeStyle: 'short' })} · ${describe(reminder, t)}`,

@@ -1,3 +1,5 @@
+import { DAY, HOUR, MINUTE } from 'utility/duration';
+
 /** How often a reminder comes back, or null for once. */
 export type ReminderRepeat = 'daily' | 'weekly' | 'monthly' | 'yearly';
 
@@ -8,10 +10,6 @@ export type WhenError = 'invalid' | 'past' | 'tooFar';
 export const MAX_YEARS_AHEAD = 5;
 /** The hour a reminder for a date without a time goes off at, in the user's own time. */
 export const DEFAULT_HOUR = 9;
-
-const MINUTE = 60_000;
-const HOUR = 60 * MINUTE;
-const DAY = 24 * HOUR;
 
 /** A date and time on the clock somewhere, months from 1 to 12. */
 interface WallTime {

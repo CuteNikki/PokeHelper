@@ -2,10 +2,7 @@ import { existsSync, readFileSync } from 'node:fs';
 
 import { Locale, type LocalizationMap } from 'discord.js';
 
-import { supportedLanguages } from 'utility/i18next';
-
-const LOCALES_PATH = 'src/locales';
-const FALLBACK_LANGUAGE = 'en';
+import { FALLBACK_LANGUAGE, LOCALES_PATH, supportedLanguages } from 'utility/i18next';
 
 /**
  * The texts of one command, subcommand or option in another language, nested like the command's JSON:

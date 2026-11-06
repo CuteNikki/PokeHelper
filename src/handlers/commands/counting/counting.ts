@@ -19,14 +19,11 @@ import { getCountingUser, getCurrentRun, getEntriesForNumbers, getRunCount, getR
 import type { CountingRun, GuildCounting } from 'generated/prisma/client';
 import { buildCountingLeaderboard, buildCountingRuns } from 'utility/counting/pages';
 import { formatLives, getMilestones } from 'utility/counting/rules';
-import { formatDuration, formatNumber } from 'utility/duration';
+import { DAY, formatDuration, formatNumber, HOUR } from 'utility/duration';
 import { createResponse, sendError, sendResponse } from 'utility/response';
 
 /** How many milestones the info shows, the most recent ones. */
 const SHOWN_MILESTONES = 5;
-
-const HOUR = 3_600_000;
-const DAY = 24 * HOUR;
 
 export default new Command({
   data: new SlashCommandBuilder()

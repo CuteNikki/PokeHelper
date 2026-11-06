@@ -1,9 +1,8 @@
 import { supportedLanguages } from 'utility/i18next';
 import { logger } from 'utility/logger';
-import { PokeApiError } from 'utility/pokedex/api';
+import { API_URL, PokeApiError } from 'utility/pokedex/api';
 
 const GRAPHQL_URL = 'https://beta.pokeapi.co/graphql/v1beta';
-const API_URL = 'https://pokeapi.co/api/v2';
 const TIMEOUT = 30_000;
 /** How long to wait before asking again after the names couldn't be loaded, so a PokéAPI outage isn't asked about on every keystroke. */
 const RETRY_AFTER = 60_000;

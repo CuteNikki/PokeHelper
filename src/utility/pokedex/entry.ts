@@ -22,6 +22,7 @@ import {
   ThumbnailBuilder,
 } from 'discord.js';
 
+import { DiscordLimits } from 'utility/discordLimits';
 import { getTranslate, resolveLanguage, type Translate } from 'utility/i18next';
 import { logger } from 'utility/logger';
 import {
@@ -68,9 +69,6 @@ export interface PokedexView {
 export const POKEDEX_CUSTOM_ID_PREFIX = 'pokedex:';
 export const POKEDEX_FORM_SELECT_ID = `${POKEDEX_CUSTOM_ID_PREFIX}form:`;
 
-/** Discord shows at most 25 options in a select. */
-const MAX_FORMS = 25;
-
 /** The square emoji closest to each type's color, for the stat bars in the text when the bot's own bar emojis aren't there. */
 const TYPE_SQUARES: Record<string, string> = {
   normal: '⬜',
@@ -108,7 +106,6 @@ function statBar(value: number, type: string): string {
 
 const STATS = ['hp', 'attack', 'defense', 'special-attack', 'special-defense', 'speed'] as const;
 
-const BUTTONS_PER_ROW = 5;
 /** Two rows of evolutions, more than any Pokémon has: Eevee has nine with itself. */
 const MAX_EVOLUTION_BUTTONS = 10;
 
@@ -225,7 +222,11 @@ function buildControls(match: PokedexMatch, view: PokedexView, hasShiny: boolean
     new StringSelectMenuBuilder()
       .setCustomId(`${POKEDEX_FORM_SELECT_ID}${encodeView(view)}`)
       .setPlaceholder(t('pokedex.forms'))
-      .addOptions(options.slice(0, MAX_FORMS).map((option) => ({ label: option.name.slice(0, 100), value: option.slug, default: option.slug === slug }))),
+      .addOptions(
+        options
+          .slice(0, DiscordLimits.selectOptions)
+          .map((option) => ({ label: option.name.slice(0, DiscordLimits.optionLabelLength), value: option.slug, default: option.slug === slug })),
+      ),
   );
   return { navigation, forms: [forms] };
 }
@@ -246,8 +247,8 @@ function buildEvolutionButtons(
       .setDisabled(current);
   });
   const rows: ActionRowBuilder<ButtonBuilder>[] = [];
-  for (let index = 0; index < buttons.length; index += BUTTONS_PER_ROW) {
-    rows.push(new ActionRowBuilder<ButtonBuilder>().addComponents(buttons.slice(index, index + BUTTONS_PER_ROW)));
+  for (let index = 0; index < buttons.length; index += DiscordLimits.buttonsPerRow) {
+    rows.push(new ActionRowBuilder<ButtonBuilder>().addComponents(buttons.slice(index, index + DiscordLimits.buttonsPerRow)));
   }
   return rows;
 }

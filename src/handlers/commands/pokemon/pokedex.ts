@@ -2,6 +2,7 @@ import { ApplicationIntegrationType, InteractionContextType, SlashCommandBuilder
 
 import { Command } from 'classes/base/command';
 
+import { DiscordLimits } from 'utility/discordLimits';
 import { getTranslate, resolveLanguage } from 'utility/i18next';
 import { logger } from 'utility/logger';
 import { PokeApiError } from 'utility/pokedex/api';
@@ -9,8 +10,6 @@ import { buildPokedexEntry } from 'utility/pokedex/entry';
 import { findPokemon, formatDexNumber, loadPokedexData, matchName, matchSlug, searchPokemon } from 'utility/pokedex/names';
 import { createResponse, sendResponse } from 'utility/response';
 
-/** Discord shows at most 25 autocomplete choices. */
-const MAX_CHOICES = 25;
 /**
  * How long suggestions wait for the names. Discord drops an answer after 3 seconds, and loading the names can take far longer when
  * PokéAPI is slow, so the load carries on and the suggestions come with a later keystroke.
@@ -43,8 +42,8 @@ export default new Command({
     ]);
     if (!loaded) return interaction.respond([]);
 
-    const choices = searchPokemon(interaction.options.getFocused(), MAX_CHOICES).map((match) => ({
-      name: `${formatDexNumber(match.species.id)} ${matchName(match, language)}`.slice(0, 100),
+    const choices = searchPokemon(interaction.options.getFocused(), DiscordLimits.autocompleteChoices).map((match) => ({
+      name: `${formatDexNumber(match.species.id)} ${matchName(match, language)}`.slice(0, DiscordLimits.optionLabelLength),
       value: matchSlug(match),
     }));
     return interaction.respond(choices);

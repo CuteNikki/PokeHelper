@@ -22,12 +22,10 @@ import {
 
 import { creatorName, getTempVoiceSettings, MAX_TEMP_VOICE_CREATORS, renderTempVoiceList } from 'settings/tempVoice';
 
+import { DiscordLimits } from 'utility/discordLimits';
 import { getTranslate } from 'utility/i18next';
 import { createResponse, sendResponse } from 'utility/response';
 import { settingsContext } from 'utility/settings';
-
-/** Discord shows at most 25 autocomplete choices. */
-const MAX_CHOICES = 25;
 
 export default new Command({
   data: new SlashCommandBuilder()
@@ -58,9 +56,9 @@ export default new Command({
     const t = getTranslate(interaction.locale);
     const search = interaction.options.getFocused().toLowerCase();
     const choices = (await getTempVoiceCreators(interaction.guildId))
-      .map((creator) => ({ name: creatorName(creator, interaction.guild, t).slice(0, 100), value: creator.id }))
+      .map((creator) => ({ name: creatorName(creator, interaction.guild, t).slice(0, DiscordLimits.optionLabelLength), value: creator.id }))
       .filter((choice) => choice.name.toLowerCase().includes(search));
-    await interaction.respond(choices.slice(0, MAX_CHOICES));
+    await interaction.respond(choices.slice(0, DiscordLimits.autocompleteChoices));
   },
 
   async execute(interaction) {

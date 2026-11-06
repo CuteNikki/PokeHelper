@@ -16,6 +16,7 @@ import {
 import { getFeatureSwitches } from 'database/features';
 import { deleteRoleMenu as deleteRoleMenuFromDatabase, getRoleMenu, removeRoleFromMenus, updateRoleMenu, type RoleMenu } from 'database/roleMenu';
 
+import { DiscordLimits } from 'utility/discordLimits';
 import { getTranslate, type Translate } from 'utility/i18next';
 import { logger } from 'utility/logger';
 import { KeyedQueue } from 'utility/queue';
@@ -31,8 +32,6 @@ export const ROLE_MENU_CHANNEL_PERMISSIONS: PermissionsString[] = ['ViewChannel'
 /** Custom IDs of the buttons members pick their roles with, followed by the role ID. Kept from the first role menus, so their buttons keep working. */
 export const ROLE_BUTTON_PREFIX = 'rr_sel_';
 
-/** Discord allows at most 5 buttons in a row. */
-const BUTTONS_PER_ROW = 5;
 /** Changes to a menu's message run one after another per menu, so two quick changes can't post it twice. */
 const queue = new KeyedQueue();
 
@@ -47,11 +46,11 @@ export function buildRoleMenuMessage(menu: RoleMenu, t: Translate): ResponsePayl
   if (!menu.enabled) lines.push('', `-# ${t('roleMenu.message.disabled')}`);
 
   const container = new ContainerBuilder().setAccentColor(ThemeColors.info).addTextDisplayComponents(new TextDisplayBuilder().setContent(lines.join('\n')));
-  for (let i = 0; i < menu.roles.length; i += BUTTONS_PER_ROW) {
+  for (let i = 0; i < menu.roles.length; i += DiscordLimits.buttonsPerRow) {
     container.addActionRowComponents(
       new ActionRowBuilder<ButtonBuilder>().addComponents(
         menu.roles
-          .slice(i, i + BUTTONS_PER_ROW)
+          .slice(i, i + DiscordLimits.buttonsPerRow)
           .map((role) =>
             new ButtonBuilder()
               .setCustomId(`${ROLE_BUTTON_PREFIX}${role.roleId}`)

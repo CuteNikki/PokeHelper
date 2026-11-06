@@ -2,8 +2,10 @@ import { prisma } from 'database/index';
 
 import type { Prisma } from 'generated/prisma/client';
 
-/** The most reminders someone can have, which is also the most a select can list to delete. */
-export const MAX_REMINDERS = 25;
+import { DiscordLimits } from 'utility/discordLimits';
+
+/** The most reminders someone can have, as many as the select deleting them can list. */
+export const MAX_REMINDERS = DiscordLimits.selectOptions;
 
 /** Someone's reminders, the next one first. */
 export const getUserReminders = (userId: string) => prisma.reminder.findMany({ where: { userId }, orderBy: { dueAt: 'asc' } });

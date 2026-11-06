@@ -22,6 +22,7 @@ import { getFriendCodes } from 'database/friendCodes';
 
 import { friendCodeSettings } from 'settings/friendCodes';
 
+import { DiscordLimits } from 'utility/discordLimits';
 import { formatFriendCode, savedFriendCodes } from 'utility/friendCodes';
 import { getTranslate, type Translate } from 'utility/i18next';
 import { createResponse, sendError, sendResponse, type ResponsePayload } from 'utility/response';
@@ -75,9 +76,6 @@ export async function buildFriendCodes(user: User, member: GuildMember | null, s
 const editButton = (t: Translate) =>
   new ButtonBuilder().setCustomId(EDIT_ID).setLabel(t('friendCodes.view.yours')).setEmoji('✏️').setStyle(ButtonStyle.Secondary);
 
-/** Discord's limit for a field's label. */
-const MAX_LABEL = 45;
-
 /** Handle the buttons under someone's codes, in the language of whoever pressed them. */
 export async function handleFriendCodesButton(interaction: ButtonInteraction): Promise<unknown> {
   const t = getTranslate(interaction.locale);
@@ -98,7 +96,7 @@ export async function handleFriendCodesButton(interaction: ButtonInteraction): P
       .addLabelComponents(
         codes.map(({ game, code }) =>
           new LabelBuilder()
-            .setLabel(t(`friendCodes.games.${game}`).slice(0, MAX_LABEL))
+            .setLabel(t(`friendCodes.games.${game}`).slice(0, DiscordLimits.modalLabelLength))
             .setTextInputComponent(new TextInputBuilder().setCustomId(game).setStyle(TextInputStyle.Short).setValue(code).setRequired(false)),
         ),
       ),

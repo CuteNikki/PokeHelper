@@ -15,13 +15,11 @@ import { countRoleMenus, createRoleMenu, getRoleMenu, getRoleMenus } from 'datab
 
 import { getRoleMenuSettings, MAX_NAME_LENGTH, renderRoleMenuList, roleMenuName } from 'settings/roleMenu';
 
+import { DiscordLimits } from 'utility/discordLimits';
 import { getTranslate } from 'utility/i18next';
 import { createResponse, sendResponse } from 'utility/response';
 import { MAX_ROLE_MENUS, ROLE_MENU_CHANNEL_PERMISSIONS } from 'utility/roleMenu';
 import { formatPermissions, missingBotPermissions, settingsContext } from 'utility/settings';
-
-/** Discord shows at most 25 autocomplete choices. */
-const MAX_CHOICES = 25;
 
 export default new Command({
   data: new SlashCommandBuilder()
@@ -63,9 +61,9 @@ export default new Command({
 
     const menus = await getRoleMenus(interaction.guildId);
     const choices = menus
-      .map((menu) => ({ name: roleMenuName(menu, interaction.guild, t).slice(0, 100), value: menu.id }))
+      .map((menu) => ({ name: roleMenuName(menu, interaction.guild, t).slice(0, DiscordLimits.optionLabelLength), value: menu.id }))
       .filter((choice) => choice.name.toLowerCase().includes(search));
-    await interaction.respond(choices.slice(0, MAX_CHOICES));
+    await interaction.respond(choices.slice(0, DiscordLimits.autocompleteChoices));
   },
 
   async execute(interaction) {
