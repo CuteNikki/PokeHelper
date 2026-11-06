@@ -2,11 +2,11 @@ import {
   ActionRowBuilder,
   AttachmentBuilder,
   ButtonBuilder,
-  ButtonStyle,
   type ButtonInteraction,
+  ButtonStyle,
   ContainerBuilder,
-  MediaGalleryBuilder,
   LabelBuilder,
+  MediaGalleryBuilder,
   MessageFlags,
   ModalBuilder,
   type ModalMessageModalSubmitInteraction,
@@ -16,6 +16,7 @@ import {
   SeparatorSpacingSize,
   StringSelectMenuBuilder,
   type StringSelectMenuInteraction,
+  subtext,
   TextDisplayBuilder,
   TextInputBuilder,
   TextInputStyle,
@@ -315,7 +316,7 @@ export async function buildPokedexEntry(match: PokedexMatch, view: PokedexView, 
 
   if (view.text) {
     const header = new TextDisplayBuilder().setContent(
-      [`## ${shownName} ${number}`, kind ? `-# ${kind}` : null, entry ? `> ${entry}` : null].filter(Boolean).join('\n'),
+      [`## ${shownName} ${number}`, kind ? subtext(kind) : null, entry ? `> ${entry}` : null].filter(Boolean).join('\n'),
     );
     if (picture) {
       container.addSectionComponents(

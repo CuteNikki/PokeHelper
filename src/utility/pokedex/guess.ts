@@ -3,19 +3,20 @@ import {
   ActionRowBuilder,
   AttachmentBuilder,
   ButtonBuilder,
+  type ButtonInteraction,
   ButtonStyle,
   ContainerBuilder,
   LabelBuilder,
   MediaGalleryBuilder,
   MessageFlags,
   ModalBuilder,
+  type ModalSubmitInteraction,
   SeparatorBuilder,
   SeparatorSpacingSize,
+  subtext,
   TextDisplayBuilder,
   TextInputBuilder,
   TextInputStyle,
-  type ButtonInteraction,
-  type ModalSubmitInteraction,
 } from 'discord.js';
 
 import { getTranslate, resolveLanguage, type Translate } from 'utility/i18next';
@@ -165,13 +166,13 @@ export async function buildGuessGame(game: GuessGame, outcome: Outcome, language
 
   if (outcome === 'playing') {
     const intro = game.generation ? t('guess.fromGeneration', { generation: game.generation }) : t('guess.anyLanguage');
-    container.addTextDisplayComponents(new TextDisplayBuilder().setContent(`${t('guess.title')}\n-# ${intro}`));
+    container.addTextDisplayComponents(new TextDisplayBuilder().setContent(`${t('guess.title')}\n${subtext(intro)}`));
   } else if (outcome === 'solved') {
     const solved = t('guess.solvedIn', { count: game.guesses }) + (game.hints > 0 ? t('guess.withHints', { count: game.hints }) : '');
-    container.addTextDisplayComponents(new TextDisplayBuilder().setContent(`${t('guess.solved', { name })}\n-# ${solved}`));
+    container.addTextDisplayComponents(new TextDisplayBuilder().setContent(`${t('guess.solved', { name })}\n${subtext(solved)}`));
   } else {
     const after = game.guesses > 0 ? t('guess.gaveUpAfter', { count: game.guesses }) : t('guess.gaveUpEarly');
-    container.addTextDisplayComponents(new TextDisplayBuilder().setContent(`${t('guess.gaveUp', { name })}\n-# ${after}`));
+    container.addTextDisplayComponents(new TextDisplayBuilder().setContent(`${t('guess.gaveUp', { name })}\n${subtext(after)}`));
   }
 
   // Described for screen readers, without saying who it is while it's guessed
@@ -182,7 +183,7 @@ export async function buildGuessGame(game: GuessGame, outcome: Outcome, language
     const status = [
       ...(await hintLines(game, species, language, t)),
       lastGuess ? t('guess.notIt', { name: lastGuess }) : null,
-      game.guesses > 0 ? `-# ${t('guess.guesses', { count: game.guesses })}` : null,
+      game.guesses > 0 ? subtext(t('guess.guesses', { count: game.guesses })) : null,
     ].filter((line): line is string => line !== null);
     if (status.length > 0) container.addTextDisplayComponents(new TextDisplayBuilder().setContent(status.join('\n')));
 

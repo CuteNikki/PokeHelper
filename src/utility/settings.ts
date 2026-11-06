@@ -1,11 +1,17 @@
 import {
   ActionRowBuilder,
+  type BaseInteraction,
   ButtonBuilder,
   ButtonStyle,
   channelMention,
   ChannelSelectMenuBuilder,
+  type ChannelType,
+  type Client,
   ContainerBuilder,
+  type Guild,
+  type GuildMember,
   MessageFlags,
+  type PermissionsString,
   roleMention,
   RoleSelectMenuBuilder,
   SectionBuilder,
@@ -13,13 +19,8 @@ import {
   SeparatorSpacingSize,
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder,
+  subtext,
   TextDisplayBuilder,
-  type ChannelType,
-  type BaseInteraction,
-  type Client,
-  type Guild,
-  type GuildMember,
-  type PermissionsString,
 } from 'discord.js';
 import type { Translate } from 'utility/i18next';
 
@@ -409,10 +410,10 @@ function formatValue<C>(setting: Exclude<Setting<C>, { type: 'entries' | 'textEn
 }
 
 function describe<C>(setting: Setting<C> | AnyEntriesSetting<C>, t: Translate, extra: string[] = []): string {
-  const lines = [`**${setting.label(t)}**`, `-# ${setting.description(t)}`];
+  const lines = [`**${setting.label(t)}**`, subtext(setting.description(t))];
   // A default text is shown in place of the value instead, as it can be long
   if (!isEntries(setting) && setting.type !== 'text' && setting.defaultValue !== undefined) {
-    lines.push(`-# ${t('settings.default', { value: formatValue(setting, setting.defaultValue, t) })}`);
+    lines.push(subtext(t('settings.default', { value: formatValue(setting, setting.defaultValue, t) })));
   }
   return [...lines, ...extra].join('\n');
 }
@@ -503,7 +504,7 @@ function addSetting<C>(container: ContainerBuilder, context: SettingsContext, pa
       const shown = text !== null && setting.formatValue ? setting.formatValue(text, t) : text;
       // Quoted, so the text stands apart from the setting's description, and cut short so long texts don't take over the panel
       const preview = shown === null ? t('settings.none') : quote(shorten(shown, TEXT_PREVIEW_LENGTH));
-      const extra = [value === null && setting.defaultText ? `-# ${t('settings.text.usingDefault')}` : null, preview].filter((line) => line !== null);
+      const extra = [value === null && setting.defaultText ? subtext(t('settings.text.usingDefault')) : null, preview].filter((line) => line !== null);
       container.addSectionComponents(
         new SectionBuilder().addTextDisplayComponents(new TextDisplayBuilder().setContent(describe(setting, t, extra))).setButtonAccessory(
           new ButtonBuilder()
@@ -561,7 +562,7 @@ function addEntries<C>(container: ContainerBuilder, guild: Guild, panelId: strin
   const count = t('settings.entries.count', { count: entries.length, max: setting.max });
 
   if (setting.presets) {
-    container.addTextDisplayComponents(new TextDisplayBuilder().setContent(describe(setting, t, [`-# ${count}`])));
+    container.addTextDisplayComponents(new TextDisplayBuilder().setContent(describe(setting, t, [subtext(count)])));
     for (const entry of entries) {
       container.addSectionComponents(
         new SectionBuilder()
@@ -585,7 +586,7 @@ function addEntries<C>(container: ContainerBuilder, guild: Guild, panelId: strin
               `- ${format(mention(setting.target, entry.targetId), setting.formatValue(entry.value, t))}${entryWarning(guild, setting, entry.targetId, t)}`,
           )
         : [t('settings.none')];
-    container.addTextDisplayComponents(new TextDisplayBuilder().setContent(describe(setting, t, [`-# ${count}`, ...list])));
+    container.addTextDisplayComponents(new TextDisplayBuilder().setContent(describe(setting, t, [subtext(count), ...list])));
   }
 
   // Without presets, picking an existing entry asks for its new value, so the select stays available to edit when the list is full
@@ -683,7 +684,7 @@ function textModal<C>(
  * @param customId What the button does, which its handler toggles.
  */
 export function buildSwitchSection(label: string, description: string, on: boolean, customId: string, t: Translate): SectionBuilder {
-  return new SectionBuilder().addTextDisplayComponents(new TextDisplayBuilder().setContent(`**${label}**\n-# ${description}`)).setButtonAccessory(
+  return new SectionBuilder().addTextDisplayComponents(new TextDisplayBuilder().setContent(`**${label}**\n${subtext(description)}`)).setButtonAccessory(
     new ButtonBuilder()
       .setCustomId(customId)
       .setLabel(t(on ? 'state.on' : 'state.off'))
@@ -755,7 +756,7 @@ export function createSettingsPanel<C>(definition: SettingsPanelDefinition<C>): 
       if (tips.length > 0) {
         container
           .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large))
-          .addTextDisplayComponents(new TextDisplayBuilder().setContent([t('settings.tips'), ...tips.map((tip) => `-# • ${tip}`)].join('\n')));
+          .addTextDisplayComponents(new TextDisplayBuilder().setContent([t('settings.tips'), ...tips.map((tip) => subtext(`• ${tip}`))].join('\n')));
       }
 
       const footer = definition.footer?.(config, t) ?? [];

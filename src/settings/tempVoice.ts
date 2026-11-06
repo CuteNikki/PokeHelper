@@ -5,12 +5,13 @@ import {
   channelMention,
   ChannelType,
   ContainerBuilder,
+  type Guild,
   MessageFlags,
   SeparatorBuilder,
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder,
+  subtext,
   TextDisplayBuilder,
-  type Guild,
 } from 'discord.js';
 
 import { getFeatureSwitches } from 'database/features';
@@ -172,7 +173,7 @@ export async function renderTempVoiceList(guild: Guild, t: Translate): Promise<R
   container
     .addTextDisplayComponents(
       new TextDisplayBuilder().setContent(
-        [`-# ${t('tempVoice.config.list.count', { count: creators.length, max: MAX_TEMP_VOICE_CREATORS })}`, ...lines].join('\n'),
+        [subtext(t('tempVoice.config.list.count', { count: creators.length, max: MAX_TEMP_VOICE_CREATORS })), ...lines].join('\n'),
       ),
     )
     .addActionRowComponents(

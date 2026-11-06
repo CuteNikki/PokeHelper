@@ -6,20 +6,21 @@ import {
   channelMention,
   ContainerBuilder,
   DiscordAPIError,
-  MediaGalleryBuilder,
-  MessageFlags,
-  RESTJSONErrorCodes,
-  SeparatorBuilder,
-  TextDisplayBuilder,
-  time,
-  TimestampStyles,
-  userMention,
   type Guild,
+  MediaGalleryBuilder,
   type Message,
+  MessageFlags,
   type MessageReaction,
   type PartialMessage,
   type PartialMessageReaction,
   type PermissionsString,
+  RESTJSONErrorCodes,
+  SeparatorBuilder,
+  subtext,
+  TextDisplayBuilder,
+  time,
+  TimestampStyles,
+  userMention,
 } from 'discord.js';
 
 import {
@@ -140,7 +141,7 @@ function buildStarboardPost(message: Message, stars: number, emoji: string, uplo
   }
 
   const others = [...message.attachments.values()].filter((file) => !images.some((image) => image.file.id === file.id));
-  if (others.length > 0) container.addTextDisplayComponents(new TextDisplayBuilder().setContent(`-# 📎 ${others.map((file) => file.name).join(', ')}`));
+  if (others.length > 0) container.addTextDisplayComponents(new TextDisplayBuilder().setContent(subtext(`📎 ${others.map((file) => file.name).join(', ')}`)));
 
   container.addActionRowComponents(
     new ActionRowBuilder<ButtonBuilder>().addComponents(

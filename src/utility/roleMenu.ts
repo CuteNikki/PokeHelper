@@ -4,13 +4,14 @@ import {
   ButtonStyle,
   ContainerBuilder,
   DiscordAPIError,
-  MessageFlags,
-  RESTJSONErrorCodes,
-  roleMention,
-  TextDisplayBuilder,
   type Guild,
   type Message,
+  MessageFlags,
   type PermissionsString,
+  RESTJSONErrorCodes,
+  roleMention,
+  subtext,
+  TextDisplayBuilder,
 } from 'discord.js';
 
 import { getFeatureSwitches } from 'database/features';
@@ -43,7 +44,7 @@ export function buildRoleMenuMessage(menu: RoleMenu, t: Translate): ResponsePayl
   const lines = [`### ${menu.title ?? t('roleMenu.message.title')}`, menu.description ?? t('roleMenu.message.description'), ''];
   // Mentions always show the role's current name, so the list never goes out of date
   lines.push(...menu.roles.map((role) => t('roleMenu.message.item', { emoji: role.emoji, role: roleMention(role.roleId) })));
-  if (!menu.enabled) lines.push('', `-# ${t('roleMenu.message.disabled')}`);
+  if (!menu.enabled) lines.push('', subtext(t('roleMenu.message.disabled')));
 
   const container = new ContainerBuilder().setAccentColor(ThemeColors.info).addTextDisplayComponents(new TextDisplayBuilder().setContent(lines.join('\n')));
   for (let i = 0; i < menu.roles.length; i += DiscordLimits.buttonsPerRow) {

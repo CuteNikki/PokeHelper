@@ -8,6 +8,7 @@ import {
   MessageFlags,
   PermissionFlagsBits,
   SlashCommandBuilder,
+  subtext,
   TextDisplayBuilder,
 } from 'discord.js';
 import { t } from 'i18next';
@@ -160,7 +161,7 @@ async function handleProfileTheme(interaction: ChatInputCommandInteraction<'cach
   const lines = [
     `Wearing the **${result.theme}** theme${isThemeName(choice) ? ' until set back to auto' : ', the one of the day'}.`,
     `Avatar: ${SYNC_TEXT[result.avatar]}. Banner: ${SYNC_TEXT[result.banner]}. Status: ${result.status}`,
-    profileThemesEnabled() ? null : '-# PROFILE_THEMES is off here, so it only changes when you use this command.',
+    profileThemesEnabled() ? null : subtext('PROFILE_THEMES is off here, so it only changes when you use this command.'),
   ];
   return interaction.editReply(createResponse(lines.filter(Boolean).join('\n'), 'success'));
 }

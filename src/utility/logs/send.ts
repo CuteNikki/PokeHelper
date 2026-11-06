@@ -1,21 +1,22 @@
 import {
   ActionRowBuilder,
+  type AttachmentBuilder,
   ButtonBuilder,
   ButtonStyle,
   ContainerBuilder,
+  type Guild,
+  type GuildMember,
   MessageFlags,
+  type PermissionsString,
   SectionBuilder,
+  type SendableChannels,
   SeparatorBuilder,
   SeparatorSpacingSize,
+  subtext,
   TextDisplayBuilder,
   ThumbnailBuilder,
   time,
   TimestampStyles,
-  type AttachmentBuilder,
-  type Guild,
-  type GuildMember,
-  type PermissionsString,
-  type SendableChannels,
   type User,
 } from 'discord.js';
 
@@ -115,7 +116,7 @@ export function buildLogEntry(entry: LogEntry, t: Translate, doer?: User | null)
       entry.where && typeof entry.where === 'object' ? `**${t('logs.from')}** ${entry.where.from}\n**${t('logs.to')}** ${entry.where.to}` : null,
       entry.by ? `**${t('logs.byLabel')}** ${userSubject(doer, entry.by.id)}` : null,
       // When it happened, as Discord only shows the time of the first of several messages in a row
-      `-# ${time(new Date(), TimestampStyles.LongDateTime)}`,
+      subtext(time(new Date(), TimestampStyles.LongDateTime)),
     ]
       .filter(Boolean)
       .join('\n'),

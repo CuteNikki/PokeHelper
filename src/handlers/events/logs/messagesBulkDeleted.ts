@@ -1,4 +1,4 @@
-import { AuditLogEvent, Events } from 'discord.js';
+import { AuditLogEvent, Events, subtext } from 'discord.js';
 
 import { Event } from 'classes/base/event';
 
@@ -26,7 +26,7 @@ export default new Event({
       about: 'channel',
       subject: channelSubject(channel.id, channel.name),
       by: doer,
-      details: [seen.length < messages.size ? `-# ${t('logs.bulkNotSeen', { count: messages.size - seen.length })}` : null],
+      details: [seen.length < messages.size ? subtext(t('logs.bulkNotSeen', { count: messages.size - seen.length })) : null],
       ids: { channel: channel.id },
       files:
         seen.length > 0

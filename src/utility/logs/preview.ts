@@ -1,4 +1,4 @@
-import { type GuildMember, type SendableChannels } from 'discord.js';
+import { type GuildMember, type SendableChannels, subtext } from 'discord.js';
 
 import { formatNumber } from 'utility/duration';
 import type { Translate } from 'utility/i18next';
@@ -94,7 +94,7 @@ export function previewEntries(member: GuildMember, channelId: string, t: Transl
       about: 'channel',
       subject: where,
       by,
-      details: [`-# ${t('logs.bulkNotSeen', { count: 1 })}`],
+      details: [subtext(t('logs.bulkNotSeen', { count: 1 }))],
       ids: { channel: channelId },
       files: [transcriptFile(purged, t('logs.transcriptHeading', { count: 5, channel: 'testing', channelId }), `deleted-messages-${channelId}.txt`)],
     },

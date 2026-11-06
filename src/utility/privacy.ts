@@ -2,16 +2,17 @@ import {
   ActionRowBuilder,
   AttachmentBuilder,
   ButtonBuilder,
+  type ButtonInteraction,
   ButtonStyle,
+  type Client,
   ContainerBuilder,
   FileBuilder,
   MessageFlags,
+  type PermissionsString,
   SeparatorBuilder,
   SeparatorSpacingSize,
+  subtext,
   TextDisplayBuilder,
-  type ButtonInteraction,
-  type Client,
-  type PermissionsString,
 } from 'discord.js';
 
 import { getGuildOrCreate } from 'database/guild';
@@ -51,14 +52,14 @@ export function buildPrivacyPanel(context: SettingsContext, t: Translate): Respo
     .setAccentColor(ThemeColors.info)
     .addTextDisplayComponents(new TextDisplayBuilder().setContent(`${t('privacy.title')}\n${t('privacy.intro', { url: PRIVACY_POLICY_URL })}`))
     .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large))
-    .addTextDisplayComponents(new TextDisplayBuilder().setContent(`**${t('privacy.user.title')}**\n-# ${t('privacy.user.description')}`))
+    .addTextDisplayComponents(new TextDisplayBuilder().setContent(`**${t('privacy.user.title')}**\n${subtext(t('privacy.user.description'))}`))
     .addActionRowComponents(buttons('user'));
 
   if (context.guild && context.member?.permissions.has(GUILD_DATA_PERMISSIONS)) {
     container
       .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large))
       .addTextDisplayComponents(
-        new TextDisplayBuilder().setContent(`**${t('privacy.guild.title', { name: context.guild.name })}**\n-# ${t('privacy.guild.description')}`),
+        new TextDisplayBuilder().setContent(`**${t('privacy.guild.title', { name: context.guild.name })}**\n${subtext(t('privacy.guild.description'))}`),
       )
       .addActionRowComponents(buttons('guild'));
   }

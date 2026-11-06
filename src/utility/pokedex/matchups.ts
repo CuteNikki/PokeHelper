@@ -2,15 +2,16 @@ import {
   ActionRowBuilder,
   AttachmentBuilder,
   ButtonBuilder,
+  type ButtonInteraction,
   ButtonStyle,
   ContainerBuilder,
   MediaGalleryBuilder,
   MessageFlags,
   SectionBuilder,
   SeparatorBuilder,
+  subtext,
   TextDisplayBuilder,
   ThumbnailBuilder,
-  type ButtonInteraction,
 } from 'discord.js';
 
 import { FALLBACK_LANGUAGE, getTranslate, resolveLanguage, type Translate } from 'utility/i18next';
@@ -234,7 +235,7 @@ async function buildCard(matchups: Matchups, slug: string, t: Translate): Promis
 /** The matchups as text, a type to a line, with the Pokémon's picture and one of the Pokémon to use against each weakness. */
 function buildText(matchups: Matchups, slug: string, t: Translate): ResponsePayload {
   const header = new TextDisplayBuilder().setContent(
-    `${t('pokedex.matchups.title', { name: matchups.name })}\n-# ${matchups.types.map((type) => type.name).join(' / ')}`,
+    `${t('pokedex.matchups.title', { name: matchups.name })}\n${subtext(matchups.types.map((type) => type.name).join(' / '))}`,
   );
   const container = new ContainerBuilder().setAccentColor(matchups.types[0]?.color ?? ThemeColors.info);
   if (matchups.picture) {
@@ -283,7 +284,7 @@ function buildText(matchups: Matchups, slug: string, t: Translate): ResponsePayl
 
   container
     .addSeparatorComponents(new SeparatorBuilder())
-    .addTextDisplayComponents(new TextDisplayBuilder().setContent(`-# ${t('pokedex.matchups.note')}`))
+    .addTextDisplayComponents(new TextDisplayBuilder().setContent(subtext(t('pokedex.matchups.note'))))
     .addActionRowComponents(new ActionRowBuilder<ButtonBuilder>().addComponents(switchButton(slug, true, t)));
   return { components: [container], flags: [MessageFlags.IsComponentsV2] };
 }

@@ -1,4 +1,4 @@
-import { Events, messageLink } from 'discord.js';
+import { Events, messageLink, subtext } from 'discord.js';
 
 import { Event } from 'classes/base/event';
 
@@ -35,7 +35,7 @@ export default new Event({
         thumbnail: avatarOf(message.member ?? message.author),
         by: doer,
         details: [
-          ...(text?.details ?? [`-# ${t('logs.notSeen')}`]),
+          ...(text?.details ?? [subtext(t('logs.notSeen'))]),
           files.length > 0 ? `**${t('logs.attachments')}** ${files.join(', ')}` : null,
           stickers.length > 0 ? `**${t('logs.stickers')}** ${stickers.join(', ')}` : null,
         ],

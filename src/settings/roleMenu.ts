@@ -5,13 +5,14 @@ import {
   channelMention,
   ChannelType,
   ContainerBuilder,
-  messageLink,
+  type Guild,
   MessageFlags,
+  messageLink,
   SeparatorBuilder,
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder,
+  subtext,
   TextDisplayBuilder,
-  type Guild,
 } from 'discord.js';
 
 import { getFeatureSwitches } from 'database/features';
@@ -240,7 +241,7 @@ export async function renderRoleMenuList(guild: Guild, t: Translate): Promise<Re
   );
   container
     .addTextDisplayComponents(
-      new TextDisplayBuilder().setContent([`-# ${t('roleMenu.list.count', { count: menus.length, max: MAX_ROLE_MENUS })}`, ...lines].join('\n')),
+      new TextDisplayBuilder().setContent([subtext(t('roleMenu.list.count', { count: menus.length, max: MAX_ROLE_MENUS })), ...lines].join('\n')),
     )
     .addActionRowComponents(
       new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(

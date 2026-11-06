@@ -6,6 +6,7 @@ import {
   MessageFlags,
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder,
+  subtext,
   TextDisplayBuilder,
   time,
   TimestampStyles,
@@ -49,7 +50,7 @@ export function buildReminderMessage(reminder: Reminder, inChannel: boolean, nex
   const title = inChannel ? t('reminders.message.titleFor', { user: userMention(reminder.userId) }) : t('reminders.message.title');
   const container = new ContainerBuilder()
     .setAccentColor(ThemeColors.info)
-    .addTextDisplayComponents(new TextDisplayBuilder().setContent([title, reminder.text, `-# ${notes.join(' · ')}`].join('\n')));
+    .addTextDisplayComponents(new TextDisplayBuilder().setContent([title, reminder.text, subtext(notes.join(' · '))].join('\n')));
 
   // Repeating ones can be stopped right where they show up
   const stop = new ActionRowBuilder<ButtonBuilder>().addComponents(

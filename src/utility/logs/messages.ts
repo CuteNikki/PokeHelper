@@ -6,6 +6,8 @@ import { textFile } from 'utility/logs/files';
 import { MAX_QUOTE_LINES, quoteText } from 'utility/logs/send';
 import { shorten } from 'utility/text';
 
+import { subtext } from 'discord.js';
+
 /**
  * The text of edited and deleted messages, which can be up to 4000 characters, more than an entry has room for twice.
  * What fits is shown in the entry, and the whole text goes in a file under it when it doesn't.
@@ -35,7 +37,7 @@ export function editedText(before: string | null, after: string, messageId: stri
 
   if (before === null) {
     return {
-      details: [heading('logs.before', `-# ${t('logs.notSeen')}`), heading('logs.after', quoteText(shorten(after || noText, EDIT_SHOWN)))],
+      details: [heading('logs.before', subtext(t('logs.notSeen'))), heading('logs.after', quoteText(shorten(after || noText, EDIT_SHOWN)))],
       files: fitsIn(after, EDIT_SHOWN) ? [] : [textFile(after, `message-${messageId}.txt`)],
     };
   }
@@ -49,7 +51,7 @@ export function editedText(before: string | null, after: string, messageId: stri
     details: [
       heading('logs.before', quoteText(shorten(before || noText, EDIT_SHOWN))),
       heading('logs.after', quoteText(shorten(after || noText, EDIT_SHOWN))),
-      `-# ${t('logs.tooLong')}`,
+      subtext(t('logs.tooLong')),
     ],
     files: [textFile(`${t('logs.before')}:\n${before}\n\n${t('logs.after')}:\n${after}\n`, `message-${messageId}.txt`)],
   };
@@ -59,7 +61,7 @@ export function editedText(before: string | null, after: string, messageId: stri
 export function deletedText(content: string, messageId: string, t: Translate): MessageText {
   if (fitsIn(content, DELETE_SHOWN)) return { details: [quoteText(content || t('logs.noText'))], files: [] };
   return {
-    details: [quoteText(shorten(content, DELETE_SHOWN)), `-# ${t('logs.tooLong')}`],
+    details: [quoteText(shorten(content, DELETE_SHOWN)), subtext(t('logs.tooLong'))],
     files: [textFile(content, `message-${messageId}.txt`)],
   };
 }
