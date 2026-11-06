@@ -25,7 +25,7 @@ import {
   type TempVoiceCreator,
 } from 'database/tempVoice';
 
-import { buttonIcon } from 'utility/pokedex/botEmojis';
+import { buttonIcon } from 'utility/emojis';
 import type { Translate } from 'utility/i18next';
 import { formatNumber } from 'utility/duration';
 import type { ResponsePayload } from 'utility/response';

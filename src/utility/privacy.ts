@@ -19,7 +19,7 @@ import {
 import { ensureGuild } from 'database/guild';
 import { deleteGuildData, deleteUserData, getGivenRoles, getGuildData, getUserData, type GivenRole } from 'database/privacy';
 
-import { buttonIcon } from 'utility/pokedex/botEmojis';
+import { buttonIcon } from 'utility/emojis';
 import { runCountingTask } from 'utility/counting/game';
 import { buildConfirmation } from 'utility/confirm';
 import { getTranslate, type Translate } from 'utility/i18next';

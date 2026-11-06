@@ -20,7 +20,7 @@ import {
 
 import { getTempVoiceChannel, updateTempVoiceChannel } from 'database/tempVoice';
 
-import { buttonIcon, switchIcon } from 'utility/pokedex/botEmojis';
+import { buttonIcon, switchIcon } from 'utility/emojis';
 import { guildTranslate, type Translate } from 'utility/i18next';
 import { logger } from 'utility/logger';
 import type { ResponsePayload } from 'utility/response';

@@ -1,7 +1,7 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, type ModalSubmitInteraction } from 'discord.js';
 
 import { formatNumber } from 'utility/duration';
-import { buttonIcon } from 'utility/pokedex/botEmojis';
+import { buttonIcon } from 'utility/emojis';
 import type { Translate } from 'utility/i18next';
 import { buildTextModal } from 'utility/modal';
 

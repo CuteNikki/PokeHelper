@@ -18,7 +18,7 @@ import { getFriendCodes } from 'database/friendCodes';
 
 import { friendCodeSettings } from 'settings/friendCodes';
 
-import { buttonIcon } from 'utility/pokedex/botEmojis';
+import { buttonIcon } from 'utility/emojis';
 import { formatFriendCode, savedFriendCodes } from 'utility/friendCodes';
 import { getTranslate, type Translate } from 'utility/i18next';
 import { buildCopyModal } from 'utility/modal';

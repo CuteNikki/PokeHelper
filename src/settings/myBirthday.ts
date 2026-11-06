@@ -2,7 +2,7 @@ import { ButtonBuilder, ButtonStyle, type Client } from 'discord.js';
 
 import { getUserBirthday, setUserBirthdayDate, updateUserBirthday } from 'database/birthday';
 
-import { buttonIcon } from 'utility/pokedex/botEmojis';
+import { buttonIcon } from 'utility/emojis';
 import { DiscordLimits } from 'utility/discordLimits';
 import { parseBirthday } from 'utility/birthday/dates';
 import { createSettingsPanel } from 'utility/settings';

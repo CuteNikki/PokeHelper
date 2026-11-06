@@ -19,7 +19,7 @@ import {
 import { getFeatureSwitches } from 'database/features';
 import { getRoleMenu, getRoleMenus, setRoleMenuRole, updateRoleMenu, type RoleMenu } from 'database/roleMenu';
 
-import { buttonIcon } from 'utility/pokedex/botEmojis';
+import { buttonIcon } from 'utility/emojis';
 import type { Translate } from 'utility/i18next';
 import { formatNumber } from 'utility/duration';
 import type { ResponsePayload } from 'utility/response';

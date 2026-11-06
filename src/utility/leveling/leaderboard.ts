@@ -14,7 +14,7 @@ import {
 
 import { getLevelFromXP, getTopUsersByXP, getTotalUsersWithXP, type LevelPeriod } from 'database/leveling';
 
-import { buttonIcon } from 'utility/pokedex/botEmojis';
+import { buttonIcon } from 'utility/emojis';
 import { drawAvatar, loadAvatar, truncateText } from 'utility/canvas';
 import { formatCompactNumber, formatNumber } from 'utility/duration';
 import type { Translate } from 'utility/i18next';

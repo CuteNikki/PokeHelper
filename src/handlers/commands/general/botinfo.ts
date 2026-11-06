@@ -21,7 +21,7 @@ import { Command } from 'classes/base/command';
 
 import { getDatabaseLatency } from 'database/index';
 
-import { textIcon } from 'utility/pokedex/botEmojis';
+import { textIcon } from 'utility/emojis';
 import { formatNumber } from 'utility/duration';
 import { getTranslate } from 'utility/i18next';
 import { ThemeColors } from 'utility/theme';

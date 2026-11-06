@@ -18,7 +18,7 @@ import {
 import { FALLBACK_LANGUAGE, getTranslate, resolveLanguage, type Translate } from 'utility/i18next';
 import { answerPokeApiError, type ApiDamageRelations, artworkUrl, getImage, getMove, getPokemon, getType } from 'utility/pokedex/api';
 import { renderMatchupCard } from 'utility/pokedex/matchupCard';
-import { buttonIcon, withTypeEmoji } from 'utility/pokedex/botEmojis';
+import { buttonIcon, withTypeEmoji } from 'utility/emojis';
 import { typeSymbol } from 'utility/pokedex/typeIcons';
 import { findBySlug, getPokedexData, loadPokedexData, matchName, nameIn, type PokedexMatch } from 'utility/pokedex/names';
 import { TYPE_COLORS } from 'utility/pokedex/types';

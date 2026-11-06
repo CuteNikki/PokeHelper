@@ -14,7 +14,7 @@ import {
 } from 'discord.js';
 
 import type { Reminder } from 'generated/prisma/client';
-import { buttonIcon } from 'utility/pokedex/botEmojis';
+import { buttonIcon } from 'utility/emojis';
 import type { Translate } from 'utility/i18next';
 import type { ResponsePayload } from 'utility/response';
 import { DiscordLimits } from 'utility/discordLimits';

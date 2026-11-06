@@ -1,6 +1,6 @@
 import { ButtonBuilder, ButtonStyle, type ButtonInteraction } from 'discord.js';
 
-import { buttonIcon } from 'utility/pokedex/botEmojis';
+import { buttonIcon } from 'utility/emojis';
 import { DiscordLimits } from 'utility/discordLimits';
 import { getTranslate, type Translate } from 'utility/i18next';
 import { buildCopyModal } from 'utility/modal';

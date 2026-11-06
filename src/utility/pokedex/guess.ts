@@ -21,7 +21,7 @@ import {
 import { getTranslate, resolveLanguage, type Translate } from 'utility/i18next';
 import { buildTextModal } from 'utility/modal';
 import { answerPokeApiError, artworkUrl, getImage, getPokemon } from 'utility/pokedex/api';
-import { buttonIcon, withTypeEmoji } from 'utility/pokedex/botEmojis';
+import { buttonIcon, withTypeEmoji } from 'utility/emojis';
 import { buildPokedexEntry } from 'utility/pokedex/entry';
 import {
   findPokemon,

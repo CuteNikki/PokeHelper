@@ -23,7 +23,7 @@ import {
   subtext,
   TextDisplayBuilder,
 } from 'discord.js';
-import { buttonIcon, switchIcon } from 'utility/pokedex/botEmojis';
+import { buttonIcon, switchIcon } from 'utility/emojis';
 import type { Translate } from 'utility/i18next';
 
 import { formatNumber } from 'utility/duration';
