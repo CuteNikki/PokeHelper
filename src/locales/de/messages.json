@@ -106,7 +106,7 @@
       "edit": "Bearbeiten",
       "usingDefault": "Nutzt den Standardtext"
     },
-    "tips": "**Gut zu wissen 💡**"
+    "tips": "**Gut zu wissen {{icon.lightbulb}}**"
   },
   "state": {
     "yes": "Ja",
@@ -166,7 +166,7 @@
       "success": "Zählen ist in {{channel}} eingerichtet! Schick dort eine `1`, um loszulegen.\nDie Einstellungen kannst du unten ändern oder später mit `/zählen-einstellungen einstellungen`."
     },
     "settings": {
-      "title": "### Zähl-Einstellungen ⚙️",
+      "title": "### Zähl-Einstellungen {{icon.settings}}",
       "enabled": {
         "label": "Aktiviert",
         "description": "Ob Zählen an ist."
@@ -196,7 +196,7 @@
       }
     },
     "info": {
-      "title": "### Zählen 🔢",
+      "title": "### Zählen {{icon.hash}}",
       "overview": "Es wird in {{channel}} gezählt · Nächste Zahl: **{{next}}**",
       "currentRun": "**Aktuelle Runde #{{run}}**",
       "started": "Gestartet {{time}} ({{relative}})",
@@ -217,12 +217,12 @@
       "runs_other": "Bisher {{count, number}} Runden"
     },
     "leaderboard": {
-      "title": "### Top-Zähler 🏆",
+      "title": "### Top-Zähler {{icon.trophy}}",
       "entry": "**{{position}}.** {{user}} · **{{counted}}** gezählt · {{accuracy}}% richtig",
       "empty": "Hier hat noch niemand gezählt."
     },
     "user": {
-      "title": "### Zähl-Statistiken von {{user}} 🔢",
+      "title": "### Zähl-Statistiken von {{user}} {{icon.hash}}",
       "rank": "Platz: **#{{rank}}**",
       "counted": "Gezählt: **{{counted}}**",
       "mistakes": "Fehler: **{{mistakes}}**",
@@ -231,7 +231,7 @@
       "none": "{{user}} hat noch nicht gezählt."
     },
     "runs": {
-      "title": "### Letzte Runden 📜",
+      "title": "### Letzte Runden {{icon.scroll-text}}",
       "ongoing": "**#{{run}}** · läuft · bei **{{number}}** · {{started}}",
       "finished": "**#{{run}}** · bis **{{number}}** · beendet von {{user}} {{relative}}",
       "lasted": " · hat {{duration}} gehalten",
@@ -240,7 +240,7 @@
       "empty": "Noch keine Runden. Schick eine `1` in den Zählkanal, um die erste zu starten!"
     },
     "resetConfiguration": {
-      "confirm": "### Zählspiel entfernen? ⚠️\nDas entfernt das Zählspiel auf diesem Server **mit allen Statistiken**: Runden, gezählte Zahlen und die Zahlen von allen. Das kann man nicht rückgängig machen.",
+      "confirm": "### Zählspiel entfernen? {{icon.triangle-alert}}\nDas entfernt das Zählspiel auf diesem Server **mit allen Statistiken**: Runden, gezählte Zahlen und die Zahlen von allen. Das kann man nicht rückgängig machen.",
       "confirmButton": "Alles entfernen",
       "cancelButton": "Abbrechen",
       "cancelled": "Es wurde nichts entfernt.",
@@ -256,7 +256,7 @@
     ]
   },
   "help": {
-    "title": "## Befehle 📖",
+    "title": "## Befehle {{icon.book-open}}",
     "intro": "Wähl unten eine Kategorie, um ihre Befehle zu sehen.",
     "select": "Wähl eine Kategorie",
     "overview": "Übersicht",
@@ -329,7 +329,7 @@
     },
     "matchups": {
       "button": "Schwächen",
-      "title": "### Schwächen und Resistenzen von {{name}} 🛡️",
+      "title": "### Schwächen und Resistenzen von {{name}} {{icon.shield}}",
       "weak": "Schwach gegen",
       "resists": "Resistent gegen",
       "immune": "Immun gegen",
@@ -351,7 +351,7 @@
       "tcgPocket": "Pokémon TCG Pocket"
     },
     "panel": {
-      "title": "### Deine Freundescodes 🤝",
+      "title": "### Deine Freundescodes {{icon.handshake}}",
       "intro": "Trag die Codes ein, die du teilen willst. Jeder kann sie mit `/freundescode zeigen` sehen, auf allen Servern, die du mit dem Bot teilst. Speicher einen leer, um ihn rauszunehmen.",
       "nintendoSwitch": "Auf deiner Nutzerseite, wenn du im HOME-Menü auf dein Profilbild tippst.",
       "pokemonGo": "Dein Trainercode, der angezeigt wird, wenn du Freunde hinzufügst.",
@@ -365,7 +365,7 @@
       ]
     },
     "view": {
-      "title": "### Freundescodes von {{name}} 🤝",
+      "title": "### Freundescodes von {{name}} {{icon.handshake}}",
       "none": "{{name}} hat noch keine Freundescodes eingetragen.",
       "noneSelf": "Du hast noch keine Freundescodes eingetragen. Trag sie unten ein, dann kann jeder sie mit `/freundescode zeigen` nachschauen.",
       "copy": "Kopieren",
@@ -375,7 +375,7 @@
     }
   },
   "privacy": {
-    "title": "### Deine Daten 🔒",
+    "title": "### Deine Daten {{icon.lock}}",
     "intro": "Lad runter, was der Bot speichert, oder lösch es. Was gespeichert wird und warum, steht in der [Datenschutzerklärung]({{url}}).",
     "download": "Herunterladen",
     "delete": "Löschen",
@@ -397,7 +397,7 @@
     }
   },
   "guess": {
-    "title": "### Wer ist das Pokémon? ❔",
+    "title": "### Wer ist das Pokémon? {{icon.circle-help}}",
     "anyLanguage": "Rate seinen Namen, in jeder Sprache",
     "fromGeneration": "Ein Pokémon aus Generation {{generation}}, rate seinen Namen in jeder Sprache",
     "silhouette": "Der Umriss eines Pokémon zum Raten",
@@ -435,7 +435,7 @@
   },
   "tempVoice": {
     "panel": {
-      "title": "### Sprachkanal-Steuerung 🔊",
+      "title": "### Sprachkanal-Steuerung {{icon.volume-2}}",
       "owner": "Gehört {{owner}}",
       "ownerAway": "(kurz weg)",
       "people_one": "{{count, number}} Person hier",
@@ -488,7 +488,7 @@
       "tookOver": "{{new}} hat den Kanal von {{old}} übernommen.",
       "gaveAway": "{{user}} hat den Kanal an {{new}} gegeben, er gehörte {{old}}.",
       "kicked": "{{user}} hat {{target}} rausgeworfen.",
-      "deleted": "🗑️ {{user}} hat den Kanal gelöscht. Er verschwindet gleich.",
+      "deleted": "{{icon.trash-2}} {{user}} hat den Kanal gelöscht. Er verschwindet gleich.",
       "moderators_one": "{{users}} zum Moderator gemacht",
       "moderators_other": "{{users}} zu Moderatoren gemacht",
       "unmoderators_one": "{{users}} ist kein Moderator mehr",
@@ -529,7 +529,7 @@
       "notOnModerators": "Moderatoren können das nicht mit dem Besitzer oder anderen Moderatoren machen."
     },
     "config": {
-      "title": "### Beitrittskanal-Einstellungen 🔊",
+      "title": "### Beitrittskanal-Einstellungen {{icon.volume-2}}",
       "enabled": {
         "label": "Aktiviert",
         "description": "Ob man über diesen Kanal einen eigenen Sprachkanal bekommt."
@@ -568,7 +568,7 @@
       "alreadyJoin": "{{channel}} ist schon ein Beitrittskanal.",
       "isTemporary": "Ein eigener Sprachkanal kann kein Beitrittskanal sein.",
       "list": {
-        "title": "### Beitrittskanäle 🔊",
+        "title": "### Beitrittskanäle {{icon.volume-2}}",
         "enabled": {
           "label": "Sprachkanäle",
           "description": "Ob man über die Beitrittskanäle einen Sprachkanal bekommt. Jeder lässt sich auch einzeln ausschalten"
@@ -625,46 +625,46 @@
     "bulkNotSeen_one": "{{count, number}} davon wurde vor meinem Start gesendet und ist nicht in der Datei.",
     "bulkNotSeen_other": "{{count, number}} davon wurden vor meinem Start gesendet und sind nicht in der Datei.",
     "labels": {
-      "messageEdited": "Nachricht bearbeitet ✏️",
-      "messageDeleted": "Nachricht gelöscht 🗑️",
-      "messagesBulkDeleted_one": "{{count, number}} Nachricht gelöscht 🗑️",
-      "messagesBulkDeleted_other": "{{count, number}} Nachrichten gelöscht 🗑️",
-      "memberJoined": "Mitglied beigetreten 📥",
-      "memberLeft": "Mitglied gegangen 📤",
-      "memberNickname": "Spitzname geändert 🏷️",
-      "rolesAdded_one": "Rolle vergeben 🎭",
-      "rolesAdded_other": "Rollen vergeben 🎭",
-      "rolesRemoved_one": "Rolle entzogen 🎭",
-      "rolesRemoved_other": "Rollen entzogen 🎭",
-      "rolesChanged": "Rollen geändert 🎭",
-      "profile": "Profil geändert 👤",
-      "serverAvatar": "Server-Avatar geändert 👤",
-      "banned": "Mitglied gebannt 🔨",
-      "unbanned": "Mitglied entbannt 🕊️",
-      "kicked": "Mitglied gekickt 👢",
-      "timedOut": "Mitglied stummgeschaltet ⏳",
-      "timeoutRemoved": "Stummschaltung aufgehoben ⌛",
-      "channelCreated": "Kanal erstellt 📁",
-      "channelDeleted": "Kanal gelöscht 📁",
-      "channelUpdated": "Kanal geändert 📁",
-      "roleCreated": "Rolle erstellt 🎭",
-      "roleDeleted": "Rolle gelöscht 🎭",
-      "roleUpdated": "Rolle geändert 🎭",
-      "serverUpdated": "Server geändert 🏠",
-      "emojiCreated": "Emoji hinzugefügt 😀",
-      "emojiDeleted": "Emoji gelöscht 😀",
-      "emojiUpdated": "Emoji geändert 😀",
-      "stickerCreated": "Sticker hinzugefügt 🖼️",
-      "stickerDeleted": "Sticker gelöscht 🖼️",
-      "stickerUpdated": "Sticker geändert 🖼️",
-      "threadCreated": "Thread gestartet 🧵",
-      "threadDeleted": "Thread gelöscht 🧵",
-      "threadUpdated": "Thread geändert 🧵",
-      "inviteCreated": "Einladung erstellt 🔗",
-      "inviteDeleted": "Einladung gelöscht 🔗",
-      "voiceJoined": "Sprachkanal betreten 🔊",
-      "voiceLeft": "Sprachkanal verlassen 🔇",
-      "voiceMoved": "Sprachkanal gewechselt 🔀"
+      "messageEdited": "Nachricht bearbeitet {{icon.pencil}}",
+      "messageDeleted": "Nachricht gelöscht {{icon.trash-2}}",
+      "messagesBulkDeleted_one": "{{count, number}} Nachricht gelöscht {{icon.trash-2}}",
+      "messagesBulkDeleted_other": "{{count, number}} Nachrichten gelöscht {{icon.trash-2}}",
+      "memberJoined": "Mitglied beigetreten {{icon.user-plus}}",
+      "memberLeft": "Mitglied gegangen {{icon.user-minus}}",
+      "memberNickname": "Spitzname geändert {{icon.tag}}",
+      "rolesAdded_one": "Rolle vergeben {{icon.drama}}",
+      "rolesAdded_other": "Rollen vergeben {{icon.drama}}",
+      "rolesRemoved_one": "Rolle entzogen {{icon.drama}}",
+      "rolesRemoved_other": "Rollen entzogen {{icon.drama}}",
+      "rolesChanged": "Rollen geändert {{icon.drama}}",
+      "profile": "Profil geändert {{icon.circle-user}}",
+      "serverAvatar": "Server-Avatar geändert {{icon.circle-user}}",
+      "banned": "Mitglied gebannt {{icon.gavel}}",
+      "unbanned": "Mitglied entbannt {{icon.bird}}",
+      "kicked": "Mitglied gekickt {{icon.door-open}}",
+      "timedOut": "Mitglied stummgeschaltet {{icon.hourglass}}",
+      "timeoutRemoved": "Stummschaltung aufgehoben {{icon.timer-off}}",
+      "channelCreated": "Kanal erstellt {{icon.folder}}",
+      "channelDeleted": "Kanal gelöscht {{icon.folder}}",
+      "channelUpdated": "Kanal geändert {{icon.folder}}",
+      "roleCreated": "Rolle erstellt {{icon.drama}}",
+      "roleDeleted": "Rolle gelöscht {{icon.drama}}",
+      "roleUpdated": "Rolle geändert {{icon.drama}}",
+      "serverUpdated": "Server geändert {{icon.house}}",
+      "emojiCreated": "Emoji hinzugefügt {{icon.smile}}",
+      "emojiDeleted": "Emoji gelöscht {{icon.smile}}",
+      "emojiUpdated": "Emoji geändert {{icon.smile}}",
+      "stickerCreated": "Sticker hinzugefügt {{icon.sticker}}",
+      "stickerDeleted": "Sticker gelöscht {{icon.sticker}}",
+      "stickerUpdated": "Sticker geändert {{icon.sticker}}",
+      "threadCreated": "Thread gestartet {{icon.messages-square}}",
+      "threadDeleted": "Thread gelöscht {{icon.messages-square}}",
+      "threadUpdated": "Thread geändert {{icon.messages-square}}",
+      "inviteCreated": "Einladung erstellt {{icon.link}}",
+      "inviteDeleted": "Einladung gelöscht {{icon.link}}",
+      "voiceJoined": "Sprachkanal betreten {{icon.volume-2}}",
+      "voiceLeft": "Sprachkanal verlassen {{icon.volume-x}}",
+      "voiceMoved": "Sprachkanal gewechselt {{icon.arrow-left-right}}"
     },
     "copy": {
       "button": "IDs kopieren",
@@ -726,7 +726,7 @@
       "nickname": "Spitzname"
     },
     "settings": {
-      "title": "### Log-Einstellungen 📜",
+      "title": "### Log-Einstellungen {{icon.scroll-text}}",
       "categories": {
         "general": "Allgemein",
         "messages": "Nachrichten",
@@ -843,7 +843,7 @@
       }
     },
     "resetConfiguration": {
-      "confirm": "### Log-Einstellungen zurücksetzen? ⚠️\nDas setzt die Log-Kanäle, Schalter und Ignorierlisten zurück. Was schon geloggt ist, bleibt.",
+      "confirm": "### Log-Einstellungen zurücksetzen? {{icon.triangle-alert}}\nDas setzt die Log-Kanäle, Schalter und Ignorierlisten zurück. Was schon geloggt ist, bleibt.",
       "confirmButton": "Zurücksetzen",
       "cancelButton": "Abbrechen",
       "cancelled": "Nichts wurde zurückgesetzt.",
@@ -893,7 +893,7 @@
   },
   "starboard": {
     "settings": {
-      "title": "### Starboard-Einstellungen ⭐",
+      "title": "### Starboard-Einstellungen {{icon.star}}",
       "noChannel": "Wähl unten einen Kanal, dann werden Nachrichten mit genug Reaktionen dort gepostet.",
       "enabled": {
         "label": "Starboard",
@@ -922,14 +922,14 @@
     "post": {
       "jump": "Zur Nachricht",
       "who": "Sterne von",
-      "whoTitle": "### Sterne von ⭐",
+      "whoTitle": "### Sterne von {{icon.star}}",
       "own": "Deiner eigenen Nachricht kannst du keinen Stern geben.",
       "gone": "Diese Nachricht ist nicht mehr im Starboard.",
       "closed": "Sterne können gerade nicht geändert werden, weil das Starboard aus ist oder diesen Kanal nicht mehr zählt.",
       "nobody": "Noch niemand hat einen Stern gegeben."
     },
     "resetConfiguration": {
-      "confirm": "### Starboard-Einstellungen zurücksetzen? ⚠️\nDas setzt Kanal, Emoji, benötigte Reaktionen und ignorierte Kanäle zurück. Was schon im Starboard ist, bleibt, wird aber nicht mehr aktualisiert.",
+      "confirm": "### Starboard-Einstellungen zurücksetzen? {{icon.triangle-alert}}\nDas setzt Kanal, Emoji, benötigte Reaktionen und ignorierte Kanäle zurück. Was schon im Starboard ist, bleibt, wird aber nicht mehr aktualisiert.",
       "confirmButton": "Zurücksetzen",
       "cancelButton": "Abbrechen",
       "cancelled": "Nichts wurde zurückgesetzt.",
@@ -953,7 +953,7 @@
     },
     "disabled": "Leveling ist hier nicht an. Schalte es mit `/leveln-einstellungen einstellungen` ein.",
     "settings": {
-      "title": "### Leveling-Einstellungen ⚙️",
+      "title": "### Leveling-Einstellungen {{icon.settings}}",
       "categories": {
         "general": "Allgemein",
         "filters": "Filter",
@@ -1032,7 +1032,7 @@
       "multiplier": "{{value}}x"
     },
     "resetConfiguration": {
-      "confirm": "### Leveling zurücksetzen? ⚠️\nDas setzt die Leveling-Einstellungen, Belohnungen und Multiplikatoren zurück. Alle behalten ihre XP und Level.",
+      "confirm": "### Leveling zurücksetzen? {{icon.triangle-alert}}\nDas setzt die Leveling-Einstellungen, Belohnungen und Multiplikatoren zurück. Alle behalten ihre XP und Level.",
       "confirmButton": "Zurücksetzen",
       "cancelButton": "Abbrechen",
       "cancelled": "Es wurde nichts zurückgesetzt.",
@@ -1040,17 +1040,17 @@
       "success": "Leveling ist zurückgesetzt. Mit `/leveln-einstellungen einstellungen` kannst du es neu einrichten."
     },
     "weeklyReset": {
-      "message": "### Neue Woche, neues Glück! 🏆\nDie Wochen-XP sind wieder bei 0. {{winner}} hat letzte Woche mit **{{xp}}** XP am meisten gesammelt, Glückwunsch!\n\nDie Top-Schreiber der letzten Woche:"
+      "message": "### Neue Woche, neues Glück! {{icon.trophy}}\nDie Wochen-XP sind wieder bei 0. {{winner}} hat letzte Woche mit **{{xp}}** XP am meisten gesammelt, Glückwunsch!\n\nDie Top-Schreiber der letzten Woche:"
     },
     "monthlyReset": {
-      "message": "### Neuer Monat, neues Glück! 🏆\nDie Monats-XP sind wieder bei 0. {{winner}} hat letzten Monat mit **{{xp}}** XP am meisten gesammelt, Glückwunsch!\n\nDie Top-Schreiber des letzten Monats:"
+      "message": "### Neuer Monat, neues Glück! {{icon.trophy}}\nDie Monats-XP sind wieder bei 0. {{winner}} hat letzten Monat mit **{{xp}}** XP am meisten gesammelt, Glückwunsch!\n\nDie Top-Schreiber des letzten Monats:"
     },
     "leaderboard": {
       "entry": "{{position}}. {{user}} · {{xp}} XP (Level {{level}})",
       "none": "Hier hat noch niemand XP gesammelt. Fangt an zu schreiben!",
-      "title": "### {{guild}} Bestenliste 🏆",
-      "titleWeekly": "### {{guild}} Wochen-Bestenliste 🏆",
-      "titleMonthly": "### {{guild}} Monats-Bestenliste 🏆",
+      "title": "### {{guild}} Bestenliste {{icon.trophy}}",
+      "titleWeekly": "### {{guild}} Wochen-Bestenliste {{icon.trophy}}",
+      "titleMonthly": "### {{guild}} Monats-Bestenliste {{icon.trophy}}",
       "showPeriod": {
         "allTime": "Gesamt anzeigen",
         "weekly": "Woche anzeigen",
@@ -1065,7 +1065,7 @@
       "level": "Level",
       "exp": "XP",
       "text": {
-        "title": "### Rang von {{user}} 📊",
+        "title": "### Rang von {{user}} {{icon.chart-column}}",
         "allTime": "**Gesamt:** Level **{{level}}** · Platz **#{{rank}}** · {{xpIntoLevel}}/{{xpRequired}} XP bis zum nächsten Level ({{xp}} XP insgesamt)",
         "weekly": "**Diese Woche:** Level **{{level}}** · Platz **#{{rank}}** · {{xpIntoLevel}}/{{xpRequired}} XP bis zum nächsten Level ({{xp}} XP insgesamt)",
         "monthly": "**Diesen Monat:** Level **{{level}}** · Platz **#{{rank}}** · {{xpIntoLevel}}/{{xpRequired}} XP bis zum nächsten Level ({{xp}} XP insgesamt)",
@@ -1127,7 +1127,7 @@
   "roleMenu": {
     "notFound": "Ich finde dieses Rollenmenü nicht. Vielleicht wurde es gelöscht.",
     "message": {
-      "title": "Such dir deine Rollen aus 🎭",
+      "title": "Such dir deine Rollen aus {{icon.drama}}",
       "description": "Klick auf einen Button, um seine Rolle zu bekommen, und nochmal, um sie wieder loszuwerden.",
       "item": "{{emoji}} {{role}}",
       "disabled": "Dieses Menü ist gerade ausgeschaltet."
@@ -1136,7 +1136,7 @@
       "maximum": "Dieser Server hat schon {{max}} Rollenmenüs, mehr gehen nicht. Lösch eins, bevor du ein neues erstellst."
     },
     "list": {
-      "title": "### Rollenmenüs 🎭",
+      "title": "### Rollenmenüs {{icon.drama}}",
       "enabled": {
         "label": "Rollenmenüs",
         "description": "Ob man sich aus den Menüs Rollen aussuchen kann. Jedes Menü lässt sich auch einzeln ausschalten"
@@ -1152,7 +1152,7 @@
       "optionDescription": "{{channel}} · {{roles}}"
     },
     "settings": {
-      "title": "### Rollenmenü 🎭",
+      "title": "### Rollenmenü {{icon.drama}}",
       "categories": {
         "roles": "Rollen",
         "text": "Text",
@@ -1238,7 +1238,7 @@
       "withAge": "🎉 Alles Gute zum {{age}}. Geburtstag, {{user}}! 🎂🎈"
     },
     "settings": {
-      "title": "### Geburtstags-Einstellungen 🎂",
+      "title": "### Geburtstags-Einstellungen {{icon.cake}}",
       "enabled": {
         "label": "Geburtstage",
         "description": "Geburtstage ankündigen und die Geburtstagsrolle vergeben."
@@ -1253,7 +1253,7 @@
       }
     },
     "resetConfiguration": {
-      "confirm": "### Geburtstags-Einstellungen zurücksetzen? ⚠️\nDas setzt den Kanal, die Rolle und alles andere zurück. Die Geburtstage aller bleiben gespeichert.",
+      "confirm": "### Geburtstags-Einstellungen zurücksetzen? {{icon.triangle-alert}}\nDas setzt den Kanal, die Rolle und alles andere zurück. Die Geburtstage aller bleiben gespeichert.",
       "confirmButton": "Zurücksetzen",
       "cancelButton": "Abbrechen",
       "cancelled": "Es wurde nichts zurückgesetzt.",
@@ -1261,7 +1261,7 @@
       "success": "Die Geburtstags-Einstellungen sind zurückgesetzt. Mit `/geburtstag-einstellungen einstellungen` kannst du sie neu einrichten."
     },
     "panel": {
-      "title": "### Dein Geburtstag 🎂",
+      "title": "### Dein Geburtstag {{icon.cake}}",
       "none": "Du hast deinen Geburtstag noch nicht eingetragen. Trag ihn unten ein, dann wird er auf den Servern angekündigt, die Geburtstage eingerichtet haben.",
       "date": {
         "label": "Geburtstag",
@@ -1342,7 +1342,7 @@
   },
   "reminders": {
     "set": {
-      "title": "### Erinnerung gesetzt ⏰",
+      "title": "### Erinnerung gesetzt {{icon.alarm-clock}}",
       "when": "Ich erinnere dich {{due}}.",
       "details": "-# {{repeat}} · {{delivery}}",
       "utc": "-# Das ist in UTC. Gib deine `zeitzone` an, um deine eigene Zeit zu nutzen, sie wird fürs nächste Mal gemerkt.",
@@ -1365,8 +1365,8 @@
       "channel": "Im Kanal"
     },
     "message": {
-      "title": "### Erinnerung ⏰",
-      "titleFor": "### Erinnerung für {{user}} ⏰",
+      "title": "### Erinnerung {{icon.alarm-clock}}",
+      "titleFor": "### Erinnerung für {{user}} {{icon.alarm-clock}}",
       "set": "Gesetzt {{time}}",
       "late": "War {{time}} fällig, da war ich offline",
       "next": "Nächste {{time}}",
@@ -1378,7 +1378,7 @@
       "notYours": "Nur wer die Erinnerung gesetzt hat, kann sie stoppen."
     },
     "list": {
-      "title": "### Deine Erinnerungen ⏰",
+      "title": "### Deine Erinnerungen {{icon.alarm-clock}}",
       "none": "Du hast keine Erinnerungen. Setz eine mit `/erinnerung setzen`.",
       "entry": "**{{position}}.** {{text}}\n-# {{due}} · {{details}}",
       "delete": "Erinnerung löschen"
