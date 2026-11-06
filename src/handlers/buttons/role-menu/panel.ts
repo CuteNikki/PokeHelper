@@ -27,13 +27,14 @@ export default new Button({
     const t = getTranslate(interaction.locale);
     const { customId } = interaction;
 
+    // Answered before anything is looked up, which can take a moment, as Discord gives up after 3 seconds. None of them opens a popup
+    await interaction.deferUpdate();
+
     if (customId === ROLE_MENU_CUSTOM_ID.list) {
-      return interaction.update(await renderRoleMenuList(interaction.guild, t));
+      return interaction.editReply(await renderRoleMenuList(interaction.guild, t));
     }
 
     if (customId === ROLE_MENU_CUSTOM_ID.toggle) {
-      // Updating every posted menu can take a moment
-      await interaction.deferUpdate();
       const { roleMenusEnabled } = await getFeatureSwitches(interaction.guildId);
       await setFeatureSwitch(interaction.guildId, 'roleMenusEnabled', !roleMenusEnabled);
       // The posted menus show their buttons turned off, or on again
@@ -44,18 +45,16 @@ export default new Button({
     const action = MENU_ACTIONS.find((prefix) => customId.startsWith(prefix));
     if (!action) return sendError(interaction, t('system.outdated'));
     const menu = await getRoleMenu(customId.slice(action.length));
-    if (menu?.guildId !== interaction.guildId) return interaction.update(createResponse(t('roleMenu.notFound'), 'error'));
+    if (menu?.guildId !== interaction.guildId) return interaction.editReply(createResponse(t('roleMenu.notFound'), 'error'));
 
     switch (action) {
       case ROLE_MENU_CUSTOM_ID.repost: {
-        // Posting can take a moment, as the old message is deleted first
-        await interaction.deferUpdate();
         await syncRoleMenuMessage(interaction.guild, menu.id, true);
         return interaction.editReply(await getRoleMenuSettings(menu.id).render(settingsContext(interaction), t));
       }
 
       case ROLE_MENU_CUSTOM_ID.delete:
-        return interaction.update(
+        return interaction.editReply(
           buildQuestion(
             {
               question: t('roleMenu.delete.question', { name: roleMenuName(menu, interaction.guild, t) }),
@@ -67,14 +66,13 @@ export default new Button({
         );
 
       case ROLE_MENU_CUSTOM_ID.confirmDelete: {
-        await interaction.deferUpdate();
         await deleteRoleMenu(interaction.guild, menu);
         // Back to the list, to go on with another menu
         return interaction.editReply(withNotice(t('roleMenu.delete.success'), 'success', await renderRoleMenuList(interaction.guild, t)));
       }
 
       case ROLE_MENU_CUSTOM_ID.back:
-        return interaction.update(await getRoleMenuSettings(menu.id).render(settingsContext(interaction), t));
+        return interaction.editReply(await getRoleMenuSettings(menu.id).render(settingsContext(interaction), t));
     }
   },
 });
