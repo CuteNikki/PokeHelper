@@ -1605,5 +1605,20 @@
       "natures": "Zu einem Wesen…",
       "moves": "Zu einer Attacke…"
     }
+  },
+  "dex": {
+    "notFound": "Ich konnte nichts namens **{{name}}** finden. Wähl einen der Vorschläge.",
+    "kinds": {
+      "pokemon": "Pokémon",
+      "move": "Attacke",
+      "ability": "Fähigkeit",
+      "item": "Item",
+      "berry": "Beere",
+      "nature": "Wesen",
+      "natures": "Wesen",
+      "location": "Ort",
+      "where": "Fundorte",
+      "learnset": "Attacken"
+    }
   }
 }

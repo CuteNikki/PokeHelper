@@ -307,7 +307,7 @@ export const matchSlug = (match: PokedexMatch) => (match.form ?? match.species).
 export const formatDexNumber = (id: number) => `#${String(id).padStart(4, '0')}`;
 
 /** Lowercase, without accents and punctuation, so `flabebe` finds Flabébé and `mr mime` finds Mr. Mime. */
-const normalize = (text: string) =>
+export const normalize = (text: string) =>
   text
     .normalize('NFD')
     .replace(/\p{Diacritic}/gu, '')

@@ -381,5 +381,15 @@
         "description": "Der Ort, mit Namen"
       }
     }
+  },
+  "dex": {
+    "name": "dex",
+    "description": "Durchsuch alles auf einmal: Pokémon, Attacken, Fähigkeiten, Items, Beeren, Wesen und Orte",
+    "options": {
+      "search": {
+        "name": "suche",
+        "description": "Ein Name in irgendeiner Sprache, oder eine Pokédex-Nummer"
+      }
+    }
   }
 }

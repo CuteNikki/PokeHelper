@@ -1666,5 +1666,20 @@
       "natures": "Go to a nature…",
       "moves": "Go to a move…"
     }
+  },
+  "dex": {
+    "notFound": "I couldn't find anything called **{{name}}**. Pick one of the suggestions.",
+    "kinds": {
+      "pokemon": "Pokémon",
+      "move": "Move",
+      "ability": "Ability",
+      "item": "Item",
+      "berry": "Berry",
+      "nature": "Nature",
+      "natures": "Natures",
+      "location": "Place",
+      "where": "Where to find",
+      "learnset": "Moves"
+    }
   }
 }
