@@ -20,6 +20,7 @@ import { getFeatureSwitches } from 'database/features';
 import { getRoleMenu, getRoleMenus, setRoleMenuRole, updateRoleMenu, type RoleMenu } from 'database/roleMenu';
 
 import type { Translate } from 'utility/i18next';
+import { formatNumber } from 'utility/duration';
 import type { ResponsePayload } from 'utility/response';
 import { DiscordLimits } from 'utility/discordLimits';
 import { MAX_EMOJI_LENGTH, parseEmoji } from 'utility/emoji';
@@ -241,7 +242,9 @@ export async function renderRoleMenuList(guild: Guild, t: Translate): Promise<Re
   );
   container
     .addTextDisplayComponents(
-      new TextDisplayBuilder().setContent([subtext(t('roleMenu.list.count', { count: menus.length, max: MAX_ROLE_MENUS })), ...lines].join('\n')),
+      new TextDisplayBuilder().setContent(
+        [subtext(t('roleMenu.list.count', { count: menus.length, max: formatNumber(MAX_ROLE_MENUS, t) })), ...lines].join('\n'),
+      ),
     )
     .addActionRowComponents(
       new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(

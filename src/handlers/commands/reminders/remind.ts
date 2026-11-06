@@ -4,6 +4,7 @@ import { Command } from 'classes/base/command';
 
 import { countUserReminders, createReminder, getReminderTimezone, getUserReminders, MAX_REMINDERS, setReminderTimezone } from 'database/reminders';
 
+import { formatNumber } from 'utility/duration';
 import { DiscordLimits } from 'utility/discordLimits';
 import { getTranslate } from 'utility/i18next';
 import { MAX_YEARS_AHEAD, parseDuration, parseWhen, type ReminderRepeat } from 'utility/reminders/time';
@@ -91,7 +92,7 @@ async function handleSet(interaction: ChatInputCommandInteraction): Promise<unkn
   const givenTimezone = timezoneInput ? resolveTimezone(timezoneInput) : null;
   if (timezoneInput && !givenTimezone) return sendError(interaction, t('reminders.set.invalidTimezone'));
 
-  if ((await countUserReminders(userId)) >= MAX_REMINDERS) return sendError(interaction, t('reminders.set.full', { max: MAX_REMINDERS }));
+  if ((await countUserReminders(userId)) >= MAX_REMINDERS) return sendError(interaction, t('reminders.set.full', { max: formatNumber(MAX_REMINDERS, t) }));
 
   const savedTimezone = await getReminderTimezone(userId);
   const timezone = givenTimezone ?? savedTimezone ?? 'UTC';
@@ -118,7 +119,7 @@ async function handleSet(interaction: ChatInputCommandInteraction): Promise<unkn
     guildId: interaction.guildId,
     locale: interaction.locale,
   });
-  if (!reminder) return sendError(interaction, t('reminders.set.full', { max: MAX_REMINDERS }));
+  if (!reminder) return sendError(interaction, t('reminders.set.full', { max: formatNumber(MAX_REMINDERS, t) }));
 
   const lines = [
     t('reminders.set.title'),

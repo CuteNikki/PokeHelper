@@ -26,6 +26,7 @@ import {
 } from 'database/tempVoice';
 
 import type { Translate } from 'utility/i18next';
+import { formatNumber } from 'utility/duration';
 import type { ResponsePayload } from 'utility/response';
 import { DiscordLimits } from 'utility/discordLimits';
 import { buildSwitchSection, createSettingsPanel, formatPermissions, type SettingsPanel } from 'utility/settings';
@@ -174,7 +175,7 @@ export async function renderTempVoiceList(guild: Guild, t: Translate): Promise<R
   container
     .addTextDisplayComponents(
       new TextDisplayBuilder().setContent(
-        [subtext(t('tempVoice.config.list.count', { count: creators.length, max: MAX_TEMP_VOICE_CREATORS })), ...lines].join('\n'),
+        [subtext(t('tempVoice.config.list.count', { count: creators.length, max: formatNumber(MAX_TEMP_VOICE_CREATORS, t) })), ...lines].join('\n'),
       ),
     )
     .addActionRowComponents(

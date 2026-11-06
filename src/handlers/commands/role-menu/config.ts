@@ -15,6 +15,7 @@ import { countRoleMenus, createRoleMenu, getRoleMenu, getRoleMenus } from 'datab
 
 import { getRoleMenuSettings, MAX_NAME_LENGTH, renderRoleMenuList, roleMenuName } from 'settings/roleMenu';
 
+import { formatNumber } from 'utility/duration';
 import { DiscordLimits } from 'utility/discordLimits';
 import { getTranslate } from 'utility/i18next';
 import { createResponse, sendResponse } from 'utility/response';
@@ -86,7 +87,7 @@ async function handleCreate(interaction: ChatInputCommandInteraction<'cached'>):
   const channel = interaction.options.getChannel('channel', true, [ChannelType.GuildText, ChannelType.GuildAnnouncement]);
 
   if ((await countRoleMenus(interaction.guildId)) >= MAX_ROLE_MENUS) {
-    return sendResponse(interaction, createResponse(t('roleMenu.create.maximum', { max: MAX_ROLE_MENUS }), 'error'), { ephemeral: true });
+    return sendResponse(interaction, createResponse(t('roleMenu.create.maximum', { max: formatNumber(MAX_ROLE_MENUS, t) }), 'error'), { ephemeral: true });
   }
 
   // The option lists the channels the user can see, which may include ones the bot can't post in

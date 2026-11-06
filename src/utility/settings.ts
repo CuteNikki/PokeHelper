@@ -25,6 +25,7 @@ import {
 } from 'discord.js';
 import type { Translate } from 'utility/i18next';
 
+import { formatNumber } from 'utility/duration';
 import type { ResponsePayload } from 'utility/response';
 import { DiscordLimits } from 'utility/discordLimits';
 import { createResponse } from 'utility/response';
@@ -572,7 +573,7 @@ function entryWarning<C>(guild: Guild, setting: AnyEntriesSetting<C>, targetId: 
 
 function addEntries<C>(container: ContainerBuilder, guild: Guild, panelId: string, page: string, setting: AnyEntriesSetting<C>, config: C, t: Translate) {
   const entries = setting.get(config);
-  const count = t('settings.entries.count', { count: entries.length, max: setting.max });
+  const count = t('settings.entries.count', { count: entries.length, max: formatNumber(setting.max, t) });
 
   if (setting.presets) {
     container.addTextDisplayComponents(new TextDisplayBuilder().setContent(describe(setting, t, [subtext(count)])));
@@ -869,7 +870,7 @@ export function createSettingsPanel<C>(definition: SettingsPanelDefinition<C>): 
       if ((setting.type === 'entries' || setting.type === 'textEntries') && id.argument) {
         const entries = setting.get(config);
         const isNew = !entries.some((entry) => entry.targetId === id.argument);
-        if (isNew && entries.length >= setting.max) return { page, error: t('settings.entries.full', { max: setting.max }) };
+        if (isNew && entries.length >= setting.max) return { page, error: t('settings.entries.full', { max: formatNumber(setting.max, t) }) };
         const refusal = isNew && setting.target === 'role' && setting.assignable ? roleRefusal(requireGuild(context), id.argument, context.member, t) : null;
         if (refusal) return { page, error: refusal };
       }

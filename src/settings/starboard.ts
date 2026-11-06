@@ -64,7 +64,7 @@ export const starboardSettings = createSettingsPanel<GuildStarboard>({
       description: (t) => t('starboard.settings.threshold.description'),
       defaultText: () => String(DEFAULT_THRESHOLD),
       formatValue: (value, t) => formatNumber(Number(value), t),
-      validate: (text, t) => (parseThreshold(text) ? null : t('starboard.settings.threshold.invalid', { max: MAX_THRESHOLD })),
+      validate: (text, t) => (parseThreshold(text) ? null : t('starboard.settings.threshold.invalid', { max: formatNumber(MAX_THRESHOLD, t) })),
       get: (config) => (config.threshold === null ? null : String(config.threshold)),
       set: (guildId, text) => updateGuildStarboard(guildId, { threshold: text ? parseThreshold(text) : null }),
     },

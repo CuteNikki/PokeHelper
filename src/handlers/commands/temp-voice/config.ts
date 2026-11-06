@@ -22,6 +22,7 @@ import {
 
 import { creatorName, getTempVoiceSettings, MAX_TEMP_VOICE_CREATORS, renderTempVoiceList } from 'settings/tempVoice';
 
+import { formatNumber } from 'utility/duration';
 import { DiscordLimits } from 'utility/discordLimits';
 import { getTranslate } from 'utility/i18next';
 import { createResponse, sendResponse } from 'utility/response';
@@ -80,7 +81,7 @@ async function handleCreate(interaction: ChatInputCommandInteraction<'cached'>):
   const error = (text: string) => sendResponse(interaction, createResponse(text, 'error'), { ephemeral: true });
 
   if ((await countTempVoiceCreators(interaction.guildId)) >= MAX_TEMP_VOICE_CREATORS) {
-    return error(t('tempVoice.config.maximum', { max: MAX_TEMP_VOICE_CREATORS }));
+    return error(t('tempVoice.config.maximum', { max: formatNumber(MAX_TEMP_VOICE_CREATORS, t) }));
   }
   if (await getTempVoiceCreatorByChannel(channel.id)) return error(t('tempVoice.config.alreadyJoin', { channel: channelMention(channel.id) }));
   if (await getTempVoiceChannel(channel.id)) return error(t('tempVoice.config.isTemporary'));
