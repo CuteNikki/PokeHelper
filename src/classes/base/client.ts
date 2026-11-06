@@ -4,37 +4,20 @@ import type { Button } from 'classes/base/button';
 import type { Command } from 'classes/base/command';
 import type { SelectMenu } from 'classes/base/select';
 
-/**
- * ExtendedClient is a custom Discord.js client that includes additional functionality.
- * It extends the base Client class and adds a collection for commands.
- */
+/** The client, with the bot's commands, buttons and selects loaded from their folders. */
 export class ExtendedClient extends Client {
-  /**
-   * A collection of commands that the client can execute.
-   * Collection<commandName, Command<ApplicationCommandType>>
-   */
+  /** By command name. */
   commands = new Collection<string, Command<ApplicationCommandType>>();
 
-  /**
-   * A collection of buttons that the client can handle.
-   * Collection<customId, Button>
-   */
+  /** By custom ID. */
   buttons = new Collection<string, Button>();
 
-  /**
-   * A collection of select menus that the client can handle.
-   * Collection<customId, SelectMenu>
-   */
+  /** By custom ID. */
   selectMenus = new Collection<string, SelectMenu>();
 
-  /**
-   * This collection is used to keep track of cooldowns.
-   * Collection<customId/commandName, Collection<userId, timestamp>>
-   */
+  /** Cooldowns kept by features, like when each member last earned XP. */
   cooldowns = new Collection<string, Collection<string, number>>();
 
-  /**
-   * The listeners registered for the files in src/handlers/events, so they can be removed when the events are reloaded.
-   */
+  /** The listeners registered for the files in src/handlers/events, so they can be removed when the events are reloaded. */
   eventListeners: { name: keyof ClientEvents; listener: (...args: unknown[]) => void }[] = [];
 }

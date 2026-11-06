@@ -6,14 +6,8 @@ import type { Command } from 'classes/base/command';
 import { getFilesFrom } from 'utility/files';
 import { logger } from 'utility/logger';
 
-/**
- * Loads commands into the client.
- *
- * @param client - The ExtendedClient instance to load commands into.
- */
+/** Load the commands in src/handlers/commands into the client. Cleared first, so reloading doesn't keep removed ones. */
 export async function loadCommands(client: ExtendedClient) {
-  // Clear the existing commands collection to avoid duplicates when reloading
-  // This is useful during development when commands are frequently updated
   client.commands.clear();
 
   const tableData: { file: string; name: string; valid: boolean }[] = [];
@@ -21,19 +15,17 @@ export async function loadCommands(client: ExtendedClient) {
 
   const filePaths = await getFilesFrom('src/handlers/commands');
 
-  // Use Promise.all to load all command files concurrently
   await Promise.all(
     filePaths.map(async (filePath) => {
       const command = ((await import(`${filePath}?update=${Date.now()}`)) as { default: unknown }).default;
 
       if (isValidCommand(command)) {
         command.category = filePath.split('/').at(-2) ?? '';
-        // Add the command to the commands collection of the client
         client.commands.set(command.options.data.name, command);
 
         tableData.push({ file: filePath.split('/').slice(-2).join('/'), name: command.options.data?.name ?? '?', valid: true });
       } else {
-        // Remove the path from filePaths if the command is invalid to show the correct count of successfully loaded commands
+        // So the files counted are only the ones loaded
         filePaths.splice(filePaths.indexOf(filePath), 1);
         logger.warn(t('system.command.invalid', { file: filePath }));
 
@@ -48,12 +40,7 @@ export async function loadCommands(client: ExtendedClient) {
   return { files: filePaths, tableData, duration, count: client.commands.size };
 }
 
-/**
- * Checks if the provided object is a valid command.
- *
- * @param command - The object to check.
- * @returns True if the object is a valid command, false otherwise.
- */
+/** Whether a file's default export is a command. */
 export function isValidCommand(command: unknown): command is Command {
   return (
     typeof command === 'object' &&

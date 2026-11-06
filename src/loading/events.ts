@@ -7,11 +7,7 @@ import type { Event } from 'classes/base/event';
 import { getFilesFrom } from 'utility/files';
 import { logger } from 'utility/logger';
 
-/**
- * Loads and registers events for the client.
- *
- * @param client - The ExtendedClient instance to load commands into.
- */
+/** Register the event handlers in src/handlers/events. */
 export async function loadEvents(client: ExtendedClient) {
   // Remove the listeners from a previous load, so reloading doesn't handle every event twice.
   // Only the bot's own listeners are tracked, so discord.js's internal ones are left alone
@@ -23,14 +19,11 @@ export async function loadEvents(client: ExtendedClient) {
 
   const filePaths = await getFilesFrom('src/handlers/events');
 
-  // Use Promise.all to load all event files concurrently
   await Promise.all(
     filePaths.map(async (filePath) => {
       const event = ((await import(`${filePath}?update=${Date.now()}`)) as { default: unknown }).default;
 
       if (isValidEvent(event)) {
-        // Register the event with the client
-        // Use 'once' or 'on' based on the event options
         // Errors thrown by the handler are logged with the event and file, instead of becoming unhandled rejections
         const listener = (...args: ClientEvents[typeof event.options.name]) => {
           Promise.resolve()
@@ -42,7 +35,7 @@ export async function loadEvents(client: ExtendedClient) {
 
         tableData.push({ file: filePath.split('/').slice(-2).join('/'), name: event.options.name, valid: true });
       } else {
-        // Remove the path from filePaths if the event is invalid to show the correct count of successfully loaded events
+        // So the files counted are only the ones loaded
         filePaths.splice(filePaths.indexOf(filePath), 1);
         logger.warn(t('system.event.invalid', { file: filePath }));
 
@@ -57,12 +50,7 @@ export async function loadEvents(client: ExtendedClient) {
   return { files: filePaths, tableData, duration, count: filePaths.length };
 }
 
-/**
- * Checks if the provided object is a valid event.
- *
- * @param event - The object to check.
- * @returns True if the object is a valid event, false otherwise.
- */
+/** Whether a file's default export is an event handler. */
 function isValidEvent(event: unknown): event is Event<keyof ClientEvents> {
   return (
     typeof event === 'object' &&

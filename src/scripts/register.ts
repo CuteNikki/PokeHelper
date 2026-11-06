@@ -21,7 +21,6 @@ const filePaths = await getFilesFrom('src/handlers/commands');
 
 const commands: Command[] = [];
 
-// Use Promise.all to load all command files concurrently
 await Promise.all(
   filePaths.map(async (filePath) => {
     const command = ((await import(`${filePath}?update=${Date.now()}`)) as { default: unknown }).default;
@@ -36,7 +35,6 @@ await Promise.all(
 
 logger.info(`Successfully loaded ${commands.length} commands from ${filePaths.length} files.`);
 
-// Register the commands with the Discord API
 try {
   const result = await registerCommands(new REST().setToken(DISCORD_TOKEN), DISCORD_ID, commands, DEV_GUILD_ID);
   logger.info(`Successfully registered ${result.global} commands.`);

@@ -3,7 +3,7 @@ import en from 'locales/en/messages.json';
 
 declare module 'i18next' {
   interface CustomTypeOptions {
-    // This allows you to reference 'en' as the default structure
+    // The English texts are the shape every language follows, so keys are checked
     resources: {
       translation: typeof en;
     };

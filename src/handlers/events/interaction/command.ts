@@ -16,13 +16,13 @@ export default new Event({
   name: Events.InteractionCreate,
   once: false,
   async execute(client, interaction) {
-    if (!interaction.isCommand()) return; // Check if the interaction is a command
+    if (!interaction.isCommand()) return;
     // Replies are in the user's language, while logs stay in English for developers
     const translate = getTranslate(interaction.locale);
 
-    const command = client.commands.get(interaction.commandName); // Retrieve the command from the client's commands collection
+    const command = client.commands.get(interaction.commandName);
 
-    // If the command is not found, log a warning and tell the user, it's likely still registered after being removed
+    // Likely still registered after being removed
     if (!command) {
       logger.warn(t('system.command.notFound', { command: interaction.commandName }));
       return sendError(interaction, translate('system.command.outdated'));
@@ -42,7 +42,6 @@ export default new Event({
       if (freeAt !== null) return sendError(interaction, waitMessage(freeAt, translate));
     }
 
-    // Trying to execute the command
     try {
       // Ensure the user and guild are in the database, inside the try so a database outage gets an error reply too
       await Promise.all([ensureUser(interaction.user.id), interaction.inGuild() ? ensureGuild(interaction.guildId) : null]);

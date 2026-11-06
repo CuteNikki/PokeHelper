@@ -2,11 +2,7 @@ import type { ClientEvents } from 'discord.js';
 
 import type { ExtendedClient } from 'classes/base/client';
 
-/**
- * Represents an event in the Discord client.
- *
- * @template T - The type of the event name, which is a key of ClientEvents.
- */
+/** A handler for a Discord event. Several files can handle the same one. */
 export class Event<T extends keyof ClientEvents> {
   constructor(
     public options: {
