@@ -11,6 +11,8 @@ export interface PokedexCardType {
 
 export interface PokedexCardEvolution {
   name: string;
+  /** How it evolves from the one before, like `Level 16`, written small below its name. Null for the first. */
+  how?: string | null;
   image: Image | null;
   /** The Pokémon the card is about, which is highlighted. */
   current: boolean;
@@ -39,6 +41,9 @@ const WIDTH = 880;
 const PADDING = 32;
 const TOP_HEIGHT = 360;
 const EVOLUTION_HEIGHT = 190;
+/** The room below the names for how they evolve, in up to two lines, when any does. */
+const EVOLUTION_HOW_HEIGHT = 34;
+const EVOLUTION_HOW_LINE_HEIGHT = 14;
 const ENTRY_FONT = '17px "Roboto"';
 const ENTRY_LINE_HEIGHT = 25;
 /** The most lines of Pokédex text, which is plenty for any of them. */
@@ -150,6 +155,13 @@ function drawEvolution(ctx: SKRSContext2D, data: PokedexCardData, color: string,
       ctx.font = `${pokemon.current ? 'bold ' : ''}${size < 90 ? 13 : 15}px "Roboto", "EmojiFallback"`;
       ctx.fillStyle = pokemon.current ? COLORS.textWhite : COLORS.textGray;
       ctx.fillText(truncateText(ctx, pokemon.name, size + gap), x + size / 2, imageY + size + 22);
+      if (pokemon.how) {
+        ctx.font = `${size < 90 ? 11 : 12}px "Roboto", "EmojiFallback"`;
+        ctx.fillStyle = COLORS.textGray;
+        wrapText(ctx, pokemon.how, size + gap, 2).forEach((line, lineIndex) =>
+          ctx.fillText(line, x + size / 2, imageY + size + 40 + lineIndex * EVOLUTION_HOW_LINE_HEIGHT),
+        );
+      }
       x += size;
     });
   });
@@ -216,7 +228,8 @@ export function renderPokedexCard(data: PokedexCardData): Buffer {
   const entryLines = data.entry ? wrapText(measure, data.entry, WIDTH - PADDING * 2, ENTRY_MAX_LINES) : [];
   const aboutY = TOP_HEIGHT;
   const evolutionY = aboutY + aboutHeight(entryLines.length);
-  const height = evolutionY + (hasEvolution ? EVOLUTION_HEIGHT : 0);
+  const hasHow = data.evolution.some((stage) => stage.some((pokemon) => pokemon.how));
+  const height = evolutionY + (hasEvolution ? EVOLUTION_HEIGHT + (hasHow ? EVOLUTION_HOW_HEIGHT : 0) : 0);
   const canvas = createCanvas(WIDTH, height);
   const ctx = canvas.getContext('2d');
   const color = data.types[0]?.color ?? '#a8a77a';

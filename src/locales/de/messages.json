@@ -304,7 +304,55 @@
     },
     "evolution": {
       "title": "Entwicklung",
-      "none": "entwickelt sich nicht"
+      "none": "entwickelt sich nicht",
+      "how": {
+        "level": "Level {{level}}",
+        "levelUp": "Level-Up",
+        "trade": "Tausch",
+        "tradeFor": "Tausch gegen {{pokemon}}",
+        "other": "Besondere Bedingung",
+        "holding": "hält {{item}}",
+        "knowing": "kennt {{move}}",
+        "knowingType": "kennt eine {{type}}-Attacke",
+        "happiness": "hohe Freundschaft",
+        "affection": "hohe Zuneigung",
+        "beauty": "hohe Schönheit",
+        "time": {
+          "day": "tagsüber",
+          "night": "nachts",
+          "dusk": "in der Abenddämmerung"
+        },
+        "female": "nur weiblich",
+        "male": "nur männlich",
+        "location": "Ort: {{location}}",
+        "rain": "bei Regen",
+        "partySpecies": "mit {{pokemon}} im Team",
+        "partyType": "mit einem {{type}}-Pokémon im Team",
+        "stats": {
+          "higher": "Angriff höher als Verteidigung",
+          "same": "Angriff gleich Verteidigung",
+          "lower": "Angriff niedriger als Verteidigung"
+        },
+        "steps": "nach {{steps}} Schritten",
+        "upsideDown": "mit der Konsole auf dem Kopf",
+        "triggers": {
+          "shed": "Level {{level}}, mit freiem Platz im Team und einem übrigen Pokéball",
+          "spin": "Im Kreis drehen",
+          "tower-of-darkness": "Training im Turm des Unlichts",
+          "tower-of-waters": "Training im Turm des Wassers",
+          "three-critical-hits": "3 Volltreffer in einem Kampf",
+          "take-damage": "{{damage}} KP verlieren, dann unter dem Steinbogen durchgehen",
+          "in-battle-level-up": "Level-Up während eines Kampfes",
+          "agile-style-move": "{{move}} {{count}}-mal im Tempo-Stil einsetzen",
+          "strong-style-move": "{{move}} {{count}}-mal im Kraft-Stil einsetzen",
+          "recoil-damage": "{{damage}} KP durch Rückstoß verlieren",
+          "use-move": "{{move}} {{count}}-mal einsetzen",
+          "three-defeated-bisharp": "3 Caesurio besiegen, die Gladiantri anführen",
+          "gimmighoul-coins": "999 Gierspenst-Münzen sammeln",
+          "meltan-candies": "400 Meltan-Bonbons in Pokémon GO"
+        }
+      },
+      "step": "{{from}} → {{to}}: {{how}}"
     },
     "shiny": {
       "show": "Schillernd",

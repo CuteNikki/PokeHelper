@@ -37,6 +37,7 @@ import {
   speciesIdFromUrl,
 } from 'utility/pokedex/api';
 import { renderPokedexCard, STAT_BAR_MAX } from 'utility/pokedex/card';
+import { evolutionCondition } from 'utility/pokedex/evolution';
 import { matchupsButton } from 'utility/pokedex/matchups';
 import { TYPE_COLORS } from 'utility/pokedex/types';
 import { buttonIcon, statBarEmoji, withTypeEmoji, type BarPiece } from 'utility/emojis';
@@ -162,13 +163,22 @@ function genus(species: ApiSpecies, language: string): string | null {
   return find(language) ?? find(FALLBACK_LANGUAGE) ?? null;
 }
 
+/** A species in an evolution chain, with the one it evolves from and how, unless it's the first. */
+interface EvolutionMember {
+  id: number;
+  slug: string;
+  from: { id: number; slug: string } | null;
+  how: string | null;
+}
+
 /** The species of an evolution chain by stage, branches side by side: Eevee, then all eight of its evolutions. */
-function evolutionStages(chain: ApiEvolutionLink): { id: number; slug: string }[][] {
-  const stages: { id: number; slug: string }[][] = [];
-  let stage = [chain];
+function evolutionStages(chain: ApiEvolutionLink, language: string, t: Translate): EvolutionMember[][] {
+  const stages: EvolutionMember[][] = [];
+  const species = (link: ApiEvolutionLink) => ({ id: speciesIdFromUrl(link.species.url) ?? 0, slug: link.species.name });
+  let stage: { link: ApiEvolutionLink; from: EvolutionMember['from'] }[] = [{ link: chain, from: null }];
   while (stage.length > 0) {
-    stages.push(stage.map((link) => ({ id: speciesIdFromUrl(link.species.url) ?? 0, slug: link.species.name })));
-    stage = stage.flatMap((link) => link.evolves_to);
+    stages.push(stage.map(({ link, from }) => ({ ...species(link), from, how: from ? evolutionCondition(link.evolution_details, language, t) : null })));
+    stage = stage.flatMap(({ link }) => link.evolves_to.map((next) => ({ link: next, from: species(link) })));
   }
   return stages;
 }
@@ -293,7 +303,7 @@ export async function buildPokedexEntry(match: PokedexMatch, view: PokedexView, 
   const stats = STATS.map((stat) => ({ label: t(`pokedex.stats.${stat}`), value: pokemon.stats.find((entry) => entry.stat.name === stat)?.base_stat ?? 0 }));
   const total = stats.reduce((sum, stat) => sum + stat.value, 0);
 
-  const stages = chain ? evolutionStages(chain.chain) : [];
+  const stages = chain ? evolutionStages(chain.chain, language, t) : [];
   const evolves = stages.length > 1;
   const speciesName = (entry: { id: number; slug: string }) => nameIn(speciesById(entry.id)?.names, language) || entry.slug;
 
@@ -313,7 +323,9 @@ export async function buildPokedexEntry(match: PokedexMatch, view: PokedexView, 
     { label: t('pokedex.details.abilities'), value: abilities.join(', ') },
   ];
   const statsText = [...stats.map((stat) => `${stat.label} ${stat.value}`), `${t('pokedex.stats.total')} ${total}`];
-  const evolutionText = evolves ? stages.map((stage) => stage.map(speciesName).join(' / ')).join(' → ') : t('pokedex.evolution.none');
+  const evolutionText = evolves
+    ? stages.map((stage) => stage.map((member) => (member.how ? `${speciesName(member)} (${member.how})` : speciesName(member))).join(' / ')).join(' → ')
+    : t('pokedex.evolution.none');
 
   // The accent is the color of its first type, like the games' Pokédex
   const container = new ContainerBuilder().setAccentColor(types[0]?.color ?? ThemeColors.info);
@@ -347,11 +359,16 @@ export async function buildPokedexEntry(match: PokedexMatch, view: PokedexView, 
       .addTextDisplayComponents(new TextDisplayBuilder().setContent(about.join('\n')))
       .addSeparatorComponents(new SeparatorBuilder())
       .addTextDisplayComponents(new TextDisplayBuilder().setContent(statLines.join('\n')));
-    // The evolutions are their buttons, in order, with the one shown highlighted. Left out when it doesn't evolve, like on the card
+    // How each one evolves, then their buttons, in order, with the one shown highlighted. Left out when it doesn't evolve, like on the card
     if (evolves) {
+      const steps = stages
+        .flat()
+        .flatMap(({ from, how, ...member }) =>
+          from && how ? [t('pokedex.evolution.step', { from: speciesName(from), to: bold(speciesName(member)), how })] : [],
+        );
       container
         .addSeparatorComponents(new SeparatorBuilder())
-        .addTextDisplayComponents(new TextDisplayBuilder().setContent(heading(t('pokedex.evolution.title'), HeadingLevel.Three)))
+        .addTextDisplayComponents(new TextDisplayBuilder().setContent([heading(t('pokedex.evolution.title'), HeadingLevel.Three), ...steps].join('\n')))
         .addActionRowComponents(buildEvolutionButtons(stages.flat(), match, shownView, speciesName));
     }
   } else {
@@ -363,6 +380,7 @@ export async function buildPokedexEntry(match: PokedexMatch, view: PokedexView, 
           Promise.all(
             stage.map(async (member) => ({
               name: speciesName(member),
+              how: member.how,
               image: await getImage(artworkUrl(member.id, shownView.shiny)),
               current: member.id === match.species.id,
             })),

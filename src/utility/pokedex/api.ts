@@ -41,8 +41,41 @@ export interface ApiSpecies {
   evolution_chain: { url: string } | null;
 }
 
+/** How a Pokémon evolves in one game. Anything it doesn't need is null, false or empty. */
+export interface ApiEvolutionDetail {
+  /** Whether it's how it evolves in the newest games, as it's done differently in some older ones. */
+  is_default?: boolean;
+  trigger: Named;
+  min_level: number | null;
+  item: Named | null;
+  held_item: Named | null;
+  known_move: Named | null;
+  known_move_type: Named | null;
+  location: Named | null;
+  min_happiness: number | null;
+  min_beauty: number | null;
+  min_affection: number | null;
+  needs_overworld_rain: boolean;
+  party_species: Named | null;
+  party_type: Named | null;
+  /** 1 when its Attack has to be higher than its Defense, 0 when the same, -1 when lower. */
+  relative_physical_stats: number | null;
+  /** `day`, `night` or `dusk`, or empty. */
+  time_of_day: string;
+  trade_species: Named | null;
+  turn_upside_down: boolean;
+  /** 1 for female, 2 for male. */
+  gender: number | null;
+  min_steps?: number | null;
+  used_move?: Named | null;
+  min_move_count?: number | null;
+  min_damage_taken?: number | null;
+}
+
 export interface ApiEvolutionLink {
   species: Named;
+  /** How it evolves from the one before, once for each game it's different in. Empty for the first. */
+  evolution_details: ApiEvolutionDetail[];
   evolves_to: ApiEvolutionLink[];
 }
 

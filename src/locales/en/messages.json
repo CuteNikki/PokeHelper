@@ -756,7 +756,55 @@
     },
     "evolution": {
       "title": "Evolution",
-      "none": "doesn't evolve"
+      "none": "doesn't evolve",
+      "how": {
+        "level": "Level {{level}}",
+        "levelUp": "Level up",
+        "trade": "Trade",
+        "tradeFor": "Trade for {{pokemon}}",
+        "other": "Special condition",
+        "holding": "holding {{item}}",
+        "knowing": "knowing {{move}}",
+        "knowingType": "knowing a {{type}} move",
+        "happiness": "high friendship",
+        "affection": "high affection",
+        "beauty": "high beauty",
+        "time": {
+          "day": "during the day",
+          "night": "at night",
+          "dusk": "at dusk"
+        },
+        "female": "female only",
+        "male": "male only",
+        "location": "at {{location}}",
+        "rain": "while it rains",
+        "partySpecies": "with {{pokemon}} in the party",
+        "partyType": "with a {{type}} Pokémon in the party",
+        "stats": {
+          "higher": "Attack higher than Defense",
+          "same": "Attack equal to Defense",
+          "lower": "Attack lower than Defense"
+        },
+        "steps": "after walking {{steps}} steps",
+        "upsideDown": "with the console upside down",
+        "triggers": {
+          "shed": "Level {{level}}, with room in the party and a spare Poké Ball",
+          "spin": "Spin around",
+          "tower-of-darkness": "Train in the Tower of Darkness",
+          "tower-of-waters": "Train in the Tower of Waters",
+          "three-critical-hits": "Land 3 critical hits in one battle",
+          "take-damage": "Lose {{damage}} HP, then walk under the stone arch",
+          "in-battle-level-up": "Level up during a battle",
+          "agile-style-move": "Use {{move}} in agile style {{count}} times",
+          "strong-style-move": "Use {{move}} in strong style {{count}} times",
+          "recoil-damage": "Lose {{damage}} HP from recoil",
+          "use-move": "Use {{move}} {{count}} times",
+          "three-defeated-bisharp": "Defeat 3 Bisharp that lead Pawniard",
+          "gimmighoul-coins": "Collect 999 Gimmighoul Coins",
+          "meltan-candies": "400 Meltan Candy in Pokémon GO"
+        }
+      },
+      "step": "{{from}} → {{to}}: {{how}}"
     },
     "shiny": {
       "show": "Shiny",
