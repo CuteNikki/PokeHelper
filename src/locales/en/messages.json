@@ -1327,7 +1327,7 @@
         },
         "messageDeleted": {
           "label": "Deleted messages",
-          "description": "What a deleted message said, and who deleted it if it wasn’t its author"
+          "description": "What a deleted message said, and who deleted it if it wasn't its author"
         },
         "messagesBulkDeleted": {
           "label": "Bulk deletes",
@@ -1379,7 +1379,7 @@
         },
         "server": {
           "label": "Server settings",
-          "description": "The server’s name, icon, channels and other settings changed"
+          "description": "The server's name, icon, channels and other settings changed"
         },
         "emojis": {
           "label": "Emojis and stickers",

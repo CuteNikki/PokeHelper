@@ -37,7 +37,7 @@ function previewEntries(member: GuildMember, channelId: string, t: Translate): L
   // A real voice channel to move to, so from and to differ
   const movedTo = guild.channels.cache.find((channel) => channel.isVoiceBased() && channel.id !== channelId)?.id ?? channelId;
 
-  const shortEdit = editedText('i founf the command, its called piku', 'i found the command, it’s called pokedex', '1', t);
+  const shortEdit = editedText('i founf the command, its called piku', "i found the command, it's called pokedex", '1', t);
   const longEdit = editedText(LONG_TEXT, LONG_TEXT.replace('Line 20', 'Line twenty'), '2', t);
   const deleted = deletedText('well, i bought panda express on his phone with his card', '3', t);
 

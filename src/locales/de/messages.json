@@ -76,7 +76,7 @@
       "everyone": "@everyone kann man nicht vergeben",
       "managed": "sie wird von einer Integration verwaltet, wie eine Bot- oder Booster-Rolle",
       "dangerous": "sie hat Moderations- oder Admin-Berechtigungen, die man nicht einfach so vergeben sollte",
-      "noManageRoles": "mir fehlt die Berechtigung „Rollen verwalten“",
+      "noManageRoles": "mir fehlt die Berechtigung \"Rollen verwalten\"",
       "tooHigh": "sie ist nicht unter meiner höchsten Rolle",
       "cantAssign": "Ich kann diese Rolle nicht vergeben: {{reason}}.",
       "refused": "Ich kann {{role}} nicht nutzen, weil ich sie nicht vergeben kann: {{reason}}. Nimm eine andere Rolle oder schieb meine Rolle in den Servereinstellungen darüber.",
@@ -995,7 +995,7 @@
     "transcriptHeading": "{{count, number}} Nachrichten gelöscht in #{{channel}} ({{channelId}})",
     "tips": {
       "general": [
-        "Der Bot braucht „Audit-Log anzeigen“, um zu sagen, wer etwas gemacht hat und warum.",
+        "Der Bot braucht \"Audit-Log anzeigen\", um zu sagen, wer etwas gemacht hat und warum.",
         "Eine ignorierte Kategorie ignoriert alle Kanäle darin.",
         "Ausgeschaltet behält jede Gruppe ihren Kanal und ihre Schalter, für wenn Logs wieder an sind."
       ],
@@ -1004,9 +1004,9 @@
         "Nachrichten von Bots und Webhooks werden nicht geloggt.",
         "Lange Nachrichten und Massenlöschungen kommen als Datei, die du direkt in Discord lesen kannst."
       ],
-      "members": ["Der „IDs kopieren“-Button an jedem Eintrag ist fürs Handy, wo man Text in Nachrichten nicht markieren kann."],
-      "moderation": ["Der Grund, den ein Moderator angegeben hat, kommt aus dem Audit-Log, dafür braucht der Bot „Audit-Log anzeigen“."],
-      "server": ["Der „IDs kopieren“-Button an jedem Eintrag ist fürs Handy, wo man Text in Nachrichten nicht markieren kann."],
+      "members": ["Der \"IDs kopieren\"-Button an jedem Eintrag ist fürs Handy, wo man Text in Nachrichten nicht markieren kann."],
+      "moderation": ["Der Grund, den ein Moderator angegeben hat, kommt aus dem Audit-Log, dafür braucht der Bot \"Audit-Log anzeigen\"."],
+      "server": ["Der \"IDs kopieren\"-Button an jedem Eintrag ist fürs Handy, wo man Text in Nachrichten nicht markieren kann."],
       "voice": ["Kanäle, die unter Allgemein ignoriert werden, werden auch hier ignoriert."]
     }
   },
