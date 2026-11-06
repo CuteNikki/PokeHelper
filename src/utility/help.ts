@@ -24,6 +24,7 @@ import { getCounting } from 'database/counting';
 import { getFeatureSwitches } from 'database/features';
 import { getGuildLevelingConfiguration } from 'database/leveling';
 
+import { buttonIcon } from 'utility/emojis';
 import type { Translate } from 'utility/i18next';
 import type { ResponsePayload } from 'utility/response';
 import { DiscordLimits } from 'utility/discordLimits';
@@ -145,7 +146,7 @@ export async function buildHelp(interaction: Interaction, category: string, t: T
     .setCustomId(HELP_CATEGORY_SELECT_ID)
     .setPlaceholder(t('help.select'))
     .addOptions(
-      { label: t('help.overview'), value: HELP_OVERVIEW, emoji: '📖', default: !shown },
+      { label: t('help.overview'), value: HELP_OVERVIEW, emoji: buttonIcon('book-open'), default: !shown },
       ...categories.map(([key]) => ({ label: label(key).slice(0, DiscordLimits.optionLabelLength), value: key, default: key === shown?.[0] })),
     );
   container

@@ -82,9 +82,9 @@ export function getRoleMenuSettings(menuId: string): SettingsPanel {
     title: (t) => t('roleMenu.settings.title'),
     permissions: ['ManageGuild'],
     categories: [
-      { id: 'roles', label: (t) => t('roleMenu.settings.categories.roles'), emoji: '🎭' },
-      { id: 'text', label: (t) => t('roleMenu.settings.categories.text'), emoji: '📝' },
-      { id: 'general', label: (t) => t('roleMenu.settings.categories.general'), emoji: '⚙️' },
+      { id: 'roles', label: (t) => t('roleMenu.settings.categories.roles'), icon: 'drama' },
+      { id: 'text', label: (t) => t('roleMenu.settings.categories.text'), icon: 'file-text' },
+      { id: 'general', label: (t) => t('roleMenu.settings.categories.general'), icon: 'settings' },
     ],
     // The panel's custom IDs carry the menu's ID, so make sure it's a menu of this server
     load: async (guildId) => {

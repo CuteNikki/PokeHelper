@@ -66,12 +66,12 @@ export const levelingSettings = createSettingsPanel<LevelingConfig>({
   title: (t) => t('leveling.settings.title'),
   permissions: ['ManageGuild'],
   categories: [
-    { id: 'general', label: (t: Translate) => t('leveling.settings.categories.general'), emoji: '⚙️' },
-    { id: 'winners', label: (t: Translate) => t('leveling.settings.categories.winners'), emoji: '🏆' },
-    { id: 'filters', label: (t: Translate) => t('leveling.settings.categories.filters'), emoji: '🚫' },
-    { id: 'rewards', label: (t: Translate) => t('leveling.settings.categories.rewards'), emoji: '🎁' },
-    { id: 'channelMultipliers', label: (t: Translate) => t('leveling.settings.categories.channelMultipliers'), emoji: '📈' },
-    { id: 'roleMultipliers', label: (t: Translate) => t('leveling.settings.categories.roleMultipliers'), emoji: '📈' },
+    { id: 'general', label: (t: Translate) => t('leveling.settings.categories.general'), icon: 'settings' },
+    { id: 'winners', label: (t: Translate) => t('leveling.settings.categories.winners'), icon: 'trophy' },
+    { id: 'filters', label: (t: Translate) => t('leveling.settings.categories.filters'), icon: 'ban' },
+    { id: 'rewards', label: (t: Translate) => t('leveling.settings.categories.rewards'), icon: 'gift' },
+    { id: 'channelMultipliers', label: (t: Translate) => t('leveling.settings.categories.channelMultipliers'), icon: 'trending-up' },
+    { id: 'roleMultipliers', label: (t: Translate) => t('leveling.settings.categories.roleMultipliers'), icon: 'trending-up' },
   ],
   // Leveling starts turned off, so there's always a configuration to show
   load: getOrCreateGuildLevelingConfiguration,

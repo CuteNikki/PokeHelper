@@ -23,6 +23,7 @@ import {
   subtext,
   TextDisplayBuilder,
 } from 'discord.js';
+import type { IconName } from 'utility/icons';
 import { buttonIcon, switchIcon } from 'utility/emojis';
 import type { Translate } from 'utility/i18next';
 
@@ -233,7 +234,8 @@ const isEntries = <C>(setting: Setting<C> | AnyEntriesSetting<C>): setting is An
 export interface SettingsCategory {
   id: string;
   label: (t: Translate) => string;
-  emoji?: string;
+  /** The icon in front of it in the select. */
+  icon?: IconName;
 }
 
 export interface SettingsPanelDefinition<C> {
@@ -763,7 +765,7 @@ export function createSettingsPanel<C>(definition: SettingsPanelDefinition<C>): 
                   .setLabel(category.label(t))
                   .setValue(category.id)
                   .setDefault(category.id === page);
-                return category.emoji ? option.setEmoji(category.emoji) : option;
+                return category.icon ? option.setEmoji(buttonIcon(category.icon)) : option;
               }),
             ),
           ),

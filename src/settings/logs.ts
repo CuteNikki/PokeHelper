@@ -43,12 +43,12 @@ export const logSettings = createSettingsPanel<GuildLogs>({
   title: (t) => t('logs.settings.title'),
   permissions: ['ManageGuild'],
   categories: [
-    { id: 'general', label: (t) => t('logs.settings.categories.general'), emoji: '⚙️' },
-    { id: 'messages', label: (t) => t('logs.settings.categories.messages'), emoji: '💬' },
-    { id: 'members', label: (t) => t('logs.settings.categories.members'), emoji: '👥' },
-    { id: 'moderation', label: (t) => t('logs.settings.categories.moderation'), emoji: '🔨' },
-    { id: 'server', label: (t) => t('logs.settings.categories.server'), emoji: '🏠' },
-    { id: 'voice', label: (t) => t('logs.settings.categories.voice'), emoji: '🔊' },
+    { id: 'general', label: (t) => t('logs.settings.categories.general'), icon: 'settings' },
+    { id: 'messages', label: (t) => t('logs.settings.categories.messages'), icon: 'message-square' },
+    { id: 'members', label: (t) => t('logs.settings.categories.members'), icon: 'users' },
+    { id: 'moderation', label: (t) => t('logs.settings.categories.moderation'), icon: 'gavel' },
+    { id: 'server', label: (t) => t('logs.settings.categories.server'), icon: 'house' },
+    { id: 'voice', label: (t) => t('logs.settings.categories.voice'), icon: 'volume-2' },
   ],
   // Logs start with no channels, so there's always a configuration to show
   load: getOrCreateGuildLogs,
