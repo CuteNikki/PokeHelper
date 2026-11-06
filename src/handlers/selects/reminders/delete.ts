@@ -10,8 +10,10 @@ export default new SelectMenu({
   customId: REMINDER_DELETE_ID,
   async execute(interaction) {
     const t = getTranslate(interaction.locale);
+    // Answered first, as Discord gives up after 3 seconds
+    await interaction.deferUpdate();
     // It may have gone off or been deleted meanwhile, which is fine, the list is shown as it is now either way
     await deleteUserReminder(interaction.user.id, interaction.values[0] ?? '');
-    await interaction.update(buildReminderList(await getUserReminders(interaction.user.id), t));
+    await interaction.editReply(buildReminderList(await getUserReminders(interaction.user.id), t));
   },
 });
