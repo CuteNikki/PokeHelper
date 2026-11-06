@@ -15,7 +15,7 @@ import { TYPE_COLORS } from 'utility/pokedex/types';
  */
 const STAT_BAR_PREFIX = 'statbar1';
 const TYPE_ICON_PREFIX = 'typeicon2';
-const ICON_PREFIXES: Record<IconLook, string> = { button: 'btn1', text: 'icon1', on: 'switch1', off: 'switch1' };
+const ICON_PREFIXES: Record<IconLook, string> = { button: 'btn2', text: 'icon1', on: 'switch1', off: 'switch1' };
 /** The names of the bot's own emojis of any version, so old ones are deleted and emojis added by hand are left alone. */
 const OWN_EMOJI = /^(statbar|typeicon|btn|icon|switch)\d+_/;
 
@@ -108,7 +108,7 @@ export const statBarEmoji = (color: string, piece: BarPiece) => emojis.get(barNa
 /** The emoji of a type's icon, or null if it isn't there. */
 export const typeEmoji = (type: string) => emojis.get(typeIconName(type)) ?? null;
 
-/** An interface icon for a button, white on its own, like `search`, or its normal emoji while it isn't there. */
+/** An interface icon for a button, on dark grey, like `search`, or its normal emoji while it isn't there. */
 export const buttonIcon = (name: IconName) => emojis.get(interfaceIconName(name, 'button')) ?? ICONS[name];
 
 /** An interface icon for text, on the bot's blue, like `server`, or its normal emoji while it isn't there. */

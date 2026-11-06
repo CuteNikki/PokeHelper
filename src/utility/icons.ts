@@ -7,9 +7,9 @@ import { createCanvas, loadImage } from '@napi-rs/canvas';
  * comment in each file), kept as SVG in `assets/icons`, named like on lucide.dev. Adding one is adding its file there and its name
  * to {@link ICONS}, which a test checks.
  *
- * Each is made in two looks: on its own in white for buttons, which have a background of their own, and on a rounded square in
- * the bot's blue for text, where it stands on its own. On and Off switches get a check on green and an X on grey, as their color
- * says which they are.
+ * Each is made in two looks, a white symbol on a rounded square: dark grey for buttons, which stands out on Discord's buttons in the
+ * dark and the light theme, where a symbol on its own would vanish in the light one, and the bot's blue for text. On and Off
+ * switches get a check on green and an X on grey, as their color says which they are.
  */
 export const ICONS_PATH = 'assets/icons';
 
@@ -60,11 +60,11 @@ export type IconLook = 'button' | 'text' | 'on' | 'off';
 /** The bot's blue, the accent of its messages. */
 const TEXT_ICON_COLOR = '#3b4cca';
 /** How round the corners of the square are, out of its size. */
-const TEXT_ICON_RADIUS = 0.28;
+const ICON_RADIUS = 0.28;
 
-const LOOKS: Record<IconLook, { scale: number; weight: number; background: string | null }> = {
-  // Thicker and bigger on buttons, where it's the only thing there
-  button: { scale: 0.9, weight: 2.5, background: null },
+const LOOKS: Record<IconLook, { scale: number; weight: number; background: string }> = {
+  // Discord's own dark grey, which stands apart from its buttons in both themes
+  button: { scale: 0.62, weight: 2.25, background: '#2b2d31' },
   text: { scale: 0.62, weight: 2.25, background: TEXT_ICON_COLOR },
   // Discord's own green, dark enough for the white check, and a grey that looks turned off
   on: { scale: 0.62, weight: 2.75, background: '#23a55a' },
@@ -76,17 +76,15 @@ export async function iconPng(name: IconName, look: IconLook, size: number): Pro
   const svg = await readFile(`${ICONS_PATH}/${name}.svg`, 'utf8').catch(() => null);
   if (svg === null) return null;
   const { scale, weight, background } = LOOKS[look];
-  // Always white, on the square or on a button
+  // Always white, on its square
   const symbol = await loadImage(Buffer.from(svg.replace('stroke="currentColor"', 'stroke="#ffffff"').replace('stroke-width="2"', `stroke-width="${weight}"`)));
 
   const canvas = createCanvas(size, size);
   const ctx = canvas.getContext('2d');
-  if (background) {
-    ctx.fillStyle = background;
-    ctx.beginPath();
-    ctx.roundRect(0, 0, size, size, size * TEXT_ICON_RADIUS);
-    ctx.fill();
-  }
+  ctx.fillStyle = background;
+  ctx.beginPath();
+  ctx.roundRect(0, 0, size, size, size * ICON_RADIUS);
+  ctx.fill();
   const symbolSize = size * scale;
   ctx.drawImage(symbol, (size - symbolSize) / 2, (size - symbolSize) / 2, symbolSize, symbolSize);
   return canvas.toBuffer('image/png');
