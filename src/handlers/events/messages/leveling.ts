@@ -53,7 +53,6 @@ export default new Event({
     const baseXp = Math.floor(Math.random() * (MAX_XP - MIN_XP + 1)) + MIN_XP;
     const xpToAdd = applyMultiplier(baseXp, getMultiplier(levelingConfig.multipliers, context));
 
-    // Make sure the user exists in the database
     await ensureUser(member.id);
     const levelingData = await addXpToUser(message.guildId, member.id, xpToAdd);
 

@@ -14,7 +14,7 @@ export default new Event({
   once: false,
   async execute(_client, deleted, channel) {
     const { guild } = channel;
-    // Checked for each, so none stays remembered after its delete
+    // The bot's own deletes, like wrong counts, are left out
     const messages = deleted.filter((message) => !isBotDelete(message.id));
     if (messages.size === 0) return;
     const config = await shouldLog(guild, 'messagesBulkDeleted');
