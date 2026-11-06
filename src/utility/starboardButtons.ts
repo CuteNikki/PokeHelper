@@ -36,26 +36,32 @@ function buildStarredBy(entry: StarboardEntry, postId: string, requested: number
 /** Star or unstar the post's message, or show who starred it, a page at a time, only to whoever pressed. In their language. */
 export async function handleStarboardButton(interaction: ButtonInteraction): Promise<unknown> {
   const t = getTranslate(interaction.locale);
+  // Each is answered before the post is looked up, which can take a moment, as Discord gives up after 3 seconds.
+  // Errors still only go to whoever pressed
 
   if (interaction.customId.startsWith(PAGE_PREFIX)) {
     const [postId, page] = interaction.customId.slice(PAGE_PREFIX.length).split(':');
+    await interaction.deferUpdate();
     const entry = postId ? await getStarboardEntryByPost(postId) : null;
     if (!postId || !entry) return sendError(interaction, t('starboard.post.gone'));
-    return interaction.update(buildStarredBy(entry, postId, Number(page) || 0, t));
+    return interaction.editReply(buildStarredBy(entry, postId, Number(page) || 0, t));
   }
 
-  const entry = interaction.inCachedGuild() ? await getStarboardEntryByPost(interaction.message.id) : null;
-  if (!entry || !interaction.inCachedGuild()) return sendError(interaction, t('starboard.post.gone'));
-
   if (interaction.customId === STARRED_BY_BUTTON_ID) {
-    return sendResponse(interaction, buildStarredBy(entry, interaction.message.id, 0, t), { ephemeral: true });
+    await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
+    const entry = interaction.inCachedGuild() ? await getStarboardEntryByPost(interaction.message.id) : null;
+    if (!entry) return sendError(interaction, t('starboard.post.gone'));
+    return sendResponse(interaction, buildStarredBy(entry, interaction.message.id, 0, t));
   }
 
   if (interaction.customId !== STAR_BUTTON_ID) return sendError(interaction, t('system.outdated'));
-  if (interaction.user.id === entry.authorId) return sendError(interaction, t('starboard.post.own'));
 
   // The post is updated with the new count, so the press only needs an answer
   await interaction.deferUpdate();
+  const entry = interaction.inCachedGuild() ? await getStarboardEntryByPost(interaction.message.id) : null;
+  if (!entry || !interaction.inCachedGuild()) return sendError(interaction, t('starboard.post.gone'));
+  if (interaction.user.id === entry.authorId) return sendError(interaction, t('starboard.post.own'));
+
   const result = await toggleStar(interaction.guild, entry, interaction.user.id);
   if (result !== 'changed') return sendError(interaction, t(`starboard.post.${result}`));
 }
