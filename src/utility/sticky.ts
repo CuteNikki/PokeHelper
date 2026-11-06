@@ -1,0 +1,175 @@
+import {
+  type Client,
+  ContainerBuilder,
+  DiscordAPIError,
+  type GuildTextBasedChannel,
+  type Message,
+  MessageFlags,
+  RESTJSONErrorCodes,
+  TextDisplayBuilder,
+} from 'discord.js';
+
+import { deleteSticky, getSticky, getStickyChannelIds, setStickyMessageId } from 'database/sticky';
+
+import { SECOND } from 'utility/duration';
+import { guildTranslate } from 'utility/i18next';
+import { logger } from 'utility/logger';
+import { markBotDelete } from 'utility/logs/botDeletes';
+import { KeyedQueue } from 'utility/queue';
+import type { ResponsePayload } from 'utility/response';
+import { ThemeColors } from 'utility/theme';
+
+/** The custom ID of the popup a sticky message is written in, followed by its channel's ID. */
+export const STICKY_MODAL_PREFIX = 'sticky:';
+/** The custom ID of the popup's text field. */
+export const STICKY_TEXT_INPUT_ID = 'text';
+/** The most characters a sticky message can have, leaving room for its label. */
+export const MAX_STICKY_LENGTH = 2000;
+
+/** How long a channel has to be quiet before its sticky message is posted again, so a conversation doesn't move it with every message. */
+const QUIET_DELAY = 10 * SECOND;
+/** The longest it waits in a channel that never gets quiet, so it doesn't stay up in the chat for long. */
+const MAX_DELAY = 30 * SECOND;
+
+/** The channels with a sticky message, so other channels' messages don't ask the database. A channel that's in it by mistake only costs a lookup. */
+const stickyChannels = new Set<string>();
+/** The reposts waiting for their channel to be quiet, and when the first message they wait for came. */
+const pending = new Map<string, { timer: ReturnType<typeof setTimeout>; since: number }>();
+/** Posting, changing and removing run one at a time per channel, so a repost can't bring back a sticky message that was just removed. */
+const queue = new KeyedQueue();
+
+/** Run something on a channel's sticky message, after what's already running on it. */
+export const runStickyTask = <T>(channelId: string, task: () => Promise<T>) => queue.run(channelId, task);
+
+export const hasSticky = (channelId: string) => stickyChannels.has(channelId);
+
+/** Note that a channel has a sticky message now, like after it was set. */
+export const addStickyChannel = (channelId: string) => stickyChannels.add(channelId);
+
+/** Forget a channel's sticky message, and its repost if one is waiting. */
+export function forgetStickyChannel(channelId: string) {
+  stickyChannels.delete(channelId);
+  const waiting = pending.get(channelId);
+  if (waiting) clearTimeout(waiting.timer);
+  pending.delete(channelId);
+}
+
+/** A sticky message as it's posted: a small label above its text. Nobody is pinged by it, as it's posted again and again. */
+export const buildStickyMessage = (text: string, label: string): ResponsePayload => ({
+  components: [new ContainerBuilder().setAccentColor(ThemeColors.info).addTextDisplayComponents(new TextDisplayBuilder().setContent(`${label}\n${text}`))],
+  flags: [MessageFlags.IsComponentsV2],
+  allowedMentions: { parse: [] },
+});
+
+const isApiError = (error: unknown, code: RESTJSONErrorCodes) => error instanceof DiscordAPIError && error.code === code;
+
+/** The channel of a sticky message, or null if it can't be posted in or is gone, in which case its sticky message is removed. */
+async function stickyChannel(client: Client, channelId: string): Promise<GuildTextBasedChannel | null> {
+  // Threads aren't always cached, like after a restart
+  const channel =
+    client.channels.cache.get(channelId) ??
+    (await client.channels.fetch(channelId).catch((error: unknown) => (isApiError(error, RESTJSONErrorCodes.UnknownChannel) ? null : undefined)));
+  if (channel === null) {
+    await removeSticky(channelId);
+    return null;
+  }
+  if (!channel?.isTextBased() || channel.isDMBased()) return null;
+  return channel;
+}
+
+/** Delete a post of a sticky message, leaving it out of the logs. One that's already gone is fine. */
+async function deletePost(channel: GuildTextBasedChannel, messageId: string) {
+  markBotDelete(messageId);
+  await channel.messages.delete(messageId).catch((error: unknown) => {
+    if (!isApiError(error, RESTJSONErrorCodes.UnknownMessage))
+      logger.warn(error, `Failed to delete the old sticky message ${messageId} in channel ${channel.id}`);
+  });
+}
+
+/**
+ * Put a channel's sticky message at the bottom: posts it again and deletes the post before, unless it's still the last message.
+ * Runs in the channel's queue.
+ * @param changed Whether its text changed, which updates its post if that's still the last message.
+ * @returns Whether it's at the bottom now, or false if it couldn't be posted, like without permission.
+ */
+async function postSticky(client: Client, channelId: string, changed: boolean): Promise<boolean> {
+  const sticky = await getSticky(channelId);
+  if (!sticky) {
+    forgetStickyChannel(channelId);
+    return false;
+  }
+  const channel = await stickyChannel(client, channelId);
+  if (!channel) return false;
+  const payload = buildStickyMessage(sticky.text, guildTranslate(channel.guild)('sticky.label'));
+
+  if (sticky.messageId && channel.lastMessageId === sticky.messageId) {
+    if (!changed) return true;
+    // Its post is still at the bottom, so it only needs the new text. If it was deleted meanwhile, it's posted again below
+    const edited = await channel.messages.edit(sticky.messageId, payload).catch(() => null);
+    if (edited) return true;
+  }
+
+  let post: Message;
+  try {
+    post = await channel.send(payload);
+  } catch (error) {
+    if (isApiError(error, RESTJSONErrorCodes.UnknownChannel)) await removeSticky(channelId);
+    else logger.warn(error, `Failed to post the sticky message in channel ${channelId} of guild ${sticky.guildId}`);
+    return false;
+  }
+
+  // Removed while it was being posted, by deleting its channel or server
+  if (!(await setStickyMessageId(channelId, post.id))) {
+    await deletePost(channel, post.id);
+    return false;
+  }
+  if (sticky.messageId) await deletePost(channel, sticky.messageId);
+  return true;
+}
+
+/** Put a channel's sticky message at the bottom now, like after it was set. Waits for what's already running on it. */
+export const postStickyNow = (client: Client, channelId: string, changed: boolean) => runStickyTask(channelId, () => postSticky(client, channelId, changed));
+
+/**
+ * A message came in a channel with a sticky message: post it again once the channel is quiet for a moment, or at the latest after a while.
+ * The sticky message's own post comes in here too, and is left where it is once it's time, as it's still the last message.
+ */
+export function scheduleRepost(client: Client, channelId: string) {
+  const now = Date.now();
+  const waiting = pending.get(channelId);
+  if (waiting) clearTimeout(waiting.timer);
+  const since = waiting?.since ?? now;
+
+  const timer = setTimeout(
+    () => {
+      pending.delete(channelId);
+      void postStickyNow(client, channelId, false).catch((error: unknown) =>
+        logger.error(error, `Failed to repost the sticky message in channel ${channelId}`),
+      );
+    },
+    Math.min(QUIET_DELAY, since + MAX_DELAY - now),
+  );
+  pending.set(channelId, { timer, since });
+}
+
+/**
+ * Remove a channel's sticky message and delete its post.
+ * @returns Whether there was one.
+ */
+export async function removeSticky(channelId: string, channel?: GuildTextBasedChannel): Promise<boolean> {
+  forgetStickyChannel(channelId);
+  const sticky = await deleteSticky(channelId);
+  if (sticky?.messageId && channel) await deletePost(channel, sticky.messageId);
+  return Boolean(sticky);
+}
+
+/** Load the channels with a sticky message, and move the ones that messages came in above while the bot was offline back down. */
+export async function loadStickies(client: Client) {
+  const channelIds = await getStickyChannelIds();
+  for (const channelId of channelIds) stickyChannels.add(channelId);
+  for (const channelId of channelIds) {
+    const channel = client.channels.cache.get(channelId);
+    // Others, like threads that aren't cached, are moved with the next message in them
+    if (channel?.isTextBased() && channel.lastMessageId) scheduleRepost(client, channelId);
+  }
+}

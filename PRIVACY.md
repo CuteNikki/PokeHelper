@@ -28,13 +28,13 @@ The bot only stores what its features need. Everything is tied to Discord IDs, w
 
 **About servers**
 
-- The settings of each feature, like channels, roles, rewards, multipliers, role menus, log settings, the starboard and which features are turned on.
+- The settings of each feature, like channels, roles, rewards, multipliers, role menus, log settings, the starboard, sticky messages and which features are turned on.
 
 **Legal basis:** providing the features you and your server use (Art. 6(1)(b) GDPR). Your birthday and friend codes are only stored because you entered them yourself, to have your birthday announced and to share your codes.
 
 ## Messages
 
-The bot reads messages in servers it's in, to count numbers, give XP and write server logs. It does **not** save the content of messages in its database. It keeps recent messages in memory while it runs, so it can show what an edited or deleted message said. They're gone when the bot restarts.
+The bot reads messages in servers it's in, to count numbers, give XP, keep sticky messages at the bottom and write server logs. It does **not** save the content of messages in its database. It keeps recent messages in memory while it runs, so it can show what an edited or deleted message said. They're gone when the bot restarts.
 
 If a server's staff turn on server logs, the bot posts edited and deleted messages, including their text and attachment names, in the server's log channel. Those log messages are part of that server, and its staff decide who can see them and how long they stay.
 

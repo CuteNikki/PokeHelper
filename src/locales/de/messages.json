@@ -269,6 +269,7 @@
       "role-menu": "Rollen, die du dir selbst aussuchst",
       "temp-voice": "Eigene Sprachkanäle",
       "starboard": "Nachrichten mit den meisten Reaktionen, gesammelt",
+      "sticky": "Nachrichten, die unten im Kanal bleiben",
       "logs": "Was auf dem Server passiert, geloggt",
       "reminders": "Lass dich später an etwas erinnern",
       "general": "Über den Bot"
@@ -281,6 +282,7 @@
       "role-menu": "Rollenmenüs",
       "temp-voice": "Sprachkanäle",
       "starboard": "Starboard",
+      "sticky": "Sticky-Nachrichten",
       "logs": "Logs",
       "reminders": "Erinnerungen",
       "general": "Allgemein"
@@ -1002,18 +1004,10 @@
         "Nachrichten von Bots und Webhooks werden nicht geloggt.",
         "Lange Nachrichten und Massenlöschungen kommen als Datei, die du direkt in Discord lesen kannst."
       ],
-      "members": [
-        "Der „IDs kopieren“-Button an jedem Eintrag ist fürs Handy, wo man Text in Nachrichten nicht markieren kann."
-      ],
-      "moderation": [
-        "Der Grund, den ein Moderator angegeben hat, kommt aus dem Audit-Log, dafür braucht der Bot „Audit-Log anzeigen“."
-      ],
-      "server": [
-        "Der „IDs kopieren“-Button an jedem Eintrag ist fürs Handy, wo man Text in Nachrichten nicht markieren kann."
-      ],
-      "voice": [
-        "Kanäle, die unter Allgemein ignoriert werden, werden auch hier ignoriert."
-      ]
+      "members": ["Der „IDs kopieren“-Button an jedem Eintrag ist fürs Handy, wo man Text in Nachrichten nicht markieren kann."],
+      "moderation": ["Der Grund, den ein Moderator angegeben hat, kommt aus dem Audit-Log, dafür braucht der Bot „Audit-Log anzeigen“."],
+      "server": ["Der „IDs kopieren“-Button an jedem Eintrag ist fürs Handy, wo man Text in Nachrichten nicht markieren kann."],
+      "voice": ["Kanäle, die unter Allgemein ignoriert werden, werden auch hier ignoriert."]
     }
   },
   "starboard": {
@@ -1221,9 +1215,7 @@
         "Ein Multiplikator auf einer Kategorie gilt für alle Kanäle darin.",
         "Wenn mehrere Multiplikatoren gelten, zählt der höchste. Sie werden nicht addiert."
       ],
-      "roleMultipliers": [
-        "Wenn mehrere Multiplikatoren gelten, zählt der höchste. Sie werden nicht addiert."
-      ]
+      "roleMultipliers": ["Wenn mehrere Multiplikatoren gelten, zählt der höchste. Sie werden nicht addiert."]
     }
   },
   "pagination": {
@@ -1346,16 +1338,9 @@
       "cantAssign": "Ich kann {{role}} gerade nicht vergeben. Ein Admin sollte sich die Einstellungen dieses Menüs anschauen."
     },
     "tips": {
-      "roles": [
-        "Der Bot kann nur Rollen unter seiner eigenen höchsten Rolle vergeben.",
-        "Gelöschte Rollen werden von selbst aus dem Menü genommen."
-      ],
-      "text": [
-        "Jede Änderung ist sofort im geposteten Menü zu sehen."
-      ],
-      "general": [
-        "Alle Rollenmenüs kannst du auch auf einmal ausschalten, in der Liste unter /rollenmenü-einstellungen einstellungen."
-      ]
+      "roles": ["Der Bot kann nur Rollen unter seiner eigenen höchsten Rolle vergeben.", "Gelöschte Rollen werden von selbst aus dem Menü genommen."],
+      "text": ["Jede Änderung ist sofort im geposteten Menü zu sehen."],
+      "general": ["Alle Rollenmenüs kannst du auch auf einmal ausschalten, in der Liste unter /rollenmenü-einstellungen einstellungen."]
     }
   },
   "birthday": {
@@ -1508,6 +1493,32 @@
       "none": "Du hast keine Erinnerungen. Setz eine mit `/erinnerung setzen`.",
       "entry": "**{{position}}.** {{text}}\n-# {{due}} · {{details}}",
       "delete": "Erinnerung löschen"
+    }
+  },
+  "sticky": {
+    "label": "-# Sticky-Nachricht {{icon.pin}}",
+    "wrongChannel": "Sticky-Nachrichten gehen nur in Kanäle und Threads, in denen geschrieben wird. Such dir so einen aus.",
+    "modal": {
+      "title": "Sticky-Nachricht",
+      "label": "Was drinsteht",
+      "placeholder": "Z. B. die Regeln des Kanals oder wofür er da ist"
+    },
+    "set": {
+      "done": "Fertig! Die Sticky-Nachricht bleibt jetzt unten in {{channel}}.",
+      "changed": "Die Sticky-Nachricht in {{channel}} ist geändert.",
+      "notPosted": "Gespeichert, aber ich konnte sie nicht in {{channel}} posten. Schau, dass ich dort Nachrichten senden darf, dann taucht sie mit der nächsten Nachricht auf.",
+      "empty": "Eine Sticky-Nachricht braucht etwas Text.",
+      "gone": "Den Kanal finde ich nicht mehr.",
+      "full": "Dieser Server hat schon {{max}} Sticky-Nachrichten, mehr gehen nicht. Entfern erst eine mit `/sticky entfernen`."
+    },
+    "remove": {
+      "done": "Die Sticky-Nachricht in {{channel}} ist entfernt.",
+      "none": "{{channel}} hat keine Sticky-Nachricht."
+    },
+    "list": {
+      "title": "### Sticky-Nachrichten {{icon.pin}}",
+      "none": "Dieser Server hat noch keine Sticky-Nachrichten. Füg eine mit `/sticky setzen` hinzu.",
+      "entry": "{{channel}}\n-# {{preview}}"
     }
   },
   "lookup": {

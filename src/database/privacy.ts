@@ -151,6 +151,7 @@ export const getGuildData = (guildId: string) =>
       logs: true,
       starboard: true,
       starboardEntries: true,
+      stickyMessages: true,
       reactionRoleMenus: { include: { roles: true } },
       tempVoiceCreators: true,
       tempVoiceChannels: true,

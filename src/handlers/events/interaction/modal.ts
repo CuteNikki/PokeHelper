@@ -16,6 +16,8 @@ import { handlePokedexSearchModal, POKEDEX_SEARCH_MODAL_PREFIX } from 'utility/p
 import { GUESS_MODAL_PREFIX, handleGuessModal } from 'utility/pokedex/guess';
 import { sendError } from 'utility/response';
 import { SETTINGS_CUSTOM_ID_PREFIX } from 'utility/settings';
+import { STICKY_MODAL_PREFIX } from 'utility/sticky';
+import { handleStickyModal } from 'utility/stickyModal';
 import { handleTempVoiceModal } from 'utility/tempVoice/controls';
 import { TEMP_VOICE_EDIT_MODAL_PREFIX } from 'utility/tempVoice/panel';
 
@@ -36,6 +38,7 @@ export default new Event({
       else if (interaction.customId.startsWith(POKEDEX_SEARCH_MODAL_PREFIX)) await handlePokedexSearchModal(interaction);
       else if (interaction.customId.startsWith(GUESS_MODAL_PREFIX)) await handleGuessModal(interaction);
       else if (interaction.customId.startsWith(TEMP_VOICE_EDIT_MODAL_PREFIX)) await handleTempVoiceModal(interaction);
+      else if (interaction.customId.startsWith(STICKY_MODAL_PREFIX)) await handleStickyModal(interaction);
       else if (interaction.customId === COPY_IDS_MODAL_ID || interaction.customId === FRIEND_CODES_COPY_MODAL_ID) await closeCopyModal(interaction);
       else await sendError(interaction, getTranslate(interaction.locale)('system.outdated'));
     } catch (error) {

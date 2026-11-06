@@ -126,6 +126,7 @@ model Guild {
   tempVoiceCreators TempVoiceCreator[]
   tempVoiceChannels TempVoiceChannel[]
   tempVoiceSettings TempVoiceSettings[]
+  stickyMessages    StickyMessage[]
   birthdayRoles     BirthdayRole[]
   levels            Level[]
   levelsWeekly      WeeklyLevel[]
@@ -596,6 +597,23 @@ model StarboardEntry {
 
   @@index([guildId])
   @@index([authorId])
+}
+
+// A message the bot keeps at the bottom of a channel, by posting it again after others were sent
+model StickyMessage {
+  channelId String @id
+  guildId   String
+  guild     Guild  @relation(fields: [guildId], references: [guildId], onDelete: Cascade)
+
+  text      String
+  // The bot's latest post of it, which is deleted when it's posted again
+  messageId String?
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([guildId])
 }
 
 // The bot's own profile: which theme its avatar and banner wear, so they're only uploaded again when the theme changes.

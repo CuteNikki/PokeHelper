@@ -413,20 +413,13 @@
         "Without a winners channel, winners aren't announced.",
         "With winner messages off, the leaderboards still start over and winners still get their role."
       ],
-      "filters": [
-        "A category covers every channel in it, and threads count as the channel they're in, for ignored and allowed channels alike."
-      ],
-      "rewards": [
-        "Reward roles are also given to members who already reached the level.",
-        "The bot can only give roles below its own highest role."
-      ],
+      "filters": ["A category covers every channel in it, and threads count as the channel they're in, for ignored and allowed channels alike."],
+      "rewards": ["Reward roles are also given to members who already reached the level.", "The bot can only give roles below its own highest role."],
       "channelMultipliers": [
         "A multiplier on a category counts for every channel in it.",
         "When several multipliers apply, the highest one counts. They don't add up."
       ],
-      "roleMultipliers": [
-        "When several multipliers apply, the highest one counts. They don't add up."
-      ]
+      "roleMultipliers": ["When several multipliers apply, the highest one counts. They don't add up."]
     }
   },
   "counting": {
@@ -645,16 +638,9 @@
       "cantAssign": "I can't give out {{role}} right now. An admin should check the settings of this menu."
     },
     "tips": {
-      "roles": [
-        "The bot can only give roles below its own highest role.",
-        "Deleted roles are taken out of the menu by themselves."
-      ],
-      "text": [
-        "Every change shows up in the posted menu right away."
-      ],
-      "general": [
-        "All role menus can also be turned off at once, from the list in /role-menu-config settings."
-      ]
+      "roles": ["The bot can only give roles below its own highest role.", "Deleted roles are taken out of the menu by themselves."],
+      "text": ["Every change shows up in the posted menu right away."],
+      "general": ["All role menus can also be turned off at once, from the list in /role-menu-config settings."]
     }
   },
   "dev": {
@@ -721,6 +707,7 @@
       "role-menu": "Roles to pick for yourself",
       "temp-voice": "Voice channels of your own",
       "starboard": "Messages with the most reactions, collected",
+      "sticky": "Messages that stay at the bottom of a channel",
       "logs": "What happens on the server, logged",
       "reminders": "Get reminded of something later",
       "general": "About the bot"
@@ -733,6 +720,7 @@
       "role-menu": "Role menus",
       "temp-voice": "Voice channels",
       "starboard": "Starboard",
+      "sticky": "Sticky messages",
       "logs": "Logs",
       "reminders": "Reminders",
       "general": "General"
@@ -1454,18 +1442,10 @@
         "Messages of bots and webhooks aren't logged.",
         "Long messages and bulk deletes come as a file you can read right in Discord."
       ],
-      "members": [
-        "The Copy IDs button on every entry is for phones, where text in messages can't be selected."
-      ],
-      "moderation": [
-        "The reason a moderator gave is taken from the audit log, so it needs View Audit Log."
-      ],
-      "server": [
-        "The Copy IDs button on every entry is for phones, where text in messages can't be selected."
-      ],
-      "voice": [
-        "Channels left out under General are left out here too."
-      ]
+      "members": ["The Copy IDs button on every entry is for phones, where text in messages can't be selected."],
+      "moderation": ["The reason a moderator gave is taken from the audit log, so it needs View Audit Log."],
+      "server": ["The Copy IDs button on every entry is for phones, where text in messages can't be selected."],
+      "voice": ["Channels left out under General are left out here too."]
     }
   },
   "starboard": {
@@ -1569,6 +1549,32 @@
       "none": "You don't have any reminders. Set one with `/remind set`.",
       "entry": "**{{position}}.** {{text}}\n-# {{due}} · {{details}}",
       "delete": "Delete a reminder"
+    }
+  },
+  "sticky": {
+    "label": "-# Sticky message {{icon.pin}}",
+    "wrongChannel": "Sticky messages only go in channels and threads people chat in. Pick one of those.",
+    "modal": {
+      "title": "Sticky message",
+      "label": "What it says",
+      "placeholder": "Like the channel's rules, or what it's for"
+    },
+    "set": {
+      "done": "Done! The sticky message stays at the bottom of {{channel}} now.",
+      "changed": "Changed the sticky message in {{channel}}.",
+      "notPosted": "Saved, but I couldn't post it in {{channel}}. Make sure I can send messages there, then it shows up with the next message.",
+      "empty": "A sticky message needs some text.",
+      "gone": "I can't find that channel anymore.",
+      "full": "This server already has {{max}} sticky messages, the most there can be. Remove one with `/sticky remove` first."
+    },
+    "remove": {
+      "done": "Removed the sticky message from {{channel}}.",
+      "none": "{{channel}} doesn't have a sticky message."
+    },
+    "list": {
+      "title": "### Sticky messages {{icon.pin}}",
+      "none": "This server doesn't have any sticky messages yet. Add one with `/sticky set`.",
+      "entry": "{{channel}}\n-# {{preview}}"
     }
   },
   "lookup": {

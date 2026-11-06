@@ -275,6 +275,36 @@
       }
     }
   },
+  "sticky": {
+    "name": "sticky",
+    "description": "Halte eine Nachricht unten in einem Kanal",
+    "options": {
+      "set": {
+        "name": "setzen",
+        "description": "Setz die Sticky-Nachricht eines Kanals oder änder die, die er hat",
+        "options": {
+          "channel": {
+            "name": "kanal",
+            "description": "Der Kanal, in dem sie unten bleibt. Ohne Angabe dieser hier"
+          }
+        }
+      },
+      "remove": {
+        "name": "entfernen",
+        "description": "Entfern die Sticky-Nachricht eines Kanals",
+        "options": {
+          "channel": {
+            "name": "kanal",
+            "description": "Der Kanal, aus dem sie raus soll. Ohne Angabe dieser hier"
+          }
+        }
+      },
+      "list": {
+        "name": "liste",
+        "description": "Sieh dir die Sticky-Nachrichten dieses Servers an"
+      }
+    }
+  },
   "remind": {
     "name": "erinnerung",
     "description": "Lass dich später an etwas erinnern",

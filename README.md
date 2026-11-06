@@ -2,7 +2,7 @@
 
 _A Pokémon themed Discord bot_
 
-**Poke Helper** is a Discord bot made for a Pokémon community server. It runs the server's counting game, levels, birthdays, role menus, temporary voice channels, starboard and server logs, and has a Pokédex, a guessing game and a place for everyone's friend codes.
+**Poke Helper** is a Discord bot made for a Pokémon community server. It runs the server's counting game, levels, birthdays, role menus, temporary voice channels, starboard, sticky messages and server logs, and has a Pokédex, a guessing game and a place for everyone's friend codes.
 
 ## ✨ Features
 
@@ -88,6 +88,13 @@ _A Pokémon themed Discord bot_
 - Age-restricted messages only go on a starboard that's age-restricted too
 - A post deleted by hand isn't posted again
 
+### 📌 Sticky Messages
+
+- A message that stays at the bottom of a channel or thread, like its rules or what it's for
+- Posted again below once the chat is quiet for a moment, so a conversation doesn't move it with every message
+- The post before is deleted, without it showing up in the server logs, and nobody is pinged by it
+- Written and changed in a popup, and a list of where the server has them
+
 ### 📜 Server Logs
 
 - Messages, members, moderation, roles, channels, the server, emojis, threads, invites and voice
@@ -165,9 +172,10 @@ Days change at midnight UTC, and the bot puts the new look on within 15 minutes.
 | `/voice-config`     | Set up join channels for temporary voice channels                 |
 | `/starboard-config` | Set up the starboard and change its settings                      |
 | `/logs-config`      | Set up the log channels and which events are logged               |
+| `/sticky`           | Keep a message at the bottom of a channel, change or remove it    |
 | `/dev`              | Reload, restart, log previews and the bot's look, dev server only |
 
-The config commands need the **Manage Server** permission, `/counting-config` and `/voice-config` need **Manage Channels**.
+The config commands need the **Manage Server** permission, `/counting-config` and `/voice-config` need **Manage Channels**, and `/sticky` needs **Manage Messages**.
 
 ## 🛠️ Tech Stack
 
@@ -220,12 +228,12 @@ GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO "myuser";
 
 Copy `.env.example` to `.env` and fill it in:
 
-| Variable         | Description                                                                                               |
-| ---------------- | --------------------------------------------------------------------------------------------------------- |
-| `DISCORD_TOKEN`  | The bot token                                                                                             |
-| `DISCORD_ID`     | The application ID                                                                                        |
-| `DEV_GUILD_ID`   | Server where `/dev` is registered, only visible there                                                     |
-| `DATABASE_URL`   | Like `postgresql://myuser:mypass@localhost:5432/mydb` for a local server                                  |
+| Variable         | Description                                                                                                              |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `DISCORD_TOKEN`  | The bot token                                                                                                            |
+| `DISCORD_ID`     | The application ID                                                                                                       |
+| `DEV_GUILD_ID`   | Server where `/dev` is registered, only visible there                                                                    |
+| `DATABASE_URL`   | Like `postgresql://myuser:mypass@localhost:5432/mydb` for a local server                                                 |
 | `PROFILE_THEMES` | `on` to change the avatar, banner and custom status with the seasons and holidays by itself. Only on one copy of the bot |
 
 ### 5. Create the tables
@@ -257,16 +265,16 @@ docker compose exec pokehelper bunx prisma migrate deploy
 
 ## 🧑‍💻 Development
 
-| Script             | What it does                                                                                        |
-| ------------------ | --------------------------------------------------------------------------------------------------- |
-| `bun run dev`      | Start the bot                                                                                       |
-| `bun run register` | Register slash commands                                                                             |
-| `bun test`         | Run the tests                                                                                       |
-| `bun run lint`     | Lint with ESLint                                                                                    |
-| `bun run format`   | Format with Prettier                                                                                |
+| Script             | What it does                                                                                                                                                                     |
+| ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `bun run dev`      | Start the bot                                                                                                                                                                    |
+| `bun run register` | Register slash commands                                                                                                                                                          |
+| `bun test`         | Run the tests                                                                                                                                                                    |
+| `bun run lint`     | Lint with ESLint                                                                                                                                                                 |
+| `bun run format`   | Format with Prettier                                                                                                                                                             |
 | `bun run art`      | Render the avatar and banner, with stills of both, in every theme or the ones named, like `bun run art halloween`. `--readme` also updates the `art/themes.gif` the README shows |
-| `bun run profile`  | Upload them to the bot: `--avatar art/out/standard/avatar.gif --banner art/out/standard/banner.gif` |
-| `bun run themes`   | Which seasonal look the bot wears when, over the next twelve months                                 |
+| `bun run profile`  | Upload them to the bot: `--avatar art/out/standard/avatar.gif --banner art/out/standard/banner.gif`                                                                              |
+| `bun run themes`   | Which seasonal look the bot wears when, over the next twelve months                                                                                                              |
 
 Translations live in `src/locales/<language>/`: `messages.json` for the texts, `commands.json` for the command names and descriptions, and `time.json` for the words reminders understand, like units, weekdays and "tomorrow". English is the source; missing German texts fall back to it. A new language only needs its folder, and reminders understand the words of every language at once.
 
