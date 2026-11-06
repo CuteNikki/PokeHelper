@@ -39,7 +39,7 @@ import {
 import { renderPokedexCard, STAT_BAR_MAX } from 'utility/pokedex/card';
 import { matchupsButton } from 'utility/pokedex/matchups';
 import { TYPE_COLORS } from 'utility/pokedex/types';
-import { statBarEmoji, type BarPiece } from 'utility/pokedex/statBarEmojis';
+import { statBarEmoji, type BarPiece } from 'utility/pokedex/botEmojis';
 import {
   findBySlug,
   findPokemon,
