@@ -1505,7 +1505,8 @@
     "modal": {
       "title": "Sticky-Nachricht",
       "label": "Was drinsteht",
-      "placeholder": "Z. B. die Regeln des Kanals oder wofür er da ist"
+      "placeholder": "Z. B. die Regeln des Kanals oder wofür er da ist",
+      "placeholderRemove": "Lass es leer, um sie zu entfernen"
     },
     "set": {
       "done": "Fertig! Die Sticky-Nachricht bleibt jetzt unten in {{channel}}.",

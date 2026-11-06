@@ -1561,7 +1561,8 @@
     "modal": {
       "title": "Sticky message",
       "label": "What it says",
-      "placeholder": "Like the channel's rules, or what it's for"
+      "placeholder": "Like the channel's rules, or what it's for",
+      "placeholderRemove": "Leave it empty to remove it"
     },
     "set": {
       "done": "Done! The sticky message stays at the bottom of {{channel}} now.",

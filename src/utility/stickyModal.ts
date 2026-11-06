@@ -8,7 +8,7 @@ import { getTranslate, type Translate } from 'utility/i18next';
 import { buildTextModal } from 'utility/modal';
 import { createResponse, sendError, sendResponse } from 'utility/response';
 import { formatPermissions, missingBotPermissions } from 'utility/settings';
-import { addStickyChannel, MAX_STICKY_LENGTH, postStickyNow, STICKY_MODAL_PREFIX, STICKY_TEXT_INPUT_ID } from 'utility/sticky';
+import { addStickyChannel, MAX_STICKY_LENGTH, postStickyNow, removeSticky, runStickyTask, STICKY_MODAL_PREFIX, STICKY_TEXT_INPUT_ID } from 'utility/sticky';
 
 /** The permissions the bot needs to post a sticky message, in a thread or another channel. */
 export const stickyPermissions = (isThread: boolean): PermissionsString[] => ['ViewChannel', isThread ? 'SendMessagesInThreads' : 'SendMessages'];
@@ -20,7 +20,10 @@ export function stickyChannelProblem(guild: Guild, channelId: string, isThread: 
   return t('settings.channel.botPermissionsRefused', { channel: channelMention(channelId), permissions: formatPermissions(missing, t) });
 }
 
-/** The popup a channel's sticky message is written in, with its text if it has one, to change it. */
+/**
+ * The popup a channel's sticky message is written in, with its text if it has one, to change it.
+ * One it has can be emptied to remove it, the quickest way from the list.
+ */
 export const buildStickyModal = (channelId: string, text: string | undefined, t: Translate) =>
   buildTextModal({
     customId: `${STICKY_MODAL_PREFIX}${channelId}`,
@@ -28,21 +31,30 @@ export const buildStickyModal = (channelId: string, text: string | undefined, t:
     label: t('sticky.modal.label'),
     inputId: STICKY_TEXT_INPUT_ID,
     maxLength: MAX_STICKY_LENGTH,
-    placeholder: t('sticky.modal.placeholder'),
+    placeholder: t(text ? 'sticky.modal.placeholderRemove' : 'sticky.modal.placeholder'),
     value: text,
+    optional: Boolean(text),
     paragraph: true,
   });
 
-/** The popup was sent: save the sticky message and put it at the bottom of its channel. */
+/** The popup was sent: save the sticky message and put it at the bottom of its channel, or remove it if it was emptied. */
 export async function handleStickyModal(interaction: ModalSubmitInteraction): Promise<unknown> {
   const t = getTranslate(interaction.locale);
   if (!interaction.inCachedGuild()) return sendError(interaction, t('system.outdated'));
   const channelId = interaction.customId.slice(STICKY_MODAL_PREFIX.length);
   const channel = interaction.guild.channels.cache.get(channelId);
-  if (!channel?.isTextBased()) return sendError(interaction, t('sticky.set.gone'));
-
   const text = interaction.fields.getTextInputValue(STICKY_TEXT_INPUT_ID).trim();
-  if (!text) return sendError(interaction, t('sticky.set.empty'));
+
+  if (!text) {
+    await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
+    const removed = await runStickyTask(channelId, () => removeSticky(channelId, channel?.isTextBased() ? channel : undefined));
+    const mention = channelMention(channelId);
+    return sendResponse(
+      interaction,
+      removed ? createResponse(t('sticky.remove.done', { channel: mention }), 'success') : createResponse(t('sticky.set.empty'), 'error'),
+    );
+  }
+  if (!channel?.isTextBased()) return sendError(interaction, t('sticky.set.gone'));
   // Checked again, as permissions can change while the popup is open
   const problem = stickyChannelProblem(interaction.guild, channelId, channel.isThread(), t);
   if (problem) return sendError(interaction, problem);
