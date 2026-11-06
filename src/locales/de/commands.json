@@ -142,7 +142,7 @@
   },
   "rank": {
     "name": "rang",
-    "description": "Level und XP auf dem Server, insgesamt und diese Woche",
+    "description": "Level und XP auf dem Server, insgesamt, diese Woche und diesen Monat",
     "options": {
       "user": {
         "name": "mitglied",
