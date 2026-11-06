@@ -43,7 +43,7 @@ export default new Event({
       else await sendError(interaction, getTranslate(interaction.locale)('system.outdated'));
     } catch (error) {
       logger.error(error, `Failed to handle the popup ${interaction.customId}`);
-      await sendError(interaction, getTranslate(interaction.locale)('system.button.error'));
+      await sendError(interaction, getTranslate(interaction.locale)('system.modal.error'));
     }
   },
 });

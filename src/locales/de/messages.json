@@ -124,6 +124,9 @@
       "permissions": "Für diesen Button brauchst du diese Berechtigungen: {{permissions}}",
       "error": "Bei diesem Button ist was schiefgelaufen."
     },
+    "modal": {
+      "error": "Bei diesem Popup ist was schiefgelaufen. Versuch es gleich nochmal."
+    },
     "selectMenu": {
       "authorOnly": "Das Menü kannst du nicht benutzen.",
       "permissions": "Für dieses Menü brauchst du diese Berechtigungen: {{permissions}}",

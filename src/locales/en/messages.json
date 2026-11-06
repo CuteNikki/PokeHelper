@@ -147,6 +147,9 @@
       "permissions": "You need these permissions to use this button: {{permissions}}",
       "error": "Something went wrong with this button."
     },
+    "modal": {
+      "error": "Something went wrong with this popup. Try again in a bit."
+    },
     "selectMenu": {
       "invalid": "Invalid select menu found in file {{file}}. Skipping registration.",
       "loaded_one": "Successfully loaded {{count, number}} select menu from {{files}} files. ({{duration}}ms)",
