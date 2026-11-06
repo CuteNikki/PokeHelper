@@ -107,15 +107,16 @@ function drawRowCard(ctx: SKRSContext2D, entry: LeaderboardEntry, x: number, y: 
 function renderLeaderboardCanvas(entries: LeaderboardEntry[], isTopPodiumView: boolean, t: Translate): Buffer {
   const width = 640;
   const margin = 30;
-  const podiumTopY = 110;
   const podiumHeight = 170;
+  const rowHeight = 85;
   const rowGap = 15;
 
   // The podium needs the top 3, without them the first page is rows like the others
   const usesPodium = isTopPodiumView && entries.length >= 3;
   const rows = usesPodium ? entries.slice(3) : entries;
-  const rowHeight = usesPodium ? 85 : 95;
-  const rowsTop = usesPodium ? podiumTopY + podiumHeight + 25 : margin;
+  // The podium takes the place of three rows, so a full page is as tall with it as without, and paging doesn't move what's below
+  const rowsTop = usesPodium ? margin + 3 * (rowHeight + rowGap) : margin;
+  const podiumTopY = rowsTop - 25 - podiumHeight;
   // As tall as the page's content, so a page with fewer people has no empty space below them
   const contentBottom = rows.length > 0 ? rowsTop + rows.length * (rowHeight + rowGap) - rowGap : usesPodium ? podiumTopY + podiumHeight : 0;
   const height = contentBottom + margin;
