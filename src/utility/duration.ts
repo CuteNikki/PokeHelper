@@ -23,8 +23,8 @@ export function formatDuration(ms: number, t: Translate): string {
   return parts.length > 0 ? parts.slice(0, 2).join(' ') : t('duration.lessThanMinute');
 }
 
-/** Format a number with thousands separators, like `1,234`. */
-export const formatNumber = (number: number) => number.toLocaleString('en-US');
+/** Format a number with the thousands separators of the language, like `1,234` in English and `1.234` in German. */
+export const formatNumber = (number: number, t: Translate) => number.toLocaleString(t('locale'));
 
 /** Numbers from here on are shortened, like 1.2k, as exact ones get hard to read in images. */
 const COMPACT_FROM = 1_000;

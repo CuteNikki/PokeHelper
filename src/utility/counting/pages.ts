@@ -121,7 +121,7 @@ export async function buildCountingLeaderboard(guildId: string, requested: numbe
     t('counting.leaderboard.entry', {
       position: page * COUNTING_PAGE_SIZE + index + 1,
       user: userMention(counter.userId),
-      counted: formatNumber(counter.counted),
+      counted: formatNumber(counter.counted, t),
       accuracy: accuracy(counter.counted, counter.mistakes),
     }),
   );
@@ -141,12 +141,12 @@ export async function buildCountingRuns(guildId: string, requested: number, t: T
       const started = run.startedAt
         ? t('counting.runs.started', { relative: time(run.startedAt, TimestampStyles.RelativeTime) })
         : t('counting.runs.startedUnknown');
-      return t('counting.runs.ongoing', { run: run.runNumber, number: formatNumber(counting?.lastNumber ?? 0), started });
+      return t('counting.runs.ongoing', { run: run.runNumber, number: formatNumber(counting?.lastNumber ?? 0, t), started });
     }
 
     const finished = t('counting.runs.finished', {
       run: run.runNumber,
-      number: formatNumber(run.finalNumber),
+      number: formatNumber(run.finalNumber, t),
       user: run.endedByUserId ? userMention(run.endedByUserId) : '?',
       relative: time(run.endedAt, TimestampStyles.RelativeTime),
     });

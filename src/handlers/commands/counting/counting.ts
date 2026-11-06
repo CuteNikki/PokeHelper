@@ -72,7 +72,7 @@ async function buildInfo(counting: GuildCounting, t: Translate): Promise<string[
 
   const lines = [
     t('counting.info.title'),
-    t('counting.info.overview', { channel: channelMention(counting.channelId), next: formatNumber(counting.lastNumber + 1) }),
+    t('counting.info.overview', { channel: channelMention(counting.channelId), next: formatNumber(counting.lastNumber + 1, t) }),
     '',
   ];
 
@@ -84,7 +84,7 @@ async function buildInfo(counting: GuildCounting, t: Translate): Promise<string[
 
   if (counting.highestNumber > 0 && counting.highestNumberByUserId && counting.highestNumberAt) {
     const highest = {
-      number: formatNumber(counting.highestNumber),
+      number: formatNumber(counting.highestNumber, t),
       user: userMention(counting.highestNumberByUserId),
       time: time(counting.highestNumberAt, TimestampStyles.ShortDate),
     };
@@ -105,7 +105,7 @@ async function buildInfo(counting: GuildCounting, t: Translate): Promise<string[
 /** When the run started, how fast it's going, its milestones and who counted last. */
 async function describeCurrentRun(counting: GuildCounting, run: CountingRun, t: Translate): Promise<string[]> {
   const lines: string[] = [];
-  const progress = [t('counting.info.progress', { number: formatNumber(counting.lastNumber) })];
+  const progress = [t('counting.info.progress', { number: formatNumber(counting.lastNumber, t) })];
 
   if (run.startedAt) {
     lines.push(
@@ -113,8 +113,8 @@ async function describeCurrentRun(counting: GuildCounting, run: CountingRun, t: 
     );
 
     const elapsed = Date.now() - run.startedAt.getTime();
-    if (elapsed >= DAY) progress.push(t('counting.info.pacePerDay', { pace: formatNumber(Math.round(counting.lastNumber / (elapsed / DAY))) }));
-    else if (elapsed >= HOUR) progress.push(t('counting.info.pacePerHour', { pace: formatNumber(Math.round(counting.lastNumber / (elapsed / HOUR))) }));
+    if (elapsed >= DAY) progress.push(t('counting.info.pacePerDay', { pace: formatNumber(Math.round(counting.lastNumber / (elapsed / DAY)), t) }));
+    else if (elapsed >= HOUR) progress.push(t('counting.info.pacePerHour', { pace: formatNumber(Math.round(counting.lastNumber / (elapsed / HOUR)), t) }));
   } else {
     lines.push(t('counting.info.startedUnknown'));
   }
@@ -128,10 +128,10 @@ async function describeCurrentRun(counting: GuildCounting, run: CountingRun, t: 
     const milestones = entries.map((entry) =>
       run.startedAt
         ? t('counting.info.milestoneAfter', {
-            number: formatNumber(entry.number),
+            number: formatNumber(entry.number, t),
             duration: formatDuration(entry.countedAt.getTime() - run.startedAt.getTime(), t),
           })
-        : t('counting.info.milestoneOn', { number: formatNumber(entry.number), time: time(entry.countedAt, TimestampStyles.ShortDate) }),
+        : t('counting.info.milestoneOn', { number: formatNumber(entry.number, t), time: time(entry.countedAt, TimestampStyles.ShortDate) }),
     );
     lines.push(t('counting.info.milestones', { milestones: milestones.join(' · ') }));
   }
@@ -156,8 +156,8 @@ async function buildUser(guildId: string, userId: string, t: Translate): Promise
   return [
     t('counting.user.title', { user: userMention(userId) }),
     ...(stats.counted > 0 ? [t('counting.user.rank', { rank: stats.rank })] : []),
-    t('counting.user.counted', { counted: formatNumber(stats.counted) }),
-    t('counting.user.mistakes', { mistakes: formatNumber(stats.mistakes) }),
+    t('counting.user.counted', { counted: formatNumber(stats.counted, t) }),
+    t('counting.user.mistakes', { mistakes: formatNumber(stats.mistakes, t) }),
     t('counting.user.accuracy', { accuracy: accuracy(stats.counted, stats.mistakes) }),
     ...(stats.lastCountedAt ? [t('counting.user.lastCounted', { relative: time(stats.lastCountedAt, TimestampStyles.RelativeTime) })] : []),
   ];

@@ -18,8 +18,9 @@ test.each([
   expect(formatDuration(ms, getTranslate('en'))).toBe(expected);
 });
 
-test('numbers get thousands separators', () => {
-  expect(formatNumber(1234567)).toBe('1,234,567');
+test('numbers get the thousands separators of the language', () => {
+  expect(formatNumber(1234567, getTranslate('en'))).toBe('1,234,567');
+  expect(formatNumber(1234567, getTranslate('de'))).toBe('1.234.567');
 });
 
 test.each([
