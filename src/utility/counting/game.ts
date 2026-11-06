@@ -75,9 +75,7 @@ const deleteMessage = (message: Message) => {
   });
 };
 
-/**
- * Check a message sent in a counting channel. Must run inside {@link runCountingTask}.
- */
+/** Check a message sent in a counting channel. Must run inside {@link runCountingTask}. */
 export async function handleCountingMessage(client: Client, message: Message<true>) {
   let counting = await getCounting(message.guildId);
   if (!counting?.enabled || counting.channelId !== message.channelId) return;
@@ -144,9 +142,7 @@ async function saveProgress(counting: GuildCounting, state: CountingState, event
   return saved;
 }
 
-/**
- * Forget which guilds were caught up and catch up all of them, for when the bot (re)connects and may have missed messages.
- */
+/** Forget which guilds were caught up and catch up all of them, for when the bot (re)connects and may have missed messages. */
 export async function syncAllCountings(client: Client) {
   syncedGuilds.clear();
 
@@ -272,7 +268,6 @@ async function deleteMessages(channel: GuildTextBasedChannel, messages: Message[
 /**
  * Repost the last number if its message was deleted, or edited so it no longer shows that number, so everyone still knows where the count is.
  * Must run inside {@link runCountingTask}.
- * @param message The deleted or edited message.
  * @param edited Whether the message was edited rather than deleted.
  */
 export async function handleChangedCount(message: Message | PartialMessage, edited: boolean) {

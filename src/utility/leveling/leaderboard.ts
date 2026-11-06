@@ -258,8 +258,7 @@ function buildControls(view: LeaderboardView, totalPages: number, t: Translate) 
 
 /**
  * Build a page of the leaderboard as a Components V2 message: the title, the page as an image or as text, and the controls.
- * @param options.text Whether to show the page as text instead of an image, like for screen readers.
- * @param options.t The translation, for whoever opened or paged the leaderboard.
+ * @param t The translation, for whoever opened or paged the leaderboard.
  */
 export async function buildLeaderboard(requested: LeaderboardView, guild: Guild, t: Translate): Promise<InteractionEditReplyOptions> {
   const { period, sortOrder, text } = requested;
@@ -280,7 +279,6 @@ export async function buildLeaderboard(requested: LeaderboardView, guild: Guild,
 
   const pageData = await getTopUsersByXP(guild.id, period, ITEMS_PER_PAGE, (page - 1) * ITEMS_PER_PAGE, sortOrder);
 
-  // Fetch Discord users/members (Cache First)
   const entriesData = await Promise.all(
     pageData.map(async (entry, index) => {
       const position = (page - 1) * ITEMS_PER_PAGE + index + 1;

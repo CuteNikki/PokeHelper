@@ -11,8 +11,6 @@ const MAX_FACTORIAL = 20;
  *
  * With math allowed, the number can also be an expression, like `1+1`, `2 * (3 - 1)`, `2^3`, `10 % 3` or `3!`.
  * The result has to be a whole number. Anything after the expression has to be separated by whitespace, like with plain numbers.
- * @param content The message content.
- * @param allowMath Whether math expressions are allowed.
  * @returns The counted number, or null if the message doesn't count a number.
  */
 export function parseCount(content: string, allowMath: boolean): number | null {

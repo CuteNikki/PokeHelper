@@ -4,7 +4,7 @@ import { drawAvatar, drawPokeball, fitFontSize, truncateText } from 'utility/can
 import { formatCompactNumber, formatNumber } from 'utility/duration';
 import type { Translate } from 'utility/i18next';
 
-/** A member's level progress, all-time or weekly. */
+/** A member's level progress, all-time, weekly or monthly. */
 export interface LevelProgress {
   level: number;
   xpIntoLevel: number;
