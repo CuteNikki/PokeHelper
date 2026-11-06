@@ -10,6 +10,7 @@ import {
   MessageFlags,
   messageLink,
   SeparatorBuilder,
+  SeparatorSpacingSize,
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder,
   subtext,
@@ -226,10 +227,12 @@ export async function renderRoleMenuList(guild: Guild, t: Translate): Promise<Re
   const container = new ContainerBuilder()
     .setAccentColor(ThemeColors.info)
     .addTextDisplayComponents(new TextDisplayBuilder().setContent(t('roleMenu.list.title')))
+    // Large, so the title, the switch and the list stand apart, like in the settings panels
+    .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large))
     .addSectionComponents(
       buildSwitchSection(t('roleMenu.list.enabled.label'), t('roleMenu.list.enabled.description'), roleMenusEnabled, ROLE_MENU_CUSTOM_ID.toggle, t),
     )
-    .addSeparatorComponents(new SeparatorBuilder());
+    .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large));
 
   if (menus.length === 0) {
     container.addTextDisplayComponents(new TextDisplayBuilder().setContent(t('roleMenu.list.none')));
