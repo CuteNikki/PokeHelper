@@ -1186,6 +1186,7 @@
     "rank": {
       "all": "GESAMT",
       "weekly": "WOCHE",
+      "monthly": "MONAT",
       "level": "Level",
       "exp": "XP",
       "text": {
@@ -1194,9 +1195,10 @@
         "weekly": "**Diese Woche:** Level **{{level}}** · Platz **#{{rank}}** · {{xpIntoLevel}}/{{xpRequired}} XP bis zum nächsten Level ({{xp}} XP insgesamt)",
         "monthly": "**Diesen Monat:** Level **{{level}}** · Platz **#{{rank}}** · {{xpIntoLevel}}/{{xpRequired}} XP bis zum nächsten Level ({{xp}} XP insgesamt)",
         "allTimePlain": "gesamt Level {{level}}, Platz {{rank}}, {{xpIntoLevel}} von {{xpRequired}} XP bis zum nächsten Level",
-        "weeklyPlain": "diese Woche Level {{level}}, Platz {{rank}}, {{xpIntoLevel}} von {{xpRequired}} XP bis zum nächsten Level"
+        "weeklyPlain": "diese Woche Level {{level}}, Platz {{rank}}, {{xpIntoLevel}} von {{xpRequired}} XP bis zum nächsten Level",
+        "monthlyPlain": "diesen Monat Level {{level}}, Platz {{rank}}, {{xpIntoLevel}} von {{xpRequired}} XP bis zum nächsten Level"
       },
-      "altText": "Rangkarte von {{user}}: {{allTime}}; {{weekly}}."
+      "altText": "Rangkarte von {{user}}: {{progress}}."
     },
     "tips": {
       "general": [

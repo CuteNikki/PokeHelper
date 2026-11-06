@@ -1,5 +1,7 @@
 import { createCanvas, type Image } from '@napi-rs/canvas';
 
+import type { LevelPeriod } from 'database/leveling';
+
 import { drawAvatar, drawPokeball, fitFontSize, truncateText } from 'utility/canvas';
 import { formatCompactNumber, formatNumber } from 'utility/duration';
 import type { Translate } from 'utility/i18next';
@@ -16,9 +18,17 @@ export interface RankCardData {
   displayName: string;
   username: string;
   avatar: Image | null;
-  allTime: LevelProgress;
-  weekly: LevelProgress;
+  /** The period the card shows, which the button below it switches. */
+  period: LevelPeriod;
+  progress: LevelProgress;
 }
+
+/** The label above the rank, for each period. */
+const PERIOD_LABEL_KEYS = {
+  allTime: 'leveling.rank.all',
+  weekly: 'leveling.rank.weekly',
+  monthly: 'leveling.rank.monthly',
+} as const satisfies Record<LevelPeriod, string>;
 
 const WIDTH = 880;
 const HEIGHT = 200;
@@ -35,7 +45,7 @@ const COLORS = {
 };
 
 /**
- * Draw a member's rank card: avatar, name, all-time and weekly rank, a progress bar for the all-time level, and both levels' XP.
+ * Draw a member's rank card for one period: avatar, name, rank, a progress bar for the level, and the level's XP.
  * @param t The translation for the labels.
  * @returns The card as a PNG.
  */
@@ -58,28 +68,22 @@ export function renderRankCard(data: RankCardData, t: Translate): Buffer {
   const contentX = avatarX + AVATAR_RADIUS + 30;
   const rightX = WIDTH - PADDING;
 
-  // Ranks, right-aligned in two columns, all-time on the far right
-  const allTimeColX = rightX;
-  const weeklyColX = rightX - 130;
-  const weeklyRank = `#${compact(data.weekly.rank)}`;
-
+  // Rank on the far right, with the period above it
+  const rank = `#${compact(data.progress.rank)}`;
   ctx.textAlign = 'right';
   ctx.textBaseline = 'alphabetic';
 
   ctx.font = 'bold 13px "Roboto"';
   ctx.fillStyle = COLORS.textGray;
-  ctx.fillText(t('leveling.rank.all').toUpperCase(), allTimeColX, 46);
-  ctx.fillText(t('leveling.rank.weekly').toUpperCase(), weeklyColX, 46);
+  const periodLabel = t(PERIOD_LABEL_KEYS[data.period]).toUpperCase();
+  ctx.fillText(periodLabel, rightX, 46);
+  const periodLabelWidth = ctx.measureText(periodLabel).width;
 
   ctx.font = 'bold 36px "Roboto"';
   ctx.fillStyle = COLORS.textWhite;
-  ctx.fillText(`#${compact(data.allTime.rank)}`, allTimeColX, 86);
-
-  ctx.font = 'bold 30px "Roboto"';
-  ctx.fillStyle = COLORS.textGray;
-  ctx.fillText(weeklyRank, weeklyColX, 86);
-  // The name may use the space up to the weekly rank
-  const nameMaxWidth = weeklyColX - ctx.measureText(weeklyRank).width - 24 - contentX;
+  ctx.fillText(rank, rightX, 86);
+  // The name may use the space up to the rank or its label, whichever is wider
+  const nameMaxWidth = rightX - Math.max(ctx.measureText(rank).width, periodLabelWidth) - 24 - contentX;
 
   // Name and username
   ctx.textAlign = 'left';
@@ -91,7 +95,7 @@ export function renderRankCard(data: RankCardData, t: Translate): Buffer {
   ctx.fillStyle = COLORS.textGray;
   ctx.fillText(truncateText(ctx, `@${data.username}`, nameMaxWidth), contentX, 92);
 
-  // Progress bar for the all-time level
+  // Progress bar for the level
   const barY = 114;
   const barW = rightX - contentX;
   const barH = 20;
@@ -101,7 +105,7 @@ export function renderRankCard(data: RankCardData, t: Translate): Buffer {
   ctx.roundRect(contentX, barY, barW, barH, barH / 2);
   ctx.fill();
 
-  const progress = Math.max(0, Math.min(data.allTime.xpIntoLevel / data.allTime.xpRequired, 1));
+  const progress = Math.max(0, Math.min(data.progress.xpIntoLevel / data.progress.xpRequired, 1));
   if (progress > 0) {
     ctx.fillStyle = COLORS.progress;
     ctx.beginPath();
@@ -111,21 +115,17 @@ export function renderRankCard(data: RankCardData, t: Translate): Buffer {
   // A Pokéball at the tip of the bar, rolling along as the level fills up
   drawPokeball(ctx, contentX + Math.max(barH, barW * progress) - barH / 2, barY + barH / 2, 15);
 
-  // XP of both levels, shrunk if big numbers would make them overlap
-  const levelLabel = t('leveling.rank.level').toUpperCase();
-  const xpLabel = t('leveling.rank.exp').toUpperCase();
-  const statsText = (label: string, progress: LevelProgress) =>
-    `${label}: ${levelLabel} ${formatNumber(progress.level, t)}  |  ${compact(progress.xpIntoLevel)}/${compact(progress.xpRequired)} ${xpLabel}`;
-  const allTimeStats = statsText(t('leveling.rank.all').toUpperCase(), data.allTime);
-  const weeklyStats = statsText(t('leveling.rank.weekly').toUpperCase(), data.weekly);
+  // The level under the start of the bar and its XP under the end, shrunk if big numbers would make them overlap
+  const levelText = `${t('leveling.rank.level').toUpperCase()} ${formatNumber(data.progress.level, t)}`;
+  const xpText = `${compact(data.progress.xpIntoLevel)}/${compact(data.progress.xpRequired)} ${t('leveling.rank.exp').toUpperCase()}`;
 
   const statsFont = (size: number) => `${size}px "Roboto"`;
-  ctx.font = statsFont(fitFontSize(ctx, statsFont, [allTimeStats, weeklyStats], barW - 40, 17, 12));
+  ctx.font = statsFont(fitFontSize(ctx, statsFont, [levelText, xpText], barW - 40, 17, 12));
   ctx.fillStyle = COLORS.textGray;
   const statsY = 168;
-  ctx.fillText(allTimeStats, contentX, statsY);
+  ctx.fillText(levelText, contentX, statsY);
   ctx.textAlign = 'right';
-  ctx.fillText(weeklyStats, rightX, statsY);
+  ctx.fillText(xpText, rightX, statsY);
 
   return canvas.toBuffer('image/png');
 }

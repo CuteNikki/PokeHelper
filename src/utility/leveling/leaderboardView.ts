@@ -28,8 +28,11 @@ export const LEADERBOARD_PAGE_MODAL_PREFIX = 'lb-page:';
 const ACTIONS: LeaderboardAction[] = ['first', 'prev', 'goto', 'next', 'last', 'sort', 'me', 'mode', 'period'];
 
 /** How each period is written in custom IDs, in the order the period button cycles through them. */
-const PERIOD_CODES: Record<LevelPeriod, string> = { allTime: 'a', weekly: 'w', monthly: 'm' };
+export const PERIOD_CODES: Record<LevelPeriod, string> = { allTime: 'a', weekly: 'w', monthly: 'm' };
 const PERIODS = Object.keys(PERIOD_CODES) as LevelPeriod[];
+
+/** The period written as a code in a custom ID, or undefined if it isn't one. */
+export const parsePeriodCode = (code: string | undefined) => PERIODS.find((entry) => PERIOD_CODES[entry] === code);
 
 /** The period the period button switches to: all-time, then weekly, then monthly, then all-time again. */
 export const nextPeriod = (period: LevelPeriod) => PERIODS[(PERIODS.indexOf(period) + 1) % PERIODS.length]!;
@@ -45,7 +48,7 @@ export const leaderboardPageModalId = (view: LeaderboardView) => `${LEADERBOARD_
 function decodeView([page, sortOrder, scope, mode]: string[]): LeaderboardView | null {
   const pageNumber = Number(page);
   if (!Number.isInteger(pageNumber) || pageNumber < 1) return null;
-  const period = PERIODS.find((entry) => PERIOD_CODES[entry] === scope);
+  const period = parsePeriodCode(scope);
   if (!period || (mode !== 'i' && mode !== 't')) return null;
   return { page: pageNumber, sortOrder: parseSortOrder(sortOrder), period, text: mode === 't' };
 }

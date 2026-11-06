@@ -294,6 +294,7 @@
     "rank": {
       "all": "ALL-TIME",
       "weekly": "WEEKLY",
+      "monthly": "MONTHLY",
       "level": "Level",
       "exp": "XP",
       "text": {
@@ -302,9 +303,10 @@
         "weekly": "**This week:** level **{{level}}** · rank **#{{rank}}** · {{xpIntoLevel}}/{{xpRequired}} XP to the next level ({{xp}} XP in total)",
         "monthly": "**This month:** level **{{level}}** · rank **#{{rank}}** · {{xpIntoLevel}}/{{xpRequired}} XP to the next level ({{xp}} XP in total)",
         "allTimePlain": "all-time level {{level}}, rank {{rank}}, {{xpIntoLevel}} of {{xpRequired}} XP to the next level",
-        "weeklyPlain": "this week level {{level}}, rank {{rank}}, {{xpIntoLevel}} of {{xpRequired}} XP to the next level"
+        "weeklyPlain": "this week level {{level}}, rank {{rank}}, {{xpIntoLevel}} of {{xpRequired}} XP to the next level",
+        "monthlyPlain": "this month level {{level}}, rank {{rank}}, {{xpIntoLevel}} of {{xpRequired}} XP to the next level"
       },
-      "altText": "Rank card of {{user}}: {{allTime}}; {{weekly}}."
+      "altText": "Rank card of {{user}}: {{progress}}."
     },
     "leaderboard": {
       "none": "Nobody has earned XP here yet. Start chatting!",
