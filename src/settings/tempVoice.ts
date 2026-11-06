@@ -9,6 +9,7 @@ import {
   type Guild,
   MessageFlags,
   SeparatorBuilder,
+  SeparatorSpacingSize,
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder,
   subtext,
@@ -154,6 +155,8 @@ export async function renderTempVoiceList(guild: Guild, t: Translate): Promise<R
   const container = new ContainerBuilder()
     .setAccentColor(ThemeColors.info)
     .addTextDisplayComponents(new TextDisplayBuilder().setContent(t('tempVoice.config.list.title')))
+    // Large, so the title, the switch and the list stand apart, like in the settings panels
+    .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large))
     .addSectionComponents(
       buildSwitchSection(
         t('tempVoice.config.list.enabled.label'),
@@ -163,7 +166,7 @@ export async function renderTempVoiceList(guild: Guild, t: Translate): Promise<R
         t,
       ),
     )
-    .addSeparatorComponents(new SeparatorBuilder());
+    .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large));
 
   if (creators.length === 0) {
     container.addTextDisplayComponents(new TextDisplayBuilder().setContent(t('tempVoice.config.list.none')));
