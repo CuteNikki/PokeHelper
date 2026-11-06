@@ -156,7 +156,7 @@ async function buildUser(guildId: string, userId: string, t: Translate): Promise
 
   return [
     t('counting.user.title', { user: userMention(userId) }),
-    ...(stats.counted > 0 ? [t('counting.user.rank', { rank: formatNumber(stats.rank, t) })] : []),
+    ...(stats.rank !== null ? [t('counting.user.rank', { rank: formatNumber(stats.rank, t) })] : []),
     t('counting.user.counted', { counted: formatNumber(stats.counted, t) }),
     t('counting.user.mistakes', { mistakes: formatNumber(stats.mistakes, t) }),
     t('counting.user.accuracy', { accuracy: accuracy(stats.counted, stats.mistakes) }),

@@ -81,16 +81,17 @@ export async function getCounterPosition(guildId: string, userId: string): Promi
 }
 
 /**
- * Get a member's counting stats in a guild, with their rank by how much they counted.
+ * Get a member's counting stats in a guild, with their place on the leaderboard, ties broken the same way.
  * @param guildId {string} The ID of the guild.
  * @param userId {string} The ID of the member.
+ * @returns The stats, with a rank of null when they haven't counted.
  */
 export const getCountingUser = async (guildId: string, userId: string) => {
-  const user = await prisma.countingUser.findUnique({ where: { guildId_userId: { guildId, userId } } });
-  if (!user) return null;
-
-  const ahead = await prisma.countingUser.count({ where: { guildId, counted: { gt: user.counted } } });
-  return { ...user, rank: ahead + 1 };
+  const [user, rank] = await Promise.all([
+    prisma.countingUser.findUnique({ where: { guildId_userId: { guildId, userId } } }),
+    getCounterPosition(guildId, userId),
+  ]);
+  return user ? { ...user, rank } : null;
 };
 
 /**
