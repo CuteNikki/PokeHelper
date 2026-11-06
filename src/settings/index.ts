@@ -42,7 +42,9 @@ async function checkPermissions(interaction: PanelInteraction, panel: SettingsPa
     return false;
   }
   if (interaction.memberPermissions.has(panel.permissions)) return true;
-  await sendError(interaction, t('system.button.permissions', { permissions: panel.permissions.map((perm) => t(`permission.${perm}`)).join(', ') }));
+  // Said of what was used, as panels have selects and popups too
+  const key = interaction.isButton() ? 'system.button.permissions' : interaction.isModalSubmit() ? 'system.modal.permissions' : 'system.selectMenu.permissions';
+  await sendError(interaction, t(key, { permissions: panel.permissions.map((perm) => t(`permission.${perm}`)).join(', ') }));
   return false;
 }
 

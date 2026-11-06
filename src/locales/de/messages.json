@@ -125,6 +125,7 @@
       "error": "Bei diesem Button ist was schiefgelaufen."
     },
     "modal": {
+      "permissions": "Um dieses Popup abzuschicken, brauchst du diese Berechtigungen: {{permissions}}",
       "error": "Bei diesem Popup ist was schiefgelaufen. Versuch es gleich nochmal."
     },
     "selectMenu": {

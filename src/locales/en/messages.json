@@ -148,6 +148,7 @@
       "error": "Something went wrong with this button."
     },
     "modal": {
+      "permissions": "You need these permissions to send this popup: {{permissions}}",
       "error": "Something went wrong with this popup. Try again in a bit."
     },
     "selectMenu": {
