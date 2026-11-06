@@ -32,7 +32,8 @@ export async function setRoleMenuRole(menuId: string, roleId: string, emoji: str
 }
 
 /**
- * Take a deleted role out of every menu of a guild, from its roles and its required roles.
+ * Take a deleted role out of every menu of a guild, from its roles and its required roles. A menu whose last required role is deleted is
+ * turned off, as without required roles anyone could pick from it.
  * @returns The IDs of the menus that had the role.
  */
 export async function removeRoleFromMenus(guildId: string, roleId: string): Promise<string[]> {
@@ -44,7 +45,10 @@ export async function removeRoleFromMenus(guildId: string, roleId: string): Prom
     prisma.reactionRole.deleteMany({ where: { roleId, roleMenu: { guildId } } }),
     ...menus
       .filter((menu) => menu.requiredRoleIds.includes(roleId))
-      .map((menu) => prisma.reactionRoleMenu.update({ where: { id: menu.id }, data: { requiredRoleIds: menu.requiredRoleIds.filter((id) => id !== roleId) } })),
+      .map((menu) => {
+        const requiredRoleIds = menu.requiredRoleIds.filter((id) => id !== roleId);
+        return prisma.reactionRoleMenu.update({ where: { id: menu.id }, data: { requiredRoleIds, ...(requiredRoleIds.length === 0 && { enabled: false }) } });
+      }),
   ]);
 
   return menus.map((menu) => menu.id);
