@@ -132,13 +132,16 @@ export async function handleTempVoiceButton(interaction: ButtonInteraction): Pro
   const t = getTranslate(interaction.locale);
   const parsed = parseTempVoiceCustomId(interaction.customId);
   if (!parsed || !interaction.inCachedGuild()) return sendError(interaction, t('system.outdated'));
+  // Answered before the channel is looked up, which can take a moment, as Discord gives up after 3 seconds. Not the ones opening a popup,
+  // which has to be the first answer. Errors still only go to whoever pressed
+  const opensPopup = parsed.action === 'rename' || parsed.action === 'limit' || parsed.action === 'edit';
+  if (!opensPopup) await interaction.deferUpdate();
   const temp = await controlledChannel(interaction, parsed.channelId, MODERATOR_ACTIONS.includes(parsed.action), t);
   if (!temp) return;
 
   switch (parsed.action) {
     case 'lock':
     case 'hide': {
-      await interaction.deferUpdate();
       const change = parsed.action === 'lock' ? { locked: !temp.record.locked } : { hidden: !temp.record.hidden };
       return showChanged(interaction, temp, await changeTempChannel(temp, interaction.member, change), t);
     }
@@ -150,7 +153,6 @@ export async function handleTempVoiceButton(interaction: ButtonInteraction): Pro
     case 'edit':
       return interaction.showModal(buildEditModal(temp, 'both', t));
     case 'delete': {
-      await interaction.deferUpdate();
       await announce(temp, guildTranslate(interaction.guild)('tempVoice.announce.deleted', { user: userMention(interaction.user.id) }));
       setTimeout(() => void deleteTempChannel(temp).catch((error: unknown) => logger.error(error, 'Failed to delete a temporary voice channel')), DELETE_DELAY);
       return;
@@ -164,12 +166,14 @@ export async function handleTempVoiceButton(interaction: ButtonInteraction): Pro
   }
 }
 
-/** Hand over, kick or keep out someone, after picking them from the panel. Answered on the question, which only whoever picked sees. */
+/**
+ * Hand over, kick or keep out someone, after picking them from the panel. Answered on the question, which only whoever picked sees.
+ * The button was deferred with deferUpdate.
+ */
 async function handleMemberAction(interaction: ButtonInteraction<'cached'>, temp: TempChannel, action: TempVoiceAction, memberId: string, t: Translate) {
   const answer = (text: string, kind: 'info' | 'error' = 'info') => interaction.editReply({ ...createResponse(text, kind), allowedMentions: { parse: [] } });
   const mention = userMention(memberId);
   const serverT = guildTranslate(interaction.guild);
-  await interaction.deferUpdate();
 
   // Moderators help the owner, so they can't do anything to the owner or each other
   if (!canChange(interaction.member, temp) && (memberId === temp.record.ownerId || temp.record.moderators.includes(memberId))) {
