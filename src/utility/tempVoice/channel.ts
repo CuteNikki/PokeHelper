@@ -268,6 +268,10 @@ export function createTempChannel(member: GuildMember, creator: TempVoiceCreator
       ownerId: member.id,
       namePrefix: creator.namePrefix,
       ...access,
+    }).catch(async (error: unknown) => {
+      // Not saved, like when the join channel was deleted meanwhile, so it goes again instead of staying without the bot knowing about it
+      await channel.delete('Its temporary voice channel could not be saved').catch(() => null);
+      throw error;
     });
 
     try {
