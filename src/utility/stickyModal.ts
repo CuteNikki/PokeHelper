@@ -6,9 +6,11 @@ import { MAX_STICKIES, saveSticky } from 'database/sticky';
 import { formatNumber } from 'utility/duration';
 import { getTranslate, type Translate } from 'utility/i18next';
 import { buildTextModal } from 'utility/modal';
-import { createResponse, sendError, sendResponse } from 'utility/response';
+import { createResponse, sendError, sendResponse, withNotice } from 'utility/response';
 import { formatPermissions, missingBotPermissions } from 'utility/settings';
 import { addStickyChannel, MAX_STICKY_LENGTH, postStickyNow, removeSticky, runStickyTask, STICKY_MODAL_PREFIX, STICKY_TEXT_INPUT_ID } from 'utility/sticky';
+import { renderStickyList } from 'utility/stickyList';
+import type { ResponseKind } from 'utility/theme';
 
 /** The permissions the bot needs to post a sticky message, in a thread or another channel. */
 export const stickyPermissions = (isThread: boolean): PermissionsString[] => ['ViewChannel', isThread ? 'SendMessagesInThreads' : 'SendMessages'];
@@ -44,34 +46,34 @@ export async function handleStickyModal(interaction: ModalSubmitInteraction): Pr
   const channelId = interaction.customId.slice(STICKY_MODAL_PREFIX.length);
   const channel = interaction.guild.channels.cache.get(channelId);
   const text = interaction.fields.getTextInputValue(STICKY_TEXT_INPUT_ID).trim();
+  const mention = channelMention(channelId);
+
+  // Opened from the list, the list shows what happened above it, up to date. From /sticky set, it's an answer of its own
+  const fromList = interaction.isFromMessage();
+  const answer = async (content: string, kind: ResponseKind) =>
+    fromList
+      ? interaction.editReply(withNotice(content, kind, await renderStickyList(interaction.guild, t)))
+      : sendResponse(interaction, createResponse(content, kind));
+  // Removing or posting it can take a moment
+  const defer = () => (fromList ? interaction.deferUpdate() : interaction.deferReply({ flags: [MessageFlags.Ephemeral] }));
 
   if (!text) {
-    await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
+    await defer();
     const removed = await runStickyTask(channelId, () => removeSticky(channelId, channel?.isTextBased() ? channel : undefined));
-    const mention = channelMention(channelId);
-    return sendResponse(
-      interaction,
-      removed ? createResponse(t('sticky.remove.done', { channel: mention }), 'success') : createResponse(t('sticky.set.empty'), 'error'),
-    );
+    return removed ? answer(t('sticky.remove.done', { channel: mention }), 'success') : answer(t('sticky.set.empty'), 'error');
   }
   if (!channel?.isTextBased()) return sendError(interaction, t('sticky.set.gone'));
   // Checked again, as permissions can change while the popup is open
   const problem = stickyChannelProblem(interaction.guild, channelId, channel.isThread(), t);
   if (problem) return sendError(interaction, problem);
 
-  // Posting it can take a moment
-  await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
+  await defer();
   const saved = await saveSticky(interaction.guildId, channelId, text);
-  if (!saved) return sendError(interaction, t('sticky.set.full', { max: formatNumber(MAX_STICKIES, t) }));
+  if (!saved) return answer(t('sticky.set.full', { max: formatNumber(MAX_STICKIES, t) }), 'error');
   addStickyChannel(channelId);
 
-  const mention = channelMention(channelId);
   // Kept for when they're turned on again
-  if (!(await getFeatureSwitches(interaction.guildId)).stickiesEnabled) {
-    return sendResponse(interaction, createResponse(t('sticky.set.turnedOff', { channel: mention }), 'warning'));
-  }
-  if (!(await postStickyNow(interaction.client, channelId, true))) {
-    return sendResponse(interaction, createResponse(t('sticky.set.notPosted', { channel: mention }), 'warning'));
-  }
-  return sendResponse(interaction, createResponse(t(saved.changed ? 'sticky.set.changed' : 'sticky.set.done', { channel: mention }), 'success'));
+  if (!(await getFeatureSwitches(interaction.guildId)).stickiesEnabled) return answer(t('sticky.set.turnedOff', { channel: mention }), 'warning');
+  if (!(await postStickyNow(interaction.client, channelId, true))) return answer(t('sticky.set.notPosted', { channel: mention }), 'warning');
+  return answer(t(saved.changed ? 'sticky.set.changed' : 'sticky.set.done', { channel: mention }), 'success');
 }
