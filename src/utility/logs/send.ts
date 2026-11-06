@@ -176,7 +176,11 @@ export function fitDetails(parts: string[], room: number): string | null {
  */
 export async function postLogEntry(channel: SendableChannels, entry: LogEntry, t: Translate, doer?: User | null) {
   const message = await channel.send(buildLogEntry(entry, t, doer));
-  if (entry.files?.length) await message.reply({ files: entry.files, allowedMentions: { parse: [], repliedUser: false } });
+  if (!entry.files?.length) return;
+  // Replying takes Read Message History, which a log channel doesn't need otherwise, so without it they're sent right after instead
+  const canReply = !('permissionsFor' in channel) || channel.permissionsFor(channel.client.user)?.has('ReadMessageHistory');
+  const files = { files: entry.files, allowedMentions: { parse: [], repliedUser: false } };
+  await (canReply ? message.reply(files) : channel.send(files));
 }
 
 /** Whether a channel is one of the server's log channels, whose own messages aren't logged. */
