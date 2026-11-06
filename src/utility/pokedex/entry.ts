@@ -58,6 +58,7 @@ import {
   type PokedexMatch,
 } from 'utility/pokedex/names';
 import { sendError, type ResponsePayload } from 'utility/response';
+import { quote } from 'utility/text';
 import { ThemeColors } from 'utility/theme';
 
 /** How an entry is shown. Its buttons and select keep it, so paging through stays the same. */
@@ -319,7 +320,7 @@ export async function buildPokedexEntry(match: PokedexMatch, view: PokedexView, 
 
   if (view.text) {
     const header = new TextDisplayBuilder().setContent(
-      [heading(`${shownName} ${number}`, HeadingLevel.Two), kind ? subtext(kind) : null, entry ? `> ${entry}` : null].filter(Boolean).join('\n'),
+      [heading(`${shownName} ${number}`, HeadingLevel.Two), kind ? subtext(kind) : null, entry ? quote(entry) : null].filter(Boolean).join('\n'),
     );
     if (picture) {
       container.addSectionComponents(
