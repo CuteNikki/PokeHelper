@@ -39,7 +39,7 @@ import {
 import { renderPokedexCard, STAT_BAR_MAX } from 'utility/pokedex/card';
 import { matchupsButton } from 'utility/pokedex/matchups';
 import { TYPE_COLORS } from 'utility/pokedex/types';
-import { statBarEmoji, type BarPiece } from 'utility/pokedex/botEmojis';
+import { statBarEmoji, withTypeEmoji, type BarPiece } from 'utility/pokedex/botEmojis';
 import {
   findBySlug,
   findPokemon,
@@ -284,7 +284,11 @@ export async function buildPokedexEntry(match: PokedexMatch, view: PokedexView, 
 
   const types = [...pokemon.types]
     .sort((a, b) => a.slot - b.slot)
-    .map((entry) => ({ name: nameIn(data.types[entry.type.name], language) || entry.type.name, color: TYPE_COLORS[entry.type.name] ?? ThemeColors.info }));
+    .map((entry) => ({
+      slug: entry.type.name,
+      name: nameIn(data.types[entry.type.name], language) || entry.type.name,
+      color: TYPE_COLORS[entry.type.name] ?? ThemeColors.info,
+    }));
   const stats = STATS.map((stat) => ({ label: t(`pokedex.stats.${stat}`), value: pokemon.stats.find((entry) => entry.stat.name === stat)?.base_stat ?? 0 }));
   const total = stats.reduce((sum, stat) => sum + stat.value, 0);
 
@@ -330,7 +334,7 @@ export async function buildPokedexEntry(match: PokedexMatch, view: PokedexView, 
 
     const firstType = pokemon.types.find((entry) => entry.slot === 1)?.type.name ?? 'normal';
     const about = [
-      `${bold(t('pokedex.details.type'))} ${types.map((type) => type.name).join(', ')}`,
+      `${bold(t('pokedex.details.type'))} ${types.map((type) => withTypeEmoji(type.slug, type.name)).join(', ')}`,
       ...details.map((detail) => `${bold(detail.label)} ${detail.value}`),
     ];
     const statLines = [

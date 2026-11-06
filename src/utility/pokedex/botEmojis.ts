@@ -94,3 +94,9 @@ export const statBarEmoji = (color: string, piece: BarPiece) => emojis.get(barNa
 
 /** The emoji of a type's icon, or null if it isn't there. */
 export const typeEmoji = (type: string) => emojis.get(iconName(type)) ?? null;
+
+/** A type's name with its icon in front, or the name alone while the icons aren't there. */
+export const withTypeEmoji = (type: string, name: string) => {
+  const emoji = typeEmoji(type);
+  return emoji ? `${emoji} ${name}` : name;
+};

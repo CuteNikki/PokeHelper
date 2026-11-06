@@ -21,6 +21,7 @@ import {
 import { getTranslate, resolveLanguage, type Translate } from 'utility/i18next';
 import { buildTextModal } from 'utility/modal';
 import { answerPokeApiError, artworkUrl, getImage, getPokemon } from 'utility/pokedex/api';
+import { withTypeEmoji } from 'utility/pokedex/botEmojis';
 import { buildPokedexEntry } from 'utility/pokedex/entry';
 import {
   findPokemon,
@@ -174,7 +175,7 @@ async function hintLines(game: GuessGame, species: PokedexSpecies, language: str
       const pokemon = await getPokemon(species.slug);
       const types = [...(pokemon?.types ?? [])]
         .sort((a, b) => a.slot - b.slot)
-        .map((entry) => nameIn(getPokedexData().types[entry.type.name], language) || entry.type.name);
+        .map((entry) => withTypeEmoji(entry.type.name, nameIn(getPokedexData().types[entry.type.name], language) || entry.type.name));
       if (types.length > 0) lines.push(`${bold(t('pokedex.details.type'))} ${types.join(', ')}`);
     } else if (hint === 'generation') {
       lines.push(`${bold(t('guess.hints.generation'))} ${generationOf(species.id)}`);

@@ -18,6 +18,7 @@ import {
 import { FALLBACK_LANGUAGE, getTranslate, resolveLanguage, type Translate } from 'utility/i18next';
 import { answerPokeApiError, type ApiDamageRelations, artworkUrl, getImage, getMove, getPokemon, getType } from 'utility/pokedex/api';
 import { renderMatchupCard } from 'utility/pokedex/matchupCard';
+import { withTypeEmoji } from 'utility/pokedex/botEmojis';
 import { findBySlug, getPokedexData, loadPokedexData, matchName, nameIn, type PokedexMatch } from 'utility/pokedex/names';
 import { TYPE_COLORS } from 'utility/pokedex/types';
 import { imageWithDescription, type ResponsePayload, sendError, sendResponse } from 'utility/response';
@@ -234,7 +235,7 @@ async function buildCard(matchups: Matchups, slug: string, t: Translate): Promis
 /** The matchups as text, a type to a line, with the Pokémon's picture and one of the Pokémon to use against each weakness. */
 function buildText(matchups: Matchups, slug: string, t: Translate): ResponsePayload {
   const header = new TextDisplayBuilder().setContent(
-    `${t('pokedex.matchups.title', { name: matchups.name })}\n${subtext(matchups.types.map((type) => type.name).join(' / '))}`,
+    `${t('pokedex.matchups.title', { name: matchups.name })}\n${subtext(matchups.types.map((type) => withTypeEmoji(type.slug, type.name)).join(' / '))}`,
   );
   const container = new ContainerBuilder().setAccentColor(matchups.types[0]?.color ?? ThemeColors.info);
   if (matchups.picture) {
@@ -253,7 +254,7 @@ function buildText(matchups: Matchups, slug: string, t: Translate): ResponsePayl
       .addTextDisplayComponents(new TextDisplayBuilder().setContent(heading(t('pokedex.matchups.weak'), HeadingLevel.Three)));
     for (const entry of matchups.weak) {
       const lines = [
-        `${bold(entry.type.name)} ${entry.label}`,
+        `${withTypeEmoji(entry.type.slug, bold(entry.type.name))} ${entry.label}`,
         // Labeled like the card
         entry.pokemon.length > 0 ? `${t('pokedex.matchups.pokemon')}: ${entry.pokemon.map((example) => example.name).join(' · ')}` : null,
         entry.moves.length > 0 ? `${t('pokedex.matchups.moves')}: ${entry.moves.join(' · ')}` : null,
@@ -277,7 +278,7 @@ function buildText(matchups: Matchups, slug: string, t: Translate): ResponsePayl
     ['immune', matchups.immune],
   ] as const) {
     if (entries.length === 0) continue;
-    const lines = entries.map((entry) => `${bold(entry.type.name)} ${entry.label}`);
+    const lines = entries.map((entry) => `${withTypeEmoji(entry.type.slug, bold(entry.type.name))} ${entry.label}`);
     container
       .addSeparatorComponents(new SeparatorBuilder())
       .addTextDisplayComponents(new TextDisplayBuilder().setContent(`${heading(t(`pokedex.matchups.${key}`), HeadingLevel.Three)}\n${lines.join('\n')}`));
