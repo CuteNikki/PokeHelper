@@ -225,6 +225,7 @@ model CountingRun {
 
   // Indexes
   @@index([guildId, endedAt])
+  @@index([endedByUserId])
 }
 
 // A number that was counted correctly
@@ -241,6 +242,8 @@ model CountingEntry {
 
   // Indexes
   @@index([runId, number])
+  // For finding and deleting someone's data
+  @@index([userId])
 }
 
 // How a member did at counting in a guild
@@ -255,6 +258,7 @@ model CountingUser {
 
   @@id([guildId, userId])
   @@index([guildId, counted])
+  @@index([userId])
 }
 
 model ReactionRoleMenu {
@@ -284,6 +288,8 @@ model ReactionRoleMenu {
 
   // Indexes
   @@index([guildId])
+  // Looked up with every press of a role button
+  @@index([messageId])
 }
 
 model ReactionRole {
@@ -388,6 +394,9 @@ model Level {
   createdAt DateTime @default(now())
 
   @@id([guildId, userId])
+  // For the leaderboard and ranks, which go by XP
+  @@index([guildId, xp])
+  @@index([userId])
   @@map("UserLeveling")
 }
 
@@ -406,6 +415,9 @@ model WeeklyLevel {
   createdAt DateTime @default(now())
 
   @@id([guildId, userId])
+  // For the leaderboard and ranks, which go by XP
+  @@index([guildId, xp])
+  @@index([userId])
   @@map("UserLevelingWeekly")
 }
 
@@ -424,6 +436,9 @@ model MonthlyLevel {
   createdAt DateTime @default(now())
 
   @@id([guildId, userId])
+  // For the leaderboard and ranks, which go by XP
+  @@index([guildId, xp])
+  @@index([userId])
   @@map("UserLevelingMonthly")
 }
 
