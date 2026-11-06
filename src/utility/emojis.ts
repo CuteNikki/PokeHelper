@@ -1,7 +1,7 @@
 import { createCanvas } from '@napi-rs/canvas';
 import { formatEmoji, type Client } from 'discord.js';
 
-import { ICON_NAMES, ICONS, iconPng, type IconLook, type IconName } from 'utility/icons';
+import { ICON_NAMES, ICONS, iconPng, textIcons, type IconLook, type IconName } from 'utility/icons';
 import { logger } from 'utility/logger';
 import { typeIconPng } from 'utility/pokedex/typeIcons';
 import { TYPE_COLORS } from 'utility/pokedex/types';
@@ -90,16 +90,20 @@ export async function syncBotEmojis(client: Client<true>): Promise<void> {
   }
 
   const missing = [...wanted].filter(([name]) => !emojis.has(name));
-  if (missing.length === 0) return;
-  logger.info(`Uploading ${missing.length} emojis`);
-  // One after another, as uploading is rate limited
-  for (const [name, render] of missing) {
-    const attachment = await render();
-    if (!attachment) continue;
-    const emoji = await client.application.emojis.create({ name, attachment });
-    emojis.set(name, formatEmoji({ id: emoji.id, name }));
+  if (missing.length > 0) {
+    logger.info(`Uploading ${missing.length} emojis`);
+    // One after another, as uploading is rate limited
+    for (const [name, render] of missing) {
+      const attachment = await render();
+      if (!attachment) continue;
+      const emoji = await client.application.emojis.create({ name, attachment });
+      emojis.set(name, formatEmoji({ id: emoji.id, name }));
+    }
+    logger.info(`Uploaded ${missing.length} emojis`);
   }
-  logger.info(`Uploaded ${missing.length} emojis`);
+
+  // The icons in the translations, like {{icon.trophy}}, are the bot's own from now on
+  for (const name of ICON_NAMES) textIcons[name] = textIcon(name);
 }
 
 /** The emoji of a bar piece in a type's color, or `empty`, or null if the emojis aren't there. */

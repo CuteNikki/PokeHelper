@@ -2,6 +2,7 @@ import { readdirSync } from 'node:fs';
 
 import i18next, { use, type TFunction } from 'i18next';
 import i18NextFsBackend from 'i18next-fs-backend';
+import { textIcons } from 'utility/icons';
 import { logger } from 'utility/logger';
 
 import { type Guild } from 'discord.js';
@@ -28,6 +29,8 @@ export async function initI18Next() {
     fallbackLng: FALLBACK_LANGUAGE,
     interpolation: {
       escapeValue: false,
+      // Icons in the texts, like {{icon.trophy}}, which become the bot's own emojis once they're there
+      defaultVariables: { icon: textIcons },
     },
     backend: {
       loadPath: `${LOCALES_PATH}/{{lng}}/{{ns}}.json`,

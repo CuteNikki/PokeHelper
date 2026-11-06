@@ -85,6 +85,12 @@ export type IconName = keyof typeof ICONS;
 /** Every icon's name. */
 export const ICON_NAMES = Object.keys(ICONS) as IconName[];
 
+/**
+ * Each icon as it's written in text, for `{{icon.trophy}}` in the translations: its normal emoji, until the bot's own emojis
+ * are there and take its place. Changed in place, so the translations see the change without being set up again.
+ */
+export const textIcons: Record<IconName, string> = { ...ICONS };
+
 /** Where an icon goes: on a button, in text, or as a switch that's on or off. */
 export type IconLook = 'button' | 'text' | 'on' | 'off';
 
