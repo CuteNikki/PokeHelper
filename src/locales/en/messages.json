@@ -1578,7 +1578,10 @@
     },
     "list": {
       "title": "### Sticky messages {{icon.pin}}",
-      "switch": "Turned off, they're taken out of their channels but kept for later",
+      "enabled": {
+        "label": "Sticking",
+        "description": "Whether the sticky messages stay at the bottom of their channels. Turned off, they're taken out of the channels but kept"
+      },
       "count": "{{count, number}}/{{max}} sticky messages",
       "none": "This server doesn't have any sticky messages yet. Add one with `/sticky set`.",
       "entry": "- {{channel}}",

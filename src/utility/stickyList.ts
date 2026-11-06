@@ -5,7 +5,6 @@ import {
   type Guild,
   messageLink,
   MessageFlags,
-  SectionBuilder,
   SeparatorBuilder,
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder,
@@ -20,7 +19,7 @@ import { DiscordLimits } from 'utility/discordLimits';
 import { formatNumber } from 'utility/duration';
 import type { Translate } from 'utility/i18next';
 import type { ResponsePayload } from 'utility/response';
-import { buildSwitchButton } from 'utility/settings';
+import { buildSwitchSection } from 'utility/settings';
 import { shorten } from 'utility/text';
 import { ThemeColors } from 'utility/theme';
 
@@ -41,17 +40,14 @@ const preview = (text: string, length = PREVIEW_LENGTH) =>
     length,
   );
 
-/** A server's sticky messages, with the switch for all of them next to the title and a select to change one. */
+/** A server's sticky messages, below the switch for all of them at once, with a select to change one. */
 export async function renderStickyList(guild: Guild, t: Translate): Promise<ResponsePayload> {
   const [stickies, { stickiesEnabled }] = await Promise.all([getGuildStickies(guild.id), getFeatureSwitches(guild.id)]);
 
   const container = new ContainerBuilder()
     .setAccentColor(ThemeColors.info)
-    .addSectionComponents(
-      new SectionBuilder()
-        .addTextDisplayComponents(new TextDisplayBuilder().setContent(`${t('sticky.list.title')}\n${subtext(t('sticky.list.switch'))}`))
-        .setButtonAccessory(buildSwitchButton(stickiesEnabled, STICKY_TOGGLE_ID, t)),
-    )
+    .addTextDisplayComponents(new TextDisplayBuilder().setContent(t('sticky.list.title')))
+    .addSectionComponents(buildSwitchSection(t('sticky.list.enabled.label'), t('sticky.list.enabled.description'), stickiesEnabled, STICKY_TOGGLE_ID, t))
     .addSeparatorComponents(new SeparatorBuilder());
 
   if (stickies.length === 0) {
