@@ -12,7 +12,7 @@ import { TYPE_COLORS } from 'utility/pokedex/types';
  * The version is part of their names. Change it after changing how a set looks, so the old ones are replaced.
  */
 const STAT_BAR_PREFIX = 'statbar1';
-const TYPE_ICON_PREFIX = 'typeicon1';
+const TYPE_ICON_PREFIX = 'typeicon2';
 /** The names of the bot's own emojis of any version, so old ones are deleted and emojis added by hand are left alone. */
 const OWN_EMOJI = /^(statbar|typeicon)\d+_/;
 

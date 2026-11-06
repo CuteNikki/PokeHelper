@@ -21,7 +21,6 @@ import {
   ThumbnailBuilder,
 } from 'discord.js';
 
-import { colorOn } from 'utility/canvas';
 import { DiscordLimits } from 'utility/discordLimits';
 import { formatNumber } from 'utility/duration';
 import { FALLBACK_LANGUAGE, getTranslate, resolveLanguage, type Translate } from 'utility/i18next';
@@ -41,7 +40,7 @@ import { renderPokedexCard, STAT_BAR_MAX } from 'utility/pokedex/card';
 import { matchupsButton } from 'utility/pokedex/matchups';
 import { TYPE_COLORS } from 'utility/pokedex/types';
 import { statBarEmoji, withTypeEmoji, type BarPiece } from 'utility/pokedex/botEmojis';
-import { typeIcon } from 'utility/pokedex/typeIcons';
+import { typeSymbol } from 'utility/pokedex/typeIcons';
 import {
   findBySlug,
   findPokemon,
@@ -373,7 +372,7 @@ export async function buildPokedexEntry(match: PokedexMatch, view: PokedexView, 
     ]);
 
     const toHex = (color: number) => `#${color.toString(16).padStart(6, '0')}`;
-    const icons = await Promise.all(types.map((type) => typeIcon(type.slug, colorOn(toHex(type.color)))));
+    const icons = await Promise.all(types.map((type) => typeSymbol(type.slug)));
     const card = renderPokedexCard({
       name: shownName,
       number,
