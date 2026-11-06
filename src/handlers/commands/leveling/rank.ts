@@ -33,7 +33,7 @@ export default new Command({
     .setContexts(InteractionContextType.Guild)
     .setIntegrationTypes(ApplicationIntegrationType.GuildInstall)
     .setName('rank')
-    .setDescription('Check current all-time and weekly level and XP in the server.')
+    .setDescription('Check the level and XP in the server, all-time, this week and this month.')
     .addUserOption((option) => option.setName('user').setDescription('The user to check the rank of. Defaults to yourself.').setRequired(false))
     .addBooleanOption((option) => option.setName('ephemeral').setDescription('Whether the response should be ephemeral. Defaults to true.').setRequired(false))
     .addBooleanOption((option) =>
