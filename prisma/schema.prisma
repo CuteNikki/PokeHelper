@@ -268,7 +268,7 @@ model GuildLeveling {
   enabled              Boolean               @default(false)
   // Whether level ups are announced. Members level up and get their rewards either way
   levelUpMessages      Boolean               @default(true)
-  channelId            String?
+  levelUpChannelId     String?
   rewards              GuildLevelingReward[]
   multipliers          LevelingMultiplier[]
   weeklyReward         String? // roleId of the weekly reward
@@ -296,7 +296,7 @@ model GuildLeveling {
   updatedAt DateTime @updatedAt
 
   // Indexes
-  @@index([channelId])
+  @@index([levelUpChannelId])
 }
 
 model GuildLevelingReward {

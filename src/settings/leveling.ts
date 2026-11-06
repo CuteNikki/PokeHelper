@@ -110,8 +110,8 @@ export const levelingSettings = createSettingsPanel<LevelingConfig>({
       botPermissions: LEVEL_UP_CHANNEL_PERMISSIONS,
       label: (t) => t('leveling.settings.channel.label'),
       description: (t) => t('leveling.settings.channel.description'),
-      get: (config) => config.channelId,
-      set: (guildId, channelId) => update(guildId, { channelId }),
+      get: (config) => config.levelUpChannelId,
+      set: (guildId, levelUpChannelId) => update(guildId, { levelUpChannelId }),
     },
     {
       type: 'channel',

@@ -62,7 +62,7 @@ export default new Event({
     // Rewards above are given either way, only the announcement can be turned off
     if (newLevel <= oldLevel || !levelingConfig.levelUpMessages) return;
 
-    const targetChannel = message.guild.channels.cache.get(levelingConfig.channelId ?? message.channelId) ?? message.channel;
+    const targetChannel = message.guild.channels.cache.get(levelingConfig.levelUpChannelId ?? message.channelId) ?? message.channel;
     if (!targetChannel.isSendable()) return;
 
     // Everyone in the channel sees it, so it's in the server's language
