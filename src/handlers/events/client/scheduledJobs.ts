@@ -8,12 +8,12 @@ import { runReminderJob } from 'utility/reminders/job';
 import { runProfileThemeJob } from 'utility/profileTheme';
 import { forgetOldUnposted } from 'utility/starboard';
 import { scheduleJob } from 'utility/scheduler';
-import { DAY } from 'utility/duration';
+import { DAY, MINUTE, SECOND } from 'utility/duration';
 
 /** How often the jobs check what's due. Often enough that birthdays are on time, rarely enough to stay cheap. */
-const JOB_INTERVAL = 15 * 60 * 1000;
+const JOB_INTERVAL = 15 * MINUTE;
 /** How often reminders are checked, so they go off at most this late. */
-const REMINDER_INTERVAL = 15 * 1000;
+const REMINDER_INTERVAL = 15 * SECOND;
 
 /** Started once the bot is ready, as the jobs need the guilds, and running right away catches up on what was missed while offline. */
 export default new Event({
