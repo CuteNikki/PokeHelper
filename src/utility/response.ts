@@ -79,3 +79,17 @@ export const logFailure =
     logger.error(error, message);
     return null;
   };
+
+/**
+ * Replace a public "thinking" reply with an error only the user sees, for commands whose answer would have been public.
+ * A follow-up, as a deleted reply can't be edited, and `sendResponse` would try to. Never throws.
+ */
+export async function replaceWithError(interaction: RepliableInteraction, content: string): Promise<Message | null> {
+  await interaction.deleteReply().catch(() => null);
+  try {
+    return await interaction.followUp({ ...createResponse(content, 'error'), flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral });
+  } catch (error) {
+    logger.error(error, t('system.response.failed', { id: interaction.id, user: interaction.user.id }));
+    return null;
+  }
+}

@@ -1,4 +1,4 @@
-import { ApplicationIntegrationType, InteractionContextType, SlashCommandBuilder, type ChatInputCommandInteraction } from 'discord.js';
+import { ApplicationIntegrationType, InteractionContextType, SlashCommandBuilder } from 'discord.js';
 
 import { Command } from 'classes/base/command';
 
@@ -7,13 +7,7 @@ import { logger } from 'utility/logger';
 import { PokeApiError } from 'utility/pokedex/api';
 import { buildGuessGame, GENERATIONS, newGame } from 'utility/pokedex/guess';
 import { loadPokedexData } from 'utility/pokedex/names';
-import { createResponse, sendResponse } from 'utility/response';
-
-/** Replace the "thinking" reply with an error only the user sees, as the game would have been public. */
-async function fail(interaction: ChatInputCommandInteraction, text: string) {
-  await interaction.deleteReply().catch(() => null);
-  return sendResponse(interaction, createResponse(text, 'error'), { ephemeral: true });
-}
+import { replaceWithError, sendResponse } from 'utility/response';
 
 export default new Command({
   data: new SlashCommandBuilder()
@@ -32,12 +26,12 @@ export default new Command({
       await loadPokedexData();
       const game = newGame(interaction.options.getInteger('generation'));
       const payload = game ? await buildGuessGame(game, 'playing', resolveLanguage(interaction.locale), t) : null;
-      if (!payload) return fail(interaction, t('pokedex.unavailable'));
+      if (!payload) return replaceWithError(interaction, t('pokedex.unavailable'));
       return sendResponse(interaction, payload);
     } catch (error) {
       if (!(error instanceof PokeApiError)) throw error;
       logger.warn(error, error.message);
-      return fail(interaction, t('pokedex.unavailable'));
+      return replaceWithError(interaction, t('pokedex.unavailable'));
     }
   },
 });

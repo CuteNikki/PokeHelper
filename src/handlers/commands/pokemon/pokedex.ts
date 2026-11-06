@@ -1,4 +1,4 @@
-import { ApplicationIntegrationType, InteractionContextType, SlashCommandBuilder, type ChatInputCommandInteraction } from 'discord.js';
+import { ApplicationIntegrationType, InteractionContextType, SlashCommandBuilder } from 'discord.js';
 
 import { Command } from 'classes/base/command';
 
@@ -8,19 +8,13 @@ import { logger } from 'utility/logger';
 import { PokeApiError } from 'utility/pokedex/api';
 import { buildPokedexEntry } from 'utility/pokedex/entry';
 import { findPokemon, formatDexNumber, loadPokedexData, matchName, matchSlug, searchPokemon } from 'utility/pokedex/names';
-import { createResponse, sendResponse } from 'utility/response';
+import { replaceWithError, sendResponse } from 'utility/response';
 
 /**
  * How long suggestions wait for the names. Discord drops an answer after 3 seconds, and loading the names can take far longer when
  * PokéAPI is slow, so the load carries on and the suggestions come with a later keystroke.
  */
 const AUTOCOMPLETE_WAIT = 2_000;
-
-/** Replace the "thinking" reply with an error only the user sees, as the entry would have been public. */
-async function fail(interaction: ChatInputCommandInteraction, text: string) {
-  await interaction.deleteReply().catch(() => null);
-  return sendResponse(interaction, createResponse(text, 'error'), { ephemeral: true });
-}
 
 export default new Command({
   data: new SlashCommandBuilder()
@@ -62,12 +56,12 @@ export default new Command({
       const entry = match
         ? await buildPokedexEntry(match, { shiny: false, text: interaction.options.getBoolean('text') ?? false }, resolveLanguage(interaction.locale), t)
         : null;
-      if (!entry) return fail(interaction, t('pokedex.notFound', { name: input }));
+      if (!entry) return replaceWithError(interaction, t('pokedex.notFound', { name: input }));
       return sendResponse(interaction, entry);
     } catch (error) {
       if (!(error instanceof PokeApiError)) throw error;
       logger.warn(error, error.message);
-      return fail(interaction, t('pokedex.unavailable'));
+      return replaceWithError(interaction, t('pokedex.unavailable'));
     }
   },
 });
