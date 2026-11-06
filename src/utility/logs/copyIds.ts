@@ -1,5 +1,6 @@
 import { ButtonBuilder, ButtonStyle, type ButtonInteraction } from 'discord.js';
 
+import { buttonIcon } from 'utility/pokedex/botEmojis';
 import { DiscordLimits } from 'utility/discordLimits';
 import { getTranslate, type Translate } from 'utility/i18next';
 import { buildCopyModal } from 'utility/modal';
@@ -38,7 +39,7 @@ export function copyIdsButton(ids: LogIds, t: Translate): ButtonBuilder | null {
   return new ButtonBuilder()
     .setCustomId(`${COPY_IDS_PREFIX}${parts.join('.')}`)
     .setLabel(t('logs.copy.button'))
-    .setEmoji('📋')
+    .setEmoji(buttonIcon('copy', '📋'))
     .setStyle(ButtonStyle.Secondary);
 }
 

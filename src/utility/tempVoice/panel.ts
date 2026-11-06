@@ -20,7 +20,7 @@ import {
 
 import { getTempVoiceChannel, updateTempVoiceChannel } from 'database/tempVoice';
 
-import { switchIcon } from 'utility/pokedex/botEmojis';
+import { buttonIcon, switchIcon } from 'utility/pokedex/botEmojis';
 import { guildTranslate, type Translate } from 'utility/i18next';
 import { logger } from 'utility/logger';
 import type { ResponsePayload } from 'utility/response';
@@ -134,7 +134,11 @@ export function buildPanel({ channel, record }: TempChannel, t: Translate): Resp
     ? t('tempVoice.panel.peopleLimit', { count: here.size, limit: channel.userLimit })
     : t('tempVoice.panel.people', { count: here.size });
   const edit = (action: TempVoiceAction) =>
-    new ButtonBuilder().setCustomId(tempVoiceCustomId(action, id)).setLabel(t('settings.text.edit')).setEmoji('✏️').setStyle(ButtonStyle.Primary);
+    new ButtonBuilder()
+      .setCustomId(tempVoiceCustomId(action, id))
+      .setLabel(t('settings.text.edit'))
+      .setEmoji(buttonIcon('pencil', '✏️'))
+      .setStyle(ButtonStyle.Primary);
   const limit = channel.userLimit ? t('tempVoice.panel.limitValue', { count: channel.userLimit }) : t('tempVoice.panel.noLimit');
 
   const container = new ContainerBuilder()
@@ -163,7 +167,11 @@ export function buildPanel({ channel, record }: TempChannel, t: Translate): Resp
     .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large))
     .addActionRowComponents(
       new ActionRowBuilder<ButtonBuilder>().addComponents(
-        new ButtonBuilder().setCustomId(tempVoiceCustomId('delete', id)).setLabel(t('tempVoice.panel.delete')).setEmoji('🗑️').setStyle(ButtonStyle.Danger),
+        new ButtonBuilder()
+          .setCustomId(tempVoiceCustomId('delete', id))
+          .setLabel(t('tempVoice.panel.delete'))
+          .setEmoji(buttonIcon('trash-2', '🗑️'))
+          .setStyle(ButtonStyle.Danger),
       ),
     );
 

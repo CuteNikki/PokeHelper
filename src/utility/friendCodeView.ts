@@ -18,6 +18,7 @@ import { getFriendCodes } from 'database/friendCodes';
 
 import { friendCodeSettings } from 'settings/friendCodes';
 
+import { buttonIcon } from 'utility/pokedex/botEmojis';
 import { formatFriendCode, savedFriendCodes } from 'utility/friendCodes';
 import { getTranslate, type Translate } from 'utility/i18next';
 import { buildCopyModal } from 'utility/modal';
@@ -61,7 +62,11 @@ export async function buildFriendCodes(user: User, member: GuildMember | null, s
     )
     .addActionRowComponents(
       new ActionRowBuilder<ButtonBuilder>().addComponents(
-        new ButtonBuilder().setCustomId(`${COPY_ID}${user.id}`).setLabel(t('friendCodes.view.copy')).setEmoji('📋').setStyle(ButtonStyle.Secondary),
+        new ButtonBuilder()
+          .setCustomId(`${COPY_ID}${user.id}`)
+          .setLabel(t('friendCodes.view.copy'))
+          .setEmoji(buttonIcon('copy', '📋'))
+          .setStyle(ButtonStyle.Secondary),
         editButton(t),
       ),
     );
@@ -70,7 +75,7 @@ export async function buildFriendCodes(user: User, member: GuildMember | null, s
 
 /** Opens the codes of whoever presses it, to add or change them, also under someone else's. */
 const editButton = (t: Translate) =>
-  new ButtonBuilder().setCustomId(EDIT_ID).setLabel(t('friendCodes.view.yours')).setEmoji('✏️').setStyle(ButtonStyle.Secondary);
+  new ButtonBuilder().setCustomId(EDIT_ID).setLabel(t('friendCodes.view.yours')).setEmoji(buttonIcon('pencil', '✏️')).setStyle(ButtonStyle.Secondary);
 
 /** Handle the buttons under someone's codes, in the language of whoever pressed them. */
 export async function handleFriendCodesButton(interaction: ButtonInteraction): Promise<unknown> {

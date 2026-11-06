@@ -23,7 +23,7 @@ import {
   subtext,
   TextDisplayBuilder,
 } from 'discord.js';
-import { switchIcon } from 'utility/pokedex/botEmojis';
+import { buttonIcon, switchIcon } from 'utility/pokedex/botEmojis';
 import type { Translate } from 'utility/i18next';
 
 import { formatNumber } from 'utility/duration';
@@ -466,7 +466,7 @@ function addSetting<C>(container: ContainerBuilder, context: SettingsContext, pa
           new ButtonBuilder()
             .setCustomId(customId(panelId, page, setting.key, undefined, value))
             .setLabel(formatValue(setting, value, t))
-            .setEmoji('🔁')
+            .setEmoji(buttonIcon('refresh-cw', '🔁'))
             .setStyle(ButtonStyle.Primary),
         ),
       );
@@ -527,7 +527,7 @@ function addSetting<C>(container: ContainerBuilder, context: SettingsContext, pa
           new ButtonBuilder()
             .setCustomId(customId(panelId, page, setting.key))
             .setLabel(t('settings.text.edit'))
-            .setEmoji('✏️')
+            .setEmoji(buttonIcon('pencil', '✏️'))
             .setStyle(ButtonStyle.Primary),
         ),
       );

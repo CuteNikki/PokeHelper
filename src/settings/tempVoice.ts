@@ -25,6 +25,7 @@ import {
   type TempVoiceCreator,
 } from 'database/tempVoice';
 
+import { buttonIcon } from 'utility/pokedex/botEmojis';
 import type { Translate } from 'utility/i18next';
 import { formatNumber } from 'utility/duration';
 import type { ResponsePayload } from 'utility/response';
@@ -84,7 +85,7 @@ export function getTempVoiceSettings(creatorId: string): SettingsPanel {
       new ButtonBuilder()
         .setCustomId(`${TEMP_VOICE_CONFIG_ID.delete}${creator.id}`)
         .setLabel(t('tempVoice.config.delete'))
-        .setEmoji('🗑️')
+        .setEmoji(buttonIcon('trash-2', '🗑️'))
         .setStyle(ButtonStyle.Danger),
       new ButtonBuilder().setCustomId(TEMP_VOICE_CONFIG_ID.list).setLabel(t('tempVoice.config.back')).setStyle(ButtonStyle.Secondary),
     ],

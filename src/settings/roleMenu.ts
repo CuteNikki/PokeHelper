@@ -19,6 +19,7 @@ import {
 import { getFeatureSwitches } from 'database/features';
 import { getRoleMenu, getRoleMenus, setRoleMenuRole, updateRoleMenu, type RoleMenu } from 'database/roleMenu';
 
+import { buttonIcon } from 'utility/pokedex/botEmojis';
 import type { Translate } from 'utility/i18next';
 import { formatNumber } from 'utility/duration';
 import type { ResponsePayload } from 'utility/response';
@@ -95,13 +96,13 @@ export function getRoleMenuSettings(menuId: string): SettingsPanel {
       new ButtonBuilder()
         .setCustomId(`${ROLE_MENU_CUSTOM_ID.repost}${menu.id}`)
         .setLabel(t('roleMenu.settings.repost'))
-        .setEmoji('📨')
+        .setEmoji(buttonIcon('send', '📨'))
         .setStyle(ButtonStyle.Secondary)
         .setDisabled(menu.roles.length === 0),
       new ButtonBuilder()
         .setCustomId(`${ROLE_MENU_CUSTOM_ID.delete}${menu.id}`)
         .setLabel(t('roleMenu.settings.delete'))
-        .setEmoji('🗑️')
+        .setEmoji(buttonIcon('trash-2', '🗑️'))
         .setStyle(ButtonStyle.Danger),
       new ButtonBuilder().setCustomId(ROLE_MENU_CUSTOM_ID.list).setLabel(t('roleMenu.settings.back')).setStyle(ButtonStyle.Secondary),
     ],

@@ -19,6 +19,7 @@ import {
 import { ensureGuild } from 'database/guild';
 import { deleteGuildData, deleteUserData, getGivenRoles, getGuildData, getUserData, type GivenRole } from 'database/privacy';
 
+import { buttonIcon } from 'utility/pokedex/botEmojis';
 import { runCountingTask } from 'utility/counting/game';
 import { buildConfirmation } from 'utility/confirm';
 import { getTranslate, type Translate } from 'utility/i18next';
@@ -45,8 +46,16 @@ const privacyCustomId = (action: 'download' | 'delete', scope: Scope) => `${PRIV
 export function buildPrivacyPanel(context: SettingsContext, t: Translate): ResponsePayload {
   const buttons = (scope: Scope) =>
     new ActionRowBuilder<ButtonBuilder>().addComponents(
-      new ButtonBuilder().setCustomId(privacyCustomId('download', scope)).setLabel(t('privacy.download')).setEmoji('📥').setStyle(ButtonStyle.Primary),
-      new ButtonBuilder().setCustomId(privacyCustomId('delete', scope)).setLabel(t('privacy.delete')).setEmoji('🗑️').setStyle(ButtonStyle.Danger),
+      new ButtonBuilder()
+        .setCustomId(privacyCustomId('download', scope))
+        .setLabel(t('privacy.download'))
+        .setEmoji(buttonIcon('download', '📥'))
+        .setStyle(ButtonStyle.Primary),
+      new ButtonBuilder()
+        .setCustomId(privacyCustomId('delete', scope))
+        .setLabel(t('privacy.delete'))
+        .setEmoji(buttonIcon('trash-2', '🗑️'))
+        .setStyle(ButtonStyle.Danger),
     );
 
   const container = new ContainerBuilder()

@@ -14,6 +14,7 @@ import {
 } from 'discord.js';
 
 import type { Reminder } from 'generated/prisma/client';
+import { buttonIcon } from 'utility/pokedex/botEmojis';
 import type { Translate } from 'utility/i18next';
 import type { ResponsePayload } from 'utility/response';
 import { DiscordLimits } from 'utility/discordLimits';
@@ -57,7 +58,7 @@ export function buildReminderMessage(reminder: Reminder, inChannel: boolean, nex
     new ButtonBuilder()
       .setCustomId(`${REMINDER_STOP_PREFIX}${reminder.id}`)
       .setStyle(ButtonStyle.Secondary)
-      .setEmoji('🔕')
+      .setEmoji(buttonIcon('bell-off', '🔕'))
       .setLabel(t('reminders.message.stop')),
   );
   // Only who it's for is mentioned, never anyone or anything mentioned in the text
