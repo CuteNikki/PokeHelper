@@ -19,7 +19,7 @@ export const kindOf = (species: ApiSpecies, language: string, t: Translate) =>
 
 /**
  * The top of a page about a Pokémon, like where it's found or the moves it learns, the same as its Pokédex entry's: the page's
- * title, its number and kind, its types, its Pokédex text, and its picture beside them.
+ * title, its number, kind and types in a line, its Pokédex text, and its picture beside them.
  * @param pokemon Its data, for its types.
  * @throws {PokeApiError} When PokéAPI can't be reached.
  */
@@ -32,7 +32,7 @@ export async function pokemonHeader(title: string, match: PokedexMatch, pokemon:
     .join(' / ');
   const kind = species ? kindOf(species, language, t) : '';
   const entry = species ? newestText(species.flavor_text_entries, 'flavor_text', language) : null;
-  const lines = [title, subtext([formatDexNumber(match.species.id), kind].filter(Boolean).join(' · ')), types, entry ? quote(entry) : null];
+  const lines = [title, subtext([formatDexNumber(match.species.id), kind, types].filter(Boolean).join(' · ')), entry ? quote(entry) : null];
   return new SectionBuilder().addTextDisplayComponents(new TextDisplayBuilder().setContent(lines.filter(Boolean).join('\n'))).setThumbnailAccessory(
     // The form's own picture, like Alolan Raichu's, where it has one
     new ThumbnailBuilder()
