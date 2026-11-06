@@ -3,13 +3,16 @@ import {
   ActionRowBuilder,
   ButtonBuilder,
   ButtonStyle,
+  ContainerBuilder,
   Guild,
+  MediaGalleryBuilder,
   MessageFlags,
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder,
   TextDisplayBuilder,
   userMention,
   type InteractionEditReplyOptions,
+  type MessageActionRowComponentBuilder,
 } from 'discord.js';
 
 import { getLevelFromXP, getTopUsersByXP, getTotalUsersWithXP, type LevelPeriod } from 'database/leveling';
@@ -21,6 +24,7 @@ import type { Translate } from 'utility/i18next';
 import { leaderboardCustomId, nextPeriod, type LeaderboardView } from 'utility/leveling/leaderboardView';
 import { buildPageRow, clampPage, findMeButton, type PageButton } from 'utility/pagination';
 import { imageWithDescription } from 'utility/response';
+import { ThemeColors } from 'utility/theme';
 
 export const ITEMS_PER_PAGE = 5;
 
@@ -257,6 +261,14 @@ function buildControls(view: LeaderboardView, totalPages: number, t: Translate) 
   return [rowPageButtons, rowSortOrder, rowMore] as const;
 }
 
+/** The leaderboard in a container, like the bot's other messages: the title, the page as an image or as text, and the controls. */
+function inContainer(heading: TextDisplayBuilder, body: TextDisplayBuilder | MediaGalleryBuilder, rows: readonly ActionRowBuilder<MessageActionRowComponentBuilder>[]) {
+  const container = new ContainerBuilder().setAccentColor(ThemeColors.info).addTextDisplayComponents(heading);
+  if (body instanceof MediaGalleryBuilder) container.addMediaGalleryComponents(body);
+  else container.addTextDisplayComponents(body);
+  return container.addActionRowComponents(...rows);
+}
+
 /**
  * Build a page of the leaderboard as a Components V2 message: the title, the page as an image or as text, and the controls.
  * @param t The translation, for whoever opened or paged the leaderboard.
@@ -268,14 +280,13 @@ export async function buildLeaderboard(requested: LeaderboardView, guild: Guild,
   const { page: index, pages: totalPages } = clampPage(requested.page - 1, userCount, ITEMS_PER_PAGE);
   const page = index + 1;
   const title = t(TITLE_KEYS[period], { guild: guild.name });
-  // Shown without a container around it, the image already has its own cards
   const heading = new TextDisplayBuilder().setContent(title);
 
   if (userCount === 0) {
     const none = new TextDisplayBuilder().setContent(t('leveling.leaderboard.none'));
     // Still with the period button, as the weekly or monthly one is empty right after a reset, and without the image of the one switched from
     const row = new ActionRowBuilder<ButtonBuilder>().addComponents(periodButton(requested, t));
-    return { components: [heading, none, row], attachments: [], flags: [MessageFlags.IsComponentsV2], allowedMentions: { parse: [] } };
+    return { components: [inContainer(heading, none, [row])], attachments: [], flags: [MessageFlags.IsComponentsV2], allowedMentions: { parse: [] } };
   }
 
   const pageData = await getTopUsersByXP(guild.id, period, ITEMS_PER_PAGE, (page - 1) * ITEMS_PER_PAGE, sortOrder);
@@ -311,7 +322,7 @@ export async function buildLeaderboard(requested: LeaderboardView, guild: Guild,
   if (text) {
     const list = new TextDisplayBuilder().setContent(lines.join('\n'));
     // Without attachments, so the image is taken off when switching to text
-    return { components: [heading, list, ...controls], attachments: [], flags: [MessageFlags.IsComponentsV2], allowedMentions: { parse: [] } };
+    return { components: [inContainer(heading, list, controls)], attachments: [], flags: [MessageFlags.IsComponentsV2], allowedMentions: { parse: [] } };
   }
 
   // Avatars are loaded at the same time, from the cache when they were shown recently
@@ -329,7 +340,7 @@ export async function buildLeaderboard(requested: LeaderboardView, guild: Guild,
   const { gallery, file } = imageWithDescription('leaderboard.png', imageBuffer, `${title.replace(/^#+\s*/, '')}: ${lines.join('; ')}`);
 
   return {
-    components: [heading, gallery, ...controls],
+    components: [inContainer(heading, gallery, controls)],
     files: [file],
     flags: [MessageFlags.IsComponentsV2],
     allowedMentions: { parse: [] },
