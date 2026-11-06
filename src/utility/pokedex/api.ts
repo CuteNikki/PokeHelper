@@ -182,6 +182,22 @@ export interface ApiNature {
   hates_flavor: Named | null;
 }
 
+/** A place, like a town or a route, which has one area or several, like the floors of a tower. */
+export interface ApiLocation {
+  id: number;
+  name: string;
+  region: Named | null;
+  names: { name: string; language: Named }[];
+  areas: Named[];
+}
+
+/** An area of a place, with the wild Pokémon met there in each game. */
+export interface ApiLocationArea {
+  id: number;
+  name: string;
+  pokemon_encounters: { pokemon: Named; version_details: ApiEncounter['version_details'] }[];
+}
+
 /** A kind of item, like Standard balls. */
 export interface ApiItemCategory {
   id: number;
@@ -254,6 +270,8 @@ export const getItemCategory = (slug: string) => get<ApiItemCategory>(`item-cate
 export const getAbility = (slug: string) => get<ApiAbility>(`ability/${encodeURIComponent(slug)}`);
 export const getBerry = (slug: string) => get<ApiBerry>(`berry/${encodeURIComponent(slug)}`);
 export const getNature = (slug: string) => get<ApiNature>(`nature/${encodeURIComponent(slug)}`);
+export const getLocation = (slug: string) => get<ApiLocation>(`location/${encodeURIComponent(slug)}`);
+export const getLocationArea = (slug: string) => get<ApiLocationArea>(`location-area/${encodeURIComponent(slug)}`);
 export const getContestEffect = (id: number) => get<ApiContestEffect>(`contest-effect/${id}`);
 
 /** The evolution chain at a URL from {@link ApiSpecies.evolution_chain}. */

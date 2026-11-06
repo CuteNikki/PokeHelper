@@ -371,5 +371,15 @@
         "description": "Das Wesen, mit Namen. Leer lassen für alle"
       }
     }
+  },
+  "location": {
+    "name": "ort",
+    "description": "Schlag einen Ort nach: seine Region und welche wilden Pokémon dort vorkommen",
+    "options": {
+      "location": {
+        "name": "ort",
+        "description": "Der Ort, mit Namen"
+      }
+    }
   }
 }

@@ -898,7 +898,10 @@
         "horde": "Horde",
         "wanderer": "Wandering around",
         "max-raid": "Max Raid",
-        "dynamax-adventure": "Dynamax Adventure"
+        "dynamax-adventure": "Dynamax Adventure",
+        "overworld-special": "Rare, wandering around",
+        "overworld-flying-special": "Rare, flying around",
+        "overworld-water-special": "Rare, swimming around"
       },
       "japan": "{{game}} (Japan)"
     }
@@ -1636,5 +1639,10 @@
     "dislikes": "Dislikes",
     "listTitle": "### Natures {{icon.leaf}}",
     "listNote": "Each raises one stat by 10% and lowers another by 10%, apart from the ones with no change."
+  },
+  "locations": {
+    "title": "### {{name}} {{icon.map}}",
+    "notFound": "I couldn't find a place called **{{name}}**. Pick one of the suggestions.",
+    "none": "PokéAPI doesn't know of any wild Pokémon here."
   }
 }

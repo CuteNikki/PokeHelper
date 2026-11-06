@@ -446,7 +446,10 @@
         "horde": "Horde",
         "wanderer": "Läuft umher",
         "max-raid": "Dyna-Raid",
-        "dynamax-adventure": "Dynamax-Abenteuer"
+        "dynamax-adventure": "Dynamax-Abenteuer",
+        "overworld-special": "Selten, läuft umher",
+        "overworld-flying-special": "Selten, fliegt umher",
+        "overworld-water-special": "Selten, schwimmt umher"
       },
       "japan": "{{game}} (Japan)"
     }
@@ -1575,5 +1578,10 @@
     "dislikes": "Mag nicht",
     "listTitle": "### Wesen {{icon.leaf}}",
     "listNote": "Jedes erhöht einen Wert um 10 % und senkt einen anderen um 10 %, außer denen ohne Änderung."
+  },
+  "locations": {
+    "title": "### {{name}} {{icon.map}}",
+    "notFound": "Ich konnte keinen Ort namens **{{name}}** finden. Wähl einen der Vorschläge.",
+    "none": "PokéAPI kennt hier keine wilden Pokémon."
   }
 }
