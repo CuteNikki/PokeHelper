@@ -1,6 +1,6 @@
 import { ChannelType } from 'discord.js';
 
-import { getOrCreateGuildLogs, updateGuildLogs, type GuildLogs } from 'database/logs';
+import { getOrCreateGuildLogs, setLogEventEnabled, updateGuildLogs, type GuildLogs } from 'database/logs';
 
 import { DiscordLimits } from 'utility/discordLimits';
 import type { Translate } from 'utility/i18next';
@@ -8,12 +8,6 @@ import { CHANNEL_FIELDS, groupChannelOf, LOG_EVENTS, LOG_GROUPS, type LogEvent, 
 import { forgetLogConfig, LOG_CHANNEL_PERMISSIONS } from 'utility/logs/send';
 import { createSettingsPanel, MESSAGE_CHANNEL_TYPES, type Setting } from 'utility/settings';
 
-/** Turn an event on or off, keeping the list of those turned off. */
-async function setEvent(guildId: string, event: LogEvent, on: boolean) {
-  const { disabledEvents } = await getOrCreateGuildLogs(guildId);
-  const events = on ? disabledEvents.filter((key) => key !== event) : [...new Set([...disabledEvents, event])];
-  return updateGuildLogs(guildId, { disabledEvents: events });
-}
 
 /** A group's page: its channel, then a switch for each of its events. */
 function groupSettings(group: LogGroup): Setting<GuildLogs>[] {
@@ -38,7 +32,7 @@ function groupSettings(group: LogGroup): Setting<GuildLogs>[] {
       label: (t: Translate) => t(`logs.settings.events.${event}.label`),
       description: (t: Translate) => t(`logs.settings.events.${event}.description`),
       get: (config) => !config.disabledEvents.includes(event),
-      set: (guildId, on) => setEvent(guildId, event, on),
+      set: (guildId, on) => setLogEventEnabled(guildId, event, on),
       // Without its own channel or a default one, the group isn't logged at all, so its switches wouldn't do anything
       hidden: (config) => !groupChannelOf(config, group),
     })),
