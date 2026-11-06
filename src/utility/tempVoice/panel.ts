@@ -5,7 +5,6 @@ import {
   ButtonStyle,
   ContainerBuilder,
   DiscordAPIError,
-  type Guild,
   MessageFlags,
   quote,
   RESTJSONErrorCodes,
@@ -21,7 +20,7 @@ import {
 
 import { getTempVoiceChannel, updateTempVoiceChannel } from 'database/tempVoice';
 
-import { getTranslate, type Translate } from 'utility/i18next';
+import { guildTranslate, type Translate } from 'utility/i18next';
 import { logger } from 'utility/logger';
 import type { ResponsePayload } from 'utility/response';
 import { DiscordLimits } from 'utility/discordLimits';
@@ -67,7 +66,6 @@ export const MAX_PICKED = DiscordLimits.selectOptions;
 const REFRESH_DELAY = 1_000;
 
 /** The language of messages in a server's channels, which everyone there reads. */
-export const serverTranslate = (guild: Guild): Translate => getTranslate(guild.preferredLocale);
 
 export const tempVoiceCustomId = (action: TempVoiceAction, channelId: string, memberId?: string) =>
   `${TEMP_VOICE_CUSTOM_ID_PREFIX}${action}:${channelId}${memberId ? `:${memberId}` : ''}`;
@@ -177,7 +175,7 @@ export function buildPanel({ channel, record }: TempChannel, t: Translate): Resp
 
 /** Posts a new channel's panel in its chat, and remembers it to keep it up to date. */
 export async function postPanel(temp: TempChannel) {
-  const message = await temp.channel.send(buildPanel(temp, serverTranslate(temp.channel.guild))).catch((error: unknown) => {
+  const message = await temp.channel.send(buildPanel(temp, guildTranslate(temp.channel.guild))).catch((error: unknown) => {
     logger.error(error, 'Failed to post a temporary voice channel panel');
     return null;
   });
@@ -200,7 +198,7 @@ export function refreshPanel(temp: TempChannel) {
         const current = { channel: temp.channel, record };
         // Not posted yet: it's being posted right now, and posting here too would make two
         if (!record.panelMessageId) return;
-        await temp.channel.messages.edit(record.panelMessageId, buildPanel(current, serverTranslate(temp.channel.guild))).catch(async (error: unknown) => {
+        await temp.channel.messages.edit(record.panelMessageId, buildPanel(current, guildTranslate(temp.channel.guild))).catch(async (error: unknown) => {
           // Posted again only when it was deleted. Any other failure, like Discord having trouble, would leave two panels
           if (!(error instanceof DiscordAPIError && error.code === RESTJSONErrorCodes.UnknownMessage)) throw error;
           logger.debug(error, 'Temporary voice channel panel gone, posting it again');

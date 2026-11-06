@@ -24,9 +24,9 @@ import { getBotProfile, updateBotProfile } from 'database/botProfile';
 import { prisma } from 'database/index';
 
 import { registerCommands } from 'utility/commandRegistration';
+import { guildTranslate } from 'utility/i18next';
 import { logger } from 'utility/logger';
 import { changedSinceStart, reload, RELOAD_TARGETS, type ReloadTarget } from 'utility/reload';
-import { logTranslate } from 'utility/logs/send';
 import { sendPreview } from 'utility/logs/preview';
 import { isThemeName, madeOn, profileThemesEnabled, syncProfileTheme, themeOverview, wantedTheme } from 'utility/profileTheme';
 import { createResponse } from 'utility/response';
@@ -145,7 +145,7 @@ async function handleRestart(interaction: ChatInputCommandInteraction<'cached'>)
 async function handleLogPreview(interaction: ChatInputCommandInteraction<'cached'>) {
   await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
   if (!interaction.channel?.isSendable()) return interaction.editReply(createResponse("I can't post in this channel.", 'error'));
-  await sendPreview(interaction.channel, interaction.member, logTranslate(interaction.guild));
+  await sendPreview(interaction.channel, interaction.member, guildTranslate(interaction.guild));
   return interaction.editReply(createResponse('Posted the sample log entries.', 'success'));
 }
 

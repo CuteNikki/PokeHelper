@@ -25,7 +25,7 @@ import {
   type CountMessage,
 } from 'utility/counting/rules';
 import { parseCount } from 'utility/counting/parse';
-import { getTranslate } from 'utility/i18next';
+import { guildTranslate } from 'utility/i18next';
 import { logger } from 'utility/logger';
 import { KeyedQueue } from 'utility/queue';
 import { createResponse, logFailure } from 'utility/response';
@@ -84,7 +84,7 @@ export async function handleCountingMessage(client: Client, message: Message<tru
 
   const processed = processCount(toCountingState(counting), counting, toCountMessage(message));
   // Everyone in the channel sees these messages, so they're in the server's language
-  const t = getTranslate(message.guild.preferredLocale);
+  const t = guildTranslate(message.guild);
   if (!(await saveProgress(counting, processed.state, processed.events))) return;
 
   if (processed.outcome === 'valid') {
@@ -222,7 +222,7 @@ async function syncCounting(client: Client, counting: GuildCounting): Promise<Gu
   await deleteMessages(channel, invalid);
 
   if (invalid.length > 0 || resets.length > 0) {
-    const t = getTranslate(channel.guild.preferredLocale);
+    const t = guildTranslate(channel.guild);
     const lines = [
       t('counting.sync.title'),
       t('counting.sync.description'),
@@ -278,7 +278,7 @@ export async function handleChangedCount(message: Message | PartialMessage, edit
 
   const channel = message.channel;
   if (!channel.isSendable()) return;
-  const t = getTranslate(message.guild?.preferredLocale);
+  const t = guildTranslate(message.guild);
 
   const repost = await channel
     .send({

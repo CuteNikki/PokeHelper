@@ -4,6 +4,8 @@ import i18next, { use, type TFunction } from 'i18next';
 import i18NextFsBackend from 'i18next-fs-backend';
 import { logger } from 'utility/logger';
 
+import { type Guild } from 'discord.js';
+
 export const LOCALES_PATH = 'src/locales';
 export const FALLBACK_LANGUAGE = 'en';
 const nameSpaces = ['messages'];
@@ -60,3 +62,6 @@ export function resolveLanguage(locale: string | null | undefined): string {
  * Logs are for developers and stay in English, through the global `t`.
  */
 export const getTranslate = (locale: string | null | undefined): Translate => i18next.getFixedT(resolveLanguage(locale));
+
+/** A translation function for a server's language, for messages everyone there sees, like announcements and logs. */
+export const guildTranslate = (guild: Guild | null | undefined): Translate => getTranslate(guild?.preferredLocale);

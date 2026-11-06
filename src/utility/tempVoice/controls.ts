@@ -19,7 +19,7 @@ import {
 
 import { getTempVoiceCreators } from 'database/tempVoice';
 
-import { getTranslate, type Translate } from 'utility/i18next';
+import { getTranslate, guildTranslate, type Translate } from 'utility/i18next';
 import { logger } from 'utility/logger';
 import { createResponse, sendError } from 'utility/response';
 import {
@@ -42,7 +42,6 @@ import {
   MAX_PICKED,
   MODERATOR_ACTIONS,
   parseTempVoiceCustomId,
-  serverTranslate,
   TEMP_VOICE_EDIT_MODAL_PREFIX,
   tempVoiceCustomId,
   type TempVoiceAction,
@@ -87,7 +86,7 @@ const tryAgain = (retryAt: Date, t: Translate) => t('tempVoice.controls.renameLi
 async function showChanged(interaction: Control, temp: TempChannel, result: { retryAt: Date } | void, t: Translate) {
   if (result) await sendError(interaction, tryAgain(result.retryAt, t));
   // The panel is in the server's language in the channel's chat, and in the user's own where only they see it
-  const panelT = interaction.message?.flags.has(MessageFlags.Ephemeral) ? t : serverTranslate(interaction.guild);
+  const panelT = interaction.message?.flags.has(MessageFlags.Ephemeral) ? t : guildTranslate(interaction.guild);
   await interaction.editReply(buildPanel(temp, panelT));
 }
 
@@ -147,7 +146,7 @@ export async function handleTempVoiceButton(interaction: ButtonInteraction): Pro
       return interaction.showModal(buildEditModal(temp, 'both', t));
     case 'delete': {
       await interaction.deferUpdate();
-      await announce(temp, serverTranslate(interaction.guild)('tempVoice.announce.deleted', { user: userMention(interaction.user.id) }));
+      await announce(temp, guildTranslate(interaction.guild)('tempVoice.announce.deleted', { user: userMention(interaction.user.id) }));
       setTimeout(() => void deleteTempChannel(temp).catch((error: unknown) => logger.error(error, 'Failed to delete a temporary voice channel')), DELETE_DELAY);
       return;
     }
@@ -164,7 +163,7 @@ export async function handleTempVoiceButton(interaction: ButtonInteraction): Pro
 async function handleMemberAction(interaction: ButtonInteraction<'cached'>, temp: TempChannel, action: TempVoiceAction, memberId: string, t: Translate) {
   const answer = (text: string, kind: 'info' | 'error' = 'info') => interaction.editReply({ ...createResponse(text, kind), allowedMentions: { parse: [] } });
   const mention = userMention(memberId);
-  const serverT = serverTranslate(interaction.guild);
+  const serverT = guildTranslate(interaction.guild);
   await interaction.deferUpdate();
 
   // Moderators help the owner, so they can't do anything to the owner or each other

@@ -6,7 +6,7 @@ import { Event } from 'classes/base/event';
 import { addXpToUser, getGuildLevelingConfiguration, getLevelFromXP } from 'database/leveling';
 import { getUserData } from 'database/user';
 
-import { getTranslate } from 'utility/i18next';
+import { guildTranslate } from 'utility/i18next';
 import { getChannelChain, syncRewardRoles } from 'utility/leveling/rewards';
 import { applyMultiplier, earnsXp, getMultiplier } from 'utility/leveling/rules';
 import { logger } from 'utility/logger';
@@ -72,7 +72,7 @@ export default new Event({
     if (!targetChannel.isSendable()) return;
 
     // Everyone in the channel sees it, so it's in the server's language
-    const translate = getTranslate(message.guild.preferredLocale);
+    const translate = guildTranslate(message.guild);
     const text = [translate('leveling.levelUp.body', { user: userMention(member.id), level: newLevel })];
     if (givenRoles.length > 0) text.push(translate('leveling.levelUp.rewards', { roles: givenRoles.map(roleMention).join(', '), count: givenRoles.length }));
 

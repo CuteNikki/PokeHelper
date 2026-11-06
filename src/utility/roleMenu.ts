@@ -21,7 +21,7 @@ import { getFeatureSwitches } from 'database/features';
 import { deleteRoleMenu as deleteRoleMenuFromDatabase, getRoleMenu, removeRoleFromMenus, updateRoleMenu, type RoleMenu } from 'database/roleMenu';
 
 import { DiscordLimits } from 'utility/discordLimits';
-import { getTranslate, type Translate } from 'utility/i18next';
+import { guildTranslate, type Translate } from 'utility/i18next';
 import { logger } from 'utility/logger';
 import { KeyedQueue } from 'utility/queue';
 import type { ResponsePayload } from 'utility/response';
@@ -111,7 +111,7 @@ async function syncNow(guild: Guild, menuId: string, force: boolean) {
 
     // Role menus turned off for the server show as turned off, like a single menu that is
     const { roleMenusEnabled } = await getFeatureSwitches(guild.id);
-    const payload = buildRoleMenuMessage({ ...menu, enabled: menu.enabled && roleMenusEnabled }, getTranslate(guild.preferredLocale));
+    const payload = buildRoleMenuMessage({ ...menu, enabled: menu.enabled && roleMenusEnabled }, guildTranslate(guild));
     const message = menu.messageId && !force ? await fetchMenuMessage(guild, menu.channelId, menu.messageId) : null;
     if (message) {
       await message.edit(payload);

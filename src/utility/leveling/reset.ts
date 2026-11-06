@@ -4,7 +4,7 @@ import { getActiveLevelingConfigs, getLevelFromXP, getTopUsersByXP, processReset
 
 import type { GuildLeveling } from 'generated/prisma/client';
 import { formatNumber } from 'utility/duration';
-import { getTranslate } from 'utility/i18next';
+import { guildTranslate } from 'utility/i18next';
 import { isResetDue } from 'utility/leveling/rules';
 import { logger } from 'utility/logger';
 import { canGiveRole } from 'utility/roles';
@@ -46,7 +46,7 @@ export async function runResetJob(client: Client, period: ResetPeriod) {
       const guild = await client.guilds.fetch(guildId).catch(() => null);
       if (!guild) continue;
       // Everyone in the channel sees the announcement, so it's in the server's language
-      const t = getTranslate(guild.preferredLocale);
+      const t = guildTranslate(guild);
       const canGiveRewardRole = roleId !== null && canGiveRole(guild, roleId);
 
       // The role the last winner got, which may not be the one set now. Winners from before that was remembered got the one set now

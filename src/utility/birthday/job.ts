@@ -4,7 +4,7 @@ import { prisma } from 'database/index';
 
 import type { GuildBirthday, UserBirthday } from 'generated/prisma/client';
 import { ageInYear, getBirthdayActions } from 'utility/birthday/dates';
-import { getTranslate } from 'utility/i18next';
+import { guildTranslate } from 'utility/i18next';
 import { logger } from 'utility/logger';
 import { createResponse } from 'utility/response';
 import { canGiveRole } from 'utility/roles';
@@ -81,7 +81,7 @@ async function announceBirthday(client: Client, birthday: UserBirthday, guildCon
     if (!guild || !member || !channel?.isSendable()) continue;
 
     // Everyone in the channel sees it, so it's in the server's language
-    const t = getTranslate(guild.preferredLocale);
+    const t = guildTranslate(guild);
     const content = birthday.showAge
       ? t('birthday.announcement.withAge', { user: userMention(birthday.userId), age: ageInYear(birthday.date, year) })
       : t('birthday.announcement.message', { user: userMention(birthday.userId) });

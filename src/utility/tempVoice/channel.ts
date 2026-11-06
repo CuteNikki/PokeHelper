@@ -28,11 +28,12 @@ import {
   type TempVoiceCreator,
 } from 'database/tempVoice';
 
+import { guildTranslate } from 'utility/i18next';
 import type { Translate } from 'utility/i18next';
 import { logger } from 'utility/logger';
 import { KeyedQueue } from 'utility/queue';
 import { missingBotPermissions } from 'utility/settings';
-import { announce, postPanel, refreshPanel, serverTranslate } from 'utility/tempVoice/panel';
+import { announce, postPanel, refreshPanel } from 'utility/tempVoice/panel';
 
 /**
  * Temporary voice channels: joining a join-to-create channel gives you a voice channel of your own, deleted once everyone has left.
@@ -309,7 +310,7 @@ export function settleTempChannel(channel: VoiceChannel, ownerGrace = OWNER_GRAC
       const oldOwnerId = temp.record.ownerId;
       const newOwner = here.first()!;
       await giveTo(temp, newOwner.id);
-      const t = serverTranslate(channel.guild);
+      const t = guildTranslate(channel.guild);
       await announce(temp, t('tempVoice.announce.ownerLeft', { old: userMention(oldOwnerId), new: userMention(newOwner.id) }), [newOwner.id]);
       return;
     } else if (!ownerAway.has(channel.id)) {
@@ -454,7 +455,7 @@ export function changeTempChannel(temp: TempChannel, by: GuildMember, change: Ch
     }
     refreshPanel(temp);
 
-    const t = serverTranslate(temp.channel.guild);
+    const t = guildTranslate(temp.channel.guild);
     const changes = describeChanges(before, { name: temp.channel.name, userLimit: temp.channel.userLimit, ...temp.record }, t);
     if (changes.length > 0)
       await announce(temp, [t('tempVoice.announce.changed', { user: userMention(by.id) }), ...changes.map((line) => `- ${line}`)].join('\n'));

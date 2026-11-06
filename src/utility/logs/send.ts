@@ -25,7 +25,7 @@ import {
 
 import { getGuildLogs, type GuildLogs } from 'database/logs';
 
-import { getTranslate, type Translate } from 'utility/i18next';
+import { guildTranslate, type Translate } from 'utility/i18next';
 import { logger } from 'utility/logger';
 import type { Doer } from 'utility/logs/audit';
 import { copyIdsButton, type LogIds } from 'utility/logs/copyIds';
@@ -60,7 +60,6 @@ export async function getLogConfig(guildId: string): Promise<GuildLogs | null> {
 export const forgetLogConfig = (guildId: string) => cache.delete(guildId);
 
 /** The language of a server's logs, which its staff read. */
-export const logTranslate = (guild: Guild): Translate => getTranslate(guild.preferredLocale);
 
 /** What kind of change an entry is about, which decides its color: added in green, removed in red, changed in blue. */
 export type LogKind = 'created' | 'deleted' | 'updated';
@@ -223,7 +222,7 @@ export async function sendLog(guild: Guild, event: LogEvent, entry: LogEntry | (
     if (!channel?.isSendable()) return;
     if (missingBotPermissions(guild, channelId, LOG_CHANNEL_PERMISSIONS).length > 0) return;
 
-    const t = logTranslate(guild);
+    const t = guildTranslate(guild);
     const built = typeof entry === 'function' ? await entry(t) : entry;
     if (!built) return;
     // Who did it, for their name next to the mention

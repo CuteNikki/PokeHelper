@@ -35,7 +35,7 @@ import {
 } from 'database/starboard';
 
 import { formatNumber } from 'utility/duration';
-import { getTranslate, type Translate } from 'utility/i18next';
+import { guildTranslate, type Translate } from 'utility/i18next';
 import { logger } from 'utility/logger';
 import { KeyedQueue } from 'utility/queue';
 import type { ResponsePayload } from 'utility/response';
@@ -273,7 +273,7 @@ export function changeStars(guild: Guild, message: Message | PartialMessage, cha
       return starredBy;
     }
 
-    const t = getTranslate(guild.preferredLocale);
+    const t = guildTranslate(guild);
     // A post whose channel is gone, like an old starboard that was deleted, is posted anew
     const postChannel = entry?.starboardMessageId ? boardChannel(guild, postChannelId(config, entry)) : null;
     if (entry?.starboardMessageId && postChannel) {
