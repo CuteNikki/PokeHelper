@@ -192,7 +192,8 @@ class ExpressionParser {
       return value;
     }
 
-    const match = /^\d+(?:\.\d+)?/.exec(this.text.slice(this.position));
+    // No leading zeros, like without math, so `05` doesn't count, while `0.5` still works in a sum
+    const match = /^(?:0|[1-9]\d*)(?:\.\d+)?/.exec(this.text.slice(this.position));
     if (!match) return null;
     this.position += match[0].length;
     this.end = this.position;

@@ -40,7 +40,7 @@ describe('parseCount with math', () => {
     ['0.1 * 30', 3],
     ['1.5 * 2', 3],
     ['((2))', 2],
-    ['05', 5],
+    ['0.5 + 4.5', 5],
     // Text after the expression, as long as it's separated
     ['1+1 nice', 2],
     ['5 - nice', 5],
@@ -50,7 +50,7 @@ describe('parseCount with math', () => {
     expect(parseCount(content, true)).toBe(expected);
   });
 
-  test.each(['1+1abc', '1+', '1.5', '7 / 2', '1 / 0', '0', '1 - 1', '2 - 5', '(2', '2)', '21!', '2.5!', 'abc', '', `${'1+'.repeat(150)}1`])(
+  test.each(['05', '2 + 03', '1+1abc', '1+', '1.5', '7 / 2', '1 / 0', '0', '1 - 1', '2 - 5', '(2', '2)', '21!', '2.5!', 'abc', '', `${'1+'.repeat(150)}1`])(
     '%p does not count',
     (content) => {
       expect(parseCount(content, true)).toBeNull();
