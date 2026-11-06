@@ -1267,7 +1267,7 @@
       },
       "count": "{{count, number}}/{{max}} Menüs",
       "none": "Hier gibt es noch keine Rollenmenüs. Erstell eins mit `/rollenmenü-einstellungen erstellen`.",
-      "item": "- **{{name}}** in {{channel}} · {{roles}}",
+      "item": "{{position}}. **{{name}}** in {{channel}} · {{roles}}",
       "roles_one": "{{count, number}} Rolle",
       "roles_other": "{{count, number}} Rollen",
       "placeholder": "Wähl ein Menü aus, um es zu ändern",

@@ -239,8 +239,9 @@ export async function renderRoleMenuList(guild: Guild, t: Translate): Promise<Re
     return { components: [container], flags: [MessageFlags.IsComponentsV2] };
   }
 
-  const lines = menus.map((menu) =>
+  const lines = menus.map((menu, index) =>
     t('roleMenu.list.item', {
+      position: index + 1,
       name: roleMenuName(menu, guild, t),
       channel: channelMention(menu.channelId),
       roles: t('roleMenu.list.roles', { count: menu.roles.length }),

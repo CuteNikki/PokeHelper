@@ -567,7 +567,7 @@
       },
       "count": "{{count, number}}/{{max}} menus",
       "none": "There are no role menus here yet. Create one with `/role-menu-config create`.",
-      "item": "- **{{name}}** in {{channel}} · {{roles}}",
+      "item": "{{position}}. **{{name}}** in {{channel}} · {{roles}}",
       "roles_one": "{{count, number}} role",
       "roles_other": "{{count, number}} roles",
       "placeholder": "Pick a menu to change it",
