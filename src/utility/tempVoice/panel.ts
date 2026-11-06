@@ -60,13 +60,10 @@ const ACTIONS: TempVoiceAction[] = [
 /** What moderators can do: let people in, keep them out, kick them, and set the limit. The rest is for the owner. */
 export const MODERATOR_ACTIONS: TempVoiceAction[] = ['allow', 'block', 'limit', 'member', 'kick', 'keepout'];
 
-/** Discord's user selects pick at most 25 people. */
 /** Discord's pickers show at most 25. Longer lists show their first 25, and the rest are kept when the picker is used. */
 export const MAX_PICKED = DiscordLimits.selectOptions;
 /** How long to wait for more changes before editing the panel, so a few people joining at once edit it once. */
 const REFRESH_DELAY = SECOND;
-
-/** The language of messages in a server's channels, which everyone there reads. */
 
 export const tempVoiceCustomId = (action: TempVoiceAction, channelId: string, memberId?: string) =>
   `${TEMP_VOICE_CUSTOM_ID_PREFIX}${action}:${channelId}${memberId ? `:${memberId}` : ''}`;

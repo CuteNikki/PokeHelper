@@ -60,8 +60,6 @@ async function getLogConfig(guildId: string): Promise<GuildLogs | null> {
 /** Forget a server's log settings, after they changed. */
 export const forgetLogConfig = (guildId: string) => cache.delete(guildId);
 
-/** The language of a server's logs, which its staff read. */
-
 /** What kind of change an entry is about, which decides its color: added in green, removed in red, changed in blue. */
 export type LogKind = 'created' | 'deleted' | 'updated';
 const KIND_COLORS: Record<LogKind, number> = {

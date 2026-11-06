@@ -406,7 +406,7 @@ export type Change = Partial<Access> & { name?: string; userLimit?: number };
  * A change someone made to a channel from its panel. Given as a function, it's worked out from the channel as it is once it's this
  * change's turn, like adding one person to a list. Nothing changes if the channel is gone, or whoever made it no longer may change it.
  * Saved as the owner's settings for next time when it's the owner who made it.
- * @returns When it can be tried again, if Discord won't rename it yet.
+ * @returns When it can be tried again, if Discord won't change the channel yet.
  */
 export function changeTempChannel(temp: TempChannel, by: GuildMember, change: Change | ((record: TempVoiceChannel) => Change)) {
   return queue.run(`channel:${temp.channel.id}`, async (): Promise<{ retryAt: Date } | void> => {
@@ -506,8 +506,8 @@ export function describeChanges(before: Described, after: Described, t: Translat
 }
 
 /**
- * For the REST manager: Discord only lets a channel be renamed a couple of times every ten minutes, and waiting that out would leave
- * the owner looking at a spinner. Such a wait throws a RateLimitError instead, for {@link changeTempChannel}.
+ * For the REST manager: Discord only lets a channel be changed so often, a rename only a couple of times every ten minutes, and waiting
+ * that out would leave the owner looking at a spinner. Such a wait throws a RateLimitError instead, for {@link changeTempChannel}.
  * Only for editing a channel itself, not messages in it.
  */
 export function isRenameLimit(data: RateLimitData) {
