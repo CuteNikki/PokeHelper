@@ -1553,5 +1553,35 @@
       "entry": "**{{position}}.** {{text}}\n-# {{due}} · {{details}}",
       "delete": "Delete a reminder"
     }
+  },
+  "lookup": {
+    "generation": "Generation {{number}}"
+  },
+  "moves": {
+    "title": "### {{name}} {{icon.swords}}",
+    "notFound": "I couldn't find a move called **{{name}}**. Pick one of the suggestions.",
+    "classes": {
+      "physical": "Physical",
+      "special": "Special",
+      "status": "Status"
+    },
+    "power": "Power",
+    "accuracy": "Accuracy",
+    "pp": "PP",
+    "priority": "Priority",
+    "none": "—",
+    "effect": "Effect",
+    "contest": "Contests",
+    "appeal": "Appeal",
+    "jam": "Jam",
+    "contestTypes": {
+      "cool": "Cool",
+      "beauty": "Beauty",
+      "cute": "Cute",
+      "smart": "Clever",
+      "tough": "Tough"
+    },
+    "learnedBy_one": "Learned by {{count, number}} Pokémon",
+    "learnedBy_other": "Learned by {{count, number}} Pokémon"
   }
 }

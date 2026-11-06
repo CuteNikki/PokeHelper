@@ -105,10 +105,35 @@ export interface ApiType {
   damage_relations: ApiDamageRelations;
 }
 
+/** What PokéAPI has in several languages, like descriptions, with the text under its own key. */
+type InLanguages<K extends string> = ({ language: Named } & Record<K, string>)[];
+
 export interface ApiMove {
   id: number;
   name: string;
   names: { name: string; language: Named }[];
+  type: Named;
+  damage_class: Named;
+  power: number | null;
+  /** In percent, or null for moves that always hit. */
+  accuracy: number | null;
+  pp: number | null;
+  priority: number;
+  /** The chance of its effect, which its effect text has as `$effect_chance`. */
+  effect_chance: number | null;
+  generation: Named;
+  effect_entries: InLanguages<'effect' | 'short_effect'>;
+  flavor_text_entries: InLanguages<'flavor_text'>;
+  contest_type: Named | null;
+  contest_effect: { url: string } | null;
+  learned_by_pokemon: Named[];
+}
+
+/** How a move does in contests: how much it appeals, and how much it puts off the others. */
+export interface ApiContestEffect {
+  id: number;
+  appeal: number;
+  jam: number;
 }
 
 /** Thrown when PokéAPI can't be reached or answers with an error, but not when something doesn't exist. */
@@ -164,6 +189,7 @@ export const getPokemon = (slug: string) => get<ApiPokemon>(`pokemon/${encodeURI
 export const getSpecies = (id: number) => get<ApiSpecies>(`pokemon-species/${id}`);
 export const getMove = (slug: string) => get<ApiMove>(`move/${encodeURIComponent(slug)}`);
 export const getType = (name: string) => get<ApiType>(`type/${encodeURIComponent(name)}`);
+export const getContestEffect = (id: number) => get<ApiContestEffect>(`contest-effect/${id}`);
 
 /** The evolution chain at a URL from {@link ApiSpecies.evolution_chain}. */
 export function getEvolutionChain(url: string) {

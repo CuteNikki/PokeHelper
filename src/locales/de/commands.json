@@ -321,5 +321,15 @@
         "description": "Sieh und lösch deine Erinnerungen"
       }
     }
+  },
+  "move": {
+    "name": "attacke",
+    "description": "Schlag eine Attacke nach: Typ, Stärke, Genauigkeit, AP und Effekt",
+    "options": {
+      "move": {
+        "name": "attacke",
+        "description": "Die Attacke, mit Namen"
+      }
+    }
   }
 }

@@ -1492,5 +1492,35 @@
       "entry": "**{{position}}.** {{text}}\n-# {{due}} · {{details}}",
       "delete": "Erinnerung löschen"
     }
+  },
+  "lookup": {
+    "generation": "Generation {{number}}"
+  },
+  "moves": {
+    "title": "### {{name}} {{icon.swords}}",
+    "notFound": "Ich konnte keine Attacke namens **{{name}}** finden. Wähl einen der Vorschläge.",
+    "classes": {
+      "physical": "Physisch",
+      "special": "Speziell",
+      "status": "Status"
+    },
+    "power": "Stärke",
+    "accuracy": "Genauigkeit",
+    "pp": "AP",
+    "priority": "Priorität",
+    "none": "—",
+    "effect": "Effekt",
+    "contest": "Wettbewerbe",
+    "appeal": "Appell",
+    "jam": "Störung",
+    "contestTypes": {
+      "cool": "Coolness",
+      "beauty": "Schönheit",
+      "cute": "Anmut",
+      "smart": "Klugheit",
+      "tough": "Stärke"
+    },
+    "learnedBy_one": "{{count, number}} Pokémon kann sie lernen",
+    "learnedBy_other": "{{count, number}} Pokémon können sie lernen"
   }
 }

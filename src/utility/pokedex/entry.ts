@@ -39,6 +39,7 @@ import {
 import { renderPokedexCard, STAT_BAR_MAX } from 'utility/pokedex/card';
 import { evolutionCondition } from 'utility/pokedex/evolution';
 import { whereToFindButton } from 'utility/pokedex/encounters';
+import { newestText } from 'utility/pokedex/lookup';
 import { matchupsButton } from 'utility/pokedex/matchups';
 import { TYPE_COLORS } from 'utility/pokedex/types';
 import { buttonIcon, statBarEmoji, withTypeEmoji, type BarPiece } from 'utility/emojis';
@@ -146,18 +147,6 @@ export function parsePokedexFormSelectId(customId: string): PokedexView | null {
   if (!customId.startsWith(POKEDEX_FORM_SELECT_ID)) return null;
   const [shiny, mode, ...rest] = customId.slice(POKEDEX_FORM_SELECT_ID.length).split(':');
   return rest.length > 0 ? null : decodeView(shiny, mode);
-}
-
-/** The newest Pokédex entry in the language, or English. Text from the old games has hard line breaks and hyphens, which are joined. */
-function flavorText(species: ApiSpecies, language: string): string | null {
-  const latest = (lang: string) => species.flavor_text_entries.findLast((entry) => entry.language.name === lang)?.flavor_text;
-  const text = latest(language) ?? latest(FALLBACK_LANGUAGE);
-  return text
-    ? text
-        .replace(/\u00ad\s+/g, '')
-        .replace(/\s+/g, ' ')
-        .trim()
-    : null;
 }
 
 /** How many are male and female, like `87.5% male, 12.5% female`, from the chance of being female in eighths, or that it has no gender. */
@@ -329,7 +318,7 @@ export async function buildPokedexEntry(match: PokedexMatch, view: PokedexView, 
   const kind = [genus(species, language), species.is_mythical ? t('pokedex.mythical') : species.is_legendary ? t('pokedex.legendary') : null]
     .filter(Boolean)
     .join(' · ');
-  const entry = flavorText(species, language);
+  const entry = newestText(species.flavor_text_entries, 'flavor_text', language);
   const abilities = [...pokemon.abilities]
     .sort((a, b) => a.slot - b.slot)
     .map((ability) => {
