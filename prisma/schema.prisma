@@ -264,32 +264,41 @@ model GuildLeveling {
   guildId String @id
   guild   Guild  @relation("GuildLeveling", fields: [guildId], references: [guildId], onDelete: Cascade)
 
-  // Configuration
-  enabled              Boolean               @default(false)
+  // General
+  enabled Boolean @default(false)
+
+  // Level ups
   // Whether level ups are announced. Members level up and get their rewards either way
-  levelUpMessages      Boolean               @default(true)
-  levelUpChannelId     String?
-  rewards              GuildLevelingReward[]
-  multipliers          LevelingMultiplier[]
-  weeklyReward         String? // roleId of the weekly reward
-  weeklyLastResetAt    DateTime?
-  weeklyLastWinner     String? // userId of the last weekly winner
-  weeklyWinnerRole     String? // the role the last weekly winner got, which is taken away at the next reset even if the setting changed
+  levelUpMessages  Boolean               @default(true)
+  levelUpChannelId String?
+  rewards          GuildLevelingReward[]
+  multipliers      LevelingMultiplier[]
+
+  // Winners
+  // Where winners are announced. Without one, they aren't announced
+  winnersChannelId String?
+
+  // Weekly winner
+  weeklyReward        String? // roleId of the weekly reward
   // Whether the weekly winner is announced. The reset and the role happen either way
-  weeklyResetMessages  Boolean               @default(true)
+  weeklyResetMessages Boolean   @default(true)
+  weeklyLastResetAt   DateTime?
+  weeklyLastWinner    String? // userId of the last weekly winner
+  weeklyWinnerRole    String? // the role the last weekly winner got, which is taken away at the next reset even if the setting changed
+
+  // Monthly winner
   monthlyReward        String? // roleId of the monthly reward
+  // Whether the monthly winner is announced. The reset and the role happen either way
+  monthlyResetMessages Boolean   @default(true)
   monthlyLastResetAt   DateTime?
   monthlyLastWinner    String? // userId of the last monthly winner
   monthlyWinnerRole    String? // the role the last monthly winner got, which is taken away at the next reset even if the setting changed
-  // Whether the monthly winner is announced. The reset and the role happen either way
-  monthlyResetMessages Boolean               @default(true)
-  // Where winners are announced. Without one, they aren't announced
-  winnersChannelId     String?
+
   // Filters
-  ignoredChannels      String[]              @default([]) // if empty, no channels are ignored otherwise only the specified channels are ignored
-  enabledChannels      String[]              @default([]) // if empty, all channels are enabled otherwise only the specified channels are enabled
-  ignoredRoles         String[]              @default([]) // if empty, no roles are ignored otherwise only the specified roles are ignored
-  enabledRoles         String[]              @default([]) // if empty, all roles are enabled otherwise only the specified roles are enabled
+  ignoredChannels String[] @default([]) // if empty, no channels are ignored otherwise only the specified channels are ignored
+  enabledChannels String[] @default([]) // if empty, all channels are enabled otherwise only the specified channels are enabled
+  ignoredRoles    String[] @default([]) // if empty, no roles are ignored otherwise only the specified roles are ignored
+  enabledRoles    String[] @default([]) // if empty, all roles are enabled otherwise only the specified roles are enabled
 
   // Timestamps
   createdAt DateTime @default(now())
