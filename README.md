@@ -40,9 +40,11 @@ _A Pokémon themed Discord bot_
 ### 📖 Pokédex
 
 - Look up any Pokémon by name or number, with suggestions while typing
-- An image with its picture, types, stats and evolutions, or a text version for screen readers, switched between with a button
+- An image with its picture, types, stats, breeding details and evolutions with how each one evolves, or a text version for screen readers, switched between with a button
 - Shiny pictures, and buttons to go to the previous, next or another Pokémon without running the command again
 - A Matchups button with what a Pokémon is weak to, with Pokémon and moves to use against it, and what it resists and can't be hurt by, as an image or text like the entry, for whoever presses it
+- A Where to find button with the places it's met in the wild, game by game, with levels, how and the chance
+- `/move`, `/item`, `/ability`, `/berry`, `/nature` and `/location` look up the rest, with suggestions in every language too
 - Names, pictures and details come from [PokéAPI](https://pokeapi.co/), so nothing has to be downloaded first
 - `/guess`: guess a Pokémon from its silhouette, in any language, with up to three hints
 
@@ -136,6 +138,12 @@ Days change at midnight UTC, and the bot puts the new look on within 15 minutes.
 | `/birthday`         | Your birthday, timezone and where it gets announced               |
 | `/pokedex`          | Look up a Pokémon                                                 |
 | `/guess`            | Guess a Pokémon from its silhouette                               |
+| `/move`             | Look up a move: type, power, accuracy, PP, effect and contests    |
+| `/item`             | Look up an item: picture, effect and who holds it                 |
+| `/ability`          | Look up an ability and which Pokémon have it                      |
+| `/berry`            | Look up a berry: flavors, growth and Natural Gift                 |
+| `/nature`           | Look up a nature, or see them all with their stats                |
+| `/location`         | Look up a place and the wild Pokémon met there                    |
 | `/friendcode`       | Add your friend codes, or show yours or someone else's            |
 | `/remind`           | Set a reminder, once or repeating, and see and delete yours       |
 | `/voice`            | The control panel of your temporary voice channel                 |
