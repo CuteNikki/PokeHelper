@@ -129,6 +129,27 @@ export interface ApiMove {
   learned_by_pokemon: Named[];
 }
 
+export interface ApiItem {
+  id: number;
+  name: string;
+  names: { name: string; language: Named }[];
+  category: Named;
+  sprites: { default: string | null };
+  effect_entries: InLanguages<'effect' | 'short_effect'>;
+  flavor_text_entries: InLanguages<'text'>;
+  /** The power of Fling when the item is thrown, or null when it can't be. */
+  fling_power: number | null;
+  /** The wild Pokémon that can be holding it. */
+  held_by_pokemon: { pokemon: Named }[];
+}
+
+/** A kind of item, like Standard balls. */
+export interface ApiItemCategory {
+  id: number;
+  name: string;
+  names: { name: string; language: Named }[];
+}
+
 /** How a move does in contests: how much it appeals, and how much it puts off the others. */
 export interface ApiContestEffect {
   id: number;
@@ -189,6 +210,8 @@ export const getPokemon = (slug: string) => get<ApiPokemon>(`pokemon/${encodeURI
 export const getSpecies = (id: number) => get<ApiSpecies>(`pokemon-species/${id}`);
 export const getMove = (slug: string) => get<ApiMove>(`move/${encodeURIComponent(slug)}`);
 export const getType = (name: string) => get<ApiType>(`type/${encodeURIComponent(name)}`);
+export const getItem = (slug: string) => get<ApiItem>(`item/${encodeURIComponent(slug)}`);
+export const getItemCategory = (slug: string) => get<ApiItemCategory>(`item-category/${encodeURIComponent(slug)}`);
 export const getContestEffect = (id: number) => get<ApiContestEffect>(`contest-effect/${id}`);
 
 /** The evolution chain at a URL from {@link ApiSpecies.evolution_chain}. */

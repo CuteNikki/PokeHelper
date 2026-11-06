@@ -1494,7 +1494,9 @@
     }
   },
   "lookup": {
-    "generation": "Generation {{number}}"
+    "generation": "Generation {{number}}",
+    "more_one": "und {{count, number}} weiteres",
+    "more_other": "und {{count, number}} weitere"
   },
   "moves": {
     "title": "### {{name}} {{icon.swords}}",
@@ -1522,5 +1524,13 @@
     },
     "learnedBy_one": "{{count, number}} Pokémon kann sie lernen",
     "learnedBy_other": "{{count, number}} Pokémon können sie lernen"
+  },
+  "items": {
+    "title": "### {{name}} {{icon.backpack}}",
+    "notFound": "Ich konnte kein Item namens **{{name}}** finden. Wähl einen der Vorschläge.",
+    "picture": "Bild von {{name}}",
+    "effect": "Effekt",
+    "fling": "Schleuder-Stärke",
+    "heldBy": "Wilde Pokémon, die es tragen"
   }
 }

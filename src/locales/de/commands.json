@@ -331,5 +331,15 @@
         "description": "Die Attacke, mit Namen"
       }
     }
+  },
+  "item": {
+    "name": "item",
+    "description": "Schlag ein Item nach: Bild, Beschreibung, Effekt und wer es trägt",
+    "options": {
+      "item": {
+        "name": "item",
+        "description": "Das Item, mit Namen"
+      }
+    }
   }
 }

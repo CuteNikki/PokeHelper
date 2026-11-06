@@ -1555,7 +1555,9 @@
     }
   },
   "lookup": {
-    "generation": "Generation {{number}}"
+    "generation": "Generation {{number}}",
+    "more_one": "and {{count, number}} more",
+    "more_other": "and {{count, number}} more"
   },
   "moves": {
     "title": "### {{name}} {{icon.swords}}",
@@ -1583,5 +1585,13 @@
     },
     "learnedBy_one": "Learned by {{count, number}} Pokémon",
     "learnedBy_other": "Learned by {{count, number}} Pokémon"
+  },
+  "items": {
+    "title": "### {{name}} {{icon.backpack}}",
+    "notFound": "I couldn't find an item called **{{name}}**. Pick one of the suggestions.",
+    "picture": "Picture of {{name}}",
+    "effect": "Effect",
+    "fling": "Fling power",
+    "heldBy": "Held by wild Pokémon"
   }
 }
