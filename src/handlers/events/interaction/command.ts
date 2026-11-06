@@ -3,8 +3,8 @@ import { t } from 'i18next';
 
 import { Event } from 'classes/base/event';
 
-import { getGuildOrCreate } from 'database/guild';
-import { getUserData } from 'database/user';
+import { ensureGuild } from 'database/guild';
+import { ensureUser } from 'database/user';
 
 import { isDeveloper } from 'utility/developers';
 import { getTranslate } from 'utility/i18next';
@@ -45,9 +45,9 @@ export default new Event({
     // Trying to execute the command
     try {
       // Ensure the user and guild are in the database, inside the try so a database outage gets an error reply too
-      await getUserData(interaction.user.id);
+      await ensureUser(interaction.user.id);
       if (interaction.inGuild()) {
-        await getGuildOrCreate(interaction.guildId);
+        await ensureGuild(interaction.guildId);
       }
 
       await command.options.execute(interaction);

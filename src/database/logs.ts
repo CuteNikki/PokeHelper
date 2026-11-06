@@ -1,4 +1,4 @@
-import { getGuildOrCreate } from 'database/guild';
+import { ensureGuild } from 'database/guild';
 import { prisma } from 'database/index';
 
 import type { GuildLogs } from 'generated/prisma/client';
@@ -9,7 +9,7 @@ export const getGuildLogs = async (guildId: string) => prisma.guildLogs.findUniq
 
 /** The server's log settings, made with everything turned on and no channels if there are none yet. */
 export async function getOrCreateGuildLogs(guildId: string) {
-  await getGuildOrCreate(guildId);
+  await ensureGuild(guildId);
   return prisma.guildLogs.upsert({ where: { guildId }, update: {}, create: { guildId } });
 }
 

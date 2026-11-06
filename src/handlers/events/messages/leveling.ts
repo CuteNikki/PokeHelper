@@ -4,7 +4,7 @@ import { t } from 'i18next';
 import { Event } from 'classes/base/event';
 
 import { addXpToUser, getGuildLevelingConfiguration, getLevelFromXP } from 'database/leveling';
-import { getUserData } from 'database/user';
+import { ensureUser } from 'database/user';
 
 import { formatNumber, MINUTE } from 'utility/duration';
 import { guildTranslate } from 'utility/i18next';
@@ -54,7 +54,7 @@ export default new Event({
     const xpToAdd = applyMultiplier(baseXp, getMultiplier(levelingConfig.multipliers, context));
 
     // Make sure the user exists in the database
-    await getUserData(member.id);
+    await ensureUser(member.id);
     const levelingData = await addXpToUser(message.guildId, member.id, xpToAdd);
 
     const newLevel = getLevelFromXP(levelingData.xp);

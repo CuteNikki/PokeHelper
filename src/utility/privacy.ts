@@ -16,7 +16,7 @@ import {
   TextDisplayBuilder,
 } from 'discord.js';
 
-import { getGuildOrCreate } from 'database/guild';
+import { ensureGuild } from 'database/guild';
 import { deleteGuildData, deleteUserData, getGivenRoles, getGuildData, getUserData, type GivenRole } from 'database/privacy';
 
 import { runCountingTask } from 'utility/counting/game';
@@ -138,6 +138,6 @@ export async function deleteServerData(context: SettingsContext, t: Translate): 
   // After a count that's being handled, so it doesn't save into what was just deleted
   await runCountingTask(guildId, () => deleteGuildData(guildId));
   forgetLogConfig(guildId);
-  await getGuildOrCreate(guildId);
+  await ensureGuild(guildId);
   return createResponse(t('privacy.guild.deleted'), 'warning');
 }

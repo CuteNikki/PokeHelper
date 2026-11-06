@@ -1,15 +1,9 @@
 import { prisma } from 'database/index';
 
-/**
- * Get a guild by its ID, or create it if it doesn't exist.
- * @param guildId {string} The ID of the guild to retrieve or create.
- */
-export const getGuildOrCreate = async (guildId: string) =>
-  await prisma.guild.upsert({
-    where: { guildId },
-    update: {},
-    create: { guildId },
-  });
+/** Make sure a server has a row, which all its settings and data belong to. */
+export async function ensureGuild(guildId: string): Promise<void> {
+  await prisma.guild.upsert({ where: { guildId }, update: {}, create: { guildId } });
+}
 
 /**
  * Mark guilds the bot isn't in anymore as left, keeping the time they were first marked.
