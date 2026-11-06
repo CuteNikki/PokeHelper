@@ -17,9 +17,17 @@ import {
 } from 'discord.js';
 
 import { getFeatureSwitches } from 'database/features';
-import { deleteRoleMenu as deleteRoleMenuFromDatabase, getRoleMenu, removeRoleFromMenus, updateRoleMenu, type RoleMenu } from 'database/roleMenu';
+import {
+  deleteRoleMenu as deleteRoleMenuFromDatabase,
+  getRoleMenu,
+  removeRoleFromMenus,
+  replaceRoleMenuEmoji,
+  updateRoleMenu,
+  type RoleMenu,
+} from 'database/roleMenu';
 
 import { DiscordLimits } from 'utility/discordLimits';
+import { customEmojiId } from 'utility/emoji';
 import { guildTranslate, type Translate } from 'utility/i18next';
 import { logger } from 'utility/logger';
 import { KeyedQueue } from 'utility/queue';
@@ -142,6 +150,15 @@ export async function deleteRoleMenu(guild: Guild, menu: RoleMenu) {
     await deleteMenuMessage(guild, menu.channelId, menu.messageId);
     await deleteRoleMenuFromDatabase(menu.id);
   });
+}
+
+/** What roles get instead of an emoji that's deleted, until it's changed. */
+const REPLACED_EMOJI = '🏷️';
+
+/** Give the roles with a deleted emoji another one, and update their menus' messages, which Discord wouldn't take with it anymore. */
+export async function handleDeletedEmoji(guild: Guild, emojiId: string) {
+  const menuIds = await replaceRoleMenuEmoji(guild.id, (emoji) => customEmojiId(emoji) === emojiId, REPLACED_EMOJI);
+  for (const menuId of menuIds) await syncRoleMenuMessage(guild, menuId);
 }
 
 /** Take a deleted role out of a guild's menus, and update their messages so its button is gone. */

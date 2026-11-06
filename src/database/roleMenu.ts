@@ -53,3 +53,15 @@ export async function removeRoleFromMenus(guildId: string, roleId: string): Prom
 
   return menus.map((menu) => menu.id);
 }
+
+/**
+ * Give the roles that have a deleted emoji another one, in every menu of a guild, as Discord doesn't take buttons with it anymore.
+ * @param isDeleted Whether an emoji, as it's saved, is the deleted one.
+ * @returns The IDs of the menus that had it.
+ */
+export async function replaceRoleMenuEmoji(guildId: string, isDeleted: (emoji: string) => boolean, replacement: string): Promise<string[]> {
+  const roles = (await prisma.reactionRole.findMany({ where: { roleMenu: { guildId } } })).filter((role) => isDeleted(role.emoji));
+  if (roles.length === 0) return [];
+  await prisma.reactionRole.updateMany({ where: { id: { in: roles.map((role) => role.id) } }, data: { emoji: replacement } });
+  return [...new Set(roles.map((role) => role.menuId))];
+}
