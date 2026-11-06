@@ -13,6 +13,6 @@ export default new SelectMenu({
     const context = parsePageId(interaction.customId, PAGE_GAME_PREFIX);
     const game = interaction.isStringSelectMenu() ? interaction.values[0] : undefined;
     if (!context || !game || !interaction.isStringSelectMenu()) return sendError(interaction, getTranslate(interaction.locale)('system.outdated'));
-    return openPage(interaction, { page: { ...context.page, game }, back: context.back });
+    return openPage(interaction, { page: { ...context.page, game }, back: context.back }, 'stay');
   },
 });

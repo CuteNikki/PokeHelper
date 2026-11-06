@@ -74,6 +74,10 @@ export const PAGE_ICONS: Record<PageKind, IconName> = {
 export const PAGE_BUTTON_PREFIX = 'dex:';
 /** A select of links, `dex-links:<page it's on>`, with the pages as its values. */
 export const PAGE_LINKS_PREFIX = 'dex-links:';
+/** The Back button, `dex-back:<page>`, which goes back to the page before. */
+export const PAGE_BACK_PREFIX = 'dex-back:';
+/** A button that shows the same page another way, `dex-view:<page>`, like the chart of types as text. */
+export const PAGE_VIEW_PREFIX = 'dex-view:';
 /** A select of games, `dex-game:<page>`, with the page it was opened from after `|`, and the games as its values. */
 export const PAGE_GAME_PREFIX = 'dex-game:';
 
@@ -107,9 +111,14 @@ export function parsePageId(customId: string, prefix: string): PageContext | nul
 export const pageButton = (target: DexPage, from: DexPage | null) =>
   new ButtonBuilder().setCustomId(withBack(PAGE_BUTTON_PREFIX, target, from)).setStyle(ButtonStyle.Secondary);
 
+/** A button that shows the same page another way, like as text, keeping where Back goes. */
+export const viewButton = (page: DexPage) => new ButtonBuilder().setCustomId(withBack(PAGE_VIEW_PREFIX, page, null)).setStyle(ButtonStyle.Secondary);
+
 /** The button back to the page this one was opened from. */
 export const backButton = (back: DexPage, label: string, t: Translate) =>
-  pageButton(back, null)
+  new ButtonBuilder()
+    .setCustomId(withBack(PAGE_BACK_PREFIX, back, null))
+    .setStyle(ButtonStyle.Secondary)
     .setEmoji(buttonIcon('chevron-left'))
     .setLabel(t('pages.back', { name: label }).slice(0, DiscordLimits.buttonLabelLength));
 

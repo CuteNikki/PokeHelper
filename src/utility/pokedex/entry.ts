@@ -41,6 +41,7 @@ import { newestText } from 'utility/pokedex/lookup';
 import { matchupsButton } from 'utility/pokedex/matchups';
 import { linkSelect, pageButton, pokemonPage } from 'utility/pokedex/pages';
 import { kindOf } from 'utility/pokedex/pokemonHeader';
+import { setTrail } from 'utility/pokedex/pageTrail';
 import { rememberTextView } from 'utility/pokedex/viewPreference';
 import { TYPE_COLORS } from 'utility/pokedex/types';
 import { buttonIcon, withTypeEmoji } from 'utility/emojis';
@@ -439,6 +440,7 @@ export async function updatePokedexEntry(
 ): Promise<unknown> {
   const t = getTranslate(interaction.locale);
   rememberTextView(interaction.user.id, view.text);
+  if (interaction.message) setTrail(interaction.message.id, []);
   if (!interaction.deferred) await interaction.deferUpdate();
   try {
     await loadPokedexData();

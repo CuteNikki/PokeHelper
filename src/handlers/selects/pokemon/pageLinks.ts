@@ -13,6 +13,6 @@ export default new SelectMenu({
     const from = decodePage(interaction.customId.slice(PAGE_LINKS_PREFIX.length));
     const page = interaction.isStringSelectMenu() ? decodePage(interaction.values[0]) : null;
     if (!from || !page || !interaction.isStringSelectMenu()) return sendError(interaction, getTranslate(interaction.locale)('system.outdated'));
-    return openPage(interaction, { page, back: from });
+    return openPage(interaction, { page, back: from }, 'forward');
   },
 });

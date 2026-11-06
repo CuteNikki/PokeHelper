@@ -12,6 +12,6 @@ export default new Button({
   async execute(interaction) {
     const context = parsePageId(interaction.customId, PAGE_BUTTON_PREFIX);
     if (!context) return sendError(interaction, getTranslate(interaction.locale)('system.outdated'));
-    return openPage(interaction, context);
+    return openPage(interaction, context, 'forward');
   },
 });

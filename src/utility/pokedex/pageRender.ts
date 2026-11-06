@@ -20,6 +20,7 @@ import { buildMove } from 'utility/pokedex/lookups/move';
 import { buildNature, buildNatureList } from 'utility/pokedex/lookups/nature';
 import { findBySlug, loadPokedexData, matchName, nameOf } from 'utility/pokedex/names';
 import { backButton, type DexPage, type PageContext, pokemonPage, pokemonView } from 'utility/pokedex/pages';
+import { moveTrail, type PageMove, setTrail, trailOf } from 'utility/pokedex/pageTrail';
 import { prefersTextView, rememberTextView } from 'utility/pokedex/viewPreference';
 import { buildTeam } from 'utility/pokedex/team';
 import { buildTypeChart, buildTypePage } from 'utility/pokedex/typeChart';
@@ -142,9 +143,10 @@ export function withPreferredView(context: PageContext, userId: string): PageCon
 
 /**
  * Open a page from a button or select on another. Whoever the message is for goes there on the message itself, anyone else gets the
- * page as an answer only they see, so the message stays as it is for everyone.
+ * page as an answer only they see, so the message stays as it is for everyone. Either keeps the pages it went through, for Back.
+ * @param move How it's opened: on from the page shown, which is `context.back`, back to the one before, or the same page another way.
  */
-export async function openPage(interaction: ButtonInteraction | StringSelectMenuInteraction, context: PageContext): Promise<unknown> {
+export async function openPage(interaction: ButtonInteraction | StringSelectMenuInteraction, context: PageContext, move: PageMove): Promise<unknown> {
   const t = getTranslate(interaction.locale);
   const { message } = interaction;
   const owner = message.interactionMetadata?.user.id;
@@ -154,10 +156,18 @@ export async function openPage(interaction: ButtonInteraction | StringSelectMenu
   else await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
   try {
     await loadPokedexData();
-    const answer = await renderPage(withPreferredView(context, interaction.user.id), resolveLanguage(interaction.locale), t);
+    // An answer only they see goes on from the message it was opened on, so it can go back as far
+    const { trail, back } = moveTrail(trailOf(message.id), move, context.back);
+    const answer = await renderPage(withPreferredView({ page: context.page, back }, interaction.user.id), resolveLanguage(interaction.locale), t);
     if (!answer) return sendError(interaction, t('system.outdated'));
-    // The pictures of the page before, like the Pokédex card, are replaced by this one's, or none
-    return own ? interaction.editReply({ ...answer, files: answer.files ?? [], attachments: [] }) : sendResponse(interaction, answer);
+    if (own) {
+      setTrail(message.id, trail);
+      // The pictures of the page before, like the Pokédex card, are replaced by this one's, or none
+      return interaction.editReply({ ...answer, files: answer.files ?? [], attachments: [] });
+    }
+    const reply = await sendResponse(interaction, answer);
+    setTrail((await interaction.fetchReply()).id, trail);
+    return reply;
   } catch (error) {
     return answerPokeApiError(interaction, error, t);
   }

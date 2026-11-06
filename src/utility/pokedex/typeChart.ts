@@ -5,7 +5,7 @@ import type { Translate } from 'utility/i18next';
 import { type ApiDamageRelations, getType } from 'utility/pokedex/api';
 import { addBlocks, labeled } from 'utility/pokedex/lookup';
 import { nameOf } from 'utility/pokedex/names';
-import { linkSelect, type PageContext, pageButton } from 'utility/pokedex/pages';
+import { linkSelect, type PageContext, pageButton, viewButton } from 'utility/pokedex/pages';
 import { renderTypeChartCard } from 'utility/pokedex/typeChartCard';
 import { typeIcon } from 'utility/pokedex/typeIcons';
 import { TYPE_COLORS } from 'utility/pokedex/types';
@@ -148,7 +148,7 @@ export async function buildTypeChart(language: string, t: Translate, context: Pa
   // Between the card and the text, keeping the way back
   container.addActionRowComponents(
     new ActionRowBuilder<ButtonBuilder>().addComponents(
-      pageButton({ kind: 'types', slug: text ? 'image' : 'text' }, context.back)
+      viewButton({ kind: 'types', slug: text ? 'image' : 'text' })
         .setEmoji(buttonIcon(text ? 'image' : 'file-text'))
         .setLabel(t(text ? 'pokedex.view.image' : 'pokedex.view.text')),
     ),
