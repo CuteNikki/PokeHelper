@@ -111,9 +111,10 @@ model Guild {
   // State
   leftAt DateTime? // when the bot was removed from the guild, after which its data is deleted unless the bot is added back
 
-  // Switches for all role menus and all voice channels at once. Each menu and join channel also has its own
+  // Switches for all role menus, all voice channels and all sticky messages at once. Each menu and join channel also has its own
   roleMenusEnabled Boolean @default(true)
   tempVoiceEnabled Boolean @default(true)
+  stickiesEnabled  Boolean @default(true)
 
   // Configuration
   counting          GuildCounting?      @relation("GuildCounting")

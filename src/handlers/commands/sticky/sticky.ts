@@ -12,13 +12,13 @@ import {
 
 import { Command } from 'classes/base/command';
 
-import { getGuildStickies, getSticky } from 'database/sticky';
+import { getSticky } from 'database/sticky';
 
 import { getTranslate } from 'utility/i18next';
 import { createResponse, sendError, sendResponse } from 'utility/response';
 import { removeSticky, runStickyTask } from 'utility/sticky';
+import { renderStickyList } from 'utility/stickyList';
 import { buildStickyModal, stickyChannelProblem } from 'utility/stickyModal';
-import { shorten } from 'utility/text';
 
 /** The channels a sticky message can be in: the ones messages are sent in. */
 const STICKY_CHANNEL_TYPES = [
@@ -30,8 +30,6 @@ const STICKY_CHANNEL_TYPES = [
   ChannelType.PrivateThread,
   ChannelType.AnnouncementThread,
 ] as const;
-/** How much of a sticky message the list shows. */
-const PREVIEW_LENGTH = 100;
 
 export default new Command({
   data: new SlashCommandBuilder()
@@ -111,24 +109,7 @@ async function handleRemove(interaction: ChatInputCommandInteraction<'cached'>):
   );
 }
 
-/** The server's sticky messages, which only whoever asked sees. */
+/** The server's sticky messages and the switch for all of them, which only whoever asked sees. */
 async function handleList(interaction: ChatInputCommandInteraction<'cached'>): Promise<unknown> {
-  const t = getTranslate(interaction.locale);
-  const stickies = await getGuildStickies(interaction.guildId);
-  if (stickies.length === 0) return sendResponse(interaction, createResponse(t('sticky.list.none'), 'info'), { ephemeral: true });
-
-  const entries = stickies.map((sticky) =>
-    t('sticky.list.entry', {
-      channel: channelMention(sticky.channelId),
-      // Only its first line, so each takes little room, and without it being a heading, which would be bigger than the channel
-      preview: shorten(
-        sticky.text
-          .trim()
-          .split('\n')[0]!
-          .replace(/^(?:#{1,3}|-#)\s+/, ''),
-        PREVIEW_LENGTH,
-      ),
-    }),
-  );
-  return sendResponse(interaction, createResponse([t('sticky.list.title'), ...entries].join('\n'), 'info'), { ephemeral: true });
+  return sendResponse(interaction, await renderStickyList(interaction.guildId, getTranslate(interaction.locale)), { ephemeral: true });
 }

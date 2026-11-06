@@ -9,7 +9,8 @@ import {
   TextDisplayBuilder,
 } from 'discord.js';
 
-import { deleteSticky, getSticky, getStickyChannelIds, setStickyMessageId } from 'database/sticky';
+import { getFeatureSwitches, setFeatureSwitch } from 'database/features';
+import { deleteSticky, getGuildStickies, getSticky, getStickyChannelIds, setStickyMessageId } from 'database/sticky';
 
 import { SECOND } from 'utility/duration';
 import { guildTranslate } from 'utility/i18next';
@@ -90,7 +91,7 @@ async function deletePost(channel: GuildTextBasedChannel, messageId: string) {
  * Put a channel's sticky message at the bottom: posts it again and deletes the post before, unless it's still the last message.
  * Runs in the channel's queue.
  * @param changed Whether its text changed, which updates its post if that's still the last message.
- * @returns Whether it's at the bottom now, or false if it couldn't be posted, like without permission.
+ * @returns Whether it's at the bottom now, or false if it couldn't be posted, like without permission or with sticky messages turned off.
  */
 async function postSticky(client: Client, channelId: string, changed: boolean): Promise<boolean> {
   const sticky = await getSticky(channelId);
@@ -98,6 +99,7 @@ async function postSticky(client: Client, channelId: string, changed: boolean): 
     forgetStickyChannel(channelId);
     return false;
   }
+  if (!(await getFeatureSwitches(sticky.guildId)).stickiesEnabled) return false;
   const channel = await stickyChannel(client, channelId);
   if (!channel) return false;
   const payload = buildStickyMessage(sticky.text, guildTranslate(channel.guild)('sticky.label'));
@@ -161,6 +163,31 @@ export async function removeSticky(channelId: string, channel?: GuildTextBasedCh
   const sticky = await deleteSticky(channelId);
   if (sticky?.messageId && channel) await deletePost(channel, sticky.messageId);
   return Boolean(sticky);
+}
+
+/** Take a sticky message's post out of its channel, keeping the sticky message to post again later. Runs in the channel's queue. */
+async function takeDownSticky(client: Client, channelId: string) {
+  const sticky = await getSticky(channelId);
+  if (!sticky?.messageId) return;
+  const channel = await stickyChannel(client, channelId);
+  if (channel) await deletePost(channel, sticky.messageId);
+  await setStickyMessageId(channelId, null);
+}
+
+/**
+ * Turn all of a server's sticky messages on or off. Turned off, their posts are taken out of their channels, but they're kept,
+ * and turned on again, they're all posted again.
+ */
+export async function setStickiesEnabled(client: Client, guildId: string, enabled: boolean) {
+  await setFeatureSwitch(guildId, 'stickiesEnabled', enabled);
+  const stickies = await getGuildStickies(guildId);
+  await Promise.all(
+    stickies.map((sticky) =>
+      runStickyTask<unknown>(sticky.channelId, () => (enabled ? postSticky(client, sticky.channelId, false) : takeDownSticky(client, sticky.channelId))).catch(
+        (error: unknown) => logger.error(error, `Failed to turn the sticky message in channel ${sticky.channelId} ${enabled ? 'on' : 'off'}`),
+      ),
+    ),
+  );
 }
 
 /** Load the channels with a sticky message, and move the ones that messages came in above while the bot was offline back down. */

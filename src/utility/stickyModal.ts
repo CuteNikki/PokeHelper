@@ -1,5 +1,6 @@
 import { channelMention, type Guild, MessageFlags, type ModalSubmitInteraction, type PermissionsString } from 'discord.js';
 
+import { getFeatureSwitches } from 'database/features';
 import { MAX_STICKIES, saveSticky } from 'database/sticky';
 
 import { formatNumber } from 'utility/duration';
@@ -53,6 +54,10 @@ export async function handleStickyModal(interaction: ModalSubmitInteraction): Pr
   addStickyChannel(channelId);
 
   const mention = channelMention(channelId);
+  // Kept for when they're turned on again
+  if (!(await getFeatureSwitches(interaction.guildId)).stickiesEnabled) {
+    return sendResponse(interaction, createResponse(t('sticky.set.turnedOff', { channel: mention }), 'warning'));
+  }
   if (!(await postStickyNow(interaction.client, channelId, true))) {
     return sendResponse(interaction, createResponse(t('sticky.set.notPosted', { channel: mention }), 'warning'));
   }

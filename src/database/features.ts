@@ -1,16 +1,17 @@
 import { prisma } from 'database/index';
 
-/** The switches for all role menus and all voice channels of a server at once. */
+/** The switches for all role menus, all voice channels and all sticky messages of a server at once. */
 export interface FeatureSwitches {
   roleMenusEnabled: boolean;
   tempVoiceEnabled: boolean;
+  stickiesEnabled: boolean;
 }
 
 /** Everything is on until a server turns it off, also for servers the bot doesn't know yet. */
-const ALL_ON: FeatureSwitches = { roleMenusEnabled: true, tempVoiceEnabled: true };
+const ALL_ON: FeatureSwitches = { roleMenusEnabled: true, tempVoiceEnabled: true, stickiesEnabled: true };
 
 export async function getFeatureSwitches(guildId: string): Promise<FeatureSwitches> {
-  const guild = await prisma.guild.findUnique({ where: { guildId }, select: { roleMenusEnabled: true, tempVoiceEnabled: true } });
+  const guild = await prisma.guild.findUnique({ where: { guildId }, select: { roleMenusEnabled: true, tempVoiceEnabled: true, stickiesEnabled: true } });
   return guild ?? ALL_ON;
 }
 

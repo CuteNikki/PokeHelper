@@ -1563,6 +1563,7 @@
       "done": "Done! The sticky message stays at the bottom of {{channel}} now.",
       "changed": "Changed the sticky message in {{channel}}.",
       "notPosted": "Saved, but I couldn't post it in {{channel}}. Make sure I can send messages there, then it shows up with the next message.",
+      "turnedOff": "Saved! Sticky messages are turned off on this server right now, so it shows up in {{channel}} once they're on again. The switch is in `/sticky list`.",
       "empty": "A sticky message needs some text.",
       "gone": "I can't find that channel anymore.",
       "full": "This server already has {{max}} sticky messages, the most there can be. Remove one with `/sticky remove` first."
@@ -1573,6 +1574,10 @@
     },
     "list": {
       "title": "### Sticky messages {{icon.pin}}",
+      "enabled": {
+        "label": "Sticky messages",
+        "description": "Whether the sticky messages stay at the bottom of their channels. Turned off, they're taken out of the channels but kept"
+      },
       "none": "This server doesn't have any sticky messages yet. Add one with `/sticky set`.",
       "entry": "{{channel}}\n-# {{preview}}"
     }

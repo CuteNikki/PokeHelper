@@ -94,6 +94,7 @@ _A Pokémon themed Discord bot_
 - Posted again below once the chat is quiet for a moment, so a conversation doesn't move it with every message
 - The post before is deleted, without it showing up in the server logs, and nobody is pinged by it
 - Written and changed in a popup, and a list of where the server has them
+- All turned off at once from that list, which takes them out of the channels but keeps them for later
 
 ### 📜 Server Logs
 

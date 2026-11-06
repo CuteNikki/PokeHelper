@@ -29,8 +29,11 @@ export const saveSticky = (guildId: string, channelId: string, text: string) =>
     return { changed };
   });
 
-/** Remember the bot's latest post of a sticky message. Returns whether it's still there, as it may have been removed meanwhile. */
-export const setStickyMessageId = async (channelId: string, messageId: string) =>
+/**
+ * Remember the bot's latest post of a sticky message, or that it has none, like while sticky messages are turned off.
+ * Returns whether it's still there, as it may have been removed meanwhile.
+ */
+export const setStickyMessageId = async (channelId: string, messageId: string | null) =>
   (await prisma.stickyMessage.updateMany({ where: { channelId }, data: { messageId } })).count > 0;
 
 /** Remove the sticky message of a channel. Returns it, for its post to be deleted, or null if there was none. */

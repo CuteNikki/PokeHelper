@@ -1507,6 +1507,7 @@
       "done": "Fertig! Die Sticky-Nachricht bleibt jetzt unten in {{channel}}.",
       "changed": "Die Sticky-Nachricht in {{channel}} ist geändert.",
       "notPosted": "Gespeichert, aber ich konnte sie nicht in {{channel}} posten. Schau, dass ich dort Nachrichten senden darf, dann taucht sie mit der nächsten Nachricht auf.",
+      "turnedOff": "Gespeichert! Sticky-Nachrichten sind auf diesem Server gerade aus, also taucht sie in {{channel}} auf, sobald sie wieder an sind. Der Schalter ist in `/sticky liste`.",
       "empty": "Eine Sticky-Nachricht braucht etwas Text.",
       "gone": "Den Kanal finde ich nicht mehr.",
       "full": "Dieser Server hat schon {{max}} Sticky-Nachrichten, mehr gehen nicht. Entfern erst eine mit `/sticky entfernen`."
@@ -1517,6 +1518,10 @@
     },
     "list": {
       "title": "### Sticky-Nachrichten {{icon.pin}}",
+      "enabled": {
+        "label": "Sticky-Nachrichten",
+        "description": "Ob die Sticky-Nachrichten unten in ihren Kanälen bleiben. Aus werden sie aus den Kanälen genommen, aber behalten"
+      },
       "none": "Dieser Server hat noch keine Sticky-Nachrichten. Füg eine mit `/sticky setzen` hinzu.",
       "entry": "{{channel}}\n-# {{preview}}"
     }
