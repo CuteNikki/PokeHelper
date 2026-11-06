@@ -39,7 +39,7 @@ import {
 import { renderPokedexCard, STAT_BAR_MAX } from 'utility/pokedex/card';
 import { matchupsButton } from 'utility/pokedex/matchups';
 import { TYPE_COLORS } from 'utility/pokedex/types';
-import { statBarEmoji, withTypeEmoji, type BarPiece } from 'utility/pokedex/botEmojis';
+import { buttonIcon, statBarEmoji, withTypeEmoji, type BarPiece } from 'utility/pokedex/botEmojis';
 import { typeSymbol } from 'utility/pokedex/typeIcons';
 import {
   findBySlug,
@@ -184,24 +184,24 @@ function buildControls(match: PokedexMatch, view: PokedexView, hasShiny: boolean
     new ButtonBuilder()
       .setCustomId(pokedexCustomId('prev', previous?.slug ?? slug, view))
       .setStyle(ButtonStyle.Secondary)
-      .setEmoji(t('pagination.previous.icon'))
+      .setEmoji(buttonIcon('chevron-left', t('pagination.previous.icon')))
       .setLabel(formatDexNumber(previous?.id ?? species.id))
       .setDisabled(!previous),
     new ButtonBuilder()
       .setCustomId(pokedexCustomId('next', next?.slug ?? slug, view))
       .setStyle(ButtonStyle.Secondary)
-      .setEmoji(t('pagination.next.icon'))
+      .setEmoji(buttonIcon('chevron-right', t('pagination.next.icon')))
       .setLabel(formatDexNumber(next?.id ?? species.id))
       .setDisabled(!next),
     new ButtonBuilder()
       .setCustomId(pokedexCustomId('search', slug, view))
       .setStyle(ButtonStyle.Secondary)
-      .setEmoji('🔍')
+      .setEmoji(buttonIcon('search', '🔍'))
       .setLabel(t('pokedex.search.button')),
     new ButtonBuilder()
       .setCustomId(pokedexCustomId('shiny', slug, { ...view, shiny: !view.shiny }))
       .setStyle(view.shiny ? ButtonStyle.Primary : ButtonStyle.Secondary)
-      .setEmoji('✨')
+      .setEmoji(buttonIcon('sparkles', '✨'))
       .setLabel(t(view.shiny ? 'pokedex.shiny.hide' : 'pokedex.shiny.show'))
       .setDisabled(!hasShiny),
     matchupsButton(slug, view.text, t),
@@ -210,7 +210,7 @@ function buildControls(match: PokedexMatch, view: PokedexView, hasShiny: boolean
   const mode = new ButtonBuilder()
     .setCustomId(pokedexCustomId('mode', slug, { ...view, text: !view.text }))
     .setStyle(ButtonStyle.Secondary)
-    .setEmoji(view.text ? '🖼️' : '📝')
+    .setEmoji(view.text ? buttonIcon('image', '🖼️') : buttonIcon('file-text', '📝'))
     .setLabel(t(view.text ? 'pokedex.view.image' : 'pokedex.view.text'));
   // Getting around on one row, and how it's shown on the next, the same for the card and text
   const groups = [buttons.slice(0, 3), [...buttons.slice(3), mode]];

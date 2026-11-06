@@ -18,7 +18,7 @@ import {
 import { FALLBACK_LANGUAGE, getTranslate, resolveLanguage, type Translate } from 'utility/i18next';
 import { answerPokeApiError, type ApiDamageRelations, artworkUrl, getImage, getMove, getPokemon, getType } from 'utility/pokedex/api';
 import { renderMatchupCard } from 'utility/pokedex/matchupCard';
-import { withTypeEmoji } from 'utility/pokedex/botEmojis';
+import { buttonIcon, withTypeEmoji } from 'utility/pokedex/botEmojis';
 import { typeSymbol } from 'utility/pokedex/typeIcons';
 import { findBySlug, getPokedexData, loadPokedexData, matchName, nameIn, type PokedexMatch } from 'utility/pokedex/names';
 import { TYPE_COLORS } from 'utility/pokedex/types';
@@ -91,7 +91,7 @@ export const matchupsButton = (slug: string, text: boolean, t: Translate) =>
   new ButtonBuilder()
     .setCustomId(`${POKEDEX_MATCHUPS_PREFIX}${slug}:${text ? 't' : 'i'}`)
     .setStyle(ButtonStyle.Secondary)
-    .setEmoji('🛡️')
+    .setEmoji(buttonIcon('shield', '🛡️'))
     .setLabel(t('pokedex.matchups.button'));
 
 /** The button on the matchups that switches them between the card and text, ending in `:switch`, as it changes the reply it's on. */
@@ -99,7 +99,7 @@ const switchButton = (slug: string, text: boolean, t: Translate) =>
   new ButtonBuilder()
     .setCustomId(`${POKEDEX_MATCHUPS_PREFIX}${slug}:${text ? 'i' : 't'}:switch`)
     .setStyle(ButtonStyle.Secondary)
-    .setEmoji(text ? '🖼️' : '📝')
+    .setEmoji(text ? buttonIcon('image', '🖼️') : buttonIcon('file-text', '📝'))
     .setLabel(t(text ? 'pokedex.view.image' : 'pokedex.view.text'));
 
 /** The Pokémon, whether to show text, and whether it's the switch on the matchups, from a button's custom ID. */

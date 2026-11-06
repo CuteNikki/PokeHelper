@@ -21,7 +21,7 @@ import {
 import { getTranslate, resolveLanguage, type Translate } from 'utility/i18next';
 import { buildTextModal } from 'utility/modal';
 import { answerPokeApiError, artworkUrl, getImage, getPokemon } from 'utility/pokedex/api';
-import { withTypeEmoji } from 'utility/pokedex/botEmojis';
+import { buttonIcon, withTypeEmoji } from 'utility/pokedex/botEmojis';
 import { buildPokedexEntry } from 'utility/pokedex/entry';
 import {
   findPokemon,
@@ -230,14 +230,22 @@ export async function buildGuessGame(game: GuessGame, outcome: Outcome, language
     const hintsLeft = hintsOf(game).length - game.hints;
     container.addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large)).addActionRowComponents(
       new ActionRowBuilder<ButtonBuilder>().addComponents(
-        new ButtonBuilder().setCustomId(guessCustomId('guess', game)).setLabel(t('guess.buttons.guess')).setEmoji('✏️').setStyle(ButtonStyle.Primary),
+        new ButtonBuilder()
+          .setCustomId(guessCustomId('guess', game))
+          .setLabel(t('guess.buttons.guess'))
+          .setEmoji(buttonIcon('pencil', '✏️'))
+          .setStyle(ButtonStyle.Primary),
         new ButtonBuilder()
           .setCustomId(guessCustomId('hint', game))
           .setLabel(hintsLeft > 0 ? t('guess.buttons.hintsLeft', { count: hintsLeft }) : t('guess.buttons.hint'))
-          .setEmoji('💡')
+          .setEmoji(buttonIcon('lightbulb', '💡'))
           .setStyle(ButtonStyle.Secondary)
           .setDisabled(hintsLeft <= 0),
-        new ButtonBuilder().setCustomId(guessCustomId('giveup', game)).setLabel(t('guess.buttons.giveUp')).setStyle(ButtonStyle.Secondary),
+        new ButtonBuilder()
+          .setCustomId(guessCustomId('giveup', game))
+          .setLabel(t('guess.buttons.giveUp'))
+          .setEmoji(buttonIcon('flag', '🏳️'))
+          .setStyle(ButtonStyle.Secondary),
       ),
     );
   } else {
@@ -245,8 +253,16 @@ export async function buildGuessGame(game: GuessGame, outcome: Outcome, language
       .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large))
       .addActionRowComponents(
         new ActionRowBuilder<ButtonBuilder>().addComponents(
-          new ButtonBuilder().setCustomId(guessCustomId('again', game)).setLabel(t('guess.buttons.again')).setEmoji('🔁').setStyle(ButtonStyle.Primary),
-          new ButtonBuilder().setCustomId(guessCustomId('dex', game)).setLabel(t('guess.buttons.pokedex')).setEmoji('📖').setStyle(ButtonStyle.Secondary),
+          new ButtonBuilder()
+            .setCustomId(guessCustomId('again', game))
+            .setLabel(t('guess.buttons.again'))
+            .setEmoji(buttonIcon('rotate-ccw', '🔁'))
+            .setStyle(ButtonStyle.Primary),
+          new ButtonBuilder()
+            .setCustomId(guessCustomId('dex', game))
+            .setLabel(t('guess.buttons.pokedex'))
+            .setEmoji(buttonIcon('book-open', '📖'))
+            .setStyle(ButtonStyle.Secondary),
         ),
       );
   }
