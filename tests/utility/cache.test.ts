@@ -29,3 +29,13 @@ test('the least recently used go first, and expired ones are loaded again', asyn
   await expiring.get('a', () => Promise.resolve('old'));
   expect(await expiring.get('a', () => Promise.resolve('new'))).toBe('new');
 });
+
+test('forgotten ones are loaded again', async () => {
+  const cache = new RecentCache<string>(10);
+  await cache.get('a', () => Promise.resolve('old'));
+  await cache.get('b', () => Promise.resolve('old'));
+  cache.forget('a');
+  expect(await cache.get('a', () => Promise.resolve('new'))).toBe('new');
+  cache.clear();
+  expect(await cache.get('b', () => Promise.resolve('new'))).toBe('new');
+});

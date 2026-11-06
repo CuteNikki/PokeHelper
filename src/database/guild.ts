@@ -1,9 +1,18 @@
 import { prisma } from 'database/index';
 
-/** Make sure a server has a row, which all its settings and data belong to. */
-export async function ensureGuild(guildId: string): Promise<void> {
-  await prisma.guild.upsert({ where: { guildId }, update: {}, create: { guildId } });
-}
+import { RecentCache } from 'utility/cache';
+
+/** Which servers have a row already, so a command doesn't wait for the database each time to make sure. */
+const known = new RecentCache<void>(10_000);
+
+/** Make sure a server has a row, which all its settings and data belong to. Only asks the database the first time. */
+export const ensureGuild = (guildId: string): Promise<void> =>
+  known.get(guildId, async () => {
+    await prisma.guild.upsert({ where: { guildId }, update: {}, create: { guildId } });
+  });
+
+/** Forget that a server has a row, once it's deleted. */
+export const forgetGuild = (guildId: string) => known.forget(guildId);
 
 /**
  * Mark guilds the bot isn't in anymore as left, keeping the time they were first marked.
@@ -41,7 +50,9 @@ export const clearGuildsLeft = async (guildIds: string[]) =>
  * Delete the guilds the bot left before a time, with all their data.
  * @param cutoff {Date} Guilds left before this are deleted.
  */
-export const deleteGuildsLeftBefore = async (cutoff: Date) =>
-  prisma.guild.deleteMany({
-    where: { leftAt: { lt: cutoff } },
-  });
+export async function deleteGuildsLeftBefore(cutoff: Date) {
+  const deleted = await prisma.guild.deleteMany({ where: { leftAt: { lt: cutoff } } });
+  // Which ones isn't known, and it's rare, so all are checked again
+  if (deleted.count > 0) known.clear();
+  return deleted;
+}

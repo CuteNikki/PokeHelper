@@ -1,4 +1,6 @@
 import { prisma } from 'database/index';
+import { forgetGuild } from 'database/guild';
+import { forgetUser } from 'database/user';
 
 /**
  * Everything stored about a person and a server, to download it or delete it, as the privacy policy promises.
@@ -131,6 +133,7 @@ export async function deleteUserData(userId: string) {
       });
     }
   });
+  forgetUser(userId);
 }
 
 /** Everything stored about a server: its settings, and its members' levels and counting stats. The numbers of each counting run are left out, as there can be many. */
@@ -156,7 +159,10 @@ export const getGuildData = (guildId: string) =>
   });
 
 /** Delete everything stored about a server, as if the bot was just added. Everything else belongs to it and goes with it. */
-export const deleteGuildData = (guildId: string) => prisma.guild.deleteMany({ where: { guildId } });
+export async function deleteGuildData(guildId: string) {
+  await prisma.guild.deleteMany({ where: { guildId } });
+  forgetGuild(guildId);
+}
 
 /** A role the bot gave someone and takes away again later, like a birthday or winner role. */
 export interface GivenRole {

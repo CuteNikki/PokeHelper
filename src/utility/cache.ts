@@ -33,4 +33,14 @@ export class RecentCache<T> {
     }
     return value;
   }
+
+  /** Forget one, so it's loaded again the next time, like after it was deleted. */
+  forget(key: string) {
+    this.entries.delete(key);
+  }
+
+  /** Forget all of them. */
+  clear() {
+    this.entries.clear();
+  }
 }

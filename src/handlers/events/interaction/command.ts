@@ -45,10 +45,7 @@ export default new Event({
     // Trying to execute the command
     try {
       // Ensure the user and guild are in the database, inside the try so a database outage gets an error reply too
-      await ensureUser(interaction.user.id);
-      if (interaction.inGuild()) {
-        await ensureGuild(interaction.guildId);
-      }
+      await Promise.all([ensureUser(interaction.user.id), interaction.inGuild() ? ensureGuild(interaction.guildId) : null]);
 
       await command.options.execute(interaction);
 
