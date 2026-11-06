@@ -577,7 +577,9 @@ function addEntries<C>(container: ContainerBuilder, guild: Guild, panelId: strin
 
   if (setting.presets) {
     container.addTextDisplayComponents(new TextDisplayBuilder().setContent(describe(setting, t, [subtext(count)])));
-    for (const entry of entries) {
+    // Each has a button, so a list that went over the limit, like with two added at once, would be more than a message can have.
+    // The ones over it can still be removed with the select
+    for (const entry of entries.slice(0, setting.max)) {
       container.addSectionComponents(
         new SectionBuilder()
           .addTextDisplayComponents(
