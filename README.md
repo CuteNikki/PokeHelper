@@ -44,6 +44,9 @@ _A Pokémon themed Discord bot_
 - Shiny pictures, and buttons to go to the previous, next or another Pokémon without running the command again
 - A Matchups button with what a Pokémon is weak to, with Pokémon and moves to use against it, and what it resists and can't be hurt by, as an image or text like the entry, for whoever presses it
 - A Where to find button with the places it's met in the wild, game by game, with levels, how and the chance
+- A Moves button with the moves it learns in each game, by leveling up, TM, egg and tutor
+- Every page links to the ones it's about, like an ability to its Pokémon or a place to the Pokémon there, with a Back button
+- `/dex` searches everything at once, Pokémon, moves, items and the rest, in any language
 - `/move`, `/item`, `/ability`, `/berry`, `/nature` and `/location` look up the rest, with suggestions in every language too
 - Names, pictures and details come from [PokéAPI](https://pokeapi.co/), so nothing has to be downloaded first
 - `/guess`: guess a Pokémon from its silhouette, in any language, with up to three hints
@@ -138,6 +141,7 @@ Days change at midnight UTC, and the bot puts the new look on within 15 minutes.
 | `/birthday`         | Your birthday, timezone and where it gets announced               |
 | `/pokedex`          | Look up a Pokémon                                                 |
 | `/guess`            | Guess a Pokémon from its silhouette                               |
+| `/dex`              | Search everything: Pokémon, moves, items, abilities and places    |
 | `/move`             | Look up a move: type, power, accuracy, PP, effect and contests    |
 | `/item`             | Look up an item: picture, effect and who holds it                 |
 | `/ability`          | Look up an ability and which Pokémon have it                      |
