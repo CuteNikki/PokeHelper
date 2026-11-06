@@ -77,6 +77,12 @@ describe('parseBirthday', () => {
     expect(parseBirthday('2004-02-29', now)).toEqual(birthday('2004-02-29'));
   });
 
+  test('takes dates the way German speakers write them too', () => {
+    expect(parseBirthday('01.05.2000', now)).toEqual(birthday('2000-05-01'));
+    expect(parseBirthday('1.5.2000', now)).toEqual(birthday('2000-05-01'));
+    for (const input of ['31.02.2000', '01.05.00', '01.05.']) expect(parseBirthday(input, now)).toBeNull();
+  });
+
   test("refuses dates that don't exist instead of rolling them over", () => {
     for (const input of ['2000-02-31', '2001-02-29', '2000-13-01', '2000-00-10', '2000-04-31']) expect(parseBirthday(input, now)).toBeNull();
   });

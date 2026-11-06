@@ -81,14 +81,17 @@ export function getBirthdayActions(
 const EARLIEST_YEAR = 1900;
 
 /**
- * Parse a birthday typed like `2000-05-01`. Dates that don't exist, like February 31, aren't rolled over into the next month,
- * and the year has to be written in full and can't be in the future.
+ * Parse a birthday typed like `2000-05-01` or the way German speakers write it, `01.05.2000`. Dates that don't exist, like
+ * February 31, aren't rolled over into the next month, and the year has to be written in full and can't be in the future.
  * @returns The birthday at midnight UTC, or null if it isn't a valid one.
  */
 export function parseBirthday(input: string, now: Date): Date | null {
-  const match = /^(\d{4})-(\d{1,2})-(\d{1,2})$/.exec(input.trim());
-  if (!match) return null;
-  const [year, month, day] = [Number(match[1]), Number(match[2]), Number(match[3])];
+  const text = input.trim();
+  const iso = /^(\d{4})-(\d{1,2})-(\d{1,2})$/.exec(text);
+  const dotted = /^(\d{1,2})\.(\d{1,2})\.(\d{4})$/.exec(text);
+  const parts = iso ? [iso[1], iso[2], iso[3]] : dotted ? [dotted[3], dotted[2], dotted[1]] : null;
+  if (!parts) return null;
+  const [year, month, day] = parts.map(Number) as [number, number, number];
 
   const date = new Date(Date.UTC(year, month - 1, day));
   // Date.UTC rolls days and months that don't exist over, like February 31 into March

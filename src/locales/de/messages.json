@@ -1261,9 +1261,9 @@
       "none": "Du hast deinen Geburtstag noch nicht eingetragen. Trag ihn unten ein, dann wird er auf den Servern angekündigt, die Geburtstage eingerichtet haben.",
       "date": {
         "label": "Geburtstag",
-        "description": "Dein Geburtstag, eingegeben wie 2000-05-01.",
-        "placeholder": "JJJJ-MM-TT, wie 2000-05-01",
-        "invalid": "Mit dem Datum kann ich nichts anfangen. Gib es wie `2000-05-01` ein, mit ganzem Jahr und nicht in der Zukunft."
+        "description": "Dein Geburtstag, eingegeben wie 01.05.2000.",
+        "placeholder": "TT.MM.JJJJ, wie 01.05.2000",
+        "invalid": "Mit dem Datum kann ich nichts anfangen. Gib es wie `01.05.2000` ein, mit ganzem Jahr und nicht in der Zukunft."
       },
       "timezone": {
         "label": "Zeitzone",

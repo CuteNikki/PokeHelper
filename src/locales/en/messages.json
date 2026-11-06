@@ -244,9 +244,9 @@
       "none": "You haven't set your birthday yet. Set it below, and it gets announced in the servers that have birthdays set up.",
       "date": {
         "label": "Birthday",
-        "description": "Your birthday, typed like 2000-05-01.",
-        "placeholder": "YYYY-MM-DD, like 2000-05-01",
-        "invalid": "That's not a date I can use. Type it like `2000-05-01`, with the full year, and not in the future."
+        "description": "Your birthday, typed like 2000-05-01 or 01.05.2000.",
+        "placeholder": "Like 2000-05-01 or 01.05.2000",
+        "invalid": "That's not a date I can use. Type it like `2000-05-01` or `01.05.2000`, with the full year, and not in the future."
       },
       "timezone": {
         "label": "Timezone",
