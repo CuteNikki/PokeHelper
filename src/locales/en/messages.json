@@ -689,29 +689,29 @@
     "author": "{{username}} Status",
     "na": "N/A",
     "general": {
-      "title": "⚙️ General",
+      "title": "General",
       "developer": "> **Developer:** {{developer}}",
       "created": "> **Created:** {{created}}",
       "servers": "> **Servers:** {{servers}}",
       "users": "> **Users:** {{users}}"
     },
     "network": {
-      "title": "⚡ Network",
+      "title": "Network",
       "gateway": "> **Gateway:** {{ping}}",
       "database": "> **Database:** {{latency}} ms"
     },
     "uptime": {
-      "title": "⏱️ Uptime",
+      "title": "Uptime",
       "process": "> **Process:** {{time}}",
       "system": "> **System:** {{time}}"
     },
     "memory": {
-      "title": "💾 Memory",
+      "title": "Memory",
       "process": "> **Process:** {{mb}} MB",
       "system": "> **System:** {{used}}/{{total}}GB ({{percent}}%)"
     },
     "host": {
-      "title": "🖥️ Host Environment",
+      "title": "Host Environment",
       "cpu": "> **CPU:** {{name}} ({{cores}} cores)",
       "cpuLoad": "> **CPU Load:** {{percent}}% ({{loadAvg}} load avg)",
       "runtime": "> **Runtime:** {{runtime}} on {{osType}} ({{arch}})",

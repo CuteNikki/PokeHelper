@@ -1310,29 +1310,29 @@
     "author": "Status von {{username}}",
     "na": "k. A.",
     "general": {
-      "title": "⚙️ Allgemein",
+      "title": "Allgemein",
       "developer": "> **Entwickler:** {{developer}}",
       "created": "> **Erstellt:** {{created}}",
       "servers": "> **Server:** {{servers}}",
       "users": "> **Nutzer:** {{users}}"
     },
     "network": {
-      "title": "⚡ Netzwerk",
+      "title": "Netzwerk",
       "gateway": "> **Gateway:** {{ping}}",
       "database": "> **Datenbank:** {{latency}} ms"
     },
     "uptime": {
-      "title": "⏱️ Laufzeit",
+      "title": "Laufzeit",
       "process": "> **Prozess:** {{time}}",
       "system": "> **System:** {{time}}"
     },
     "memory": {
-      "title": "💾 Arbeitsspeicher",
+      "title": "Arbeitsspeicher",
       "process": "> **Prozess:** {{mb}} MB",
       "system": "> **System:** {{used}}/{{total}} GB ({{percent}} %)"
     },
     "host": {
-      "title": "🖥️ Host",
+      "title": "Host",
       "cpu": "> **CPU:** {{name}} ({{cores}} Kerne)",
       "cpuLoad": "> **CPU-Last:** {{percent}} % ({{loadAvg}} Load Average)",
       "runtime": "> **Laufzeitumgebung:** {{runtime}} auf {{osType}} ({{arch}})",
