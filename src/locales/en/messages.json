@@ -55,9 +55,9 @@
     "BypassSlowmode": "Bypass Slowmode"
   },
   "duration": {
-    "days": "{{count}}d",
-    "hours": "{{count}}h",
-    "minutes": "{{count}}m",
+    "days": "{{count, number}}d",
+    "hours": "{{count, number}}h",
+    "minutes": "{{count, number}}m",
     "lessThanMinute": "<1m"
   },
   "settings": {
@@ -91,7 +91,7 @@
       "missing": "Some of these roles don't exist anymore. They're removed the next time you change this."
     },
     "entries": {
-      "count": "{{count}}/{{max}}",
+      "count": "{{count, number}}/{{max}}",
       "missing": "no longer exists",
       "addChannel": "Add a channel",
       "addRole": "Add a role",
@@ -152,24 +152,24 @@
     },
     "button": {
       "invalid": "Invalid button found in file {{file}}. Skipping registration.",
-      "loaded_one": "Successfully loaded {{count}} button from {{files}} files. ({{duration}}ms)",
-      "loaded_other": "Successfully loaded {{count}} buttons from {{files}} files. ({{duration}}ms)",
+      "loaded_one": "Successfully loaded {{count, number}} button from {{files}} files. ({{duration}}ms)",
+      "loaded_other": "Successfully loaded {{count, number}} buttons from {{files}} files. ({{duration}}ms)",
       "authorOnly": "You can't use this button.",
       "permissions": "You need these permissions to use this button: {{permissions}}",
       "error": "Something went wrong with this button."
     },
     "selectMenu": {
       "invalid": "Invalid select menu found in file {{file}}. Skipping registration.",
-      "loaded_one": "Successfully loaded {{count}} select menu from {{files}} files. ({{duration}}ms)",
-      "loaded_other": "Successfully loaded {{count}} select menus from {{files}} files. ({{duration}}ms)",
+      "loaded_one": "Successfully loaded {{count, number}} select menu from {{files}} files. ({{duration}}ms)",
+      "loaded_other": "Successfully loaded {{count, number}} select menus from {{files}} files. ({{duration}}ms)",
       "authorOnly": "You can't use this select menu.",
       "permissions": "You need these permissions to use this menu: {{permissions}}",
       "error": "Something went wrong with this menu."
     },
     "command": {
       "invalid": "Invalid command found in file {{file}}. Skipping registration.",
-      "loaded_one": "Successfully loaded {{count}} command from {{files}} files. ({{duration}}ms)",
-      "loaded_other": "Successfully loaded {{count}} commands from {{files}} files. ({{duration}}ms)",
+      "loaded_one": "Successfully loaded {{count, number}} command from {{files}} files. ({{duration}}ms)",
+      "loaded_other": "Successfully loaded {{count, number}} commands from {{files}} files. ({{duration}}ms)",
       "notFound": "Command not found: {{command}}",
       "error": "Something went wrong while running {{command}}.",
       "noResponse": "/{{command}} finished without responding. If it was changed recently, the commands may need to be registered again",
@@ -182,7 +182,7 @@
     },
     "event": {
       "invalid": "Invalid event found in file {{file}}. Skipping registration.",
-      "loaded": "Successfully loaded {{count}} events. ({{duration}}ms)",
+      "loaded": "Successfully loaded {{count, number}} events. ({{duration}}ms)",
       "error": "An error occurred while handling the {{event}} event in {{file}}"
     },
     "client": {
@@ -444,25 +444,25 @@
     "noConsecutive": "You can't count twice in a row! Let someone else go first.",
     "wrongNumber": "Wrong number! We're at **{{number}}**.",
     "reset": "Wrong number! The count was at **{{number}}** and is back to 0 now.",
-    "lifeLost_one": "Wrong number! That costs a life, but the count stays at **{{number}}**.\n{{lives}} Only **{{count}}** life left, careful!",
-    "lifeLost_other": "Wrong number! That costs a life, but the count stays at **{{number}}**.\n{{lives}} **{{count}}** lives left.",
+    "lifeLost_one": "Wrong number! That costs a life, but the count stays at **{{number}}**.\n{{lives}} Only **{{count, number}}** life left, careful!",
+    "lifeLost_other": "Wrong number! That costs a life, but the count stays at **{{number}}**.\n{{lives}} **{{count, number}}** lives left.",
     "outOfLives": "Wrong number, and that was the last life! The count made it to **{{number}}** and is back to 0.\nThe next run starts with full lives: {{lives}}",
     "none": "There's no counting game here yet. Set one up with `/counting-config setup`.",
     "removed": "The last number got deleted or edited. It was **{{number}}** from {{user}}, so the next one is **{{next}}**.",
     "sync": {
       "title": "### Caught up on counting",
       "description": "I was offline for a bit, so I checked the messages sent in the meantime.",
-      "counted_one": "{{count}} number was counted correctly.",
-      "counted_other": "{{count}} numbers were counted correctly.",
-      "removed_one": "{{count}} invalid message was removed.",
-      "removed_other": "{{count}} invalid messages were removed.",
+      "counted_one": "{{count, number}} number was counted correctly.",
+      "counted_other": "{{count, number}} numbers were counted correctly.",
+      "removed_one": "{{count, number}} invalid message was removed.",
+      "removed_other": "{{count, number}} invalid messages were removed.",
       "reset": "The count was reset at **{{number}}** by {{user}}.",
-      "moreResets_one": "…and {{count}} more reset",
-      "moreResets_other": "…and {{count}} more resets",
-      "livesLost_one": "{{count}} life was lost.",
-      "livesLost_other": "{{count}} lives were lost.",
-      "livesGained_one": "{{count}} life was regenerated by a milestone.",
-      "livesGained_other": "{{count}} lives were regenerated by milestones.",
+      "moreResets_one": "…and {{count, number}} more reset",
+      "moreResets_other": "…and {{count, number}} more resets",
+      "livesLost_one": "{{count, number}} life was lost.",
+      "livesLost_other": "{{count, number}} lives were lost.",
+      "livesGained_one": "{{count, number}} life was regenerated by a milestone.",
+      "livesGained_other": "{{count, number}} lives were regenerated by milestones.",
       "next": "The next number is **{{number}}**.",
       "lives": "Lives: {{lives}}"
     },
@@ -485,7 +485,7 @@
         "description": "How many wrong numbers a run survives. Each costs a life, and losing the last one resets the count to 0. With unlimited lives, wrong numbers are only removed.",
         "unlimited": "Unlimited",
         "one": "1 (reset right away)",
-        "count": "{{count}} lives"
+        "count": "{{count, number}} lives"
       },
       "regenerateLives": {
         "label": "Regenerate Lives",
@@ -518,8 +518,8 @@
       "records": "**Records**",
       "highest": "Highest number: **{{number}}** by {{user}}, {{time}} · [jump]({{link}})",
       "highestNoLink": "Highest number: **{{number}}** by {{user}}, {{time}}",
-      "runs_one": "{{count}} run so far",
-      "runs_other": "{{count}} runs so far"
+      "runs_one": "{{count, number}} run so far",
+      "runs_other": "{{count, number}} runs so far"
     },
     "leaderboard": {
       "title": "### Top Counters 🏆",
@@ -577,14 +577,14 @@
         "label": "Role menus",
         "description": "Whether members can pick roles from any of the menus. Each menu can also be turned off on its own"
       },
-      "count": "{{count}}/{{max}} menus",
+      "count": "{{count, number}}/{{max}} menus",
       "none": "There are no role menus here yet. Create one with `/role-menu-config create`.",
       "item": "- **{{name}}** in {{channel}} · {{roles}}",
-      "roles_one": "{{count}} role",
-      "roles_other": "{{count}} roles",
+      "roles_one": "{{count, number}} role",
+      "roles_other": "{{count, number}} roles",
       "placeholder": "Pick a menu to change it",
       "unnamed": "Unnamed menu",
-      "moreRoles": "{{roles}} +{{count}}",
+      "moreRoles": "{{roles}} +{{count, number}}",
       "optionDescription": "{{channel}} · {{roles}}"
     },
     "settings": {
@@ -671,14 +671,14 @@
   "dev": {
     "reload": {
       "title": "### Reloaded 🔄",
-      "line": "**{{target}}**: {{count}} loaded in {{duration}}ms",
+      "line": "**{{target}}**: {{count, number}} loaded in {{duration}}ms",
       "locales": "**locales**: text reloaded in {{duration}}ms",
       "needsRestart": "⚠️ These files changed since the bot started, and a reload doesn't pick them up. Use `/dev restart` for them:\n{{files}}",
       "registerHint": "-# New command names, descriptions or options need `/dev register` too."
     },
     "register": {
-      "success": "Registered **{{count}}** commands globally.",
-      "dev": "Registered **{{count}}** developer commands in the developer server.",
+      "success": "Registered **{{count, number}}** commands globally.",
+      "dev": "Registered **{{count, number}}** developer commands in the developer server.",
       "devSkipped": "Developer commands weren't registered, as `DEV_GUILD_ID` isn't set."
     },
     "restart": {
@@ -866,8 +866,8 @@
     "fromGeneration": "A Pokémon from generation {{generation}}, guess its name in any language",
     "silhouette": "The silhouette of a Pokémon to guess",
     "notIt": "It's not **{{name}}**.",
-    "guesses_one": "{{count}} guess so far",
-    "guesses_other": "{{count}} guesses so far",
+    "guesses_one": "{{count, number}} guess so far",
+    "guesses_other": "{{count, number}} guesses so far",
     "hints": {
       "generation": "Generation",
       "name": "Name"
@@ -875,20 +875,20 @@
     "buttons": {
       "guess": "Guess",
       "hint": "Hint",
-      "hintsLeft_one": "Hint ({{count}} left)",
-      "hintsLeft_other": "Hint ({{count}} left)",
+      "hintsLeft_one": "Hint ({{count, number}} left)",
+      "hintsLeft_other": "Hint ({{count, number}} left)",
       "giveUp": "Give up",
       "again": "Play again",
       "pokedex": "Pokédex"
     },
     "solved": "### It's {{name}}! 🎉",
     "solvedIn_one": "You got it on the first try",
-    "solvedIn_other": "You got it in {{count}} guesses",
-    "withHints_one": ", with {{count}} hint",
-    "withHints_other": ", with {{count}} hints",
+    "solvedIn_other": "You got it in {{count, number}} guesses",
+    "withHints_one": ", with {{count, number}} hint",
+    "withHints_other": ", with {{count, number}} hints",
     "gaveUp": "### It was {{name}}",
-    "gaveUpAfter_one": "You gave up after {{count}} guess",
-    "gaveUpAfter_other": "You gave up after {{count}} guesses",
+    "gaveUpAfter_one": "You gave up after {{count, number}} guess",
+    "gaveUpAfter_other": "You gave up after {{count, number}} guesses",
     "gaveUpEarly": "You gave up without guessing",
     "modal": {
       "title": "Who's that Pokémon?",
@@ -902,10 +902,10 @@
       "title": "### Voice Channel Controls 🔊",
       "owner": "Owned by {{owner}}",
       "ownerAway": "(stepped out)",
-      "people_one": "{{count}} person here",
-      "people_other": "{{count}} people here",
-      "peopleLimit_one": "{{count}} of {{limit}} people here",
-      "peopleLimit_other": "{{count}} of {{limit}} people here",
+      "people_one": "{{count, number}} person here",
+      "people_other": "{{count, number}} people here",
+      "peopleLimit_one": "{{count, number}} of {{limit}} people here",
+      "peopleLimit_other": "{{count, number}} of {{limit}} people here",
       "locked": "Locked",
       "hidden": "Hidden",
       "delete": "Delete channel",
@@ -925,19 +925,19 @@
       "nameDescription": "What the channel is called",
       "limit": "User limit",
       "limitDescription": "How many people can be in it at once",
-      "limitValue_one": "{{count}} person",
-      "limitValue_other": "{{count}} people",
+      "limitValue_one": "{{count, number}} person",
+      "limitValue_other": "{{count, number}} people",
       "noLimit": "No limit",
       "moderators": "Moderators",
       "moderatorsDescription": "They can let people in, keep them out, kick them and set the limit, but can't rename, lock, hide or delete it",
       "moderatorsPlaceholder": "Pick who helps the owner",
-      "moreHidden": "{{count}} more aren't shown in the picker, and stay on the list."
+      "moreHidden": "{{count, number}} more aren't shown in the picker, and stay on the list."
     },
     "announce": {
       "changed": "{{user}} changed this channel:",
       "renamed": "renamed it to **{{name}}**",
-      "limit_one": "set the limit to {{count}} person",
-      "limit_other": "set the limit to {{count}} people",
+      "limit_one": "set the limit to {{count, number}} person",
+      "limit_other": "set the limit to {{count, number}} people",
       "noLimit": "removed the limit",
       "locked": "locked it",
       "unlocked": "unlocked it",
@@ -1036,7 +1036,7 @@
           "label": "Voice channels",
           "description": "Whether joining any of the join channels gives you a voice channel. Each can also be turned off on its own"
         },
-        "count": "{{count}}/{{max}} join channels",
+        "count": "{{count, number}}/{{max}} join channels",
         "none": "There are no join channels here yet. Make one with `/voice-config create`.",
         "item": "- {{channel}} · new channels in {{category}}",
         "placeholder": "Pick a join channel to change it"
@@ -1085,13 +1085,13 @@
     "avatar": "Avatar",
     "avatarChanged": "changed, the new one is on the right",
     "avatarRemoved": "removed",
-    "bulkNotSeen_one": "{{count}} of them was sent before I started, so it's not in the file.",
-    "bulkNotSeen_other": "{{count}} of them were sent before I started, so they're not in the file.",
+    "bulkNotSeen_one": "{{count, number}} of them was sent before I started, so it's not in the file.",
+    "bulkNotSeen_other": "{{count, number}} of them were sent before I started, so they're not in the file.",
     "labels": {
       "messageEdited": "Message edited ✏️",
       "messageDeleted": "Message deleted 🗑️",
-      "messagesBulkDeleted_one": "{{count}} message deleted 🗑️",
-      "messagesBulkDeleted_other": "{{count}} messages deleted 🗑️",
+      "messagesBulkDeleted_one": "{{count, number}} message deleted 🗑️",
+      "messagesBulkDeleted_other": "{{count, number}} messages deleted 🗑️",
       "memberJoined": "Member joined 📥",
       "memberLeft": "Member left 📤",
       "memberNickname": "Nickname changed 🏷️",
@@ -1328,7 +1328,7 @@
     "from": "From",
     "to": "To",
     "tooLong": "Too long to show in full here, the whole text is in the file below.",
-    "transcriptHeading": "{{count}} messages deleted in #{{channel}} ({{channelId}})",
+    "transcriptHeading": "{{count, number}} messages deleted in #{{channel}} ({{channelId}})",
     "tips": {
       "general": [
         "The bot needs View Audit Log to say who did something and why.",

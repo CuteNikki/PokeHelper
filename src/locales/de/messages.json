@@ -55,9 +55,9 @@
     "BypassSlowmode": "Slowmode umgehen"
   },
   "duration": {
-    "days": "{{count}}T",
-    "hours": "{{count}}h",
-    "minutes": "{{count}}min",
+    "days": "{{count, number}}T",
+    "hours": "{{count, number}}h",
+    "minutes": "{{count, number}}min",
     "lessThanMinute": "<1min"
   },
   "settings": {
@@ -91,7 +91,7 @@
       "missing": "Ein paar dieser Rollen gibt's nicht mehr. Sie fliegen raus, wenn du das hier das nächste Mal änderst."
     },
     "entries": {
-      "count": "{{count}}/{{max}}",
+      "count": "{{count, number}}/{{max}}",
       "missing": "gibt's nicht mehr",
       "addChannel": "Kanal hinzufügen",
       "addRole": "Rolle hinzufügen",
@@ -139,25 +139,25 @@
     "noConsecutive": "Du kannst nicht zweimal hintereinander zählen! Lass erst jemand anderen dran.",
     "wrongNumber": "Falsche Zahl! Wir sind bei **{{number}}**.",
     "reset": "Falsche Zahl! Wir waren bei **{{number}}** und fangen jetzt wieder bei 0 an.",
-    "lifeLost_one": "Falsche Zahl! Das kostet ein Leben, aber wir bleiben bei **{{number}}**.\n{{lives}} Nur noch **{{count}}** Leben, pass auf!",
-    "lifeLost_other": "Falsche Zahl! Das kostet ein Leben, aber wir bleiben bei **{{number}}**.\n{{lives}} Noch **{{count}}** Leben.",
+    "lifeLost_one": "Falsche Zahl! Das kostet ein Leben, aber wir bleiben bei **{{number}}**.\n{{lives}} Nur noch **{{count, number}}** Leben, pass auf!",
+    "lifeLost_other": "Falsche Zahl! Das kostet ein Leben, aber wir bleiben bei **{{number}}**.\n{{lives}} Noch **{{count, number}}** Leben.",
     "outOfLives": "Falsche Zahl, und das war das letzte Leben! Ihr habt es bis **{{number}}** geschafft, jetzt geht's wieder bei 0 los.\nDie nächste Runde startet mit allen Leben: {{lives}}",
     "none": "Hier gibt's noch kein Zählspiel. Richte eins mit `/zählen-einstellungen einrichten` ein.",
     "removed": "Die letzte Zahl wurde gelöscht oder bearbeitet. Es war die **{{number}}** von {{user}}, also kommt als Nächstes die **{{next}}**.",
     "sync": {
       "title": "### Zählen nachgeholt",
       "description": "Ich war kurz offline und hab mir die Nachrichten von der Zwischenzeit angeschaut.",
-      "counted_one": "{{count}} Zahl wurde richtig gezählt.",
-      "counted_other": "{{count}} Zahlen wurden richtig gezählt.",
-      "removed_one": "{{count}} falsche Nachricht wurde entfernt.",
-      "removed_other": "{{count}} falsche Nachrichten wurden entfernt.",
+      "counted_one": "{{count, number}} Zahl wurde richtig gezählt.",
+      "counted_other": "{{count, number}} Zahlen wurden richtig gezählt.",
+      "removed_one": "{{count, number}} falsche Nachricht wurde entfernt.",
+      "removed_other": "{{count, number}} falsche Nachrichten wurden entfernt.",
       "reset": "{{user}} hat bei **{{number}}** zurückgesetzt.",
-      "moreResets_one": "…und noch {{count}}-mal zurückgesetzt",
-      "moreResets_other": "…und noch {{count}}-mal zurückgesetzt",
-      "livesLost_one": "{{count}} Leben ging verloren.",
-      "livesLost_other": "{{count}} Leben gingen verloren.",
-      "livesGained_one": "{{count}} Leben kam durch einen Meilenstein zurück.",
-      "livesGained_other": "{{count}} Leben kamen durch Meilensteine zurück.",
+      "moreResets_one": "…und noch {{count, number}}-mal zurückgesetzt",
+      "moreResets_other": "…und noch {{count, number}}-mal zurückgesetzt",
+      "livesLost_one": "{{count, number}} Leben ging verloren.",
+      "livesLost_other": "{{count, number}} Leben gingen verloren.",
+      "livesGained_one": "{{count, number}} Leben kam durch einen Meilenstein zurück.",
+      "livesGained_other": "{{count, number}} Leben kamen durch Meilensteine zurück.",
       "next": "Als Nächstes kommt die **{{number}}**.",
       "lives": "Leben: {{lives}}"
     },
@@ -180,7 +180,7 @@
         "description": "Wie viele falsche Zahlen eine Runde übersteht. Jede kostet ein Leben, und wenn das letzte weg ist, geht's wieder bei 0 los. Mit unendlich Leben werden falsche Zahlen nur entfernt.",
         "unlimited": "Unendlich",
         "one": "1 (sofort zurücksetzen)",
-        "count": "{{count}} Leben"
+        "count": "{{count, number}} Leben"
       },
       "regenerateLives": {
         "label": "Leben regenerieren",
@@ -213,8 +213,8 @@
       "records": "**Rekorde**",
       "highest": "Höchste Zahl: **{{number}}** von {{user}}, {{time}} · [hinspringen]({{link}})",
       "highestNoLink": "Höchste Zahl: **{{number}}** von {{user}}, {{time}}",
-      "runs_one": "Bisher {{count}} Runde",
-      "runs_other": "Bisher {{count}} Runden"
+      "runs_one": "Bisher {{count, number}} Runde",
+      "runs_other": "Bisher {{count, number}} Runden"
     },
     "leaderboard": {
       "title": "### Top-Zähler 🏆",
@@ -402,8 +402,8 @@
     "fromGeneration": "Ein Pokémon aus Generation {{generation}}, rate seinen Namen in jeder Sprache",
     "silhouette": "Der Umriss eines Pokémon zum Raten",
     "notIt": "Es ist nicht **{{name}}**.",
-    "guesses_one": "{{count}} Versuch bisher",
-    "guesses_other": "{{count}} Versuche bisher",
+    "guesses_one": "{{count, number}} Versuch bisher",
+    "guesses_other": "{{count, number}} Versuche bisher",
     "hints": {
       "generation": "Generation",
       "name": "Name"
@@ -411,20 +411,20 @@
     "buttons": {
       "guess": "Raten",
       "hint": "Tipp",
-      "hintsLeft_one": "Tipp (noch {{count}})",
-      "hintsLeft_other": "Tipp (noch {{count}})",
+      "hintsLeft_one": "Tipp (noch {{count, number}})",
+      "hintsLeft_other": "Tipp (noch {{count, number}})",
       "giveUp": "Aufgeben",
       "again": "Nochmal",
       "pokedex": "Pokédex"
     },
     "solved": "### Es ist {{name}}! 🎉",
     "solvedIn_one": "Du hast es beim ersten Versuch erraten",
-    "solvedIn_other": "Du hast es mit {{count}} Versuchen erraten",
-    "withHints_one": ", mit {{count}} Tipp",
-    "withHints_other": ", mit {{count}} Tipps",
+    "solvedIn_other": "Du hast es mit {{count, number}} Versuchen erraten",
+    "withHints_one": ", mit {{count, number}} Tipp",
+    "withHints_other": ", mit {{count, number}} Tipps",
     "gaveUp": "### Es war {{name}}",
-    "gaveUpAfter_one": "Du hast nach {{count}} Versuch aufgegeben",
-    "gaveUpAfter_other": "Du hast nach {{count}} Versuchen aufgegeben",
+    "gaveUpAfter_one": "Du hast nach {{count, number}} Versuch aufgegeben",
+    "gaveUpAfter_other": "Du hast nach {{count, number}} Versuchen aufgegeben",
     "gaveUpEarly": "Du hast aufgegeben, ohne zu raten",
     "modal": {
       "title": "Wer ist das Pokémon?",
@@ -438,10 +438,10 @@
       "title": "### Sprachkanal-Steuerung 🔊",
       "owner": "Gehört {{owner}}",
       "ownerAway": "(kurz weg)",
-      "people_one": "{{count}} Person hier",
-      "people_other": "{{count}} Leute hier",
-      "peopleLimit_one": "{{count}} von {{limit}} Leuten hier",
-      "peopleLimit_other": "{{count}} von {{limit}} Leuten hier",
+      "people_one": "{{count, number}} Person hier",
+      "people_other": "{{count, number}} Leute hier",
+      "peopleLimit_one": "{{count, number}} von {{limit}} Leuten hier",
+      "peopleLimit_other": "{{count, number}} von {{limit}} Leuten hier",
       "locked": "Abgeschlossen",
       "hidden": "Versteckt",
       "delete": "Kanal löschen",
@@ -461,19 +461,19 @@
       "nameDescription": "Wie der Kanal heißt",
       "limit": "Limit",
       "limitDescription": "Wie viele Leute gleichzeitig drin sein können",
-      "limitValue_one": "{{count}} Person",
-      "limitValue_other": "{{count}} Leute",
+      "limitValue_one": "{{count, number}} Person",
+      "limitValue_other": "{{count, number}} Leute",
       "noLimit": "Kein Limit",
       "moderators": "Moderatoren",
       "moderatorsDescription": "Sie können Leute reinlassen, aussperren, rauswerfen und das Limit setzen, aber den Kanal nicht umbenennen, abschließen, verstecken oder löschen",
       "moderatorsPlaceholder": "Wähl, wer dem Besitzer hilft",
-      "moreHidden": "{{count}} weitere werden in der Auswahl nicht angezeigt und bleiben auf der Liste."
+      "moreHidden": "{{count, number}} weitere werden in der Auswahl nicht angezeigt und bleiben auf der Liste."
     },
     "announce": {
       "changed": "{{user}} hat den Kanal geändert:",
       "renamed": "umbenannt in **{{name}}**",
-      "limit_one": "Limit auf {{count}} Person gesetzt",
-      "limit_other": "Limit auf {{count}} Leute gesetzt",
+      "limit_one": "Limit auf {{count, number}} Person gesetzt",
+      "limit_other": "Limit auf {{count, number}} Leute gesetzt",
       "noLimit": "Limit entfernt",
       "locked": "abgeschlossen",
       "unlocked": "aufgeschlossen",
@@ -572,7 +572,7 @@
           "label": "Sprachkanäle",
           "description": "Ob man über die Beitrittskanäle einen Sprachkanal bekommt. Jeder lässt sich auch einzeln ausschalten"
         },
-        "count": "{{count}}/{{max}} Beitrittskanäle",
+        "count": "{{count, number}}/{{max}} Beitrittskanäle",
         "none": "Hier gibt es noch keine Beitrittskanäle. Erstell einen mit `/sprachkanal-einstellungen erstellen`.",
         "item": "- {{channel}} · neue Kanäle in {{category}}",
         "placeholder": "Wähl einen Beitrittskanal aus, um ihn zu ändern"
@@ -621,13 +621,13 @@
     "avatar": "Avatar",
     "avatarChanged": "geändert, der neue ist rechts",
     "avatarRemoved": "entfernt",
-    "bulkNotSeen_one": "{{count}} davon wurde vor meinem Start gesendet und ist nicht in der Datei.",
-    "bulkNotSeen_other": "{{count}} davon wurden vor meinem Start gesendet und sind nicht in der Datei.",
+    "bulkNotSeen_one": "{{count, number}} davon wurde vor meinem Start gesendet und ist nicht in der Datei.",
+    "bulkNotSeen_other": "{{count, number}} davon wurden vor meinem Start gesendet und sind nicht in der Datei.",
     "labels": {
       "messageEdited": "Nachricht bearbeitet ✏️",
       "messageDeleted": "Nachricht gelöscht 🗑️",
-      "messagesBulkDeleted_one": "{{count}} Nachricht gelöscht 🗑️",
-      "messagesBulkDeleted_other": "{{count}} Nachrichten gelöscht 🗑️",
+      "messagesBulkDeleted_one": "{{count, number}} Nachricht gelöscht 🗑️",
+      "messagesBulkDeleted_other": "{{count, number}} Nachrichten gelöscht 🗑️",
       "memberJoined": "Mitglied beigetreten 📥",
       "memberLeft": "Mitglied gegangen 📤",
       "memberNickname": "Spitzname geändert 🏷️",
@@ -864,7 +864,7 @@
     "from": "Von",
     "to": "Nach",
     "tooLong": "Zu lang, um hier ganz angezeigt zu werden, der ganze Text ist in der Datei darunter.",
-    "transcriptHeading": "{{count}} Nachrichten gelöscht in #{{channel}} ({{channelId}})",
+    "transcriptHeading": "{{count, number}} Nachrichten gelöscht in #{{channel}} ({{channelId}})",
     "tips": {
       "general": [
         "Der Bot braucht „Audit-Log anzeigen“, um zu sagen, wer etwas gemacht hat und warum.",
@@ -1139,14 +1139,14 @@
         "label": "Rollenmenüs",
         "description": "Ob man sich aus den Menüs Rollen aussuchen kann. Jedes Menü lässt sich auch einzeln ausschalten"
       },
-      "count": "{{count}}/{{max}} Menüs",
+      "count": "{{count, number}}/{{max}} Menüs",
       "none": "Hier gibt es noch keine Rollenmenüs. Erstell eins mit `/rollenmenü-einstellungen erstellen`.",
       "item": "- **{{name}}** in {{channel}} · {{roles}}",
-      "roles_one": "{{count}} Rolle",
-      "roles_other": "{{count}} Rollen",
+      "roles_one": "{{count, number}} Rolle",
+      "roles_other": "{{count, number}} Rollen",
       "placeholder": "Wähl ein Menü aus, um es zu ändern",
       "unnamed": "Menü ohne Namen",
-      "moreRoles": "{{roles}} +{{count}}",
+      "moreRoles": "{{roles}} +{{count, number}}",
       "optionDescription": "{{channel}} · {{roles}}"
     },
     "settings": {
