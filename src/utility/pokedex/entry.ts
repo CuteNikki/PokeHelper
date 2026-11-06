@@ -6,6 +6,8 @@ import {
   type ButtonInteraction,
   ButtonStyle,
   ContainerBuilder,
+  heading,
+  HeadingLevel,
   LabelBuilder,
   MediaGalleryBuilder,
   MessageFlags,
@@ -317,7 +319,7 @@ export async function buildPokedexEntry(match: PokedexMatch, view: PokedexView, 
 
   if (view.text) {
     const header = new TextDisplayBuilder().setContent(
-      [`## ${shownName} ${number}`, kind ? subtext(kind) : null, entry ? `> ${entry}` : null].filter(Boolean).join('\n'),
+      [heading(`${shownName} ${number}`, HeadingLevel.Two), kind ? subtext(kind) : null, entry ? `> ${entry}` : null].filter(Boolean).join('\n'),
     );
     if (picture) {
       container.addSectionComponents(
@@ -335,7 +337,7 @@ export async function buildPokedexEntry(match: PokedexMatch, view: PokedexView, 
       ...details.map((detail) => `${bold(detail.label)} ${detail.value}`),
     ];
     const statLines = [
-      `### ${t('pokedex.stats.heading', { total: format(total) })}`,
+      heading(t('pokedex.stats.heading', { total: format(total) }), HeadingLevel.Three),
       ...stats.map((stat) => `${statBar(stat.value, firstType)} ${bold(format(stat.value))} ${stat.label}`),
     ];
     container
@@ -347,7 +349,7 @@ export async function buildPokedexEntry(match: PokedexMatch, view: PokedexView, 
     if (evolves) {
       container
         .addSeparatorComponents(new SeparatorBuilder())
-        .addTextDisplayComponents(new TextDisplayBuilder().setContent(`### ${t('pokedex.evolution.title')}`))
+        .addTextDisplayComponents(new TextDisplayBuilder().setContent(heading(t('pokedex.evolution.title'), HeadingLevel.Three)))
         .addActionRowComponents(buildEvolutionButtons(stages.flat(), match, shownView, speciesName));
     }
   } else {

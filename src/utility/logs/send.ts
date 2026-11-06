@@ -7,6 +7,8 @@ import {
   ContainerBuilder,
   type Guild,
   type GuildMember,
+  heading,
+  HeadingLevel,
   MessageFlags,
   type PermissionsString,
   SectionBuilder,
@@ -111,7 +113,7 @@ export function quoteText(text: string) {
 export function buildLogEntry(entry: LogEntry, t: Translate, doer?: User | null) {
   const header = new TextDisplayBuilder().setContent(
     [
-      `### ${entry.label}`,
+      heading(entry.label, HeadingLevel.Three),
       `${bold(t(`logs.about.${entry.about}`))} ${entry.subject}`,
       typeof entry.where === 'string' ? `${bold(t('logs.in'))} ${entry.where}` : null,
       entry.where && typeof entry.where === 'object' ? `${bold(t('logs.from'))} ${entry.where.from}\n${bold(t('logs.to'))} ${entry.where.to}` : null,

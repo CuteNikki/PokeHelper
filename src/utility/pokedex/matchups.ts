@@ -6,6 +6,8 @@ import {
   type ButtonInteraction,
   ButtonStyle,
   ContainerBuilder,
+  heading,
+  HeadingLevel,
   MediaGalleryBuilder,
   MessageFlags,
   SectionBuilder,
@@ -250,7 +252,9 @@ function buildText(matchups: Matchups, slug: string, t: Translate): ResponsePayl
   }
 
   if (matchups.weak.length > 0) {
-    container.addSeparatorComponents(new SeparatorBuilder()).addTextDisplayComponents(new TextDisplayBuilder().setContent(`### ${t('pokedex.matchups.weak')}`));
+    container
+      .addSeparatorComponents(new SeparatorBuilder())
+      .addTextDisplayComponents(new TextDisplayBuilder().setContent(heading(t('pokedex.matchups.weak'), HeadingLevel.Three)));
     for (const entry of matchups.weak) {
       const lines = [
         `${bold(entry.type.name)} ${entry.label}`,
@@ -280,7 +284,7 @@ function buildText(matchups: Matchups, slug: string, t: Translate): ResponsePayl
     const lines = entries.map((entry) => `${bold(entry.type.name)} ${entry.label}`);
     container
       .addSeparatorComponents(new SeparatorBuilder())
-      .addTextDisplayComponents(new TextDisplayBuilder().setContent(`### ${t(`pokedex.matchups.${key}`)}\n${lines.join('\n')}`));
+      .addTextDisplayComponents(new TextDisplayBuilder().setContent(`${heading(t(`pokedex.matchups.${key}`), HeadingLevel.Three)}\n${lines.join('\n')}`));
   }
 
   container

@@ -5,6 +5,8 @@ import {
   ContainerBuilder,
   DiscordAPIError,
   type Guild,
+  heading,
+  HeadingLevel,
   type Message,
   MessageFlags,
   type PermissionsString,
@@ -41,7 +43,7 @@ const queue = new KeyedQueue();
  * It's posted in a channel for everyone, so use the server's language.
  */
 export function buildRoleMenuMessage(menu: RoleMenu, t: Translate): ResponsePayload {
-  const lines = [`### ${menu.title ?? t('roleMenu.message.title')}`, menu.description ?? t('roleMenu.message.description'), ''];
+  const lines = [heading(menu.title ?? t('roleMenu.message.title'), HeadingLevel.Three), menu.description ?? t('roleMenu.message.description'), ''];
   // Mentions always show the role's current name, so the list never goes out of date
   lines.push(...menu.roles.map((role) => t('roleMenu.message.item', { emoji: role.emoji, role: roleMention(role.roleId) })));
   if (!menu.enabled) lines.push('', subtext(t('roleMenu.message.disabled')));

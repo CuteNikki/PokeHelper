@@ -3,6 +3,8 @@ import os from 'node:os';
 import {
   bold,
   ContainerBuilder,
+  heading,
+  HeadingLevel,
   MessageFlags,
   SeparatorBuilder,
   SeparatorSpacingSize,
@@ -115,7 +117,9 @@ export default new Command({
 
     const container = new ContainerBuilder()
       .setAccentColor(ThemeColors.info)
-      .addTextDisplayComponents(new TextDisplayBuilder().setContent(`### ${t('botinfo.author', { username: interaction.client.user.username })}`));
+      .addTextDisplayComponents(
+        new TextDisplayBuilder().setContent(heading(t('botinfo.author', { username: interaction.client.user.username }), HeadingLevel.Three)),
+      );
     for (const lines of sections) {
       container
         .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Small))
