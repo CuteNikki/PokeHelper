@@ -351,5 +351,15 @@
         "description": "Die Fähigkeit, mit Namen"
       }
     }
+  },
+  "berry": {
+    "name": "beere",
+    "description": "Schlag eine Beere nach: Geschmack, Wachstum und Beerenkräfte",
+    "options": {
+      "berry": {
+        "name": "beere",
+        "description": "Die Beere, mit Namen"
+      }
+    }
   }
 }

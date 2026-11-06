@@ -1538,5 +1538,31 @@
     "notFound": "Ich konnte keine Fähigkeit namens **{{name}}** finden. Wähl einen der Vorschläge.",
     "effect": "Effekt",
     "pokemon": "Pokémon"
+  },
+  "berries": {
+    "title": "### {{name}} {{icon.cherry}}",
+    "notFound": "Ich konnte keine Beere namens **{{name}}** finden. Wähl einen der Vorschläge.",
+    "flavor": "Geschmack",
+    "flavors": {
+      "spicy": "Scharf",
+      "dry": "Trocken",
+      "sweet": "Süß",
+      "bitter": "Bitter",
+      "sour": "Sauer"
+    },
+    "firmnessLabel": "Festigkeit",
+    "firmness": {
+      "very-soft": "Sehr weich",
+      "soft": "Weich",
+      "hard": "Hart",
+      "very-hard": "Sehr hart",
+      "super-hard": "Steinhart"
+    },
+    "size": "Größe",
+    "growth": "Wachstum",
+    "growthTime": "{{hours}} Std. pro Phase",
+    "harvest": "Ernte",
+    "naturalGift": "Beerenkräfte",
+    "harvestCount": "bis zu {{count}}"
   }
 }

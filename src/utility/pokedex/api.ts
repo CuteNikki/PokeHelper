@@ -154,6 +154,23 @@ export interface ApiAbility {
   pokemon: { is_hidden: boolean; pokemon: Named }[];
 }
 
+export interface ApiBerry {
+  id: number;
+  name: string;
+  item: Named;
+  firmness: Named;
+  /** How strong each of its flavors is. */
+  flavors: { potency: number; flavor: Named }[];
+  /** Hours for each of the stages it takes to grow. */
+  growth_time: number;
+  /** The most that grow on one tree. */
+  max_harvest: number;
+  /** In millimeters. */
+  size: number;
+  natural_gift_power: number;
+  natural_gift_type: Named;
+}
+
 /** A kind of item, like Standard balls. */
 export interface ApiItemCategory {
   id: number;
@@ -224,6 +241,7 @@ export const getType = (name: string) => get<ApiType>(`type/${encodeURIComponent
 export const getItem = (slug: string) => get<ApiItem>(`item/${encodeURIComponent(slug)}`);
 export const getItemCategory = (slug: string) => get<ApiItemCategory>(`item-category/${encodeURIComponent(slug)}`);
 export const getAbility = (slug: string) => get<ApiAbility>(`ability/${encodeURIComponent(slug)}`);
+export const getBerry = (slug: string) => get<ApiBerry>(`berry/${encodeURIComponent(slug)}`);
 export const getContestEffect = (id: number) => get<ApiContestEffect>(`contest-effect/${id}`);
 
 /** The evolution chain at a URL from {@link ApiSpecies.evolution_chain}. */

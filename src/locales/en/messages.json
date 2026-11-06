@@ -1599,5 +1599,31 @@
     "notFound": "I couldn't find an ability called **{{name}}**. Pick one of the suggestions.",
     "effect": "Effect",
     "pokemon": "Pokémon"
+  },
+  "berries": {
+    "title": "### {{name}} {{icon.cherry}}",
+    "notFound": "I couldn't find a berry called **{{name}}**. Pick one of the suggestions.",
+    "flavor": "Flavor",
+    "flavors": {
+      "spicy": "Spicy",
+      "dry": "Dry",
+      "sweet": "Sweet",
+      "bitter": "Bitter",
+      "sour": "Sour"
+    },
+    "firmnessLabel": "Firmness",
+    "firmness": {
+      "very-soft": "Very soft",
+      "soft": "Soft",
+      "hard": "Hard",
+      "very-hard": "Very hard",
+      "super-hard": "Super hard"
+    },
+    "size": "Size",
+    "growth": "Growth",
+    "growthTime": "{{hours}} h per stage",
+    "harvest": "Harvest",
+    "naturalGift": "Natural Gift",
+    "harvestCount": "up to {{count}}"
   }
 }
