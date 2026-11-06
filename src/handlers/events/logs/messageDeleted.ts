@@ -1,8 +1,8 @@
-import { AuditLogEvent, Events, messageLink } from 'discord.js';
+import { Events, messageLink } from 'discord.js';
 
 import { Event } from 'classes/base/event';
 
-import { whoDid } from 'utility/logs/audit';
+import { whoDeleted } from 'utility/logs/audit';
 import { avatarOf, channelRef, code, userSubject } from 'utility/logs/format';
 import { deletedText } from 'utility/logs/messages';
 import { isIgnoredChannel, isIgnoredMember, sendLog, shouldLog } from 'utility/logs/send';
@@ -18,7 +18,7 @@ export default new Event({
     if (!config || isIgnoredChannel(config, guild, message.channelId) || isIgnoredMember(config, message.member)) return;
 
     // The audit log only says who deleted it when that wasn't its author, so no entry means they deleted it themselves
-    const doer = message.author ? await whoDid(guild.id, AuditLogEvent.MessageDelete, message.author.id) : null;
+    const doer = message.author ? await whoDeleted(guild, message.author.id, message.channelId) : null;
     const files = [...message.attachments.values()].map((file) => code(file.name));
     const stickers = [...(message.stickers?.values() ?? [])].map((sticker) => code(sticker.name));
 

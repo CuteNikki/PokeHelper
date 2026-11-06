@@ -1,7 +1,8 @@
 import type { Translate } from 'utility/i18next';
 
 /** Time units in milliseconds. */
-export const MINUTE = 60_000;
+export const SECOND = 1_000;
+export const MINUTE = 60 * SECOND;
 export const HOUR = 60 * MINUTE;
 export const DAY = 24 * HOUR;
 
