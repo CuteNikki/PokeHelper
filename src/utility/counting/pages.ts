@@ -1,7 +1,6 @@
 import {
   ActionRowBuilder,
   ButtonBuilder,
-  ButtonStyle,
   ContainerBuilder,
   MessageFlags,
   TextDisplayBuilder,
@@ -16,7 +15,7 @@ import { getRecentRuns, getTopCounters } from 'database/countingStats';
 
 import { formatDuration, formatNumber } from 'utility/duration';
 import { getTranslate, type Translate } from 'utility/i18next';
-import { findMeButton, readPageInput } from 'utility/pagination';
+import { buildPageRow, clampPage, findMeButton, type PageButton, readPageInput } from 'utility/pagination';
 import { sendError, type ResponsePayload } from 'utility/response';
 import { ThemeColors } from 'utility/theme';
 
@@ -52,12 +51,6 @@ export function parseCountingPageModalId(customId: string): CountingList | null 
   return LISTS.includes(list as CountingList) ? (list as CountingList) : null;
 }
 
-/** The page to show and how many there are, kept within the pages there are, as the lists change between presses. */
-export function pageOf(requested: number, total: number) {
-  const pages = Math.max(1, Math.ceil(total / COUNTING_PAGE_SIZE));
-  return { page: Math.min(Math.max(0, requested), pages - 1), pages };
-}
-
 const accuracy = (counted: number, mistakes: number) => Math.round((counted / Math.max(1, counted + mistakes)) * 100);
 
 /**
@@ -67,28 +60,10 @@ const accuracy = (counted: number, mistakes: number) => Math.round((counted / Ma
 function buildPage(list: CountingList, lines: string[], page: number, pages: number, t: Translate): ResponsePayload {
   const container = new ContainerBuilder().setAccentColor(ThemeColors.info).addTextDisplayComponents(new TextDisplayBuilder().setContent(lines.join('\n')));
   if (pages > 1) {
-    const button = (target: number, icon: string) =>
-      new ButtonBuilder()
-        .setCustomId(`${COUNTING_PAGE_PREFIX}${list}:${target}`)
-        .setStyle(ButtonStyle.Secondary)
-        .setEmoji(icon)
-        .setDisabled(target < 0 || target >= pages);
-    container.addActionRowComponents(
-      new ActionRowBuilder<ButtonBuilder>().addComponents(
-        button(0, t('pagination.first.icon'))
-          .setCustomId(`${COUNTING_PAGE_PREFIX}${list}:0:first`)
-          .setDisabled(page === 0),
-        button(page - 1, t('pagination.previous.icon')),
-        new ButtonBuilder()
-          .setCustomId(`${COUNTING_PAGE_PREFIX}${list}:${page}:goto`)
-          .setStyle(ButtonStyle.Secondary)
-          .setLabel(t('pagination.page.label', { current: formatNumber(page + 1, t), total: formatNumber(pages, t) })),
-        button(page + 1, t('pagination.next.icon')),
-        button(pages - 1, t('pagination.last.icon'))
-          .setCustomId(`${COUNTING_PAGE_PREFIX}${list}:${pages - 1}:last`)
-          .setDisabled(page === pages - 1),
-      ),
-    );
+    // Going to the first and the previous page can be the same page, so the custom IDs say which button it is
+    const customId = (button: PageButton, target: number) =>
+      `${COUNTING_PAGE_PREFIX}${list}:${target}${button === 'prev' || button === 'next' ? '' : `:${button}`}`;
+    container.addActionRowComponents(buildPageRow(page, pages, customId, t));
     if (list === 'leaderboard') {
       container.addActionRowComponents(new ActionRowBuilder<ButtonBuilder>().addComponents(findMeButton(`${COUNTING_PAGE_PREFIX}${list}:${page}:me`, t)));
     }
@@ -112,7 +87,7 @@ export async function handleCountingPageModal(interaction: ModalSubmitInteractio
 /** A page of the members who counted the most. */
 export async function buildCountingLeaderboard(guildId: string, requested: number, t: Translate): Promise<ResponsePayload> {
   const first = await getTopCounters(guildId, COUNTING_PAGE_SIZE, requested * COUNTING_PAGE_SIZE);
-  const { page, pages } = pageOf(requested, first.total);
+  const { page, pages } = clampPage(requested, first.total, COUNTING_PAGE_SIZE);
   // Asked again when the page asked for doesn't exist anymore, like after members' data was deleted
   const { counters } = page === requested ? first : await getTopCounters(guildId, COUNTING_PAGE_SIZE, page * COUNTING_PAGE_SIZE);
   if (counters.length === 0) return buildPage('leaderboard', [t('counting.leaderboard.title'), t('counting.leaderboard.empty')], 0, 1, t);
@@ -132,7 +107,7 @@ export async function buildCountingLeaderboard(guildId: string, requested: numbe
 export async function buildCountingRuns(guildId: string, requested: number, t: Translate): Promise<ResponsePayload> {
   const counting = await getCounting(guildId);
   const first = await getRecentRuns(guildId, COUNTING_PAGE_SIZE, requested * COUNTING_PAGE_SIZE);
-  const { page, pages } = pageOf(requested, first.total);
+  const { page, pages } = clampPage(requested, first.total, COUNTING_PAGE_SIZE);
   const { runs } = page === requested ? first : await getRecentRuns(guildId, COUNTING_PAGE_SIZE, page * COUNTING_PAGE_SIZE);
   if (runs.length === 0) return buildPage('runs', [t('counting.runs.title'), t('counting.runs.empty')], 0, 1, t);
 

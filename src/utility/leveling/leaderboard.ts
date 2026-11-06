@@ -19,8 +19,8 @@ import { getLevelFromXP, getTopUsersByXP, getTotalUsersWithXP, type LevelPeriod 
 import { drawAvatar, truncateText } from 'utility/canvas';
 import { formatCompactNumber, formatNumber } from 'utility/duration';
 import type { Translate } from 'utility/i18next';
-import { clampPage, leaderboardCustomId, nextPeriod, type LeaderboardAction, type LeaderboardView } from 'utility/leveling/leaderboardView';
-import { findMeButton } from 'utility/pagination';
+import { leaderboardCustomId, nextPeriod, type LeaderboardView } from 'utility/leveling/leaderboardView';
+import { buildPageRow, clampPage, findMeButton, type PageButton } from 'utility/pagination';
 
 export const ITEMS_PER_PAGE = 5;
 
@@ -255,24 +255,9 @@ function periodButton(view: LeaderboardView, t: Translate) {
 
 /** The page buttons and the sort select, which stay the same in image and text mode. Each leads to the view it shows. */
 function buildControls(view: LeaderboardView, totalPages: number, t: Translate) {
-  const button = (action: LeaderboardAction, page: number) =>
-    new ButtonBuilder().setCustomId(leaderboardCustomId(action, { ...view, page })).setStyle(ButtonStyle.Secondary);
-
-  const rowPageButtons = new ActionRowBuilder<ButtonBuilder>().addComponents(
-    button('first', 1)
-      .setEmoji(t('pagination.first.icon'))
-      .setDisabled(view.page === 1),
-    button('prev', view.page - 1 || 1)
-      .setEmoji(t('pagination.previous.icon'))
-      .setDisabled(view.page === 1),
-    button('goto', view.page).setLabel(t('pagination.page.label', { current: formatNumber(view.page, t), total: formatNumber(totalPages, t) })),
-    button('next', Math.min(view.page + 1, totalPages))
-      .setEmoji(t('pagination.next.icon'))
-      .setDisabled(view.page === totalPages),
-    button('last', totalPages)
-      .setEmoji(t('pagination.last.icon'))
-      .setDisabled(view.page === totalPages),
-  );
+  // The view counts pages from 1, which its custom IDs keep, so buttons from before still work
+  const customId = (button: PageButton, target: number) => leaderboardCustomId(button, { ...view, page: Math.min(Math.max(target, 0), totalPages - 1) + 1 });
+  const rowPageButtons = buildPageRow(view.page - 1, totalPages, customId, t);
 
   // Sorting starts over at the first page
   const rowSortOrder = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
@@ -310,9 +295,9 @@ function buildControls(view: LeaderboardView, totalPages: number, t: Translate) 
 export async function buildLeaderboard(requested: LeaderboardView, guild: Guild, t: Translate): Promise<InteractionEditReplyOptions> {
   const { period, sortOrder, text } = requested;
   const userCount = await getTotalUsersWithXP(guild.id, period);
-  const totalPages = Math.max(1, Math.ceil(userCount / ITEMS_PER_PAGE));
   // The list may have shrunk since the buttons were made, or a page that doesn't exist was asked for
-  const page = clampPage(requested.page, totalPages);
+  const { page: index, pages: totalPages } = clampPage(requested.page - 1, userCount, ITEMS_PER_PAGE);
+  const page = index + 1;
   const title = t(TITLE_KEYS[period], { guild: guild.name });
   // Shown without a container around it, the image already has its own cards
   const heading = new TextDisplayBuilder().setContent(title);

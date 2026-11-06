@@ -1,7 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 
 import {
-  clampPage,
   leaderboardCustomId,
   leaderboardPageModalId,
   nextPeriod,
@@ -43,12 +42,4 @@ test('the period button cycles through all-time, weekly and monthly', () => {
   expect(nextPeriod('allTime')).toBe('weekly');
   expect(nextPeriod('weekly')).toBe('monthly');
   expect(nextPeriod('monthly')).toBe('allTime');
-});
-
-test('pages are kept within the pages there are', () => {
-  expect(clampPage(9, 3)).toBe(3);
-  expect(clampPage(0, 3)).toBe(1);
-  expect(clampPage(-2, 3)).toBe(1);
-  expect(clampPage(2, 3)).toBe(2);
-  expect(clampPage(5, 0)).toBe(1);
 });

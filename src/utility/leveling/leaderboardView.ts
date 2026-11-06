@@ -64,6 +64,3 @@ export function parseLeaderboardPageModalId(customId: string): LeaderboardView |
   if (!customId.startsWith(LEADERBOARD_PAGE_MODAL_PREFIX)) return null;
   return decodeView(customId.slice(LEADERBOARD_PAGE_MODAL_PREFIX.length).split(':'));
 }
-
-/** The page to show: the one asked for, within the pages there are. */
-export const clampPage = (page: number, totalPages: number) => Math.min(Math.max(1, Math.floor(page) || 1), Math.max(1, totalPages));

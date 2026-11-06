@@ -1,18 +1,9 @@
-import {
-  ActionRowBuilder,
-  ButtonBuilder,
-  ButtonStyle,
-  ContainerBuilder,
-  MessageFlags,
-  TextDisplayBuilder,
-  userMention,
-  type ButtonInteraction,
-} from 'discord.js';
+import { ContainerBuilder, MessageFlags, TextDisplayBuilder, userMention, type ButtonInteraction } from 'discord.js';
 
 import { getStarboardEntryByPost, type StarboardEntry } from 'database/starboard';
 
-import { formatNumber } from 'utility/duration';
 import { getTranslate, type Translate } from 'utility/i18next';
+import { buildPageRow, clampPage, type PageButton } from 'utility/pagination';
 import { sendError, sendResponse, type ResponsePayload } from 'utility/response';
 import { STAR_BUTTON_ID, STARBOARD_BUTTON_PREFIX, STARRED_BY_BUTTON_ID, toggleStar } from 'utility/starboard';
 import { ThemeColors } from 'utility/theme';
@@ -25,38 +16,18 @@ export const STARRED_BY_PAGE_SIZE = 50;
  */
 const PAGE_PREFIX = `${STARBOARD_BUTTON_PREFIX}page:`;
 
-/** The page to show, kept within the pages there are, as stars can change between presses. */
-export function clampPage(page: number, count: number): { page: number; pages: number } {
-  const pages = Math.max(1, Math.ceil(count / STARRED_BY_PAGE_SIZE));
-  return { page: Math.min(Math.max(0, page), pages - 1), pages };
-}
-
 /** A page of who starred a post, with buttons to the other pages when there's more than one. */
 function buildStarredBy(entry: StarboardEntry, postId: string, requested: number, t: Translate): ResponsePayload {
-  const { page, pages } = clampPage(requested, entry.starredBy.length);
+  const { page, pages } = clampPage(requested, entry.starredBy.length, STARRED_BY_PAGE_SIZE);
   const names = entry.starredBy.slice(page * STARRED_BY_PAGE_SIZE, (page + 1) * STARRED_BY_PAGE_SIZE).map((userId) => userMention(userId));
   const container = new ContainerBuilder()
     .setAccentColor(ThemeColors.info)
     .addTextDisplayComponents(new TextDisplayBuilder().setContent(`${t('starboard.post.whoTitle')}\n${names.join(', ') || t('starboard.post.nobody')}`));
 
   if (pages > 1) {
-    const button = (target: number, emoji: string) =>
-      new ButtonBuilder()
-        .setCustomId(`${PAGE_PREFIX}${postId}:${target}`)
-        .setStyle(ButtonStyle.Secondary)
-        .setEmoji(emoji)
-        .setDisabled(target < 0 || target >= pages);
-    container.addActionRowComponents(
-      new ActionRowBuilder<ButtonBuilder>().addComponents(
-        button(page - 1, t('pagination.previous.icon')),
-        new ButtonBuilder()
-          .setCustomId(`${PAGE_PREFIX}${postId}:current`)
-          .setStyle(ButtonStyle.Secondary)
-          .setLabel(t('pagination.page.label', { current: formatNumber(page + 1, t), total: formatNumber(pages, t) }))
-          .setDisabled(true),
-        button(page + 1, t('pagination.next.icon')),
-      ),
-    );
+    // The page only shows where you are, as these lists are short
+    const customId = (button: PageButton, target: number) => `${PAGE_PREFIX}${postId}:${button === 'goto' ? 'current' : target}`;
+    container.addActionRowComponents(buildPageRow(page, pages, customId, t, { goto: false, short: true }));
   }
   // The names are mentions to see who they are, which never ping anyone
   return { components: [container], flags: [MessageFlags.IsComponentsV2], allowedMentions: { parse: [] } };
