@@ -31,4 +31,13 @@ export const saveStarboardEntry = async (entry: Pick<StarboardEntry, 'messageId'
 export const updateStarboardEntry = async (messageId: string, data: Partial<Omit<StarboardEntry, 'messageId' | 'createdAt' | 'updatedAt'>>) =>
   prisma.starboardEntry.update({ where: { messageId }, data });
 
+/**
+ * Forget messages starred before a time that never made it onto the starboard. Their reactions say who starred them, which is read
+ * again if they get another star. Posts deleted by hand stay, so they aren't posted again.
+ * @returns How many were forgotten.
+ */
+export const deleteUnpostedStarboardEntries = async (before: Date) =>
+  prisma.$executeRaw`DELETE FROM "StarboardEntry" WHERE "starboardMessageId" IS NULL AND NOT "removed"
+    AND ("messageId"::bigint >> 22) + 1420070400000 < ${BigInt(before.getTime())}`;
+
 export const deleteStarboardEntry = async (messageId: string) => prisma.starboardEntry.deleteMany({ where: { messageId } });

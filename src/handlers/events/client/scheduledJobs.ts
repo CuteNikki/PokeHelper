@@ -6,7 +6,9 @@ import { runBirthdayJob } from 'utility/birthday/job';
 import { runResetJob } from 'utility/leveling/reset';
 import { runReminderJob } from 'utility/reminders/job';
 import { runProfileThemeJob } from 'utility/profileTheme';
+import { forgetOldUnposted } from 'utility/starboard';
 import { scheduleJob } from 'utility/scheduler';
+import { DAY } from 'utility/duration';
 
 /** How often the jobs check what's due. Often enough that birthdays are on time, rarely enough to stay cheap. */
 const JOB_INTERVAL = 15 * 60 * 1000;
@@ -27,5 +29,6 @@ export default new Event({
     scheduleJob('profile theme', JOB_INTERVAL, () => runProfileThemeJob(client));
     // Often, as reminders are often only minutes away
     scheduleJob('reminders', REMINDER_INTERVAL, () => runReminderJob(client));
+    scheduleJob('starboard cleanup', DAY, forgetOldUnposted);
   },
 });

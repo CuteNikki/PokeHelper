@@ -25,6 +25,7 @@ import {
 
 import {
   deleteStarboardEntry,
+  deleteUnpostedStarboardEntries,
   getGuildStarboard,
   getStarboardEntry,
   getStarboardEntryByPost,
@@ -35,7 +36,7 @@ import {
   type StarboardEntry,
 } from 'database/starboard';
 
-import { formatNumber, SECOND } from 'utility/duration';
+import { DAY, formatNumber, SECOND } from 'utility/duration';
 import { customEmojiId } from 'utility/emoji';
 import { guildTranslate, type Translate } from 'utility/i18next';
 import { logger } from 'utility/logger';
@@ -356,4 +357,13 @@ export async function handleDeletedMessage(guild: Guild, messageId: string): Pro
 export async function handleDeletedStarEmoji(guildId: string, emojiId: string) {
   const config = await getGuildStarboard(guildId);
   if (config?.emoji && customEmojiId(config.emoji) === emojiId) await updateGuildStarboard(guildId, { emoji: null });
+}
+
+/** How long a starred message that isn't on the starboard is remembered. Later stars read its reactions again. */
+const KEEP_UNPOSTED = 30 * DAY;
+
+/** Forget starred messages that never made it onto the starboard, so a row isn't kept forever for every message with a star. */
+export async function forgetOldUnposted() {
+  const count = await deleteUnpostedStarboardEntries(new Date(Date.now() - KEEP_UNPOSTED));
+  if (count > 0) logger.info(`Forgot ${count} starred messages that never made it onto a starboard`);
 }
