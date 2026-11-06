@@ -2,8 +2,6 @@ import {
   ActionRowBuilder,
   bold,
   ButtonBuilder,
-  type ButtonInteraction,
-  ButtonStyle,
   ContainerBuilder,
   heading,
   HeadingLevel,
@@ -15,21 +13,16 @@ import {
   ThumbnailBuilder,
 } from 'discord.js';
 
-import { FALLBACK_LANGUAGE, getTranslate, resolveLanguage, type Translate } from 'utility/i18next';
-import { answerPokeApiError, type ApiDamageRelations, artworkUrl, getImage, getMove, getPokemon, getType } from 'utility/pokedex/api';
+import { FALLBACK_LANGUAGE, type Translate } from 'utility/i18next';
+import { type ApiDamageRelations, artworkUrl, getImage, getMove, getPokemon, getType } from 'utility/pokedex/api';
 import { renderMatchupCard } from 'utility/pokedex/matchupCard';
 import { buttonIcon, withTypeEmoji } from 'utility/emojis';
 import { typeSymbol } from 'utility/pokedex/typeIcons';
-import { findBySlug, getPokedexData, loadPokedexData, matchName, nameIn, type PokedexMatch } from 'utility/pokedex/names';
+import { findBySlug, getPokedexData, matchName, nameIn, type PokedexMatch } from 'utility/pokedex/names';
+import { type DexPage, linkSelect, type PageContext, pageButton, pokemonPage, viewButton } from 'utility/pokedex/pages';
 import { TYPE_COLORS } from 'utility/pokedex/types';
-import { imageWithDescription, type ResponsePayload, sendError, sendResponse } from 'utility/response';
+import { imageWithDescription, type ResponsePayload } from 'utility/response';
 import { ThemeColors } from 'utility/theme';
-
-/**
- * The Matchups button of a Pokédex entry is `pokedex-matchups:<slug>:<i|t>`, with the Pokémon or form it's for and whether the entry is
- * a card or text, so it works however old the entry is. Buttons from before the text mode have none and show the card.
- */
-export const POKEDEX_MATCHUPS_PREFIX = 'pokedex-matchups:';
 
 /** The types attacks can have, in the order the games list them. */
 const ATTACKING_TYPES = Object.keys(TYPE_COLORS);
@@ -86,28 +79,21 @@ export function matchupGroups(taken: Record<string, number>) {
   );
 }
 
-/** The Matchups button for a Pokémon or form, which anyone who sees the entry can press. */
-export const matchupsButton = (slug: string, text: boolean, t: Translate) =>
-  new ButtonBuilder()
-    .setCustomId(`${POKEDEX_MATCHUPS_PREFIX}${slug}:${text ? 't' : 'i'}`)
-    .setStyle(ButtonStyle.Secondary)
-    .setEmoji(buttonIcon('shield'))
-    .setLabel(t('pokedex.matchups.button'));
+/**
+ * The matchups of a Pokémon as a page, `matchups:<slug>`, with `t` as its game for text and `i` for the card. Without either, they're
+ * shown how their viewer last looked at an entry.
+ */
+export const matchupsPage = (slug: string, text: boolean): DexPage => ({ kind: 'matchups', slug, game: text ? 't' : 'i' });
 
-/** The button on the matchups that switches them between the card and text, ending in `:switch`, as it changes the reply it's on. */
+/** The Matchups button of a Pokédex entry, shown like the entry, with Back to it. */
+export const matchupsButton = (slug: string, view: { shiny: boolean; text: boolean }, t: Translate) =>
+  pageButton(matchupsPage(slug, view.text), pokemonPage(slug, view)).setEmoji(buttonIcon('shield')).setLabel(t('pokedex.matchups.button'));
+
+/** The button on the matchups that switches them between the card and text, keeping where Back goes. */
 const switchButton = (slug: string, text: boolean, t: Translate) =>
-  new ButtonBuilder()
-    .setCustomId(`${POKEDEX_MATCHUPS_PREFIX}${slug}:${text ? 'i' : 't'}:switch`)
-    .setStyle(ButtonStyle.Secondary)
+  viewButton(matchupsPage(slug, !text))
     .setEmoji(text ? buttonIcon('image') : buttonIcon('file-text'))
     .setLabel(t(text ? 'pokedex.view.image' : 'pokedex.view.text'));
-
-/** The Pokémon, whether to show text, and whether it's the switch on the matchups, from a button's custom ID. */
-export function parseMatchupsCustomId(customId: string): { slug: string; text: boolean; switch: boolean } | null {
-  const [slug, mode, extra, ...rest] = customId.slice(POKEDEX_MATCHUPS_PREFIX.length).split(':');
-  if (!slug || rest.length > 0 || (mode !== undefined && mode !== 'i' && mode !== 't') || (extra !== undefined && extra !== 'switch')) return null;
-  return { slug, text: mode === 't', switch: extra === 'switch' };
-}
 
 const toHex = (color: number) => `#${color.toString(16).padStart(6, '0')}`;
 
@@ -298,26 +284,22 @@ function buildText(matchups: Matchups, slug: string, t: Translate): ResponsePayl
 }
 
 /**
- * Show the matchups of the entry's Pokémon to whoever pressed the button, in their language, so the entry stays as it is for everyone.
- * As a card or text, like the entry.
+ * The matchups of a Pokémon as a page, as a card or text, with links to the types it's weak to, resists and can't be hurt by.
+ * @param context The page, with `t` as its game for text.
+ * @throws {PokeApiError} When PokéAPI can't be reached.
+ * @returns The page, or null when PokéAPI doesn't know the Pokémon.
  */
-export async function showMatchups(interaction: ButtonInteraction): Promise<unknown> {
-  const t = getTranslate(interaction.locale);
-  const parsed = parseMatchupsCustomId(interaction.customId);
-  if (!parsed) return sendError(interaction, t('system.outdated'));
-
-  // The switch changes the reply it's on, the button on the entry answers with a new one
-  if (parsed.switch) await interaction.deferUpdate();
-  else await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
-  try {
-    await loadPokedexData();
-    const matchups = await getMatchups(parsed.slug, resolveLanguage(interaction.locale));
-    if (!matchups) return sendError(interaction, t('system.outdated'));
-    const reply = parsed.text ? buildText(matchups, parsed.slug, t) : await buildCard(matchups, parsed.slug, t);
-    // Without the card's picture when switching to text
-    if (parsed.switch) return interaction.editReply({ ...reply, attachments: [] });
-    return sendResponse(interaction, reply);
-  } catch (error) {
-    return answerPokeApiError(interaction, error, t);
-  }
+export async function buildMatchupsPage(slug: string, language: string, t: Translate, context: PageContext): Promise<ResponsePayload | null> {
+  const matchups = await getMatchups(slug, language);
+  if (!matchups) return null;
+  const text = context.page.game === 't';
+  const answer = text ? buildText(matchups, slug, t) : await buildCard(matchups, slug, t);
+  const types = [...matchups.weak, ...matchups.resists, ...matchups.immune].map((entry) => entry.type);
+  const links = linkSelect(
+    context.page,
+    types.map((type) => ({ page: { kind: 'type' as const, slug: type.slug }, label: type.name })),
+    t('pages.links.types'),
+  );
+  if (links) (answer.components?.[0] as ContainerBuilder | undefined)?.addActionRowComponents(links);
+  return answer;
 }

@@ -1623,7 +1623,8 @@
       "types": "Zu einem Typ…"
     },
     "type": "Typ",
-    "team": "Dein Team"
+    "team": "Dein Team",
+    "matchups": "Matchups von {{name}}"
   },
   "dex": {
     "notFound": "Ich konnte nichts namens **{{name}}** finden. Wähl einen der Vorschläge.",
@@ -1640,7 +1641,8 @@
       "learnset": "Attacken",
       "type": "Typ",
       "types": "Typentabelle",
-      "team": "Team"
+      "team": "Team",
+      "matchups": "Matchups"
     }
   },
   "types": {

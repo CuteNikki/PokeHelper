@@ -183,7 +183,7 @@ function buildControls(match: PokedexMatch, view: PokedexView, hasShiny: boolean
       .setEmoji(buttonIcon('sparkles'))
       .setLabel(t(view.shiny ? 'pokedex.shiny.hide' : 'pokedex.shiny.show'))
       .setDisabled(!hasShiny),
-    matchupsButton(slug, view.text, t),
+    matchupsButton(slug, view, t),
     // Back from them shows the entry the same way, as text or a card
     pageButton({ kind: 'where', slug }, pokemonPage(slug, view)).setEmoji(buttonIcon('map-pin')).setLabel(t('pokedex.where.button')),
     pageButton({ kind: 'learnset', slug }, pokemonPage(slug, view)).setEmoji(buttonIcon('scroll-text')).setLabel(t('pokedex.moves.button')),

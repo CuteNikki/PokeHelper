@@ -1,6 +1,8 @@
 import { expect, test } from 'bun:test';
 
-import { damageTaken, matchupGroups, parseMatchupsCustomId, TYPE_EXAMPLES } from 'utility/pokedex/matchups';
+import type { Translate } from 'utility/i18next';
+import { damageTaken, matchupGroups, matchupsButton, TYPE_EXAMPLES } from 'utility/pokedex/matchups';
+import { PAGE_BUTTON_PREFIX, parsePageId } from 'utility/pokedex/pages';
 import { TYPE_COLORS } from 'utility/pokedex/types';
 
 const type = (double: string[], half: string[], none: string[] = []) => ({
@@ -37,13 +39,12 @@ test('the groups go from most to least damage, without neutral damage or empty g
   expect(matchupGroups(damageTaken([type([], [])]))).toEqual([]);
 });
 
-test('the Matchups button keeps whether the entry is text, and older buttons without it show the card', () => {
-  expect(parseMatchupsCustomId('pokedex-matchups:raichu-alola:t')).toEqual({ slug: 'raichu-alola', text: true, switch: false });
-  expect(parseMatchupsCustomId('pokedex-matchups:pikachu:i')).toEqual({ slug: 'pikachu', text: false, switch: false });
-  expect(parseMatchupsCustomId('pokedex-matchups:pikachu')).toEqual({ slug: 'pikachu', text: false, switch: false });
-  expect(parseMatchupsCustomId('pokedex-matchups:pikachu:t:switch')).toEqual({ slug: 'pikachu', text: true, switch: true });
-  expect(parseMatchupsCustomId('pokedex-matchups:pikachu:t:other')).toBeNull();
-  expect(parseMatchupsCustomId('pokedex-matchups:pikachu:x')).toBeNull();
+test('the Matchups button keeps whether the entry is text, and leads back to it', () => {
+  const button = matchupsButton('raichu-alola', { shiny: false, text: true }, ((key: string) => key) as unknown as Translate).toJSON();
+  expect('custom_id' in button ? parsePageId(button.custom_id, PAGE_BUTTON_PREFIX) : null).toEqual({
+    page: { kind: 'matchups', slug: 'raichu-alola', game: 't' },
+    back: { kind: 'pokemon', slug: 'raichu-alola', game: 't' },
+  });
 });
 
 test('every type has three Pokémon and three moves to use against it', () => {

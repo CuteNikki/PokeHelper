@@ -1684,7 +1684,8 @@
       "types": "Go to a type…"
     },
     "type": "Type",
-    "team": "Your team"
+    "team": "Your team",
+    "matchups": "Matchups of {{name}}"
   },
   "dex": {
     "notFound": "I couldn't find anything called **{{name}}**. Pick one of the suggestions.",
@@ -1701,7 +1702,8 @@
       "learnset": "Moves",
       "type": "Type",
       "types": "Type chart",
-      "team": "Team"
+      "team": "Team",
+      "matchups": "Matchups"
     }
   },
   "types": {

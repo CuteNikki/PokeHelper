@@ -12,6 +12,7 @@ import { answerPokeApiError } from 'utility/pokedex/api';
 import { buildWhereToFind } from 'utility/pokedex/encounters';
 import { buildPokedexEntry } from 'utility/pokedex/entry';
 import { buildLearnset } from 'utility/pokedex/learnset';
+import { buildMatchupsPage } from 'utility/pokedex/matchups';
 import { buildAbility } from 'utility/pokedex/lookups/ability';
 import { buildBerry } from 'utility/pokedex/lookups/berry';
 import { buildItem } from 'utility/pokedex/lookups/item';
@@ -53,6 +54,8 @@ export function pageName(page: DexPage, language: string, t: Translate): string 
       return t('pages.where', { name: pokemon() });
     case 'learnset':
       return t('pages.learnset', { name: pokemon() });
+    case 'matchups':
+      return t('pages.matchups', { name: pokemon() });
     case 'type':
       return nameOf('types', page.slug, language);
     case 'types':
@@ -103,6 +106,9 @@ export async function renderPage(context: PageContext, language: string, t: Tran
     case 'learnset':
       answer = await buildLearnset(page.slug, language, t, context);
       break;
+    case 'matchups':
+      answer = await buildMatchupsPage(page.slug, language, t, context);
+      break;
     case 'type':
       answer = await buildTypePage(page.slug, language, t, context);
       break;
@@ -131,6 +137,12 @@ export function withPreferredView(context: PageContext, userId: string): PageCon
   if (page.kind === 'types') {
     if (page.slug !== 'image' && page.slug !== 'text') return { ...context, page: { ...page, slug: prefersTextView(userId) ? 'text' : 'image' } };
     rememberTextView(userId, page.slug === 'text');
+    return context;
+  }
+  // The matchups like the entry, which says `t` or `i`
+  if (page.kind === 'matchups') {
+    if (page.game !== 't' && page.game !== 'i') return { ...context, page: { ...page, game: prefersTextView(userId) ? 't' : 'i' } };
+    rememberTextView(userId, page.game === 't');
     return context;
   }
   if (page.kind !== 'pokemon') return context;
