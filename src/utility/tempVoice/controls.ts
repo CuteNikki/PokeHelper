@@ -98,14 +98,16 @@ type EditKind = 'name' | 'limit' | 'both';
 function buildEditModal(temp: TempChannel, kind: EditKind, t: Translate) {
   const labels: LabelBuilder[] = [];
   if (kind !== 'limit') {
+    // Cut to what can be typed, as a name changed by hand can be longer, and Discord won't open the popup with it
+    const maxLength = maxLabelLength(temp.record.namePrefix);
     labels.push(
       new LabelBuilder()
         .setLabel(t('tempVoice.edit.name'))
         .setTextInputComponent(
           new TextInputBuilder()
             .setCustomId(NAME_INPUT_ID)
-            .setValue(channelLabel(temp.record.namePrefix, temp.channel.name))
-            .setMaxLength(maxLabelLength(temp.record.namePrefix))
+            .setValue(channelLabel(temp.record.namePrefix, temp.channel.name).slice(0, maxLength))
+            .setMaxLength(maxLength)
             .setStyle(TextInputStyle.Short)
             .setRequired(false),
         ),
