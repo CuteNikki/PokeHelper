@@ -239,6 +239,8 @@ export function parseDateTime(input: string, now: Date, timezone: string, words:
 export function parseWhen(input: string, now: Date, timezone: string, words: Vocabulary = getVocabulary()): Date | WhenError {
   const result = parseDuration(input, now, words) ?? parseDateTime(input, now, timezone, words);
   if (typeof result === 'string') return result;
+  // Numbers too big for a date, like 99999999999 years, make an invalid one, which no comparison catches
+  if (Number.isNaN(result.getTime())) return 'tooFar';
   if (result.getTime() <= now.getTime()) return 'past';
   if (result.getTime() > addMonths(now.getTime(), MAX_YEARS_AHEAD * 12)) return 'tooFar';
   return result;

@@ -84,6 +84,8 @@ test('when a reminder is due, with limits', () => {
   expect(parseWhen('0m', now, BERLIN)).toBe('past');
   expect(parseWhen('6y', now, BERLIN)).toBe('tooFar');
   expect(parseWhen('whenever', now, BERLIN)).toBe('invalid');
+  expect(parseWhen('99999999999 years', now, BERLIN)).toBe('tooFar');
+  expect(parseWhen('9999999999999999d', now, BERLIN)).toBe('tooFar');
 });
 
 test('times skipped when the clocks go forward come out an hour later', () => {
