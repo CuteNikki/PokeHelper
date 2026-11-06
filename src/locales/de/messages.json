@@ -451,6 +451,21 @@
         "bubbling-spots": "Sprudelnde Stellen"
       },
       "japan": "{{game}} (Japan)"
+    },
+    "moves": {
+      "button": "Attacken",
+      "title": "### Attacken von {{name}} {{icon.scroll-text}}",
+      "none": "PokéAPI weiß nicht, welche Attacken {{name}} lernt.",
+      "evolution": "Bei Entwicklung",
+      "count_one": "{{count, number}} Attacke in diesem Spiel",
+      "count_other": "{{count, number}} Attacken in diesem Spiel",
+      "methods": {
+        "level-up": "Level-Up",
+        "machine": "TMs und TRs",
+        "egg": "Ei-Attacken",
+        "tutor": "Attacken-Lehrer",
+        "train": "Training"
+      }
     }
   },
   "friendCodes": {

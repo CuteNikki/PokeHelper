@@ -184,18 +184,26 @@ export function methodNames(sighting: Sighting, t: Translate): string {
 }
 
 /** A game's name, with the ones only out in Japan marked, as they're called like the others, like Red. */
-const gameName = (version: string, language: string, t: Translate) =>
+export const gameName = (version: string, language: string, t: Translate) =>
   version.endsWith('-japan') ? t('pokedex.where.japan', { game: nameOf('versions', version, language) }) : nameOf('versions', version, language);
 
 /** A select of games, with the one shown picked, that has the game as its value. Each has a gamepad, so it's clear they're games. */
-export function gameSelect(customId: string, versions: string[], shown: string, language: string, t: Translate) {
+export function gameSelect(
+  customId: string,
+  versions: string[],
+  shown: string,
+  language: string,
+  t: Translate,
+  /** The name of each, for games that aren't a version, like the version groups of the moves a Pokémon learns. */
+  label = (version: string) => gameName(version, language, t),
+) {
   return new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
     new StringSelectMenuBuilder()
       .setCustomId(customId)
       .setPlaceholder(t('pokedex.where.select'))
       .addOptions(
         versions.slice(0, DiscordLimits.selectOptions).map((version) => ({
-          label: gameName(version, language, t).slice(0, DiscordLimits.optionLabelLength),
+          label: label(version).slice(0, DiscordLimits.optionLabelLength),
           emoji: buttonIcon('gamepad-2'),
           value: version,
           default: version === shown,

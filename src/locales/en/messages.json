@@ -903,6 +903,21 @@
         "bubbling-spots": "Bubbling spots"
       },
       "japan": "{{game}} (Japan)"
+    },
+    "moves": {
+      "button": "Moves",
+      "title": "### Moves of {{name}} {{icon.scroll-text}}",
+      "none": "PokéAPI doesn't know which moves {{name}} learns.",
+      "evolution": "On evolving",
+      "count_one": "{{count, number}} move in this game",
+      "count_other": "{{count, number}} moves in this game",
+      "methods": {
+        "level-up": "Leveling up",
+        "machine": "TMs and TRs",
+        "egg": "Egg moves",
+        "tutor": "Move tutors",
+        "train": "Training"
+      }
     }
   },
   "friendCodes": {

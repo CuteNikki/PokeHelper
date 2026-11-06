@@ -189,6 +189,7 @@ function buildControls(match: PokedexMatch, view: PokedexView, hasShiny: boolean
       .setDisabled(!hasShiny),
     matchupsButton(slug, view.text, t),
     pageButton({ kind: 'where', slug }, { kind: 'pokemon', slug }).setEmoji(buttonIcon('map-pin')).setLabel(t('pokedex.where.button')),
+    pageButton({ kind: 'learnset', slug }, { kind: 'pokemon', slug }).setEmoji(buttonIcon('scroll-text')).setLabel(t('pokedex.moves.button')),
   ];
   // Switches between the card and text, like for screen readers, keeping the Pokémon and whether it's shiny
   const mode = new ButtonBuilder()

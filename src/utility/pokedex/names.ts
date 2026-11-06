@@ -60,6 +60,8 @@ export type PokedexData = Record<NameTable, NamesBySlug> & {
   berries: Record<string, string>;
   /** Where each game goes when they're listed by when they came out, smaller first. Games that aren't in it go by PokéAPI's order. */
   versionOrder: Record<string, number>;
+  /** The games of each version group, like Scarlet and Violet for `scarlet-violet`, and where it goes when they're listed by when they came out. */
+  versionGroups: Record<string, { versions: string[]; order: number }>;
   /** The region of each place, as several have the same name, like the Pokémon League. */
   locationRegions: Record<string, string>;
   /** The place each area is part of, like `pokemon-tower` for its floors. */
@@ -87,7 +89,7 @@ type NamesQuery = Record<NameTable, NamedRows> & {
     }[];
   }[];
   berries: { name: string; item: { name: string } | null }[];
-  versionOrder: { name: string; versiongroup: { id: number; generation_id: number } | null }[];
+  versionOrder: { name: string; versiongroup: { id: number; name: string; generation_id: number } | null }[];
   locationRegions: { name: string; region: { name: string } | null }[];
   areaLocations: { name: string; location: { name: string } | null }[];
 };
@@ -114,7 +116,7 @@ function namesQuery(languages: string[]) {
     }
     ${tables.join('\n    ')}
     berries: berry { name item { name } }
-    versionOrder: version { name versiongroup { id generation_id } }
+    versionOrder: version(order_by: { id: asc }) { name versiongroup { id name generation_id } }
     locationRegions: location { name region { name } }
     areaLocations: locationarea { name location { name } }
   }`;
@@ -154,6 +156,14 @@ function parseNames(result: NamesQuery, languages: string[]): PokedexData {
         version.versiongroup ? [[version.name, version.versiongroup.generation_id * 1000 + version.versiongroup.id]] : [],
       ),
     ),
+    versionGroups: result.versionOrder.reduce<PokedexData['versionGroups']>((groups, version) => {
+      const group = version.versiongroup;
+      if (group) {
+        groups[group.name] ??= { versions: [], order: group.generation_id * 1000 + group.id };
+        groups[group.name]?.versions.push(version.name);
+      }
+      return groups;
+    }, {}),
     locationRegions: Object.fromEntries(result.locationRegions.flatMap((location) => (location.region ? [[location.name, location.region.name]] : []))),
     areaLocations: Object.fromEntries(result.areaLocations.flatMap((area) => (area.location ? [[area.name, area.location.name]] : []))),
   };
@@ -207,6 +217,7 @@ const emptyData = (): PokedexData => ({
   species: [],
   berries: {},
   versionOrder: {},
+  versionGroups: {},
   locationRegions: {},
   areaLocations: {},
 });

@@ -25,6 +25,8 @@ export interface ApiPokemon {
   abilities: { is_hidden: boolean; slot: number; ability: Named }[];
   /** The items wild ones can be holding. */
   held_items: { item: Named }[];
+  /** The moves it learns, and how and at which level in each version group. A level of 0 is for moves not learned by leveling up. */
+  moves: { move: Named; version_group_details: { level_learned_at: number; move_learn_method: Named; version_group: Named }[] }[];
   sprites: {
     front_default: string | null;
     front_shiny: string | null;

@@ -11,6 +11,7 @@ import { getTranslate, resolveLanguage, type Translate } from 'utility/i18next';
 import { answerPokeApiError } from 'utility/pokedex/api';
 import { buildWhereToFind } from 'utility/pokedex/encounters';
 import { buildPokedexEntry } from 'utility/pokedex/entry';
+import { buildLearnset } from 'utility/pokedex/learnset';
 import { buildAbility } from 'utility/pokedex/lookups/ability';
 import { buildBerry } from 'utility/pokedex/lookups/berry';
 import { buildItem } from 'utility/pokedex/lookups/item';
@@ -90,7 +91,7 @@ export async function renderPage(context: PageContext, language: string, t: Tran
       answer = await buildWhereToFind(page.slug, language, t, context);
       break;
     case 'learnset':
-      answer = null;
+      answer = await buildLearnset(page.slug, language, t, context);
       break;
   }
   if (!answer) return null;
