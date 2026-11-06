@@ -42,7 +42,8 @@ import { whereToFindButton } from 'utility/pokedex/encounters';
 import { newestText } from 'utility/pokedex/lookup';
 import { matchupsButton } from 'utility/pokedex/matchups';
 import { TYPE_COLORS } from 'utility/pokedex/types';
-import { buttonIcon, statBarEmoji, withTypeEmoji, type BarPiece } from 'utility/emojis';
+import { buttonIcon, withTypeEmoji } from 'utility/emojis';
+import { emojiBar } from 'utility/pokedex/bars';
 import { typeSymbol } from 'utility/pokedex/typeIcons';
 import {
   findBySlug,
@@ -76,41 +77,6 @@ export interface PokedexView {
  */
 export const POKEDEX_CUSTOM_ID_PREFIX = 'pokedex:';
 export const POKEDEX_FORM_SELECT_ID = `${POKEDEX_CUSTOM_ID_PREFIX}form:`;
-
-/** The square emoji closest to each type's color, for the stat bars in the text when the bot's own bar emojis aren't there. */
-const TYPE_SQUARES: Record<string, string> = {
-  normal: '⬜',
-  fire: '🟧',
-  water: '🟦',
-  electric: '🟨',
-  grass: '🟩',
-  ice: '🟦',
-  fighting: '🟥',
-  poison: '🟪',
-  ground: '🟫',
-  flying: '🟦',
-  psychic: '🟪',
-  bug: '🟩',
-  rock: '🟫',
-  ghost: '🟪',
-  dragon: '🟪',
-  dark: '🟫',
-  steel: '⬜',
-  fairy: '🟪',
-};
-/** Pieces of a stat bar, which are all filled at the same value as the card's bars. */
-const STAT_BAR_PIECES = 10;
-
-/** A base stat as a bar in its type's color, made of the bot's bar emojis, or of squares like 🟩🟩🟩⬛⬛ if they aren't there. */
-function statBar(value: number, type: string): string {
-  const filled = Math.max(1, Math.min(STAT_BAR_PIECES, Math.round((value / STAT_BAR_MAX) * STAT_BAR_PIECES)));
-  const pieces = Array.from({ length: STAT_BAR_PIECES }, (_, index) => {
-    const piece: BarPiece = index === 0 ? 'start' : index === STAT_BAR_PIECES - 1 ? 'end' : 'middle';
-    return statBarEmoji(index < filled ? type : 'empty', piece);
-  });
-  if (pieces.every(Boolean)) return pieces.join('');
-  return (TYPE_SQUARES[type] ?? '⬜').repeat(filled) + '⬛'.repeat(STAT_BAR_PIECES - filled);
-}
 
 const STATS = ['hp', 'attack', 'defense', 'special-attack', 'special-defense', 'speed'] as const;
 
@@ -369,7 +335,7 @@ export async function buildPokedexEntry(match: PokedexMatch, view: PokedexView, 
     ];
     const statLines = [
       heading(t('pokedex.stats.heading', { total: format(total) }), HeadingLevel.Three),
-      ...stats.map((stat) => `${statBar(stat.value, firstType)} ${bold(format(stat.value))} ${stat.label}`),
+      ...stats.map((stat) => `${emojiBar(stat.value, STAT_BAR_MAX, firstType, { atLeastOne: true })} ${bold(format(stat.value))} ${stat.label}`),
     ];
     container
       .addSeparatorComponents(new SeparatorBuilder())
