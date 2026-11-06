@@ -867,9 +867,6 @@
       "title": "### Where to find {{name}} {{icon.map-pin}}",
       "select": "Pick a game",
       "none": "{{name}} isn't found in the wild in any game PokéAPI knows. It may come from evolving, an egg or an event.",
-      "note": "From PokéAPI, which doesn't know every game yet. The chance is the best one there.",
-      "more_one": "and {{count, number}} more place",
-      "more_other": "and {{count, number}} more places",
       "level": "Lv. {{level}}",
       "levels": "Lv. {{min}}–{{max}}",
       "methods": {
@@ -902,7 +899,8 @@
         "overworld-special": "Rare, wandering around",
         "overworld-flying-special": "Rare, flying around",
         "overworld-water-special": "Rare, swimming around",
-        "honey-tree": "Honey Tree"
+        "honey-tree": "Honey Tree",
+        "bubbling-spots": "Bubbling spots"
       },
       "japan": "{{game}} (Japan)"
     }

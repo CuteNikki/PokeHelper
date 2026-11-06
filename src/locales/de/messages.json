@@ -415,9 +415,6 @@
       "title": "### Fundorte von {{name}} {{icon.map-pin}}",
       "select": "Wähle ein Spiel",
       "none": "{{name}} kommt in keinem Spiel, das PokéAPI kennt, in freier Wildbahn vor. Vielleicht durch Entwicklung, ein Ei oder ein Event.",
-      "note": "Von PokéAPI, das noch nicht jedes Spiel kennt. Die Chance ist die beste dort.",
-      "more_one": "und {{count, number}} weiterer Ort",
-      "more_other": "und {{count, number}} weitere Orte",
       "level": "Lv. {{level}}",
       "levels": "Lv. {{min}}–{{max}}",
       "methods": {
@@ -450,7 +447,8 @@
         "overworld-special": "Selten, läuft umher",
         "overworld-flying-special": "Selten, fliegt umher",
         "overworld-water-special": "Selten, schwimmt umher",
-        "honey-tree": "Honigbaum"
+        "honey-tree": "Honigbaum",
+        "bubbling-spots": "Sprudelnde Stellen"
       },
       "japan": "{{game}} (Japan)"
     }

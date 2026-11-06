@@ -17,7 +17,7 @@ import {
 
 import { DiscordLimits } from 'utility/discordLimits';
 import { formatNumber } from 'utility/duration';
-import { buttonIcon } from 'utility/emojis';
+import { buttonIcon, textIcon } from 'utility/emojis';
 import { getTranslate, resolveLanguage, type Translate } from 'utility/i18next';
 import { answerPokeApiError, type ApiEncounter, artworkUrl, getEncounters, idFromUrl } from 'utility/pokedex/api';
 import { findBySlug, fromSlug, getPokedexData, loadPokedexData, matchName, nameOf } from 'utility/pokedex/names';
@@ -63,6 +63,7 @@ const METHODS = [
   'overworld-flying-special',
   'overworld-water-special',
   'honey-tree',
+  'bubbling-spots',
   'wanderer',
   'max-raid',
   'dynamax-adventure',
@@ -130,9 +131,51 @@ export function sightingsByGame(entries: Sightings, { byMethod = false } = {}): 
     .map(([version, game]) => ({ version, sightings: game.sightings.sort((a, b) => b.chance - a.chance) }));
 }
 
-/** Where a Pokémon is found by game, from PokéAPI's places by area. */
+/** Where a Pokémon is found by game, from PokéAPI's places by area, once for each way it's met there. */
 export const placesByGame = (encounters: ApiEncounter[]) =>
-  sightingsByGame(encounters.map((encounter) => ({ name: encounter.location_area.name, version_details: encounter.version_details })));
+  sightingsByGame(
+    encounters.map((encounter) => ({ name: encounter.location_area.name, version_details: encounter.version_details })),
+    { byMethod: true },
+  );
+
+/** The way of meeting Pokémon of a sighting by way, like `surf`. */
+const methodOf = (sighting: Sighting) => sighting.methods[0] ?? '';
+
+/**
+ * Sightings by way as lines under headings, like the games list them: by group in its order, with its name when there are several,
+ * then by way in the games' order, grass before water and the rods, then by chance. What doesn't fit is cut from the end.
+ * @param name What a sighting is about, already named, like the place or the Pokémon.
+ * @param groups The groups in their order, like the areas of a place, with their names.
+ */
+export function sightingLines(
+  sightings: Sighting[],
+  max: number,
+  name: (sightings: Sighting[]) => string[],
+  t: Translate,
+  groups: { slug: string; name: string }[] = [],
+): string[] {
+  const groupOrder = groups.map((group) => group.slug);
+  const sorted = [...sightings].sort(
+    (a, b) =>
+      groupOrder.indexOf(a.group ?? '') - groupOrder.indexOf(b.group ?? '') || methodOrder(methodOf(a)) - methodOrder(methodOf(b)) || b.chance - a.chance,
+  );
+  const shown = sorted.slice(0, max);
+  const names = name(shown);
+  const severalGroups = new Set(shown.map((sighting) => sighting.group)).size > 1;
+  const lines: string[] = [];
+  shown.forEach((sighting, index) => {
+    const previous = shown[index - 1];
+    const newGroup = index === 0 || sighting.group !== previous?.group;
+    if (newGroup && severalGroups) lines.push(bold(groups.find((group) => group.slug === sighting.group)?.name ?? sighting.group ?? ''));
+    if (newGroup || methodOf(sighting) !== (previous && methodOf(previous))) lines.push(subtext(methodNames(sighting, t)));
+    lines.push(sightingLine(sighting, names[index] ?? sighting.name, t, { withMethods: false }));
+  });
+  if (sightings.length > shown.length) lines.push(subtext(t('lookup.more', { count: sightings.length - shown.length })));
+  return lines;
+}
+
+/** The game an answer is about, as a line of its own with a gamepad, so it's clear what it is. */
+export const gameLine = (version: string, language: string, t: Translate) => `${textIcon('gamepad-2')} ${bold(gameName(version, language, t))}`;
 
 /** A sighting as a line, like `**Route 1** · Lv. 2–5 · Grass or cave · 50%`, with what it's about already named. */
 export function sightingLine(sighting: Sighting, name: string, t: Translate, { withMethods = true } = {}): string {
@@ -185,24 +228,25 @@ export async function buildWhereToFind(slug: string, version: string | null, lan
   const name = matchName(match, language);
   const games = placesByGame(encounters);
   const game = games.find((entry) => entry.version === version) ?? games[0];
+  const header = [t('pokedex.where.title', { name }), game ? gameLine(game.version, language, t) : null].filter(Boolean).join('\n');
   const container = new ContainerBuilder()
     .setAccentColor(ThemeColors.info)
     .addSectionComponents(
       new SectionBuilder()
-        .addTextDisplayComponents(new TextDisplayBuilder().setContent(t('pokedex.where.title', { name })))
+        .addTextDisplayComponents(new TextDisplayBuilder().setContent(header))
         .setThumbnailAccessory(new ThumbnailBuilder().setURL(artworkUrl(match.species.id, false)).setDescription(t('pokedex.picture', { name }))),
-    );
+    )
+    .addSeparatorComponents(new SeparatorBuilder());
 
   if (!game) {
-    container.addSeparatorComponents(new SeparatorBuilder()).addTextDisplayComponents(new TextDisplayBuilder().setContent(t('pokedex.where.none', { name })));
+    container.addTextDisplayComponents(new TextDisplayBuilder().setContent(t('pokedex.where.none', { name })));
     return { components: [container], flags: [MessageFlags.IsComponentsV2] };
   }
 
-  const lines = game.sightings.slice(0, MAX_PLACES).map((place) => sightingLine(place, nameOf('areas', place.name, language), t));
-  const more = game.sightings.length - MAX_PLACES;
-  if (more > 0) lines.push(subtext(t('pokedex.where.more', { count: more })));
-  // The game right below the title, as everything below is about it
+  const lines = sightingLines(game.sightings, MAX_PLACES, (shown) => shown.map((place) => nameOf('areas', place.name, language)), t);
   container
+    .addTextDisplayComponents(new TextDisplayBuilder().setContent(lines.join('\n')))
+    .addSeparatorComponents(new SeparatorBuilder())
     .addActionRowComponents(
       gameSelect(
         `${POKEDEX_WHERE_GAME_PREFIX}${slug}`,
@@ -212,9 +256,7 @@ export async function buildWhereToFind(slug: string, version: string | null, lan
         t,
       ),
     )
-    .addSeparatorComponents(new SeparatorBuilder())
-    .addTextDisplayComponents(new TextDisplayBuilder().setContent(lines.join('\n')))
-    .addTextDisplayComponents(new TextDisplayBuilder().setContent(subtext(t('pokedex.where.note'))));
+    .addTextDisplayComponents(new TextDisplayBuilder().setContent(subtext(t('locations.note'))));
   return { components: [container], flags: [MessageFlags.IsComponentsV2] };
 }
 

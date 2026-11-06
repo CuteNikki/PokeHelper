@@ -1,8 +1,8 @@
-import { bold, ContainerBuilder, MessageFlags, SeparatorBuilder, type StringSelectMenuInteraction, subtext, TextDisplayBuilder } from 'discord.js';
+import { ContainerBuilder, MessageFlags, SeparatorBuilder, type StringSelectMenuInteraction, subtext, TextDisplayBuilder } from 'discord.js';
 
 import { getTranslate, resolveLanguage, type Translate } from 'utility/i18next';
 import { answerPokeApiError, getLocation, getLocationArea } from 'utility/pokedex/api';
-import { gameSelect, methodNames, methodOrder, type Sighting, sightingLine, sightingsByGame } from 'utility/pokedex/encounters';
+import { gameLine, gameSelect, sightingLines, sightingsByGame } from 'utility/pokedex/encounters';
 import { apiName } from 'utility/pokedex/lookup';
 import { pokemonNames } from 'utility/pokedex/lookups/item';
 import { loadPokedexData, nameOf } from 'utility/pokedex/names';
@@ -36,42 +36,30 @@ export async function buildLocation(slug: string, language: string, t: Translate
   const game = games.find((entry) => entry.version === version) ?? games[0];
   const region = location.region ? nameOf('regions', location.region.name, language) : null;
 
+  const header = [t('locations.title', { name }), region ? subtext(region) : null, game ? gameLine(game.version, language, t) : null];
   const container = new ContainerBuilder()
     .setAccentColor(ThemeColors.info)
-    .addTextDisplayComponents(
-      new TextDisplayBuilder().setContent([t('locations.title', { name }), region ? subtext(region) : null].filter(Boolean).join('\n')),
-    );
+    .addTextDisplayComponents(new TextDisplayBuilder().setContent(header.filter(Boolean).join('\n')))
+    .addSeparatorComponents(new SeparatorBuilder());
   if (!game) {
-    container.addSeparatorComponents(new SeparatorBuilder()).addTextDisplayComponents(new TextDisplayBuilder().setContent(t('locations.none')));
+    container.addTextDisplayComponents(new TextDisplayBuilder().setContent(t('locations.none')));
     return { components: [container], flags: [MessageFlags.IsComponentsV2] };
   }
 
-  // By area, in the place's order, when there's more than one, then by how they're met in the games' order, like grass before
-  // fishing, each with its Pokémon by their chances. What doesn't fit is cut from the end
-  const areaOrder = areas.map((area) => area.name);
-  const method = (sighting: Sighting) => sighting.methods[0] ?? '';
-  const sorted = [...game.sightings].sort(
-    (a, b) => areaOrder.indexOf(a.group ?? '') - areaOrder.indexOf(b.group ?? '') || methodOrder(method(a)) - methodOrder(method(b)) || b.chance - a.chance,
+  const lines = sightingLines(
+    game.sightings,
+    MAX_POKEMON,
+    (shown) =>
+      pokemonNames(
+        shown.map((sighting) => sighting.name),
+        language,
+      ),
+    t,
+    areas.map((area) => ({ slug: area.name, name: nameOf('areas', area.name, language) })),
   );
-  const shown = sorted.slice(0, MAX_POKEMON);
-  const names = pokemonNames(
-    shown.map((sighting) => sighting.name),
-    language,
-  );
-  const multipleAreas = new Set(shown.map((sighting) => sighting.group)).size > 1;
-  const lines: string[] = [];
-  shown.forEach((sighting, index) => {
-    const previous = shown[index - 1];
-    const newArea = sighting.group !== previous?.group;
-    if (newArea && multipleAreas) lines.push(bold(nameOf('areas', sighting.group ?? '', language)));
-    if (newArea || method(sighting) !== (previous && method(previous))) lines.push(subtext(methodNames(sighting, t)));
-    lines.push(sightingLine(sighting, names[index] ?? sighting.name, t, { withMethods: false }));
-  });
-  const more = game.sightings.length - shown.length;
-  if (more > 0) lines.push(subtext(t('lookup.more', { count: more })));
-
-  // The game right below the title, as everything below is about it
   container
+    .addTextDisplayComponents(new TextDisplayBuilder().setContent(lines.join('\n')))
+    .addSeparatorComponents(new SeparatorBuilder())
     .addActionRowComponents(
       gameSelect(
         `${LOCATION_GAME_PREFIX}${slug}`,
@@ -81,8 +69,6 @@ export async function buildLocation(slug: string, language: string, t: Translate
         t,
       ),
     )
-    .addSeparatorComponents(new SeparatorBuilder())
-    .addTextDisplayComponents(new TextDisplayBuilder().setContent(lines.join('\n')))
     .addTextDisplayComponents(new TextDisplayBuilder().setContent(subtext(t('locations.note'))));
   return { components: [container], flags: [MessageFlags.IsComponentsV2], allowedMentions: { parse: [] } };
 }
