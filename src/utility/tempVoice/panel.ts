@@ -144,7 +144,8 @@ export function buildPanel({ channel, record }: TempChannel, t: Translate): Resp
   const container = new ContainerBuilder()
     .setAccentColor(ThemeColors.info)
     .addTextDisplayComponents(new TextDisplayBuilder().setContent(`${t('tempVoice.panel.title')}\n${owner} · ${people}`))
-    .addSeparatorComponents(new SeparatorBuilder())
+    // Large, so the title stands apart, like in the settings panels. The small ones below keep the controls together
+    .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large))
     .addSectionComponents(
       row(t('tempVoice.panel.locked'), t('tempVoice.panel.lockedDescription'), toggle('lock', record.locked)),
       row(t('tempVoice.panel.hidden'), t('tempVoice.panel.hiddenDescription'), toggle('hide', record.hidden)),
