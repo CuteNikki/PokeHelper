@@ -17,7 +17,7 @@ import {
 import { getLevelFromXP, getTopUsersByXP, getTotalUsersWithXP, type LevelPeriod } from 'database/leveling';
 
 import { drawAvatar, truncateText } from 'utility/canvas';
-import { formatCompactNumber, formatNumber } from 'utility/duration';
+import { formatCompactNumber, formatNumber, MINUTE } from 'utility/duration';
 import type { Translate } from 'utility/i18next';
 import { leaderboardCustomId, nextPeriod, type LeaderboardView } from 'utility/leveling/leaderboardView';
 import { buildPageRow, clampPage, findMeButton, type PageButton } from 'utility/pagination';
@@ -33,7 +33,7 @@ const TITLE_KEYS = {
 
 // Avatars of recently shown leaderboards, kept for 15 minutes, as the same pages are often looked at a few times in a row
 const avatarCache = new Map<string, { image: Image; expiresAt: number }>();
-const CACHE_TTL = 1000 * 60 * 15;
+const CACHE_TTL = 15 * MINUTE;
 /** The most avatars kept, so the cache can't grow forever. */
 const CACHE_SIZE = 500;
 

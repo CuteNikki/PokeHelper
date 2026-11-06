@@ -25,6 +25,7 @@ import {
 
 import { getGuildLogs, type GuildLogs } from 'database/logs';
 
+import { MINUTE } from 'utility/duration';
 import { guildTranslate, type Translate } from 'utility/i18next';
 import { logger } from 'utility/logger';
 import type { Doer } from 'utility/logs/audit';
@@ -39,7 +40,7 @@ import { ThemeColors } from 'utility/theme';
 export const LOG_CHANNEL_PERMISSIONS: PermissionsString[] = ['ViewChannel', 'SendMessages', 'AttachFiles'];
 
 /** How long a server's log settings are kept, so not every message edit reads them. Saving them forgets them right away. */
-const CACHE_TTL = 60_000;
+const CACHE_TTL = MINUTE;
 /** The most of a text shown, so long messages leave room for the rest of the entry. */
 const MAX_TEXT = 1_500;
 /** Discord fits 4000 characters of text in a message made of components, some are left for the buttons and the like. */

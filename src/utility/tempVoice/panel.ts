@@ -24,6 +24,7 @@ import { guildTranslate, type Translate } from 'utility/i18next';
 import { logger } from 'utility/logger';
 import type { ResponsePayload } from 'utility/response';
 import { DiscordLimits } from 'utility/discordLimits';
+import { SECOND } from 'utility/duration';
 import { channelLabel, MAX_MODERATORS, type TempChannel } from 'utility/tempVoice/channel';
 import { ThemeColors } from 'utility/theme';
 
@@ -63,7 +64,7 @@ export const MODERATOR_ACTIONS: TempVoiceAction[] = ['allow', 'block', 'limit', 
 /** Discord's pickers show at most 25. Longer lists show their first 25, and the rest are kept when the picker is used. */
 export const MAX_PICKED = DiscordLimits.selectOptions;
 /** How long to wait for more changes before editing the panel, so a few people joining at once edit it once. */
-const REFRESH_DELAY = 1_000;
+const REFRESH_DELAY = SECOND;
 
 /** The language of messages in a server's channels, which everyone there reads. */
 

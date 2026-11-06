@@ -1,5 +1,6 @@
 import { time, TimestampStyles } from 'discord.js';
 
+import { SECOND } from 'utility/duration';
 import type { Translate } from 'utility/i18next';
 
 /**
@@ -13,7 +14,7 @@ export interface BurstLimit {
   window: number;
 }
 
-const DEFAULT_BURST: BurstLimit = { uses: 6, window: 5_000 };
+const DEFAULT_BURST: BurstLimit = { uses: 6, window: 5 * SECOND };
 
 /** When each key, like a button and a user, was used within its window. */
 const recent = new Map<string, number[]>();
@@ -55,12 +56,12 @@ export function takeCooldown(key: string, userId: string, seconds: number, now =
   const used = cooldowns.get(key) ?? new Map<string, number>();
   cooldowns.set(key, used);
   const last = used.get(userId);
-  if (last !== undefined && now < last + seconds * 1_000) return last + seconds * 1_000;
+  if (last !== undefined && now < last + seconds * SECOND) return last + seconds * SECOND;
   used.set(userId, now);
-  setTimeout(() => used.delete(userId), seconds * 1_000);
+  setTimeout(() => used.delete(userId), seconds * SECOND);
   return null;
 }
 
 /** Saying when something can be used again, from the time {@link takeBurst} or {@link takeCooldown} gave. */
 export const waitMessage = (freeAt: number, t: Translate) =>
-  t('system.cooldown.message', { remaining: time(Math.ceil(freeAt / 1_000), TimestampStyles.RelativeTime) });
+  t('system.cooldown.message', { remaining: time(Math.ceil(freeAt / SECOND), TimestampStyles.RelativeTime) });

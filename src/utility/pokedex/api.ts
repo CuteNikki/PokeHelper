@@ -1,12 +1,13 @@
 import { loadImage, type Image } from '@napi-rs/canvas';
 import type { RepliableInteraction } from 'discord.js';
 
+import { SECOND } from 'utility/duration';
 import type { Translate } from 'utility/i18next';
 import { logger } from 'utility/logger';
 import { replaceWithError, sendError } from 'utility/response';
 
 export const API_URL = 'https://pokeapi.co/api/v2';
-const TIMEOUT = 10_000;
+const TIMEOUT = 10 * SECOND;
 
 type Named = { name: string; url: string };
 

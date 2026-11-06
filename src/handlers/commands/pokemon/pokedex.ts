@@ -3,6 +3,7 @@ import { ApplicationIntegrationType, InteractionContextType, SlashCommandBuilder
 import { Command } from 'classes/base/command';
 
 import { DiscordLimits } from 'utility/discordLimits';
+import { SECOND } from 'utility/duration';
 import { getTranslate, resolveLanguage } from 'utility/i18next';
 import { answerPokeApiError } from 'utility/pokedex/api';
 import { buildPokedexEntry } from 'utility/pokedex/entry';
@@ -13,7 +14,7 @@ import { replaceWithError, sendResponse } from 'utility/response';
  * How long suggestions wait for the names. Discord drops an answer after 3 seconds, and loading the names can take far longer when
  * PokéAPI is slow, so the load carries on and the suggestions come with a later keystroke.
  */
-const AUTOCOMPLETE_WAIT = 2_000;
+const AUTOCOMPLETE_WAIT = 2 * SECOND;
 
 export default new Command({
   data: new SlashCommandBuilder()

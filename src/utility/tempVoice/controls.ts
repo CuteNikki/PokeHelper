@@ -19,6 +19,7 @@ import {
 
 import { getTempVoiceCreators } from 'database/tempVoice';
 
+import { SECOND } from 'utility/duration';
 import { getTranslate, guildTranslate, type Translate } from 'utility/i18next';
 import { logger } from 'utility/logger';
 import { createResponse, sendError } from 'utility/response';
@@ -54,7 +55,7 @@ const LIMIT_INPUT_ID = 'limit';
 /** Discord allows up to 99 people in a voice channel with a limit. */
 const MAX_LIMIT = 99;
 /** A moment for everyone in a channel to read that it's being deleted. */
-const DELETE_DELAY = 3_000;
+const DELETE_DELAY = 3 * SECOND;
 
 /**
  * The channel a control is for, if whoever used it may change it. Otherwise answers why not.

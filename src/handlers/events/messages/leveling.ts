@@ -6,6 +6,7 @@ import { Event } from 'classes/base/event';
 import { addXpToUser, getGuildLevelingConfiguration, getLevelFromXP } from 'database/leveling';
 import { getUserData } from 'database/user';
 
+import { MINUTE } from 'utility/duration';
 import { guildTranslate } from 'utility/i18next';
 import { getChannelChain, syncRewardRoles } from 'utility/leveling/rewards';
 import { applyMultiplier, earnsXp, getMultiplier } from 'utility/leveling/rules';
@@ -14,7 +15,7 @@ import { logFailure } from 'utility/response';
 import { ThemeColors } from 'utility/theme';
 
 /** How long a member has to wait between messages that earn XP, in milliseconds. */
-const XP_COOLDOWN = 60_000;
+const XP_COOLDOWN = MINUTE;
 const MIN_XP = 15;
 const MAX_XP = 25;
 

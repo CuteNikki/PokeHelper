@@ -1,6 +1,6 @@
 import { bold, type GuildMember, type SendableChannels, subtext } from 'discord.js';
 
-import { formatNumber } from 'utility/duration';
+import { DAY, formatNumber, HOUR, MINUTE } from 'utility/duration';
 import type { Translate } from 'utility/i18next';
 import { oldNew } from 'utility/logs/changes';
 import { transcriptFile, type TranscriptMessage } from 'utility/logs/files';
@@ -42,7 +42,7 @@ function previewEntries(member: GuildMember, channelId: string, t: Translate): L
   const deleted = deletedText('well, i bought panda express on his phone with his card', '3', t);
 
   const purged: TranscriptMessage[] = ['hi', 'buy cheap nitro at totally-real.link', 'click it!!', 'ok bye'].map((content, index) => ({
-    createdAt: new Date(Date.now() - (4 - index) * 60_000),
+    createdAt: new Date(Date.now() - (4 - index) * MINUTE),
     username: index % 2 === 0 ? member.user.username : 'spammer',
     userId: index % 2 === 0 ? member.id : '123456789012345678',
     bot: false,
@@ -192,7 +192,7 @@ function previewEntries(member: GuildMember, channelId: string, t: Translate): L
       subject,
       thumbnail,
       by: byWithReason,
-      details: [`${bold(t('logs.until'))} ${when(Date.now() + 60 * 60 * 1000)}`, reasonPart(byWithReason, t)],
+      details: [`${bold(t('logs.until'))} ${when(Date.now() + HOUR)}`, reasonPart(byWithReason, t)],
       ids: { user: member.id },
     },
     { kind: 'created', label: t('logs.labels.timeoutRemoved'), about: 'user', subject, thumbnail, by, ids: { user: member.id } },
@@ -273,7 +273,7 @@ function previewEntries(member: GuildMember, channelId: string, t: Translate): L
       subject: code('pokehelper'),
       thumbnail,
       by: { id: member.id, reason: null },
-      details: [`${bold(t('logs.invites.uses'))} ${t('logs.invites.unlimited')}\n${bold(t('logs.invites.expires'))} ${when(Date.now() + 7 * 86_400_000)}`],
+      details: [`${bold(t('logs.invites.uses'))} ${t('logs.invites.unlimited')}\n${bold(t('logs.invites.expires'))} ${when(Date.now() + 7 * DAY)}`],
       ids: { invite: 'pokehelper' },
     },
     { kind: 'created', label: t('logs.labels.voiceJoined'), where, about: 'user', subject, thumbnail, ids: { user: member.id, channel: channelId } },

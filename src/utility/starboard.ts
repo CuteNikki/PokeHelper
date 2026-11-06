@@ -34,7 +34,7 @@ import {
   type StarboardEntry,
 } from 'database/starboard';
 
-import { formatNumber } from 'utility/duration';
+import { formatNumber, SECOND } from 'utility/duration';
 import { guildTranslate, type Translate } from 'utility/i18next';
 import { logger } from 'utility/logger';
 import { KeyedQueue } from 'utility/queue';
@@ -159,7 +159,7 @@ function buildStarboardPost(message: Message, stars: number, emoji: string, uplo
 async function uploadsOf(message: Message): Promise<AttachmentBuilder[]> {
   const files = await Promise.all(
     imagesOf(message).map(async ({ file, names }) => {
-      const response = await fetch(file.url, { signal: AbortSignal.timeout(15_000) }).catch(() => null);
+      const response = await fetch(file.url, { signal: AbortSignal.timeout(15 * SECOND) }).catch(() => null);
       if (!response?.ok) return null;
       const data = await response.arrayBuffer().catch(() => null);
       return data ? new AttachmentBuilder(Buffer.from(data), { name: names[0] }) : null;

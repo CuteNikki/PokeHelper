@@ -25,6 +25,7 @@ import {
   type CountMessage,
 } from 'utility/counting/rules';
 import { parseCount } from 'utility/counting/parse';
+import { SECOND } from 'utility/duration';
 import { guildTranslate } from 'utility/i18next';
 import { logger } from 'utility/logger';
 import { KeyedQueue } from 'utility/queue';
@@ -33,9 +34,9 @@ import { createResponse, logFailure } from 'utility/response';
 /** Most messages checked when catching up after downtime, after which the rest is skipped. */
 const SYNC_MESSAGE_LIMIT = 1000;
 /** How long warnings stay before they're deleted along with the invalid message, in milliseconds. */
-const WARNING_DURATION = 3_000;
+const WARNING_DURATION = 3 * SECOND;
 /** How long the message about a lost life stays, in milliseconds. */
-const LIFE_LOST_DURATION = 6_000;
+const LIFE_LOST_DURATION = 6 * SECOND;
 
 /** Everything that reads or changes a guild's counting game runs through here, one task at a time per guild. */
 const queue = new KeyedQueue();

@@ -1,12 +1,13 @@
+import { SECOND, MINUTE } from 'utility/duration';
 import { supportedLanguages } from 'utility/i18next';
 import { logger } from 'utility/logger';
 import { API_URL, fetchJson, PokeApiError } from 'utility/pokedex/api';
 
 const GRAPHQL_URL = 'https://beta.pokeapi.co/graphql/v1beta';
 /** The names are one big answer, which takes longer than others. */
-const TIMEOUT = 30_000;
+const TIMEOUT = 30 * SECOND;
 /** How long to wait before asking again after the names couldn't be loaded, so a PokéAPI outage isn't asked about on every keystroke. */
-const RETRY_AFTER = 60_000;
+const RETRY_AFTER = MINUTE;
 
 /** A name in each of the bot's languages. */
 export type TranslatedName = Record<string, string>;

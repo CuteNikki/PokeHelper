@@ -28,6 +28,7 @@ import {
   type TempVoiceCreator,
 } from 'database/tempVoice';
 
+import { SECOND } from 'utility/duration';
 import { guildTranslate } from 'utility/i18next';
 import type { Translate } from 'utility/i18next';
 import { logger } from 'utility/logger';
@@ -51,9 +52,9 @@ export type Access = Pick<TempVoiceChannel, 'locked' | 'hidden' | 'allowed' | 'b
 export const MAX_MODERATORS = 10;
 
 /** How long an owner can be gone, like a dropped connection or a quick hop elsewhere, before their channel goes to someone still there. */
-const OWNER_GRACE = 30_000;
+const OWNER_GRACE = 30 * SECOND;
 /** How long between channels for one person, so hopping in and out of a join channel can't flood the server with channels. */
-const CREATE_COOLDOWN = 10_000;
+const CREATE_COOLDOWN = 10 * SECOND;
 /** The longest a channel's name can be. */
 const MAX_NAME_LENGTH = 100;
 
@@ -500,5 +501,5 @@ export function describeChanges(before: Described, after: Described, t: Translat
  * Only for editing a channel itself, not messages in it.
  */
 export function isRenameLimit(data: RateLimitData) {
-  return data.method.toUpperCase() === 'PATCH' && /^\/channels\/[^/]+$/.test(data.route) && data.timeToReset > 5_000;
+  return data.method.toUpperCase() === 'PATCH' && /^\/channels\/[^/]+$/.test(data.route) && data.timeToReset > 5 * SECOND;
 }
