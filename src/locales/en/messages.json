@@ -107,7 +107,7 @@
       "edit": "Edit",
       "usingDefault": "Uses the default text"
     },
-    "tips": "**Good to know {{icon.lightbulb}}**"
+    "tips": "**{{icon.lightbulb}} Good to know**"
   },
   "state": {
     "yes": "Yes",
@@ -210,7 +210,7 @@
       "withAge": "🎉 Happy birthday, {{user}}! {{age}} today! 🎂🎈"
     },
     "settings": {
-      "title": "### Birthday Settings {{icon.cake}}",
+      "title": "### {{icon.cake}} Birthday Settings",
       "enabled": {
         "label": "Birthdays",
         "description": "Announce birthdays and give out the birthday role."
@@ -225,7 +225,7 @@
       }
     },
     "resetConfiguration": {
-      "confirm": "### Reset the birthday settings? {{icon.triangle-alert}}\nThis resets the channel, role and everything else. Everyone's birthdays are kept.",
+      "confirm": "### {{icon.triangle-alert}} Reset the birthday settings?\nThis resets the channel, role and everything else. Everyone's birthdays are kept.",
       "confirmButton": "Reset",
       "cancelButton": "Cancel",
       "cancelled": "Nothing was reset.",
@@ -233,7 +233,7 @@
       "success": "The birthday settings are reset. Use `/birthday-config settings` to set them up again."
     },
     "panel": {
-      "title": "### Your Birthday {{icon.cake}}",
+      "title": "### {{icon.cake}} Your Birthday",
       "none": "You haven't set your birthday yet. Set it below, and it gets announced in the servers that have birthdays set up.",
       "date": {
         "label": "Birthday",
@@ -285,10 +285,10 @@
       "rewards_other": "You got the {{roles}} roles for it."
     },
     "weeklyReset": {
-      "message": "### New week, new chances! {{icon.trophy}}\nWeekly XP is back to 0. {{winner}} earned the most last week with {{xp}} XP, congrats!\n\nLast week's top chatters:"
+      "message": "### {{icon.trophy}} New week, new chances!\nWeekly XP is back to 0. {{winner}} earned the most last week with {{xp}} XP, congrats!\n\nLast week's top chatters:"
     },
     "monthlyReset": {
-      "message": "### New month, new chances! {{icon.trophy}}\nMonthly XP is back to 0. {{winner}} earned the most last month with {{xp}} XP, congrats!\n\nLast month's top chatters:"
+      "message": "### {{icon.trophy}} New month, new chances!\nMonthly XP is back to 0. {{winner}} earned the most last month with {{xp}} XP, congrats!\n\nLast month's top chatters:"
     },
     "disabled": "Leveling isn't turned on here. Turn it on with `/leveling-config settings`.",
     "rank": {
@@ -298,7 +298,7 @@
       "level": "Level",
       "exp": "XP",
       "text": {
-        "title": "### Rank of {{user}} {{icon.chart-column}}",
+        "title": "### {{icon.chart-column}} Rank of {{user}}",
         "allTime": "**All-time:** level **{{level}}** · rank **#{{rank}}** · {{xpIntoLevel}}/{{xpRequired}} XP to the next level ({{xp}} XP in total)",
         "weekly": "**This week:** level **{{level}}** · rank **#{{rank}}** · {{xpIntoLevel}}/{{xpRequired}} XP to the next level ({{xp}} XP in total)",
         "monthly": "**This month:** level **{{level}}** · rank **#{{rank}}** · {{xpIntoLevel}}/{{xpRequired}} XP to the next level ({{xp}} XP in total)",
@@ -310,9 +310,9 @@
     },
     "leaderboard": {
       "none": "Nobody has earned XP here yet. Start chatting!",
-      "title": "### {{guild}} Leaderboard {{icon.trophy}}",
-      "titleWeekly": "### {{guild}} Weekly Leaderboard {{icon.trophy}}",
-      "titleMonthly": "### {{guild}} Monthly Leaderboard {{icon.trophy}}",
+      "title": "### {{icon.trophy}} {{guild}} Leaderboard",
+      "titleWeekly": "### {{icon.trophy}} {{guild}} Weekly Leaderboard",
+      "titleMonthly": "### {{icon.trophy}} {{guild}} Monthly Leaderboard",
       "showPeriod": {
         "allTime": "Show all-time",
         "weekly": "Show weekly",
@@ -323,7 +323,7 @@
       "showImage": "Show as image"
     },
     "settings": {
-      "title": "### Leveling Settings {{icon.settings}}",
+      "title": "### {{icon.settings}} Leveling Settings",
       "categories": {
         "general": "General",
         "filters": "Filters",
@@ -402,7 +402,7 @@
       "multiplier": "{{value}}x"
     },
     "resetConfiguration": {
-      "confirm": "### Reset leveling? {{icon.triangle-alert}}\nThis resets the leveling settings, rewards and multipliers. Everyone keeps their XP and levels.",
+      "confirm": "### {{icon.triangle-alert}} Reset leveling?\nThis resets the leveling settings, rewards and multipliers. Everyone keeps their XP and levels.",
       "confirmButton": "Reset",
       "cancelButton": "Cancel",
       "cancelled": "Nothing was reset.",
@@ -459,7 +459,7 @@
       "success": "Counting is set up in {{channel}}! Send `1` there to get started.\nYou can change the settings below, or later with `/counting-config settings`."
     },
     "settings": {
-      "title": "### Counting Settings {{icon.settings}}",
+      "title": "### {{icon.settings}} Counting Settings",
       "enabled": {
         "label": "Enabled",
         "description": "Whether counting is on."
@@ -489,7 +489,7 @@
       }
     },
     "info": {
-      "title": "### Counting {{icon.hash}}",
+      "title": "### {{icon.hash}} Counting",
       "overview": "Counting in {{channel}} · Next number: **{{next}}**",
       "currentRun": "**Current run #{{run}}**",
       "started": "Started {{time}} ({{relative}})",
@@ -510,12 +510,12 @@
       "runs_other": "{{count, number}} runs so far"
     },
     "leaderboard": {
-      "title": "### Top Counters {{icon.trophy}}",
+      "title": "### {{icon.trophy}} Top Counters",
       "entry": "**{{position}}.** {{user}} · **{{counted}}** counted · {{accuracy}}% accurate",
       "empty": "Nobody has counted yet."
     },
     "user": {
-      "title": "### Counting Stats for {{user}} {{icon.hash}}",
+      "title": "### {{icon.hash}} Counting Stats for {{user}}",
       "rank": "Rank: **#{{rank}}**",
       "counted": "Counted: **{{counted}}**",
       "mistakes": "Mistakes: **{{mistakes}}**",
@@ -524,7 +524,7 @@
       "none": "{{user}} hasn't counted yet."
     },
     "runs": {
-      "title": "### Recent Runs {{icon.scroll-text}}",
+      "title": "### {{icon.scroll-text}} Recent Runs",
       "ongoing": "**#{{run}}** · ongoing · at **{{number}}** · {{started}}",
       "finished": "**#{{run}}** · reached **{{number}}** · broken by {{user}} {{relative}}",
       "lasted": " · lasted {{duration}}",
@@ -533,7 +533,7 @@
       "empty": "No runs yet. Send `1` in the counting channel to start the first one!"
     },
     "resetConfiguration": {
-      "confirm": "### Remove the counting game? {{icon.triangle-alert}}\nThis removes the counting game in this server **with all its stats**: runs, counted numbers and everyone's counts. This can't be undone.",
+      "confirm": "### {{icon.triangle-alert}} Remove the counting game?\nThis removes the counting game in this server **with all its stats**: runs, counted numbers and everyone's counts. This can't be undone.",
       "confirmButton": "Remove everything",
       "cancelButton": "Cancel",
       "cancelled": "Nothing was removed.",
@@ -551,7 +551,7 @@
   "roleMenu": {
     "notFound": "Couldn't find that role menu. It may have been deleted.",
     "message": {
-      "title": "Pick your roles {{icon.drama}}",
+      "title": "{{icon.drama}} Pick your roles",
       "description": "Click a button to get its role, and click it again to remove it.",
       "item": "{{emoji}} {{role}}",
       "disabled": "This menu is turned off right now."
@@ -560,7 +560,7 @@
       "maximum": "This server already has {{max}} role menus, the most there can be. Delete one before creating a new one."
     },
     "list": {
-      "title": "### Role Menus {{icon.drama}}",
+      "title": "### {{icon.drama}} Role Menus",
       "enabled": {
         "label": "Role menus",
         "description": "Whether members can pick roles from any of the menus. Each menu can also be turned off on its own"
@@ -576,7 +576,7 @@
       "optionDescription": "{{channel}} · {{roles}}"
     },
     "settings": {
-      "title": "### Role Menu {{icon.drama}}",
+      "title": "### {{icon.drama}} Role Menu",
       "categories": {
         "roles": "Roles",
         "text": "Text",
@@ -651,7 +651,7 @@
   },
   "dev": {
     "reload": {
-      "title": "### Reloaded {{icon.refresh-cw}}",
+      "title": "### {{icon.refresh-cw}} Reloaded",
       "line": "**{{target}}**: {{count, number}} loaded in {{duration}}ms",
       "locales": "**locales**: text reloaded in {{duration}}ms",
       "needsRestart": "{{icon.triangle-alert}} These files changed since the bot started, and a reload doesn't pick them up. Use `/dev restart` for them:\n{{files}}",
@@ -663,7 +663,7 @@
       "devSkipped": "Developer commands weren't registered, as `DEV_GUILD_ID` isn't set."
     },
     "restart": {
-      "message": "### Restarting {{icon.power}}\nBack in a few seconds. Counting and scheduled jobs catch up on what happens meanwhile.\n-# This relies on something starting the bot again, like Docker. Without that, it stays off."
+      "message": "### {{icon.power}} Restarting\nBack in a few seconds. Counting and scheduled jobs catch up on what happens meanwhile.\n-# This relies on something starting the bot again, like Docker. Without that, it stays off."
     }
   },
   "botinfo": {
@@ -701,7 +701,7 @@
     }
   },
   "help": {
-    "title": "## Commands {{icon.book-open}}",
+    "title": "## {{icon.book-open}} Commands",
     "intro": "Pick a category below to see its commands.",
     "select": "Pick a category",
     "overview": "Overview",
@@ -829,7 +829,7 @@
     },
     "matchups": {
       "button": "Matchups",
-      "title": "### Matchups of {{name}} {{icon.shield}}",
+      "title": "### {{icon.shield}} Matchups of {{name}}",
       "weak": "Weak to",
       "resists": "Resists",
       "immune": "Can't be hurt by",
@@ -858,7 +858,7 @@
     },
     "where": {
       "button": "Where to find",
-      "title": "### Where to find {{name}} {{icon.map-pin}}",
+      "title": "### {{icon.map-pin}} Where to find {{name}}",
       "select": "Pick a game",
       "none": "{{name}} isn't found in the wild in any game PokéAPI knows. It may come from evolving, an egg or an event.",
       "level": "Lv. {{level}}",
@@ -900,7 +900,7 @@
     },
     "moves": {
       "button": "Moves",
-      "title": "### Moves of {{name}} {{icon.scroll-text}}",
+      "title": "### {{icon.scroll-text}} Moves of {{name}}",
       "none": "PokéAPI doesn't know which moves {{name}} learns.",
       "evolution": "On evolving",
       "count_one": "{{count, number}} move in this game",
@@ -922,7 +922,7 @@
       "tcgPocket": "Pokémon TCG Pocket"
     },
     "panel": {
-      "title": "### Your Friend Codes {{icon.handshake}}",
+      "title": "### {{icon.handshake}} Your Friend Codes",
       "intro": "Add the codes you want to share. Anyone can see them with `/friendcode view`, in every server you share with the bot. Save one empty to take it out.",
       "nintendoSwitch": "On your user page, by tapping your icon on the HOME Menu.",
       "pokemonGo": "Your Trainer Code, shown when you add a friend.",
@@ -936,7 +936,7 @@
       ]
     },
     "view": {
-      "title": "### {{name}}'s Friend Codes {{icon.handshake}}",
+      "title": "### {{icon.handshake}} {{name}}'s Friend Codes",
       "none": "{{name}} hasn't added any friend codes yet.",
       "noneSelf": "You haven't added any friend codes yet. Add them below, and anyone can look them up with `/friendcode view`.",
       "copy": "Copy",
@@ -946,7 +946,7 @@
     }
   },
   "privacy": {
-    "title": "### Your Data {{icon.lock}}",
+    "title": "### {{icon.lock}} Your Data",
     "intro": "Download what the bot stores, or delete it. What's stored and why is in the [privacy policy]({{url}}).",
     "download": "Download",
     "delete": "Delete",
@@ -968,7 +968,7 @@
     }
   },
   "guess": {
-    "title": "### Who's that Pokémon? {{icon.circle-help}}",
+    "title": "### {{icon.circle-help}} Who's that Pokémon?",
     "anyLanguage": "Guess its name, in any language",
     "fromGeneration": "A Pokémon from generation {{generation}}, guess its name in any language",
     "silhouette": "The silhouette of a Pokémon to guess",
@@ -1006,7 +1006,7 @@
   },
   "tempVoice": {
     "panel": {
-      "title": "### Voice Channel Controls {{icon.volume-2}}",
+      "title": "### {{icon.volume-2}} Voice Channel Controls",
       "owner": "Owned by {{owner}}",
       "ownerAway": "(stepped out)",
       "people_one": "{{count, number}} person here",
@@ -1100,7 +1100,7 @@
       "notOnModerators": "Moderators can't do that to the owner or other moderators."
     },
     "config": {
-      "title": "### Join Channel Settings {{icon.volume-2}}",
+      "title": "### {{icon.volume-2}} Join Channel Settings",
       "enabled": {
         "label": "Enabled",
         "description": "Whether joining this channel gives you a voice channel of your own."
@@ -1139,7 +1139,7 @@
       "alreadyJoin": "{{channel}} is a join channel already.",
       "isTemporary": "Someone's own voice channel can't be a join channel.",
       "list": {
-        "title": "### Join Channels {{icon.volume-2}}",
+        "title": "### {{icon.volume-2}} Join Channels",
         "enabled": {
           "label": "Voice channels",
           "description": "Whether joining any of the join channels gives you a voice channel. Each can also be turned off on its own"
@@ -1196,46 +1196,46 @@
     "bulkNotSeen_one": "{{count, number}} of them was sent before I started, so it's not in the file.",
     "bulkNotSeen_other": "{{count, number}} of them were sent before I started, so they're not in the file.",
     "labels": {
-      "messageEdited": "Message edited {{icon.pencil}}",
-      "messageDeleted": "Message deleted {{icon.trash-2}}",
-      "messagesBulkDeleted_one": "{{count, number}} message deleted {{icon.trash-2}}",
-      "messagesBulkDeleted_other": "{{count, number}} messages deleted {{icon.trash-2}}",
-      "memberJoined": "Member joined {{icon.user-plus}}",
-      "memberLeft": "Member left {{icon.user-minus}}",
-      "memberNickname": "Nickname changed {{icon.tag}}",
-      "rolesAdded_one": "Role added {{icon.drama}}",
-      "rolesAdded_other": "Roles added {{icon.drama}}",
-      "rolesRemoved_one": "Role removed {{icon.drama}}",
-      "rolesRemoved_other": "Roles removed {{icon.drama}}",
-      "rolesChanged": "Roles changed {{icon.drama}}",
-      "profile": "Profile changed {{icon.circle-user}}",
-      "serverAvatar": "Server avatar changed {{icon.circle-user}}",
-      "banned": "Member banned {{icon.gavel}}",
-      "unbanned": "Member unbanned {{icon.bird}}",
-      "kicked": "Member kicked {{icon.door-open}}",
-      "timedOut": "Member timed out {{icon.hourglass}}",
-      "timeoutRemoved": "Timeout removed {{icon.timer-off}}",
-      "channelCreated": "Channel created {{icon.folder}}",
-      "channelDeleted": "Channel deleted {{icon.folder}}",
-      "channelUpdated": "Channel changed {{icon.folder}}",
-      "roleCreated": "Role created {{icon.drama}}",
-      "roleDeleted": "Role deleted {{icon.drama}}",
-      "roleUpdated": "Role changed {{icon.drama}}",
-      "serverUpdated": "Server changed {{icon.house}}",
-      "emojiCreated": "Emoji added {{icon.smile}}",
-      "emojiDeleted": "Emoji deleted {{icon.smile}}",
-      "emojiUpdated": "Emoji changed {{icon.smile}}",
-      "stickerCreated": "Sticker added {{icon.sticker}}",
-      "stickerDeleted": "Sticker deleted {{icon.sticker}}",
-      "stickerUpdated": "Sticker changed {{icon.sticker}}",
-      "threadCreated": "Thread started {{icon.messages-square}}",
-      "threadDeleted": "Thread deleted {{icon.messages-square}}",
-      "threadUpdated": "Thread changed {{icon.messages-square}}",
-      "inviteCreated": "Invite created {{icon.link}}",
-      "inviteDeleted": "Invite deleted {{icon.link}}",
-      "voiceJoined": "Joined voice {{icon.volume-2}}",
-      "voiceLeft": "Left voice {{icon.volume-x}}",
-      "voiceMoved": "Moved voice channels {{icon.arrow-left-right}}"
+      "messageEdited": "{{icon.pencil}} Message edited",
+      "messageDeleted": "{{icon.trash-2}} Message deleted",
+      "messagesBulkDeleted_one": "{{icon.trash-2}} {{count, number}} message deleted",
+      "messagesBulkDeleted_other": "{{icon.trash-2}} {{count, number}} messages deleted",
+      "memberJoined": "{{icon.user-plus}} Member joined",
+      "memberLeft": "{{icon.user-minus}} Member left",
+      "memberNickname": "{{icon.tag}} Nickname changed",
+      "rolesAdded_one": "{{icon.drama}} Role added",
+      "rolesAdded_other": "{{icon.drama}} Roles added",
+      "rolesRemoved_one": "{{icon.drama}} Role removed",
+      "rolesRemoved_other": "{{icon.drama}} Roles removed",
+      "rolesChanged": "{{icon.drama}} Roles changed",
+      "profile": "{{icon.circle-user}} Profile changed",
+      "serverAvatar": "{{icon.circle-user}} Server avatar changed",
+      "banned": "{{icon.gavel}} Member banned",
+      "unbanned": "{{icon.bird}} Member unbanned",
+      "kicked": "{{icon.door-open}} Member kicked",
+      "timedOut": "{{icon.hourglass}} Member timed out",
+      "timeoutRemoved": "{{icon.timer-off}} Timeout removed",
+      "channelCreated": "{{icon.folder}} Channel created",
+      "channelDeleted": "{{icon.folder}} Channel deleted",
+      "channelUpdated": "{{icon.folder}} Channel changed",
+      "roleCreated": "{{icon.drama}} Role created",
+      "roleDeleted": "{{icon.drama}} Role deleted",
+      "roleUpdated": "{{icon.drama}} Role changed",
+      "serverUpdated": "{{icon.house}} Server changed",
+      "emojiCreated": "{{icon.smile}} Emoji added",
+      "emojiDeleted": "{{icon.smile}} Emoji deleted",
+      "emojiUpdated": "{{icon.smile}} Emoji changed",
+      "stickerCreated": "{{icon.sticker}} Sticker added",
+      "stickerDeleted": "{{icon.sticker}} Sticker deleted",
+      "stickerUpdated": "{{icon.sticker}} Sticker changed",
+      "threadCreated": "{{icon.messages-square}} Thread started",
+      "threadDeleted": "{{icon.messages-square}} Thread deleted",
+      "threadUpdated": "{{icon.messages-square}} Thread changed",
+      "inviteCreated": "{{icon.link}} Invite created",
+      "inviteDeleted": "{{icon.link}} Invite deleted",
+      "voiceJoined": "{{icon.volume-2}} Joined voice",
+      "voiceLeft": "{{icon.volume-x}} Left voice",
+      "voiceMoved": "{{icon.arrow-left-right}} Moved voice channels"
     },
     "copy": {
       "button": "Copy IDs",
@@ -1297,7 +1297,7 @@
       "nickname": "Nickname"
     },
     "settings": {
-      "title": "### Log Settings {{icon.scroll-text}}",
+      "title": "### {{icon.scroll-text}} Log Settings",
       "categories": {
         "general": "General",
         "messages": "Messages",
@@ -1414,7 +1414,7 @@
       }
     },
     "resetConfiguration": {
-      "confirm": "### Reset the log settings? {{icon.triangle-alert}}\nThis resets the log channels, switches and ignore lists. What's already logged stays.",
+      "confirm": "### {{icon.triangle-alert}} Reset the log settings?\nThis resets the log channels, switches and ignore lists. What's already logged stays.",
       "confirmButton": "Reset",
       "cancelButton": "Cancel",
       "cancelled": "Nothing was reset.",
@@ -1456,7 +1456,7 @@
   },
   "starboard": {
     "settings": {
-      "title": "### Starboard Settings {{icon.star}}",
+      "title": "### {{icon.star}} Starboard Settings",
       "noChannel": "Pick a channel below, and messages with enough reactions get posted there.",
       "enabled": {
         "label": "Starboard",
@@ -1486,14 +1486,14 @@
       "files": "{{icon.paperclip}} {{files}}",
       "jump": "Jump to message",
       "who": "Starred by",
-      "whoTitle": "### Starred by {{icon.star}}",
+      "whoTitle": "### {{icon.star}} Starred by",
       "own": "You can't star your own message.",
       "gone": "This message isn't on the starboard anymore.",
       "closed": "Stars can't be changed right now, as the starboard is turned off or doesn't count this channel anymore.",
       "nobody": "Nobody has starred this yet."
     },
     "resetConfiguration": {
-      "confirm": "### Reset the starboard settings? {{icon.triangle-alert}}\nThis resets the channel, emoji, reactions needed and ignored channels. Posts already on the starboard stay, but aren't updated anymore.",
+      "confirm": "### {{icon.triangle-alert}} Reset the starboard settings?\nThis resets the channel, emoji, reactions needed and ignored channels. Posts already on the starboard stay, but aren't updated anymore.",
       "confirmButton": "Reset",
       "cancelButton": "Cancel",
       "cancelled": "Nothing was reset.",
@@ -1515,7 +1515,7 @@
   },
   "reminders": {
     "set": {
-      "title": "### Reminder set {{icon.alarm-clock}}",
+      "title": "### {{icon.alarm-clock}} Reminder set",
       "when": "I'll remind you {{due}}.",
       "details": "-# {{repeat}} · {{delivery}}",
       "utc": "-# That's in UTC. Add your `timezone` to use your own time, it's remembered for next time.",
@@ -1538,8 +1538,8 @@
       "channel": "In the channel"
     },
     "message": {
-      "title": "### Reminder {{icon.alarm-clock}}",
-      "titleFor": "### Reminder for {{user}} {{icon.alarm-clock}}",
+      "title": "### {{icon.alarm-clock}} Reminder",
+      "titleFor": "### {{icon.alarm-clock}} Reminder for {{user}}",
       "set": "Set {{time}}",
       "late": "Was due {{time}}, I was offline then",
       "next": "Next one {{time}}",
@@ -1551,14 +1551,14 @@
       "notYours": "Only who set this reminder can stop it."
     },
     "list": {
-      "title": "### Your reminders {{icon.alarm-clock}}",
+      "title": "### {{icon.alarm-clock}} Your reminders",
       "none": "You don't have any reminders. Set one with `/remind set`.",
       "entry": "**{{position}}.** {{text}}\n-# {{due}} · {{details}}",
       "delete": "Delete a reminder"
     }
   },
   "sticky": {
-    "label": "-# Sticky message {{icon.pin}}",
+    "label": "-# {{icon.pin}} Sticky message",
     "wrongChannel": "Sticky messages only go in channels and threads people chat in. Pick one of those.",
     "modal": {
       "title": "Sticky message",
@@ -1580,7 +1580,7 @@
       "none": "{{channel}} doesn't have a sticky message."
     },
     "list": {
-      "title": "### Sticky messages {{icon.pin}}",
+      "title": "### {{icon.pin}} Sticky messages",
       "enabled": {
         "label": "Sticking",
         "description": "Whether the sticky messages stay at the bottom of their channels. Turned off, they're taken out of the channels but kept"
@@ -1599,7 +1599,7 @@
     "more_other": "and {{count, number}} more"
   },
   "moves": {
-    "title": "### {{name}} {{icon.swords}}",
+    "title": "### {{icon.swords}} {{name}}",
     "notFound": "I couldn't find a move called **{{name}}**. Pick one of the suggestions.",
     "classes": {
       "physical": "Physical",
@@ -1626,7 +1626,7 @@
     "learnedBy_other": "Learned by {{count, number}} Pokémon"
   },
   "items": {
-    "title": "### {{name}} {{icon.backpack}}",
+    "title": "### {{icon.backpack}} {{name}}",
     "notFound": "I couldn't find an item called **{{name}}**. Pick one of the suggestions.",
     "picture": "Picture of {{name}}",
     "effect": "Effect",
@@ -1634,14 +1634,14 @@
     "heldBy": "Held by wild Pokémon"
   },
   "abilities": {
-    "title": "### {{name}} {{icon.zap}}",
+    "title": "### {{icon.zap}} {{name}}",
     "notFound": "I couldn't find an ability called **{{name}}**. Pick one of the suggestions.",
     "effect": "Effect",
     "pokemon": "Pokémon",
     "hidden": "As hidden ability"
   },
   "berries": {
-    "title": "### {{name}} {{icon.cherry}}",
+    "title": "### {{icon.cherry}} {{name}}",
     "notFound": "I couldn't find a berry called **{{name}}**. Pick one of the suggestions.",
     "flavor": "Flavors",
     "flavors": {
@@ -1668,17 +1668,17 @@
     "giftPower": "{{type}}, {{power}} power"
   },
   "natures": {
-    "title": "### {{name}} {{icon.leaf}}",
+    "title": "### {{icon.leaf}} {{name}}",
     "notFound": "I couldn't find a nature called **{{name}}**. Pick one of the suggestions, or leave it empty to see them all.",
     "neutral": "No change, it raises and lowers the same stat",
     "likes": "Likes",
     "dislikes": "Dislikes",
-    "listTitle": "### Natures {{icon.leaf}}",
+    "listTitle": "### {{icon.leaf}} Natures",
     "listNote": "Each raises one stat by 10% and lowers another by 10%, apart from the ones with no change.",
     "neutralShort": "No change"
   },
   "locations": {
-    "title": "### {{name}} {{icon.map}}",
+    "title": "### {{icon.map}} {{name}}",
     "notFound": "I couldn't find a place called **{{name}}**. Pick one of the suggestions.",
     "none": "PokéAPI doesn't know of any wild Pokémon here.",
     "region": "{{region}} region"
@@ -1742,7 +1742,7 @@
     "notFound": "I couldn't find a type called **{{name}}**. Pick one of the suggestions, or leave it empty for the chart of all types.",
     "chart": {
       "button": "Type chart",
-      "title": "### Type chart {{icon.chart-column}}",
+      "title": "### {{icon.chart-column}} Type chart",
       "type": "Type",
       "strong": "Strong against",
       "weak": "Weak to",
@@ -1750,7 +1750,7 @@
     }
   },
   "team": {
-    "title": "### Your team {{icon.users}}",
+    "title": "### {{icon.users}} Your team",
     "dangers": "Watch out for",
     "noDangers": "Nothing hits more than one of them hard. Nicely covered!",
     "notFound": "I couldn't find a Pokémon called **{{name}}**. Pick them from the suggestions.",
