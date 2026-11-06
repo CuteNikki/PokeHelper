@@ -4,7 +4,8 @@ import { ComponentType, type APIButtonComponentWithCustomId, type APIContainerCo
 import type { RoleMenu } from 'database/roleMenu';
 
 import { getTranslate, initI18Next } from 'utility/i18next';
-import { buildRoleMenuMessage, parseEmoji, ROLE_BUTTON_PREFIX } from 'utility/roleMenu';
+import { parseEmoji } from 'utility/emoji';
+import { buildRoleMenuMessage, ROLE_BUTTON_PREFIX } from 'utility/roleMenu';
 
 beforeAll(() => initI18Next());
 

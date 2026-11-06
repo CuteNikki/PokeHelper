@@ -35,6 +35,7 @@ import {
 } from 'database/starboard';
 
 import { formatNumber, SECOND } from 'utility/duration';
+import { customEmojiId } from 'utility/emoji';
 import { guildTranslate, type Translate } from 'utility/i18next';
 import { logger } from 'utility/logger';
 import { KeyedQueue } from 'utility/queue';
@@ -70,7 +71,7 @@ const VARIATION_SELECTOR = /️/g;
 
 /** Whether a reaction is the starboard's emoji: a custom one by its ID, as it can be renamed, a normal one by itself. */
 export function isStarEmoji(configured: string, emoji: { id: string | null; name: string | null }): boolean {
-  const customId = /^<a?:\w+:(\d+)>$/.exec(configured)?.[1];
+  const customId = customEmojiId(configured);
   if (customId) return emoji.id === customId;
   return emoji.id === null && emoji.name?.replace(VARIATION_SELECTOR, '') === configured.replace(VARIATION_SELECTOR, '');
 }

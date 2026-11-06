@@ -4,12 +4,9 @@ import { getOrCreateGuildStarboard, updateGuildStarboard, type GuildStarboard } 
 
 import { DiscordLimits } from 'utility/discordLimits';
 import { formatNumber } from 'utility/duration';
-import { parseEmoji } from 'utility/roleMenu';
+import { MAX_EMOJI_LENGTH, parseEmoji } from 'utility/emoji';
 import { createSettingsPanel, MESSAGE_CHANNEL_TYPES } from 'utility/settings';
 import { DEFAULT_STAR_EMOJI, DEFAULT_THRESHOLD, MAX_THRESHOLD, STARBOARD_CHANNEL_PERMISSIONS } from 'utility/starboard';
-
-/** Long enough for a server emoji typed in full, like `<a:name:id>`. */
-const MAX_EMOJI_LENGTH = 64;
 
 /** The number of reactions typed, or null if it isn't a whole number in range. */
 export function parseThreshold(text: string): number | null {

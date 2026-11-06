@@ -22,7 +22,8 @@ import { getRoleMenu, getRoleMenus, setRoleMenuRole, updateRoleMenu, type RoleMe
 import type { Translate } from 'utility/i18next';
 import type { ResponsePayload } from 'utility/response';
 import { DiscordLimits } from 'utility/discordLimits';
-import { MAX_MENU_ROLES, MAX_ROLE_MENUS, moveRoleMenu, parseEmoji, ROLE_MENU_CHANNEL_PERMISSIONS, syncRoleMenuMessage } from 'utility/roleMenu';
+import { MAX_EMOJI_LENGTH, parseEmoji } from 'utility/emoji';
+import { MAX_MENU_ROLES, MAX_ROLE_MENUS, moveRoleMenu, ROLE_MENU_CHANNEL_PERMISSIONS, syncRoleMenuMessage } from 'utility/roleMenu';
 import { buildSwitchSection, createSettingsPanel, formatPermissions, missingBotPermissions, type SettingsPanel } from 'utility/settings';
 import { ThemeColors } from 'utility/theme';
 
@@ -45,8 +46,6 @@ const MAX_TITLE_LENGTH = 100;
 const MAX_DESCRIPTION_LENGTH = 1000;
 /** How many roles name a menu that has no name or title. */
 const ROLES_IN_NAME = 3;
-/** Long enough for a server emoji typed in full, like `<a:name:id>`. */
-const MAX_EMOJI_LENGTH = 64;
 const SINGLE = 'single';
 const MULTIPLE = 'multiple';
 
