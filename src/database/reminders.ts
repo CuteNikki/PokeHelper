@@ -12,9 +12,15 @@ export const getUserReminders = (userId: string) => prisma.reminder.findMany({ w
 
 export const countUserReminders = (userId: string) => prisma.reminder.count({ where: { userId } });
 
-/** Add a reminder, making sure the user is stored first. */
+/**
+ * Add a reminder, making sure the user is stored first.
+ * @returns The reminder, or null if they already have the most there can be.
+ */
 export const createReminder = (data: Omit<Prisma.ReminderUncheckedCreateInput, 'id'>) =>
   prisma.$transaction(async (tx) => {
+    // One at a time per user, so two at once can't both pass the count and go over the limit
+    await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`reminders:${data.userId}`}))`;
+    if ((await tx.reminder.count({ where: { userId: data.userId } })) >= MAX_REMINDERS) return null;
     await tx.user.upsert({ where: { userId: data.userId }, update: {}, create: { userId: data.userId } });
     return tx.reminder.create({ data });
   });

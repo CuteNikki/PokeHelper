@@ -118,6 +118,7 @@ async function handleSet(interaction: ChatInputCommandInteraction): Promise<unkn
     guildId: interaction.guildId,
     locale: interaction.locale,
   });
+  if (!reminder) return sendError(interaction, t('reminders.set.full', { max: MAX_REMINDERS }));
 
   const lines = [
     t('reminders.set.title'),

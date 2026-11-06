@@ -103,7 +103,8 @@ export function buildReminderList(reminders: Reminder[], t: Translate): Response
     .setCustomId(REMINDER_DELETE_ID)
     .setPlaceholder(t('reminders.list.delete'))
     .addOptions(
-      reminders.map((reminder, index) =>
+      // Never more than a select takes, even if someone got past the limit
+      reminders.slice(0, DiscordLimits.selectOptions).map((reminder, index) =>
         new StringSelectMenuOptionBuilder()
           .setValue(reminder.id)
           .setLabel(shorten(`${index + 1}. ${reminder.text.replace(/\s+/g, ' ')}`, DiscordLimits.optionLabelLength))
