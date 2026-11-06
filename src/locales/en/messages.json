@@ -677,29 +677,29 @@
     "author": "{{username}} Status",
     "na": "N/A",
     "general": {
-      "title": "General",
+      "title": "{{icon.settings}} General",
       "developer": "> **Developer:** {{developer}}",
       "created": "> **Created:** {{created}}",
       "servers": "> **Servers:** {{servers}}",
       "users": "> **Users:** {{users}}"
     },
     "network": {
-      "title": "Network",
+      "title": "{{icon.activity}} Network",
       "gateway": "> **Gateway:** {{ping}}",
       "database": "> **Database:** {{latency}} ms"
     },
     "uptime": {
-      "title": "Uptime",
+      "title": "{{icon.clock}} Uptime",
       "process": "> **Process:** {{time}}",
       "system": "> **System:** {{time}}"
     },
     "memory": {
-      "title": "Memory",
+      "title": "{{icon.memory-stick}} Memory",
       "process": "> **Process:** {{mb}} MB",
       "system": "> **System:** {{used}}/{{total}}GB ({{percent}}%)"
     },
     "host": {
-      "title": "Host Environment",
+      "title": "{{icon.server}} Host Environment",
       "cpu": "> **CPU:** {{name}} ({{cores}} cores)",
       "cpuLoad": "> **CPU Load:** {{percent}}% ({{loadAvg}} load avg)",
       "runtime": "> **Runtime:** {{runtime}} on {{osType}} ({{arch}})",

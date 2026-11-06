@@ -21,7 +21,6 @@ import { Command } from 'classes/base/command';
 
 import { getDatabaseLatency } from 'database/index';
 
-import { textIcon } from 'utility/emojis';
 import { formatNumber } from 'utility/duration';
 import { getTranslate } from 'utility/i18next';
 import { ThemeColors } from 'utility/theme';
@@ -88,29 +87,29 @@ export default new Command({
 
     const sections = [
       [
-        `${textIcon('settings')} ${bold(t('botinfo.general.title'))}`,
+        bold(t('botinfo.general.title')),
         t('botinfo.general.developer', { developer }),
         t('botinfo.general.created', { created: time(createdTimestamp, TimestampStyles.RelativeTime) }),
         t('botinfo.general.servers', { servers: formatNumber(totalGuilds, t) }),
         t('botinfo.general.users', { users: formatNumber(totalUsers, t) }),
       ],
       [
-        `${textIcon('activity')} ${bold(t('botinfo.network.title'))}`,
+        bold(t('botinfo.network.title')),
         t('botinfo.network.gateway', { ping: pingText }),
         t('botinfo.network.database', { latency: formatNumber(dbLatency, t) }),
       ],
       [
-        `${textIcon('clock')} ${bold(t('botinfo.uptime.title'))}`,
+        bold(t('botinfo.uptime.title')),
         t('botinfo.uptime.process', { time: formatDuration(process.uptime()) }),
         t('botinfo.uptime.system', { time: formatDuration(os.uptime()) }),
       ],
       [
-        `${textIcon('memory-stick')} ${bold(t('botinfo.memory.title'))}`,
+        bold(t('botinfo.memory.title')),
         t('botinfo.memory.process', { mb: processMb }),
         t('botinfo.memory.system', { used: usedGb, total: formatNumber(totalGb, t), percent: formatNumber(ramPercent, t) }),
       ],
       [
-        `${textIcon('server')} ${bold(t('botinfo.host.title'))}`,
+        bold(t('botinfo.host.title')),
         t('botinfo.host.cpu', { name: cpuName, cores: formatNumber(cores, t) }),
         t('botinfo.host.cpuLoad', { percent: formatNumber(cpuPercent, t), loadAvg }),
         t('botinfo.host.runtime', { runtime: runtimeVersion, osType: os.type(), arch: os.arch() }),
