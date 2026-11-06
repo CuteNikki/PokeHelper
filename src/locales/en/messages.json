@@ -1417,6 +1417,7 @@
       "when": "I'll remind you {{due}}.",
       "details": "-# {{repeat}} · {{delivery}}",
       "utc": "-# That's in UTC. Add your `timezone` to use your own time, it's remembered for next time.",
+      "utcRepeat": "-# It repeats at the same time in UTC, so it moves by an hour when your clocks change. Add your `timezone` to keep it on your own time, it's remembered for next time.",
       "invalid": "I didn't get when. Try something like `10m`, `2h 30m`, `18:00`, `tomorrow 9am`, `friday 6pm` or `24.12. 18:00`.",
       "past": "That's already in the past.",
       "tooFar": "That's too far ahead, reminders go up to {{max}} years.",

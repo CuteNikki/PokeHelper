@@ -126,8 +126,12 @@ async function handleSet(interaction: ChatInputCommandInteraction): Promise<unkn
     t('reminders.set.when', { due: formatDue(reminder.dueAt) }),
     t(`reminders.set.details`, { repeat: t(`reminders.repeat.${repeat ?? 'once'}`), delivery: t(`reminders.delivery.${delivery}`) }),
   ];
-  // Dates and times without a timezone are in UTC, which isn't most people's, so they're told how to change it
-  if (!givenTimezone && !savedTimezone && !parseDuration(input, now)) lines.push(t('reminders.set.utc'));
+  // Dates and times without a timezone are in UTC, which isn't most people's, so they're told how to change it. A duration is the same
+  // everywhere, but repeating keeps the time on the clock in UTC, which moves for them when their clocks change
+  if (!givenTimezone && !savedTimezone) {
+    if (!parseDuration(input, now)) lines.push(t('reminders.set.utc'));
+    else if (repeat) lines.push(t('reminders.set.utcRepeat'));
+  }
   return sendResponse(interaction, createResponse(lines.join('\n'), 'success'), { ephemeral: true });
 }
 
