@@ -347,10 +347,10 @@ model GuildLeveling {
   monthlyWinnerRole    String? // the role the last monthly winner got, which is taken away at the next reset even if the setting changed
 
   // Filters
-  ignoredChannels String[] @default([]) // if empty, no channels are ignored otherwise only the specified channels are ignored
-  enabledChannels String[] @default([]) // if empty, all channels are enabled otherwise only the specified channels are enabled
-  ignoredRoles    String[] @default([]) // if empty, no roles are ignored otherwise only the specified roles are ignored
-  enabledRoles    String[] @default([]) // if empty, all roles are enabled otherwise only the specified roles are enabled
+  ignoredChannels String[] @default([]) // messages here don't earn XP
+  enabledChannels String[] @default([]) // only messages here earn XP, or anywhere when empty
+  ignoredRoles    String[] @default([]) // members with any of these don't earn XP
+  enabledRoles    String[] @default([]) // only members with one of these earn XP, or everyone when empty
 
   // Timestamps
   createdAt DateTime @default(now())
