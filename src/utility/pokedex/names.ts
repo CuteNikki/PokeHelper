@@ -1,9 +1,9 @@
-import { SECOND, MINUTE } from 'utility/duration';
+import { MINUTE, SECOND } from 'utility/duration';
 import { supportedLanguages } from 'utility/i18next';
 import { logger } from 'utility/logger';
 import { API_URL, fetchJson, PokeApiError } from 'utility/pokedex/api';
 
-const GRAPHQL_URL = 'https://beta.pokeapi.co/graphql/v1beta';
+const GRAPHQL_URL = 'https://graphql.pokeapi.co/v1beta2';
 /** The names are one big answer, which takes longer than others. */
 const TIMEOUT = 30 * SECOND;
 /** How long to wait before asking again after the names couldn't be loaded, so a PokéAPI outage isn't asked about on every keystroke. */
@@ -42,42 +42,42 @@ export interface PokedexMatch {
   form: PokedexForm | null;
 }
 
-type Names = { name: string; pokemon_v2_language: { name: string } }[];
+type Names = { name: string; language: { name: string } }[];
 
 interface NamesQuery {
-  pokemon_v2_pokemonspecies: {
+  pokemonspecies: {
     id: number;
     name: string;
-    pokemon_v2_pokemonspeciesnames: Names;
-    pokemon_v2_pokemons: {
+    pokemonspeciesnames: Names;
+    pokemons: {
       name: string;
       is_default: boolean;
-      pokemon_v2_pokemonforms: { is_default: boolean; pokemon_v2_pokemonformnames: { pokemon_name: string; pokemon_v2_language: { name: string } }[] }[];
+      pokemonforms: { is_default: boolean; pokemonformnames: { pokemon_name: string; language: { name: string } }[] }[];
     }[];
   }[];
-  pokemon_v2_ability: { name: string; pokemon_v2_abilitynames: Names }[];
-  pokemon_v2_type: { name: string; pokemon_v2_typenames: Names }[];
+  ability: { name: string; abilitynames: Names }[];
+  type: { name: string; typenames: Names }[];
 }
 
 /** The names of every species, form, ability and type in the bot's languages, in one request. */
 function namesQuery(languages: string[]) {
-  const names = `(where: { pokemon_v2_language: { name: { _in: ${JSON.stringify(languages)} } } }) { name pokemon_v2_language { name } }`;
+  const names = `(where: { language: { name: { _in: ${JSON.stringify(languages)} } } }) { name language { name } }`;
   return `{
-    pokemon_v2_pokemonspecies(order_by: { id: asc }) {
+    pokemonspecies(order_by: { id: asc }) {
       id
       name
-      pokemon_v2_pokemonspeciesnames${names}
-      pokemon_v2_pokemons(order_by: { id: asc }) {
+      pokemonspeciesnames${names}
+      pokemons(order_by: { id: asc }) {
         name
         is_default
-        pokemon_v2_pokemonforms {
+        pokemonforms {
           is_default
-          pokemon_v2_pokemonformnames(where: { pokemon_v2_language: { name: { _in: ${JSON.stringify(languages)} } } }) { pokemon_name pokemon_v2_language { name } }
+          pokemonformnames(where: { language: { name: { _in: ${JSON.stringify(languages)} } } }) { pokemon_name language { name } }
         }
       }
     }
-    pokemon_v2_ability { name pokemon_v2_abilitynames${names} }
-    pokemon_v2_type { name pokemon_v2_typenames${names} }
+    ability { name abilitynames${names} }
+    type { name typenames${names} }
   }`;
 }
 
@@ -86,7 +86,7 @@ const fromSlug = (slug: string) => slug.replace(/(^|-)(\w)/g, (_, dash: string, 
 
 /** The names by language, with English, or else the slug, for languages that have none. */
 function toNames(names: Names, slug: string, languages: string[]): TranslatedName {
-  const byLanguage = Object.fromEntries(names.map((entry) => [entry.pokemon_v2_language.name, entry.name]));
+  const byLanguage = Object.fromEntries(names.map((entry) => [entry.language.name, entry.name]));
   return Object.fromEntries(languages.map((language) => [language, byLanguage[language] ?? byLanguage.en ?? fromSlug(slug)]));
 }
 
@@ -94,20 +94,20 @@ function toNames(names: Names, slug: string, languages: string[]): TranslatedNam
 function parseNames(result: NamesQuery, languages: string[]): PokedexData {
   const byName = (rows: { name: string; names: Names }[]) => Object.fromEntries(rows.map((row) => [row.name, toNames(row.names, row.name, languages)]));
   return {
-    species: result.pokemon_v2_pokemonspecies.map((entry) => ({
+    species: result.pokemonspecies.map((entry) => ({
       id: entry.id,
       slug: entry.name,
-      names: toNames(entry.pokemon_v2_pokemonspeciesnames, entry.name, languages),
-      forms: entry.pokemon_v2_pokemons
+      names: toNames(entry.pokemonspeciesnames, entry.name, languages),
+      forms: entry.pokemons
         .filter((pokemon) => !pokemon.is_default)
         .map((pokemon) => {
-          const form = pokemon.pokemon_v2_pokemonforms.find((candidate) => candidate.is_default) ?? pokemon.pokemon_v2_pokemonforms[0];
-          const names = (form?.pokemon_v2_pokemonformnames ?? []).map((name) => ({ name: name.pokemon_name, pokemon_v2_language: name.pokemon_v2_language }));
+          const form = pokemon.pokemonforms.find((candidate) => candidate.is_default) ?? pokemon.pokemonforms[0];
+          const names = (form?.pokemonformnames ?? []).map((name) => ({ name: name.pokemon_name, language: name.language }));
           return { slug: pokemon.name, names: toNames(names, pokemon.name, languages) };
         }),
     })),
-    abilities: byName(result.pokemon_v2_ability.map((row) => ({ name: row.name, names: row.pokemon_v2_abilitynames }))),
-    types: byName(result.pokemon_v2_type.map((row) => ({ name: row.name, names: row.pokemon_v2_typenames }))),
+    abilities: byName(result.ability.map((row) => ({ name: row.name, names: row.abilitynames }))),
+    types: byName(result.type.map((row) => ({ name: row.name, names: row.typenames }))),
   };
 }
 
@@ -134,16 +134,16 @@ export function namesFromLists(lists: { species: Listed; pokemon: Listed; types:
   const noNames: Names = [];
   return parseNames(
     {
-      pokemon_v2_pokemonspecies: species
+      pokemonspecies: species
         .sort((a, b) => a.id - b.id)
         .map((entry) => ({
           id: entry.id,
           name: entry.slug,
-          pokemon_v2_pokemonspeciesnames: noNames,
-          pokemon_v2_pokemons: entry.forms.map((form) => ({ name: form, is_default: false, pokemon_v2_pokemonforms: [] })),
+          pokemonspeciesnames: noNames,
+          pokemons: entry.forms.map((form) => ({ name: form, is_default: false, pokemonforms: [] })),
         })),
-      pokemon_v2_ability: lists.abilities.map((entry) => ({ name: entry.name, pokemon_v2_abilitynames: noNames })),
-      pokemon_v2_type: lists.types.map((entry) => ({ name: entry.name, pokemon_v2_typenames: noNames })),
+      ability: lists.abilities.map((entry) => ({ name: entry.name, abilitynames: noNames })),
+      type: lists.types.map((entry) => ({ name: entry.name, typenames: noNames })),
     },
     languages,
   );
