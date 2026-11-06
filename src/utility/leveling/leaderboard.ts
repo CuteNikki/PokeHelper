@@ -219,7 +219,7 @@ function periodButton(view: LeaderboardView, t: Translate) {
   return new ButtonBuilder()
     .setCustomId(leaderboardCustomId('period', { ...view, period, page: 1 }))
     .setStyle(ButtonStyle.Secondary)
-    .setEmoji(buttonIcon('calendar', '📅'))
+    .setEmoji(buttonIcon('calendar'))
     .setLabel(t(`leveling.leaderboard.showPeriod.${period}`));
 }
 
@@ -235,12 +235,12 @@ function buildControls(view: LeaderboardView, totalPages: number, t: Translate) 
       new StringSelectMenuOptionBuilder()
         .setLabel(t('pagination.sort.ascending'))
         .setValue('asc')
-        .setEmoji(buttonIcon('arrow-up-narrow-wide', '⬆️'))
+        .setEmoji(buttonIcon('arrow-up-narrow-wide'))
         .setDefault(view.sortOrder === 'asc'),
       new StringSelectMenuOptionBuilder()
         .setLabel(t('pagination.sort.descending'))
         .setValue('desc')
-        .setEmoji(buttonIcon('arrow-down-wide-narrow', '⬇️'))
+        .setEmoji(buttonIcon('arrow-down-wide-narrow'))
         .setDefault(view.sortOrder === 'desc'),
     ),
   );
@@ -250,7 +250,7 @@ function buildControls(view: LeaderboardView, totalPages: number, t: Translate) 
   const mode = new ButtonBuilder()
     .setCustomId(leaderboardCustomId('mode', { ...view, text: !view.text }))
     .setStyle(ButtonStyle.Secondary)
-    .setEmoji(view.text ? buttonIcon('image', '🖼️') : buttonIcon('file-text', '📝'))
+    .setEmoji(view.text ? buttonIcon('image') : buttonIcon('file-text'))
     .setLabel(t(view.text ? 'leveling.leaderboard.showImage' : 'leveling.leaderboard.showText'));
   const rowMore = new ActionRowBuilder<ButtonBuilder>().addComponents(findMeButton(leaderboardCustomId('me', view), t), periodButton(view, t), mode);
 

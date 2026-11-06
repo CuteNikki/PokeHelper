@@ -233,18 +233,18 @@ export async function buildGuessGame(game: GuessGame, outcome: Outcome, language
         new ButtonBuilder()
           .setCustomId(guessCustomId('guess', game))
           .setLabel(t('guess.buttons.guess'))
-          .setEmoji(buttonIcon('pencil', '✏️'))
+          .setEmoji(buttonIcon('pencil'))
           .setStyle(ButtonStyle.Primary),
         new ButtonBuilder()
           .setCustomId(guessCustomId('hint', game))
           .setLabel(hintsLeft > 0 ? t('guess.buttons.hintsLeft', { count: hintsLeft }) : t('guess.buttons.hint'))
-          .setEmoji(buttonIcon('lightbulb', '💡'))
+          .setEmoji(buttonIcon('lightbulb'))
           .setStyle(ButtonStyle.Secondary)
           .setDisabled(hintsLeft <= 0),
         new ButtonBuilder()
           .setCustomId(guessCustomId('giveup', game))
           .setLabel(t('guess.buttons.giveUp'))
-          .setEmoji(buttonIcon('flag', '🏳️'))
+          .setEmoji(buttonIcon('flag'))
           .setStyle(ButtonStyle.Secondary),
       ),
     );
@@ -256,12 +256,12 @@ export async function buildGuessGame(game: GuessGame, outcome: Outcome, language
           new ButtonBuilder()
             .setCustomId(guessCustomId('again', game))
             .setLabel(t('guess.buttons.again'))
-            .setEmoji(buttonIcon('rotate-ccw', '🔁'))
+            .setEmoji(buttonIcon('rotate-ccw'))
             .setStyle(ButtonStyle.Primary),
           new ButtonBuilder()
             .setCustomId(guessCustomId('dex', game))
             .setLabel(t('guess.buttons.pokedex'))
-            .setEmoji(buttonIcon('book-open', '📖'))
+            .setEmoji(buttonIcon('book-open'))
             .setStyle(ButtonStyle.Secondary),
         ),
       );

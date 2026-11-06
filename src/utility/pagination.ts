@@ -44,7 +44,7 @@ export const pageOfPosition = (position: number, pageSize: number) => Math.max(1
 
 /** The button that goes to the page of whoever presses it, on its own row under a list's page buttons. */
 export const findMeButton = (customId: string, t: Translate) =>
-  new ButtonBuilder().setCustomId(customId).setStyle(ButtonStyle.Secondary).setEmoji(buttonIcon('user', '📍')).setLabel(t('pagination.findMe'));
+  new ButtonBuilder().setCustomId(customId).setStyle(ButtonStyle.Secondary).setEmoji(buttonIcon('user')).setLabel(t('pagination.findMe'));
 
 /**
  * The page to show, counted from 0, and how many pages there are. Kept within the pages there are, as a list can change between presses,
@@ -84,17 +84,11 @@ export function buildPageRow(
     .setLabel(t('pagination.page.label', { current: formatNumber(page + 1, t), total: formatNumber(pages, t) }))
     .setDisabled(!goto);
 
-  const previous = button('prev', page - 1, buttonIcon('chevron-left', t('pagination.previous.icon')));
-  const next = button('next', page + 1, buttonIcon('chevron-right', t('pagination.next.icon')));
+  const previous = button('prev', page - 1, buttonIcon('chevron-left'));
+  const next = button('next', page + 1, buttonIcon('chevron-right'));
   return new ActionRowBuilder<ButtonBuilder>().addComponents(
     short
       ? [previous, current, next]
-      : [
-          button('first', 0, buttonIcon('chevrons-left', t('pagination.first.icon'))),
-          previous,
-          current,
-          next,
-          button('last', pages - 1, buttonIcon('chevrons-right', t('pagination.last.icon'))),
-        ],
+      : [button('first', 0, buttonIcon('chevrons-left')), previous, current, next, button('last', pages - 1, buttonIcon('chevrons-right'))],
   );
 }

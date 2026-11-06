@@ -1,7 +1,7 @@
 import { createCanvas } from '@napi-rs/canvas';
 import { formatEmoji, type Client } from 'discord.js';
 
-import { iconNames, iconPng, type IconLook } from 'utility/icons';
+import { ICON_NAMES, ICONS, iconPng, type IconLook, type IconName } from 'utility/icons';
 import { logger } from 'utility/logger';
 import { typeIconPng } from 'utility/pokedex/typeIcons';
 import { TYPE_COLORS } from 'utility/pokedex/types';
@@ -35,7 +35,7 @@ const emojis = new Map<string, string>();
 const barName = (color: string, piece: BarPiece) => `${STAT_BAR_PREFIX}_${color}_${piece}`;
 const typeIconName = (type: string) => `${TYPE_ICON_PREFIX}_${type}`;
 /** An interface icon's name. Emoji names can't have dashes, which Lucide's names have. */
-const interfaceIconName = (name: string, look: IconLook) => `${ICON_PREFIXES[look]}_${name.replaceAll('-', '_')}`;
+const interfaceIconName = (name: IconName, look: IconLook) => `${ICON_PREFIXES[look]}_${name.replaceAll('-', '_')}`;
 const SWITCH_ON = `${ICON_PREFIXES.on}_on`;
 const SWITCH_OFF = `${ICON_PREFIXES.off}_off`;
 
@@ -63,7 +63,7 @@ function wantedEmojis(): Map<string, () => Promise<Buffer | null>> {
     for (const piece of PIECES) wanted.set(barName(name, piece), () => Promise.resolve(renderPiece(color, piece)));
   }
   for (const type of Object.keys(TYPE_COLORS)) wanted.set(typeIconName(type), () => typeIconPng(type, SIZE));
-  for (const name of iconNames()) {
+  for (const name of ICON_NAMES) {
     for (const look of ['button', 'text'] as const) wanted.set(interfaceIconName(name, look), () => iconPng(name, look, SIZE));
   }
   wanted.set(SWITCH_ON, () => iconPng('check', 'on', SIZE));
@@ -74,7 +74,7 @@ function wantedEmojis(): Map<string, () => Promise<Buffer | null>> {
 /**
  * Upload the emojis the bot doesn't have yet, and delete those of older versions.
  * Until this is done, or if it fails, {@link statBarEmoji} and {@link typeEmoji} have nothing, and the text does without them, while
- * {@link buttonIcon} and {@link textIcon} give the normal emoji they're given.
+ * {@link buttonIcon} and {@link textIcon} give the icon's normal emoji.
  */
 export async function syncBotEmojis(client: Client<true>): Promise<void> {
   const wanted = wantedEmojis();
@@ -108,14 +108,14 @@ export const statBarEmoji = (color: string, piece: BarPiece) => emojis.get(barNa
 /** The emoji of a type's icon, or null if it isn't there. */
 export const typeEmoji = (type: string) => emojis.get(typeIconName(type)) ?? null;
 
-/** An interface icon for a button, white on its own, like `search`, or the normal emoji given while it isn't there. */
-export const buttonIcon = (name: string, fallback: string) => emojis.get(interfaceIconName(name, 'button')) ?? fallback;
+/** An interface icon for a button, white on its own, like `search`, or its normal emoji while it isn't there. */
+export const buttonIcon = (name: IconName) => emojis.get(interfaceIconName(name, 'button')) ?? ICONS[name];
 
-/** An interface icon for text, on the bot's blue, like `server`, or the normal emoji given while it isn't there. */
-export const textIcon = (name: string, fallback: string) => emojis.get(interfaceIconName(name, 'text')) ?? fallback;
+/** An interface icon for text, on the bot's blue, like `server`, or its normal emoji while it isn't there. */
+export const textIcon = (name: IconName) => emojis.get(interfaceIconName(name, 'text')) ?? ICONS[name];
 
 /** The icon of an On/Off switch, a check on green or an X on grey, or ✅ and ✖️ while it isn't there. */
-export const switchIcon = (on: boolean) => emojis.get(on ? SWITCH_ON : SWITCH_OFF) ?? (on ? '✅' : '✖️');
+export const switchIcon = (on: boolean) => emojis.get(on ? SWITCH_ON : SWITCH_OFF) ?? (on ? ICONS.check : ICONS.x);
 
 /** A type's name with its icon in front, or the name alone while the icons aren't there. */
 export const withTypeEmoji = (type: string, name: string) => {

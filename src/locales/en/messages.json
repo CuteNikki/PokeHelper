@@ -119,20 +119,8 @@
     "multiple": "As many as they like"
   },
   "pagination": {
-    "first": {
-      "icon": "⏮️"
-    },
-    "previous": {
-      "icon": "◀️"
-    },
     "page": {
       "label": "Page {{current}}/{{total}}"
-    },
-    "next": {
-      "icon": "▶️"
-    },
-    "last": {
-      "icon": "⏭️"
     },
     "modal": {
       "title": "Go to page",

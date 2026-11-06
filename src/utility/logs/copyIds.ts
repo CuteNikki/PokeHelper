@@ -39,7 +39,7 @@ export function copyIdsButton(ids: LogIds, t: Translate): ButtonBuilder | null {
   return new ButtonBuilder()
     .setCustomId(`${COPY_IDS_PREFIX}${parts.join('.')}`)
     .setLabel(t('logs.copy.button'))
-    .setEmoji(buttonIcon('copy', '📋'))
+    .setEmoji(buttonIcon('copy'))
     .setStyle(ButtonStyle.Secondary);
 }
 

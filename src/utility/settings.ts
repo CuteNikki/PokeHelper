@@ -466,7 +466,7 @@ function addSetting<C>(container: ContainerBuilder, context: SettingsContext, pa
           new ButtonBuilder()
             .setCustomId(customId(panelId, page, setting.key, undefined, value))
             .setLabel(formatValue(setting, value, t))
-            .setEmoji(buttonIcon('refresh-cw', '🔁'))
+            .setEmoji(buttonIcon('refresh-cw'))
             .setStyle(ButtonStyle.Primary),
         ),
       );
@@ -527,7 +527,7 @@ function addSetting<C>(container: ContainerBuilder, context: SettingsContext, pa
           new ButtonBuilder()
             .setCustomId(customId(panelId, page, setting.key))
             .setLabel(t('settings.text.edit'))
-            .setEmoji(buttonIcon('pencil', '✏️'))
+            .setEmoji(buttonIcon('pencil'))
             .setStyle(ButtonStyle.Primary),
         ),
       );

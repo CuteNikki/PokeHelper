@@ -59,13 +59,7 @@ export const myBirthdaySettings = createSettingsPanel<MyBirthday>({
   header: (birthday, _context, t) => (birthday.exists ? null : t('birthday.panel.none')),
   footer: (birthday, t) =>
     birthday.exists
-      ? [
-          new ButtonBuilder()
-            .setCustomId(DELETE_BIRTHDAY_ID)
-            .setLabel(t('birthday.panel.delete'))
-            .setEmoji(buttonIcon('trash-2', '🗑️'))
-            .setStyle(ButtonStyle.Danger),
-        ]
+      ? [new ButtonBuilder().setCustomId(DELETE_BIRTHDAY_ID).setLabel(t('birthday.panel.delete')).setEmoji(buttonIcon('trash-2')).setStyle(ButtonStyle.Danger)]
       : [],
   tips: (t) => t('birthday.panel.tips', { returnObjects: true }),
   settings: [

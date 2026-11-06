@@ -91,7 +91,7 @@ export const matchupsButton = (slug: string, text: boolean, t: Translate) =>
   new ButtonBuilder()
     .setCustomId(`${POKEDEX_MATCHUPS_PREFIX}${slug}:${text ? 't' : 'i'}`)
     .setStyle(ButtonStyle.Secondary)
-    .setEmoji(buttonIcon('shield', '🛡️'))
+    .setEmoji(buttonIcon('shield'))
     .setLabel(t('pokedex.matchups.button'));
 
 /** The button on the matchups that switches them between the card and text, ending in `:switch`, as it changes the reply it's on. */
@@ -99,7 +99,7 @@ const switchButton = (slug: string, text: boolean, t: Translate) =>
   new ButtonBuilder()
     .setCustomId(`${POKEDEX_MATCHUPS_PREFIX}${slug}:${text ? 'i' : 't'}:switch`)
     .setStyle(ButtonStyle.Secondary)
-    .setEmoji(text ? buttonIcon('image', '🖼️') : buttonIcon('file-text', '📝'))
+    .setEmoji(text ? buttonIcon('image') : buttonIcon('file-text'))
     .setLabel(t(text ? 'pokedex.view.image' : 'pokedex.view.text'));
 
 /** The Pokémon, whether to show text, and whether it's the switch on the matchups, from a button's custom ID. */

@@ -137,7 +137,7 @@ export function buildPanel({ channel, record }: TempChannel, t: Translate): Resp
     new ButtonBuilder()
       .setCustomId(tempVoiceCustomId(action, id))
       .setLabel(t('settings.text.edit'))
-      .setEmoji(buttonIcon('pencil', '✏️'))
+      .setEmoji(buttonIcon('pencil'))
       .setStyle(ButtonStyle.Primary);
   const limit = channel.userLimit ? t('tempVoice.panel.limitValue', { count: channel.userLimit }) : t('tempVoice.panel.noLimit');
 
@@ -170,7 +170,7 @@ export function buildPanel({ channel, record }: TempChannel, t: Translate): Resp
         new ButtonBuilder()
           .setCustomId(tempVoiceCustomId('delete', id))
           .setLabel(t('tempVoice.panel.delete'))
-          .setEmoji(buttonIcon('trash-2', '🗑️'))
+          .setEmoji(buttonIcon('trash-2'))
           .setStyle(ButtonStyle.Danger),
       ),
     );

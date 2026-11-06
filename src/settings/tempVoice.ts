@@ -85,7 +85,7 @@ export function getTempVoiceSettings(creatorId: string): SettingsPanel {
       new ButtonBuilder()
         .setCustomId(`${TEMP_VOICE_CONFIG_ID.delete}${creator.id}`)
         .setLabel(t('tempVoice.config.delete'))
-        .setEmoji(buttonIcon('trash-2', '🗑️'))
+        .setEmoji(buttonIcon('trash-2'))
         .setStyle(ButtonStyle.Danger),
       new ButtonBuilder().setCustomId(TEMP_VOICE_CONFIG_ID.list).setLabel(t('tempVoice.config.back')).setStyle(ButtonStyle.Secondary),
     ],

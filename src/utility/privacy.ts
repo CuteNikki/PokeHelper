@@ -49,12 +49,12 @@ export function buildPrivacyPanel(context: SettingsContext, t: Translate): Respo
       new ButtonBuilder()
         .setCustomId(privacyCustomId('download', scope))
         .setLabel(t('privacy.download'))
-        .setEmoji(buttonIcon('download', '📥'))
+        .setEmoji(buttonIcon('download'))
         .setStyle(ButtonStyle.Primary),
       new ButtonBuilder()
         .setCustomId(privacyCustomId('delete', scope))
         .setLabel(t('privacy.delete'))
-        .setEmoji(buttonIcon('trash-2', '🗑️'))
+        .setEmoji(buttonIcon('trash-2'))
         .setStyle(ButtonStyle.Danger),
     );
 

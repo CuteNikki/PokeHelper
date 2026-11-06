@@ -96,13 +96,13 @@ export function getRoleMenuSettings(menuId: string): SettingsPanel {
       new ButtonBuilder()
         .setCustomId(`${ROLE_MENU_CUSTOM_ID.repost}${menu.id}`)
         .setLabel(t('roleMenu.settings.repost'))
-        .setEmoji(buttonIcon('send', '📨'))
+        .setEmoji(buttonIcon('send'))
         .setStyle(ButtonStyle.Secondary)
         .setDisabled(menu.roles.length === 0),
       new ButtonBuilder()
         .setCustomId(`${ROLE_MENU_CUSTOM_ID.delete}${menu.id}`)
         .setLabel(t('roleMenu.settings.delete'))
-        .setEmoji(buttonIcon('trash-2', '🗑️'))
+        .setEmoji(buttonIcon('trash-2'))
         .setStyle(ButtonStyle.Danger),
       new ButtonBuilder().setCustomId(ROLE_MENU_CUSTOM_ID.list).setLabel(t('roleMenu.settings.back')).setStyle(ButtonStyle.Secondary),
     ],

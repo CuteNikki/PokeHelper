@@ -58,7 +58,7 @@ export function buildReminderMessage(reminder: Reminder, inChannel: boolean, nex
     new ButtonBuilder()
       .setCustomId(`${REMINDER_STOP_PREFIX}${reminder.id}`)
       .setStyle(ButtonStyle.Secondary)
-      .setEmoji(buttonIcon('bell-off', '🔕'))
+      .setEmoji(buttonIcon('bell-off'))
       .setLabel(t('reminders.message.stop')),
   );
   // Only who it's for is mentioned, never anyone or anything mentioned in the text
