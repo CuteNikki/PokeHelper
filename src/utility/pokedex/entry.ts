@@ -40,7 +40,8 @@ import { renderPokedexCard, STAT_BAR_MAX } from 'utility/pokedex/card';
 import { evolutionCondition } from 'utility/pokedex/evolution';
 import { newestText } from 'utility/pokedex/lookup';
 import { matchupsButton } from 'utility/pokedex/matchups';
-import { linkSelect, pageButton } from 'utility/pokedex/pages';
+import { linkSelect, pageButton, pokemonPage } from 'utility/pokedex/pages';
+import { rememberTextView } from 'utility/pokedex/viewPreference';
 import { TYPE_COLORS } from 'utility/pokedex/types';
 import { buttonIcon, withTypeEmoji } from 'utility/emojis';
 import { emojiBar } from 'utility/pokedex/bars';
@@ -188,8 +189,9 @@ function buildControls(match: PokedexMatch, view: PokedexView, hasShiny: boolean
       .setLabel(t(view.shiny ? 'pokedex.shiny.hide' : 'pokedex.shiny.show'))
       .setDisabled(!hasShiny),
     matchupsButton(slug, view.text, t),
-    pageButton({ kind: 'where', slug }, { kind: 'pokemon', slug }).setEmoji(buttonIcon('map-pin')).setLabel(t('pokedex.where.button')),
-    pageButton({ kind: 'learnset', slug }, { kind: 'pokemon', slug }).setEmoji(buttonIcon('scroll-text')).setLabel(t('pokedex.moves.button')),
+    // Back from them shows the entry the same way, as text or a card
+    pageButton({ kind: 'where', slug }, pokemonPage(slug, view)).setEmoji(buttonIcon('map-pin')).setLabel(t('pokedex.where.button')),
+    pageButton({ kind: 'learnset', slug }, pokemonPage(slug, view)).setEmoji(buttonIcon('scroll-text')).setLabel(t('pokedex.moves.button')),
   ];
   // Switches between the card and text, like for screen readers, keeping the Pokémon and whether it's shiny
   const mode = new ButtonBuilder()
@@ -409,7 +411,7 @@ export async function buildPokedexEntry(match: PokedexMatch, view: PokedexView, 
   container.addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large)).addActionRowComponents(...navigation, ...evolutionButtons);
   if (forms.length > 0) container.addActionRowComponents(...forms);
   // Its abilities and the items wild ones hold, each with a page of its own
-  const entryPage = { kind: 'pokemon' as const, slug: matchSlug(match) };
+  const entryPage = pokemonPage(matchSlug(match), shownView);
   const links = linkSelect(
     entryPage,
     [
@@ -444,6 +446,7 @@ export async function updatePokedexEntry(
   view: PokedexView,
 ): Promise<unknown> {
   const t = getTranslate(interaction.locale);
+  rememberTextView(interaction.user.id, view.text);
   if (!interaction.deferred) await interaction.deferUpdate();
   try {
     await loadPokedexData();

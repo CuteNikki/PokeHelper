@@ -19,7 +19,8 @@ import { buildLocation } from 'utility/pokedex/lookups/location';
 import { buildMove } from 'utility/pokedex/lookups/move';
 import { buildNature, buildNatureList } from 'utility/pokedex/lookups/nature';
 import { findBySlug, loadPokedexData, matchName, nameOf } from 'utility/pokedex/names';
-import { backButton, type DexPage, type PageContext } from 'utility/pokedex/pages';
+import { backButton, type DexPage, type PageContext, pokemonPage, pokemonView } from 'utility/pokedex/pages';
+import { prefersTextView, rememberTextView } from 'utility/pokedex/viewPreference';
 import { buildTeam } from 'utility/pokedex/team';
 import { buildTypeChart, buildTypePage } from 'utility/pokedex/typeChart';
 import { type ResponsePayload, sendError, sendResponse } from 'utility/response';
@@ -71,7 +72,7 @@ export async function renderPage(context: PageContext, language: string, t: Tran
   switch (page.kind) {
     case 'pokemon': {
       const match = findBySlug(page.slug);
-      answer = match ? await buildPokedexEntry(match, { shiny: false, text: false }, language, t) : null;
+      answer = match ? await buildPokedexEntry(match, pokemonView(page), language, t) : null;
       break;
     }
     case 'move':
@@ -121,6 +122,25 @@ export async function renderPage(context: PageContext, language: string, t: Tran
 }
 
 /**
+ * A page shown how someone last looked at entries, for a Pokémon that's opened without saying, like from a link, and the chart of
+ * all types. Remembers it for those that say, like Back to an entry that was text.
+ */
+export function withPreferredView(context: PageContext, userId: string): PageContext {
+  const { page } = context;
+  if (page.kind === 'types') {
+    if (page.slug !== 'image' && page.slug !== 'text') return { ...context, page: { ...page, slug: prefersTextView(userId) ? 'text' : 'image' } };
+    rememberTextView(userId, page.slug === 'text');
+    return context;
+  }
+  if (page.kind !== 'pokemon') return context;
+  if (page.game) {
+    rememberTextView(userId, pokemonView(page).text);
+    return context;
+  }
+  return { ...context, page: pokemonPage(page.slug, { shiny: false, text: prefersTextView(userId) }) };
+}
+
+/**
  * Open a page from a button or select on another. Whoever the message is for goes there on the message itself, anyone else gets the
  * page as an answer only they see, so the message stays as it is for everyone.
  */
@@ -134,7 +154,7 @@ export async function openPage(interaction: ButtonInteraction | StringSelectMenu
   else await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
   try {
     await loadPokedexData();
-    const answer = await renderPage(context, resolveLanguage(interaction.locale), t);
+    const answer = await renderPage(withPreferredView(context, interaction.user.id), resolveLanguage(interaction.locale), t);
     if (!answer) return sendError(interaction, t('system.outdated'));
     // The pictures of the page before, like the Pokédex card, are replaced by this one's, or none
     return own ? interaction.editReply({ ...answer, files: answer.files ?? [], attachments: [] }) : sendResponse(interaction, answer);

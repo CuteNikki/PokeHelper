@@ -7,7 +7,7 @@ import { SECOND } from 'utility/duration';
 import { getTranslate, resolveLanguage, type Translate } from 'utility/i18next';
 import { answerPokeApiError } from 'utility/pokedex/api';
 import { findNamed, loadPokedexData, MAX_NAME_INPUT, nameOf, type NameTable, searchNamed } from 'utility/pokedex/names';
-import { renderPage } from 'utility/pokedex/pageRender';
+import { renderPage, withPreferredView } from 'utility/pokedex/pageRender';
 import type { DexPage, PageKind } from 'utility/pokedex/pages';
 import { replaceWithError, sendResponse } from 'utility/response';
 
@@ -78,7 +78,7 @@ export function lookupCommand(options: {
         // What's typed doesn't have to be one of the suggestions, so it's looked up by any name
         const slug = input ? findNamed(options.table, input, options.only) : null;
         const page = slug ? { kind: options.kind, slug } : input ? null : (options.empty ?? null);
-        const answer = page ? await renderPage({ page, back: null }, language, t) : null;
+        const answer = page ? await renderPage(withPreferredView({ page, back: null }, interaction.user.id), language, t) : null;
         if (!answer) return await replaceWithError(interaction, options.notFound(input ?? '', t));
         return await sendResponse(interaction, answer);
       } catch (error) {

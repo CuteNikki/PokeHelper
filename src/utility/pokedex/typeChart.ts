@@ -33,7 +33,7 @@ export async function allTypeRelations(): Promise<Record<string, ApiDamageRelati
 const chartButton = (context: PageContext, t: Translate) =>
   context.back?.kind === 'types'
     ? null
-    : pageButton({ kind: 'types', slug: 'image' }, context.page).setEmoji(buttonIcon('chart-column')).setLabel(t('types.chart.button'));
+    : pageButton({ kind: 'types', slug: 'all' }, context.page).setEmoji(buttonIcon('chart-column')).setLabel(t('types.chart.button'));
 
 /**
  * A type: what its moves are strong and weak against, and what it's weak to and resists, with links to those types.
@@ -94,7 +94,8 @@ export async function buildTypePage(slug: string, language: string, t: Translate
 
 /**
  * The chart of all types: what each is strong against and weak to, as a card like the Pokédex's, or as text, like for screen readers.
- * @param context The page, with `text` as its slug for the text.
+ * @param context The page, with `text` as its slug for the text, `image` for the card, and anything else, like `all`, for how someone last
+ * looked at entries when it's opened by them.
  * @throws {PokeApiError} When PokéAPI can't be reached.
  */
 export async function buildTypeChart(language: string, t: Translate, context: PageContext): Promise<ResponsePayload> {

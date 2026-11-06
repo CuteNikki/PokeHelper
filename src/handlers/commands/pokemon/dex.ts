@@ -7,7 +7,7 @@ import { getTranslate, resolveLanguage } from 'utility/i18next';
 import { answerPokeApiError } from 'utility/pokedex/api';
 import { namesForSuggestions } from 'utility/pokedex/lookupCommand';
 import { loadPokedexData, MAX_NAME_INPUT } from 'utility/pokedex/names';
-import { renderPage } from 'utility/pokedex/pageRender';
+import { renderPage, withPreferredView } from 'utility/pokedex/pageRender';
 import { decodePage, encodePage } from 'utility/pokedex/pages';
 import { findAnything, searchEverything } from 'utility/pokedex/search';
 import { replaceWithError, sendResponse } from 'utility/response';
@@ -52,7 +52,7 @@ export default new Command({
       await loadPokedexData();
       // A suggestion is the page itself, anything else is looked up by its name or number
       const page = decodePage(input) ?? findAnything(input);
-      const answer = page ? await renderPage({ page, back: null }, resolveLanguage(interaction.locale), t) : null;
+      const answer = page ? await renderPage(withPreferredView({ page, back: null }, interaction.user.id), resolveLanguage(interaction.locale), t) : null;
       if (!answer) return await replaceWithError(interaction, t('dex.notFound', { name: input }));
       return await sendResponse(interaction, answer);
     } catch (error) {

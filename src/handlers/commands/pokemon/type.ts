@@ -8,6 +8,6 @@ export default lookupCommand({
   kind: 'type',
   only: isType,
   option: { name: 'type', description: 'The type. Leave it empty for the chart of all types', required: false },
-  empty: { kind: 'types', slug: 'image' },
+  empty: { kind: 'types', slug: 'all' },
   notFound: (input, t) => t('types.notFound', { name: input }),
 });

@@ -34,6 +34,19 @@ export interface DexPage {
   game?: string | null;
 }
 
+/**
+ * A Pokémon's page as it's shown, so going back to it shows it the same way: its game is `t` for text, `s` for the shiny pictures,
+ * `st` for both, and nothing for the card.
+ */
+export const pokemonPage = (slug: string, view: { shiny: boolean; text: boolean }): DexPage => ({
+  kind: 'pokemon',
+  slug,
+  game: `${view.shiny ? 's' : ''}${view.text ? 't' : ''}` || null,
+});
+
+/** How a Pokémon's page is shown, from {@link pokemonPage}. */
+export const pokemonView = (page: DexPage) => ({ shiny: page.game?.includes('s') ?? false, text: page.game?.includes('t') ?? false });
+
 /** Where a page is, and the page it was opened from, for its Back button. */
 export interface PageContext {
   page: DexPage;

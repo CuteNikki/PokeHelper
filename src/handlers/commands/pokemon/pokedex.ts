@@ -7,6 +7,7 @@ import { SECOND } from 'utility/duration';
 import { getTranslate, resolveLanguage } from 'utility/i18next';
 import { answerPokeApiError } from 'utility/pokedex/api';
 import { buildPokedexEntry } from 'utility/pokedex/entry';
+import { prefersTextView, rememberTextView } from 'utility/pokedex/viewPreference';
 import { findPokemon, formatDexNumber, loadPokedexData, matchName, matchSlug, searchPokemon } from 'utility/pokedex/names';
 import { replaceWithError, sendResponse } from 'utility/response';
 
@@ -46,6 +47,10 @@ export default new Command({
   async execute(interaction) {
     const t = getTranslate(interaction.locale);
     const input = interaction.options.getString('pokemon', true);
+    // Like they looked at entries last, unless they say
+    const chosen = interaction.options.getBoolean('text');
+    if (chosen !== null) rememberTextView(interaction.user.id, chosen);
+    const text = chosen ?? prefersTextView(interaction.user.id);
 
     // PokéAPI can take a moment the first time a Pokémon is looked up
     await interaction.deferReply();
@@ -53,9 +58,7 @@ export default new Command({
       await loadPokedexData();
       // What's typed doesn't have to be one of the suggestions, so it's looked up by any name or number
       const match = findPokemon(input);
-      const entry = match
-        ? await buildPokedexEntry(match, { shiny: false, text: interaction.options.getBoolean('text') ?? false }, resolveLanguage(interaction.locale), t)
-        : null;
+      const entry = match ? await buildPokedexEntry(match, { shiny: false, text }, resolveLanguage(interaction.locale), t) : null;
       if (!entry) return replaceWithError(interaction, t('pokedex.notFound', { name: input }));
       return sendResponse(interaction, entry);
     } catch (error) {
