@@ -79,7 +79,10 @@ async function buildInfo(counting: GuildCounting, t: Translate): Promise<string[
   if (!run || counting.lastNumber === 0) {
     lines.push(t('counting.info.notStarted', { channel: channelMention(counting.channelId) }));
   } else {
-    lines.push(t('counting.info.currentRun', { run: await getRunNumber(counting.guildId, run.id) }), ...(await describeCurrentRun(counting, run, t)));
+    lines.push(
+      t('counting.info.currentRun', { run: formatNumber(await getRunNumber(counting.guildId, run.id), t) }),
+      ...(await describeCurrentRun(counting, run, t)),
+    );
   }
 
   if (counting.highestNumber > 0 && counting.highestNumberByUserId && counting.highestNumberAt) {
@@ -155,7 +158,7 @@ async function buildUser(guildId: string, userId: string, t: Translate): Promise
 
   return [
     t('counting.user.title', { user: userMention(userId) }),
-    ...(stats.counted > 0 ? [t('counting.user.rank', { rank: stats.rank })] : []),
+    ...(stats.counted > 0 ? [t('counting.user.rank', { rank: formatNumber(stats.rank, t) })] : []),
     t('counting.user.counted', { counted: formatNumber(stats.counted, t) }),
     t('counting.user.mistakes', { mistakes: formatNumber(stats.mistakes, t) }),
     t('counting.user.accuracy', { accuracy: accuracy(stats.counted, stats.mistakes) }),

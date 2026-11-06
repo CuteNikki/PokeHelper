@@ -25,7 +25,7 @@ import {
   type CountMessage,
 } from 'utility/counting/rules';
 import { parseCount } from 'utility/counting/parse';
-import { SECOND } from 'utility/duration';
+import { formatNumber, SECOND } from 'utility/duration';
 import { guildTranslate } from 'utility/i18next';
 import { logger } from 'utility/logger';
 import { KeyedQueue } from 'utility/queue';
@@ -102,8 +102,8 @@ export async function handleCountingMessage(client: Client, message: Message<tru
     // With more than one life, say that they ran out, as the count didn't reset on the first mistake
     const content =
       counting.maxLives !== null && counting.maxLives > 1
-        ? t('counting.outOfLives', { number: counting.lastNumber, lives: formatLives(counting.maxLives, counting.maxLives) })
-        : t('counting.reset', { number: counting.lastNumber });
+        ? t('counting.outOfLives', { number: formatNumber(counting.lastNumber, t), lives: formatLives(counting.maxLives, counting.maxLives) })
+        : t('counting.reset', { number: formatNumber(counting.lastNumber, t) });
     await message
       .reply({ ...createResponse(content, 'error'), allowedMentions: { repliedUser: false } })
       .catch(logFailure('Failed to send counting reset message'));
@@ -113,11 +113,11 @@ export async function handleCountingMessage(client: Client, message: Message<tru
   let content: string;
   if (processed.outcome === 'lifeLost' && counting.maxLives !== null) {
     const livesLeft = processed.state.livesLeft;
-    content = t('counting.lifeLost', { number: counting.lastNumber, lives: formatLives(livesLeft, counting.maxLives), count: livesLeft });
+    content = t('counting.lifeLost', { number: formatNumber(counting.lastNumber, t), lives: formatLives(livesLeft, counting.maxLives), count: livesLeft });
   } else if (processed.check?.result === 'consecutive') {
     content = t('counting.noConsecutive');
   } else {
-    content = t('counting.wrongNumber', { number: counting.lastNumber });
+    content = t('counting.wrongNumber', { number: formatNumber(counting.lastNumber, t) });
   }
 
   const warning = await message
@@ -233,9 +233,11 @@ async function syncCounting(client: Client, counting: GuildCounting): Promise<Gu
       ...(replay.livesLost > 0 ? [t('counting.sync.livesLost', { count: replay.livesLost })] : []),
       ...(replay.livesGained > 0 ? [t('counting.sync.livesGained', { count: replay.livesGained })] : []),
       // Only the first few, so a burst of wrong numbers can't make the summary longer than a message can be
-      ...resets.slice(0, MAX_RESETS_LISTED).map((reset) => t('counting.sync.reset', { number: reset.number, user: userMention(reset.userId) })),
+      ...resets
+        .slice(0, MAX_RESETS_LISTED)
+        .map((reset) => t('counting.sync.reset', { number: formatNumber(reset.number, t), user: userMention(reset.userId) })),
       ...(resets.length > MAX_RESETS_LISTED ? [t('counting.sync.moreResets', { count: resets.length - MAX_RESETS_LISTED })] : []),
-      t('counting.sync.next', { number: state.lastNumber + 1 }),
+      t('counting.sync.next', { number: formatNumber(state.lastNumber + 1, t) }),
       ...(counting.maxLives !== null && counting.maxLives > 1 ? [t('counting.sync.lives', { lives: formatLives(state.livesLeft, counting.maxLives) })] : []),
     ];
     await channel
@@ -284,7 +286,11 @@ export async function handleChangedCount(message: Message | PartialMessage, edit
   const repost = await channel
     .send({
       ...createResponse(
-        t('counting.removed', { number: counting.lastNumber, user: userMention(counting.lastNumberByUserId), next: counting.lastNumber + 1 }),
+        t('counting.removed', {
+          number: formatNumber(counting.lastNumber, t),
+          user: userMention(counting.lastNumberByUserId),
+          next: formatNumber(counting.lastNumber + 1, t),
+        }),
         'warning',
       ),
       allowedMentions: { parse: [] },
