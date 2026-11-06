@@ -8,7 +8,6 @@ import { CHANNEL_FIELDS, groupChannelOf, LOG_EVENTS, LOG_GROUPS, type LogEvent, 
 import { forgetLogConfig, LOG_CHANNEL_PERMISSIONS } from 'utility/logs/send';
 import { createSettingsPanel, MESSAGE_CHANNEL_TYPES, type Setting } from 'utility/settings';
 
-
 /** A group's page: its channel, then a switch for each of its events. */
 function groupSettings(group: LogGroup): Setting<GuildLogs>[] {
   const field = CHANNEL_FIELDS[group];
