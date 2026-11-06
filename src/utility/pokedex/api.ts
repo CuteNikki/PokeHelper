@@ -1,6 +1,8 @@
-import { loadImage, type Image } from '@napi-rs/canvas';
+import { type Image } from '@napi-rs/canvas';
 import type { RepliableInteraction } from 'discord.js';
 
+import { RecentCache } from 'utility/cache';
+import { fetchImage } from 'utility/canvas';
 import { SECOND } from 'utility/duration';
 import type { Translate } from 'utility/i18next';
 import { logger } from 'utility/logger';
@@ -104,44 +106,17 @@ export async function answerPokeApiError(interaction: RepliableInteraction, erro
   return replace ? replaceWithError(interaction, t('pokedex.unavailable')) : sendError(interaction, t('pokedex.unavailable'));
 }
 
-/** A cache that keeps the most recently used, up to a limit. Waiting answers are kept too, so asking twice at once fetches once. */
-class RecentCache {
-  private readonly entries = new Map<string, Promise<unknown>>();
-
-  constructor(private readonly limit: number) {}
-
-  get<T>(key: string, load: () => Promise<T>): Promise<T> {
-    const cached = this.entries.get(key);
-    // Moved to the end, so the ones asked for least recently are first in line to go
-    this.entries.delete(key);
-    if (cached) {
-      this.entries.set(key, cached);
-      return cached as Promise<T>;
-    }
-
-    const request = load();
-    this.entries.set(key, request);
-    // Failures aren't kept, so the next try asks again
-    request.catch(() => this.entries.delete(key));
-    for (const oldest of this.entries.keys()) {
-      if (this.entries.size <= this.limit) break;
-      this.entries.delete(oldest);
-    }
-    return request;
-  }
-}
-
 /** Answers never change, so this only has to stop the cache from growing forever. */
-const answers = new RecentCache(500);
+const answers = new RecentCache<unknown>(500);
 /** Pictures take about 1 MB each once loaded, so fewer are kept. Enough for Eevee and all its evolutions a few times over. */
-const images = new RecentCache(60);
+const images = new RecentCache<Image>(60);
 
 /**
  * An answer from PokéAPI, cached so each Pokémon is only fetched once.
  * @returns The answer, or null if it doesn't exist.
  */
 function get<T>(path: string): Promise<T | null> {
-  return answers.get(path, () => fetchJson<T>(`${API_URL}/${path}`, path, { allowMissing: true }));
+  return answers.get(path, () => fetchJson<T>(`${API_URL}/${path}`, path, { allowMissing: true })) as Promise<T | null>;
 }
 
 export const getPokemon = (slug: string) => get<ApiPokemon>(`pokemon/${encodeURIComponent(slug)}`);
@@ -162,13 +137,6 @@ const ARTWORK_URL = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sp
 
 /** The official artwork of a species by its Pokédex number, without asking PokéAPI where it is. */
 export const artworkUrl = (id: number, shiny: boolean) => `${ARTWORK_URL}/${shiny ? 'shiny/' : ''}${id}.png`;
-
-/** Load a picture, with a timeout, as loading it from its URL directly would wait forever on a connection that hangs. */
-async function fetchImage(url: string): Promise<Image> {
-  const response = await fetch(url, { signal: AbortSignal.timeout(TIMEOUT) });
-  if (!response.ok) throw new PokeApiError(`The picture at ${url} answered ${response.status}`);
-  return loadImage(Buffer.from(await response.arrayBuffer()));
-}
 
 /** A picture, cached. Null if it can't be loaded, so a missing picture leaves a gap instead of failing. */
 export const getImage = (url: string): Promise<Image | null> => images.get(url, () => fetchImage(url)).catch(() => null);

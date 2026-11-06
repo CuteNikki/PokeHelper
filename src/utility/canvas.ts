@@ -1,4 +1,7 @@
-import type { Image, SKRSContext2D } from '@napi-rs/canvas';
+import { loadImage, type Image, type SKRSContext2D } from '@napi-rs/canvas';
+
+import { RecentCache } from 'utility/cache';
+import { MINUTE, SECOND } from 'utility/duration';
 
 /** Shorten text with `...` until it fits the width, in the context's current font. */
 export function truncateText(ctx: SKRSContext2D, text: string, maxWidth: number): string {
@@ -126,3 +129,23 @@ export function drawTypeBadge(ctx: SKRSContext2D, type: { name: string; color: s
   ctx.fillText(truncateText(ctx, label, badgeWidth - 16), x + badgeWidth / 2, y + height / 2 + 1);
   return badgeWidth;
 }
+
+/** How long to wait for a picture from the web. */
+const IMAGE_TIMEOUT = 10 * SECOND;
+
+/**
+ * Load a picture from the web, with a timeout, as loading it from its URL directly would wait forever on a connection that hangs.
+ * Throws when it can't be loaded, so a cache doesn't keep the failure.
+ */
+export async function fetchImage(url: string): Promise<Image> {
+  const response = await fetch(url, { signal: AbortSignal.timeout(IMAGE_TIMEOUT) });
+  if (!response.ok) throw new Error(`The picture at ${url} answered ${response.status}`);
+  return loadImage(Buffer.from(await response.arrayBuffer()));
+}
+
+/** Avatars shown recently, for 15 minutes, as the same leaderboard pages and rank cards are often looked at a few times in a row. */
+const avatars = new RecentCache<Image>(500, 15 * MINUTE);
+
+/** Someone's avatar, cached for a while. Null if they have none here or it can't be loaded, so a missing one leaves a gap. */
+export const loadAvatar = (url: string | null): Promise<Image | null> =>
+  url ? avatars.get(url, () => fetchImage(url)).catch(() => null) : Promise.resolve(null);

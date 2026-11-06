@@ -1,4 +1,4 @@
-import { createCanvas, loadImage, type Image, type SKRSContext2D } from '@napi-rs/canvas';
+import { createCanvas, type Image, type SKRSContext2D } from '@napi-rs/canvas';
 import {
   ActionRowBuilder,
   ButtonBuilder,
@@ -14,8 +14,8 @@ import {
 
 import { getLevelFromXP, getTopUsersByXP, getTotalUsersWithXP, type LevelPeriod } from 'database/leveling';
 
-import { drawAvatar, truncateText } from 'utility/canvas';
-import { formatCompactNumber, formatNumber, MINUTE } from 'utility/duration';
+import { drawAvatar, loadAvatar, truncateText } from 'utility/canvas';
+import { formatCompactNumber, formatNumber } from 'utility/duration';
 import type { Translate } from 'utility/i18next';
 import { leaderboardCustomId, nextPeriod, type LeaderboardView } from 'utility/leveling/leaderboardView';
 import { buildPageRow, clampPage, findMeButton, type PageButton } from 'utility/pagination';
@@ -29,36 +29,6 @@ const TITLE_KEYS = {
   weekly: 'leveling.leaderboard.titleWeekly',
   monthly: 'leveling.leaderboard.titleMonthly',
 } as const satisfies Record<LevelPeriod, string>;
-
-// Avatars of recently shown leaderboards, kept for 15 minutes, as the same pages are often looked at a few times in a row
-const avatarCache = new Map<string, { image: Image; expiresAt: number }>();
-const CACHE_TTL = 15 * MINUTE;
-/** The most avatars kept, so the cache can't grow forever. */
-const CACHE_SIZE = 500;
-
-async function getCachedAvatar(url: string | null): Promise<Image | null> {
-  if (!url) return null;
-
-  const now = Date.now();
-  const cached = avatarCache.get(url);
-  if (cached && cached.expiresAt > now) {
-    return cached.image;
-  }
-
-  try {
-    const image = await loadImage(url);
-    // Re-added at the end, so the oldest avatars are first in line to go
-    avatarCache.delete(url);
-    avatarCache.set(url, { image, expiresAt: now + CACHE_TTL });
-    for (const [key, entry] of avatarCache) {
-      if (avatarCache.size <= CACHE_SIZE && entry.expiresAt > now) break;
-      avatarCache.delete(key);
-    }
-    return image;
-  } catch {
-    return null;
-  }
-}
 
 export interface LeaderboardEntry {
   userId: string;
@@ -349,7 +319,7 @@ export async function buildLeaderboard(requested: LeaderboardView, guild: Guild,
   const entries: LeaderboardEntry[] = await Promise.all(
     entriesData.map(async (entry) => ({
       ...entry,
-      avatarImage: await getCachedAvatar(entry.avatarUrl),
+      avatarImage: await loadAvatar(entry.avatarUrl),
     })),
   );
 

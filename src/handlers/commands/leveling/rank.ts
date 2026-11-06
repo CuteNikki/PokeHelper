@@ -1,10 +1,10 @@
-import { loadImage } from '@napi-rs/canvas';
 import { ApplicationIntegrationType, InteractionContextType, MessageFlags, SlashCommandBuilder, userMention } from 'discord.js';
 
 import { Command } from 'classes/base/command';
 
 import { getGuildLevelingConfiguration, getLevelFromXP, getUserLevelingData, getUserRank, getXPForLevel, type LevelPeriod } from 'database/leveling';
 
+import { loadAvatar } from 'utility/canvas';
 import { formatNumber } from 'utility/duration';
 import { getTranslate, type Translate } from 'utility/i18next';
 import { renderRankCard, type LevelProgress } from 'utility/leveling/rankCard';
@@ -81,7 +81,7 @@ export default new Command({
       return interaction.editReply({ ...createResponse(content, 'info'), allowedMentions: { parse: [] } });
     }
 
-    const avatar = await loadImage(targetUser.displayAvatarURL({ extension: 'png', size: 256 })).catch(() => null);
+    const avatar = await loadAvatar(targetUser.displayAvatarURL({ extension: 'png', size: 256 }));
     const image = renderRankCard({ displayName, username: targetUser.username, avatar, allTime, weekly }, t);
 
     const description = t('leveling.rank.altText', {
