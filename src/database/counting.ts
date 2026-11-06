@@ -1,7 +1,7 @@
 import { prisma } from 'database/index';
 
 import type { GuildCounting, Prisma } from 'generated/prisma/client';
-import type { CountingEvent, CountingState } from 'utility/counting/rules';
+import { isMilestone, type CountingEvent, type CountingState } from 'utility/counting/rules';
 
 /**
  * Get the counting configuration for a guild.
@@ -88,7 +88,10 @@ export const saveCountingProgress = async (guildId: string, previousCheckedMessa
           if (run) await tx.countingRun.update({ where: { id: run.id }, data: { endedAt: event.at } });
           run = await tx.countingRun.create({ data: { guildId, startedAt: event.number === 1 ? event.at : null } });
         }
-        entries.push({ runId: run.id, guildId, number: event.number, userId: event.userId, messageId: event.messageId, countedAt: event.at });
+        // Only milestones are looked back at, so the other numbers aren't kept, as a busy game counts thousands
+        if (isMilestone(event.number)) {
+          entries.push({ runId: run.id, guildId, number: event.number, userId: event.userId, messageId: event.messageId, countedAt: event.at });
+        }
         const stats = userStats(event.userId);
         stats.counted++;
         stats.lastCountedAt = event.at;

@@ -228,7 +228,7 @@ model CountingRun {
   @@index([endedByUserId])
 }
 
-// A number that was counted correctly
+// A milestone that was counted, like 100 or 250. Other numbers aren't kept, as they're never looked at
 model CountingEntry {
   id      Int         @id @default(autoincrement())
   runId   Int
