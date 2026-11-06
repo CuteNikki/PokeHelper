@@ -30,8 +30,11 @@ export interface PokedexCardData {
   totalLabel: string;
   /** The Pokédex text. */
   entry: string | null;
-  /** Labeled values in a row below the entry, like height, weight and abilities. The last one gets the space that's left. */
-  details: { label: string; value: string }[];
+  /**
+   * Rows of labeled values below the entry, like height, weight and abilities, then breeding. The last of a row gets the space
+   * that's left.
+   */
+  details: { label: string; value: string }[][];
   /** The evolution chain by stage, branches side by side. Empty when it doesn't evolve. */
   evolution: PokedexCardEvolution[][];
   evolutionLabel: string;
@@ -53,6 +56,8 @@ const ENTRY_LINE_HEIGHT = 25;
 /** The most lines of Pokédex text, which is plenty for any of them. */
 const ENTRY_MAX_LINES = 4;
 const DETAILS_HEIGHT = 50;
+/** The space between rows of details, so they don't run together. */
+const DETAILS_ROW_GAP = 18;
 const ARTWORK_SIZE = 260;
 /** Bars are full at this value. A few Pokémon go higher, up to 255, but scaling to that makes nearly every bar look short. */
 export const STAT_BAR_MAX = 200;
@@ -207,7 +212,8 @@ function wrapText(ctx: SKRSContext2D, text: string, maxWidth: number, maxLines: 
 }
 
 /** The height of the section with the Pokédex text and the details. */
-const aboutHeight = (entryLines: number) => 28 + entryLines * ENTRY_LINE_HEIGHT + (entryLines > 0 ? 16 : 0) + DETAILS_HEIGHT + 20;
+const aboutHeight = (entryLines: number, detailRows: number) =>
+  28 + entryLines * ENTRY_LINE_HEIGHT + (entryLines > 0 ? 16 : 0) + detailRows * DETAILS_HEIGHT + Math.max(0, detailRows - 1) * DETAILS_ROW_GAP + 20;
 
 /** The Pokédex text, then the details side by side with their labels above. */
 function drawAbout(ctx: SKRSContext2D, data: PokedexCardData, entryLines: string[], y: number) {
@@ -217,10 +223,15 @@ function drawAbout(ctx: SKRSContext2D, data: PokedexCardData, entryLines: string
   ctx.fillStyle = COLORS.textWhite;
   entryLines.forEach((line, index) => ctx.fillText(line, PADDING, y + 28 + 14 + index * ENTRY_LINE_HEIGHT));
 
-  const detailsY = y + 28 + entryLines.length * ENTRY_LINE_HEIGHT + (entryLines.length > 0 ? 16 : 0);
+  const detailsTop = y + 28 + entryLines.length * ENTRY_LINE_HEIGHT + (entryLines.length > 0 ? 16 : 0);
+  data.details.forEach((row, rowIndex) => drawDetailRow(ctx, row, detailsTop + rowIndex * (DETAILS_HEIGHT + DETAILS_ROW_GAP)));
+}
+
+/** Labeled values side by side, each as wide as it needs, and the last as wide as what's left. */
+function drawDetailRow(ctx: SKRSContext2D, row: { label: string; value: string }[], detailsY: number) {
   let x = PADDING;
-  data.details.forEach((detail, index) => {
-    const last = index === data.details.length - 1;
+  row.forEach((detail, index) => {
+    const last = index === row.length - 1;
     ctx.font = 'bold 13px "Roboto"';
     const labelWidth = ctx.measureText(detail.label.toUpperCase()).width;
     ctx.font = '18px "Roboto", "EmojiFallback"';
@@ -248,7 +259,7 @@ export function renderPokedexCard(data: PokedexCardData): Buffer {
   measure.font = ENTRY_FONT;
   const entryLines = data.entry ? wrapText(measure, data.entry, WIDTH - PADDING * 2, ENTRY_MAX_LINES) : [];
   const aboutY = TOP_HEIGHT;
-  const evolutionY = aboutY + aboutHeight(entryLines.length);
+  const evolutionY = aboutY + aboutHeight(entryLines.length, data.details.length);
   const howLineCount = hasEvolution ? mostHowLines(measure, data) : 0;
   const howHeight = howLineCount > 0 ? EVOLUTION_HOW_GAP + howLineCount * EVOLUTION_HOW_LINE_HEIGHT : 0;
   const height = evolutionY + (hasEvolution ? EVOLUTION_HEIGHT + howHeight : 0);

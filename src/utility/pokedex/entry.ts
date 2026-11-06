@@ -52,6 +52,8 @@ import {
   matchSlug,
   MAX_NAME_INPUT,
   nameIn,
+  nameOf,
+  fromSlug,
   type PokedexMatch,
   speciesById,
 } from 'utility/pokedex/names';
@@ -156,6 +158,21 @@ function flavorText(species: ApiSpecies, language: string): string | null {
         .trim()
     : null;
 }
+
+/** How many are male and female, like `87.5% male, 12.5% female`, from the chance of being female in eighths, or that it has no gender. */
+export function genderRatio(femaleEighths: number, t: Translate): string {
+  if (femaleEighths < 0) return t('pokedex.gender.none');
+  const percent = (eighths: number) => formatNumber(eighths / 8, t, { style: 'percent', maximumFractionDigits: 1 });
+  if (femaleEighths === 0) return t('pokedex.gender.male', { percent: percent(8) });
+  if (femaleEighths === 8) return t('pokedex.gender.female', { percent: percent(8) });
+  return t('pokedex.gender.both', { male: percent(8 - femaleEighths), female: percent(femaleEighths) });
+}
+
+const GROWTH_RATES = ['slow', 'medium', 'fast', 'medium-slow', 'slow-then-very-fast', 'fast-then-very-slow'] as const;
+
+/** How fast it levels up, like `Medium Fast`, as the games call it. */
+const growthRate = (slug: string, t: Translate) =>
+  (GROWTH_RATES as readonly string[]).includes(slug) ? t(`pokedex.growth.${slug as (typeof GROWTH_RATES)[number]}`) : fromSlug(slug);
 
 /** A species' kind in the language, or English, like "Mouse Pokémon". */
 function genus(species: ApiSpecies, language: string): string | null {
@@ -322,6 +339,14 @@ export async function buildPokedexEntry(match: PokedexMatch, view: PokedexView, 
     { label: t('pokedex.details.weight'), value: `${format(pokemon.weight / 10)} kg` },
     { label: t('pokedex.details.abilities'), value: abilities.join(', ') },
   ];
+  // How it's bred and raised, in a row of its own
+  const breeding = [
+    { label: t('pokedex.details.eggGroups'), value: species.egg_groups.map((group) => nameOf('eggGroups', group.name, language)).join(', ') },
+    { label: t('pokedex.details.gender'), value: genderRatio(species.gender_rate, t) },
+    { label: t('pokedex.details.catchRate'), value: format(species.capture_rate) },
+    ...(species.hatch_counter === null ? [] : [{ label: t('pokedex.details.eggCycles'), value: format(species.hatch_counter) }]),
+    { label: t('pokedex.details.growth'), value: growthRate(species.growth_rate.name, t) },
+  ];
   const statsText = [...stats.map((stat) => `${stat.label} ${stat.value}`), `${t('pokedex.stats.total')} ${total}`];
   const evolutionText = evolves
     ? stages.map((stage) => stage.map((member) => (member.how ? `${speciesName(member)} (${member.how})` : speciesName(member))).join(' / ')).join(' → ')
@@ -348,7 +373,7 @@ export async function buildPokedexEntry(match: PokedexMatch, view: PokedexView, 
     const firstType = pokemon.types.find((entry) => entry.slot === 1)?.type.name ?? 'normal';
     const about = [
       `${bold(t('pokedex.details.type'))} ${types.map((type) => withTypeEmoji(type.slug, type.name)).join(', ')}`,
-      ...details.map((detail) => `${bold(detail.label)} ${detail.value}`),
+      ...[...details, ...breeding].map((detail) => `${bold(detail.label)} ${detail.value}`),
     ];
     const statLines = [
       heading(t('pokedex.stats.heading', { total: format(total) }), HeadingLevel.Three),
@@ -400,7 +425,7 @@ export async function buildPokedexEntry(match: PokedexMatch, view: PokedexView, 
       stats,
       totalLabel: t('pokedex.stats.total'),
       entry,
-      details,
+      details: [details, breeding],
       evolution,
       evolutionLabel: t('pokedex.evolution.title'),
     });
@@ -410,7 +435,7 @@ export async function buildPokedexEntry(match: PokedexMatch, view: PokedexView, 
       genus: kind,
       types: types.map((type) => type.name).join(', '),
       stats: statsText.join(', '),
-      details: details.map((detail) => `${detail.label} ${detail.value}`).join(', '),
+      details: [...details, ...breeding].map((detail) => `${detail.label} ${detail.value}`).join(', '),
       evolution: evolutionText,
       entry: entry ?? '',
     });

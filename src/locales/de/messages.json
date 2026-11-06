@@ -366,7 +366,12 @@
       "height": "Größe",
       "weight": "Gewicht",
       "abilities": "Fähigkeiten",
-      "type": "Typ"
+      "type": "Typ",
+      "eggGroups": "Ei-Gruppen",
+      "gender": "Geschlecht",
+      "catchRate": "Fangrate",
+      "eggCycles": "Ei-Zyklen",
+      "growth": "Wachstum"
     },
     "shinyName": "Schillerndes {{name}}",
     "picture": "Offizielles Artwork von {{name}}",
@@ -390,6 +395,20 @@
     "view": {
       "text": "Als Text anzeigen",
       "image": "Als Bild anzeigen"
+    },
+    "gender": {
+      "none": "Geschlechtslos",
+      "male": "{{percent}} männlich",
+      "female": "{{percent}} weiblich",
+      "both": "{{male}} männlich, {{female}} weiblich"
+    },
+    "growth": {
+      "slow": "Langsam",
+      "medium": "Mittelschnell",
+      "fast": "Schnell",
+      "medium-slow": "Mittellangsam",
+      "slow-then-very-fast": "Unregelmäßig",
+      "fast-then-very-slow": "Schwankend"
     }
   },
   "friendCodes": {

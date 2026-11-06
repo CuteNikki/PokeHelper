@@ -39,6 +39,14 @@ export interface ApiSpecies {
   genera: { genus: string; language: Named }[];
   flavor_text_entries: { flavor_text: string; language: Named; version: Named }[];
   evolution_chain: { url: string } | null;
+  /** The chance of being female in eighths, or -1 for no gender. */
+  gender_rate: number;
+  /** From 3, hardest, to 255, easiest. */
+  capture_rate: number;
+  /** Egg cycles until its egg hatches. Null for those that can't hatch from one. */
+  hatch_counter: number | null;
+  growth_rate: Named;
+  egg_groups: Named[];
 }
 
 /** How a Pokémon evolves in one game. Anything it doesn't need is null, false or empty. */

@@ -818,7 +818,12 @@
       "height": "Height",
       "weight": "Weight",
       "abilities": "Abilities",
-      "type": "Type"
+      "type": "Type",
+      "eggGroups": "Egg groups",
+      "gender": "Gender",
+      "catchRate": "Catch rate",
+      "eggCycles": "Egg cycles",
+      "growth": "Growth"
     },
     "shinyName": "Shiny {{name}}",
     "picture": "Official artwork of {{name}}",
@@ -842,6 +847,20 @@
     "view": {
       "text": "Show as text",
       "image": "Show as image"
+    },
+    "gender": {
+      "none": "Genderless",
+      "male": "{{percent}} male",
+      "female": "{{percent}} female",
+      "both": "{{male}} male, {{female}} female"
+    },
+    "growth": {
+      "slow": "Slow",
+      "medium": "Medium Fast",
+      "fast": "Fast",
+      "medium-slow": "Medium Slow",
+      "slow-then-very-fast": "Erratic",
+      "fast-then-very-slow": "Fluctuating"
     }
   },
   "friendCodes": {
