@@ -1,6 +1,5 @@
 import {
   ActionRowBuilder,
-  bold,
   ButtonBuilder,
   ButtonStyle,
   channelMention,
@@ -94,7 +93,7 @@ export function getRoleMenuSettings(menuId: string): SettingsPanel {
     },
     notConfigured: (t) => t('roleMenu.notFound'),
     // Role menus are server settings, so there's always a server
-    header: (menu, { guild }, t) => (guild ? `${bold(roleMenuName(menu, guild, t))}\n${status(menu, guild, t)}` : null),
+    header: (menu, { guild }, t) => (guild ? status(menu, guild, t) : null),
     footer: (menu, t) => [
       new ButtonBuilder()
         .setCustomId(`${ROLE_MENU_CUSTOM_ID.repost}${menu.id}`)
