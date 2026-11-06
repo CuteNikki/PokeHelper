@@ -11,12 +11,6 @@ export const getGuildLevelingConfiguration = async (guildId: string) =>
     include: { rewards: true, multipliers: true },
   });
 
-export const createGuildLevelingConfiguration = async (guildId: string) =>
-  prisma.guildLeveling.create({
-    data: { guildId },
-    include: { rewards: true, multipliers: true },
-  });
-
 export const updateGuildLevelingConfiguration = async (guildId: string, query: Partial<Omit<GuildLeveling, 'guildId'>>) =>
   prisma.guildLeveling.upsert({
     where: { guildId },
@@ -27,56 +21,6 @@ export const updateGuildLevelingConfiguration = async (guildId: string, query: P
 
 // Rewards and multipliers go along through the database. Nothing to delete, like when reset twice, is fine
 export const deleteGuildLevelingConfiguration = async (guildId: string) => prisma.guildLeveling.deleteMany({ where: { guildId } });
-
-export const addIgnoredChannel = async (guildId: string, channelId: string) =>
-  prisma.guildLeveling.upsert({
-    where: { guildId },
-    update: { ignoredChannels: { push: channelId } },
-    create: { guildId, ignoredChannels: [channelId] },
-  });
-
-export const addIgnoredRole = async (guildId: string, roleId: string) =>
-  prisma.guildLeveling.upsert({
-    where: { guildId },
-    update: { ignoredRoles: { push: roleId } },
-    create: { guildId, ignoredRoles: [roleId] },
-  });
-
-export const addEnabledChannel = async (guildId: string, channelId: string) =>
-  prisma.guildLeveling.upsert({
-    where: { guildId },
-    update: { enabledChannels: { push: channelId } },
-    create: { guildId, enabledChannels: [channelId] },
-  });
-
-export const addEnabledRole = async (guildId: string, roleId: string) =>
-  prisma.guildLeveling.upsert({
-    where: { guildId },
-    update: { enabledRoles: { push: roleId } },
-    create: { guildId, enabledRoles: [roleId] },
-  });
-
-export const addGuildLevelingReward = async (guildId: string, level: number, roleId: string) =>
-  prisma.guildLevelingReward.create({
-    data: {
-      guildId,
-      level,
-      roleId,
-    },
-  });
-
-export const setWeeklyRewardRole = async (guildId: string, roleId: string) =>
-  prisma.guildLeveling.upsert({
-    where: { guildId },
-    update: { weeklyReward: roleId },
-    create: { guildId, weeklyReward: roleId },
-    include: { rewards: true, multipliers: true },
-  });
-
-export const deleteGuildLevelingReward = async (id: string) =>
-  prisma.guildLevelingReward.delete({
-    where: { id },
-  });
 
 /** Which XP: all of it, or what was earned since the last weekly or monthly reset. */
 export type LevelPeriod = 'allTime' | 'weekly' | 'monthly';

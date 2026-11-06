@@ -19,11 +19,6 @@ export const getOrCreateGuildBirthdayConfiguration = async (guildId: string) =>
     create: { guildId },
   });
 
-export const createGuildBirthdayConfiguration = async (guildId: string, channelId: string, roleId?: string) =>
-  prisma.guildBirthday.create({
-    data: { guildId, channelId, roleId },
-  });
-
 export const updateGuildBirthdayConfiguration = async (guildId: string, query: Partial<Omit<GuildBirthday, 'guildId'>>) =>
   prisma.guildBirthday.update({
     where: { guildId },
@@ -36,11 +31,6 @@ export const deleteGuildBirthdayConfiguration = async (guildId: string) => prism
 export const getUserBirthday = async (userId: string) =>
   prisma.userBirthday.findUnique({
     where: { userId },
-  });
-
-export const createUserBirthday = async (userId: string, date: Date, timezone: string, showAge: boolean = false, announceInGuildsByDefault: boolean = true) =>
-  prisma.userBirthday.create({
-    data: { userId, date, timezone, showAge, announceInGuildsByDefault },
   });
 
 export const updateUserBirthday = async (userId: string, query: Partial<Omit<UserBirthday, 'userId'>>) =>
