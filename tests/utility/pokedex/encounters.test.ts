@@ -31,12 +31,12 @@ const encounters: ApiEncounter[] = [
 test('groups the places by game, newest first, with the best chances first and the levels of all ways together', () => {
   setPokedexData({ versionOrder: { red: 1001, sword: 8020 } });
   expect(placesByGame(encounters)).toEqual([
-    { version: 'sword', places: [{ area: 'viridian-forest-area', methods: ['overworld'], minLevel: 10, maxLevel: 60, chance: 100 }] },
+    { version: 'sword', sightings: [{ name: 'viridian-forest-area', methods: ['overworld'], minLevel: 10, maxLevel: 60, chance: 100 }] },
     {
       version: 'red',
-      places: [
-        { area: 'kanto-route-2-area', methods: ['surf'], minLevel: 2, maxLevel: 4, chance: 20 },
-        { area: 'viridian-forest-area', methods: ['walk'], minLevel: 3, maxLevel: 5, chance: 5 },
+      sightings: [
+        { name: 'kanto-route-2-area', methods: ['surf'], minLevel: 2, maxLevel: 4, chance: 20 },
+        { name: 'viridian-forest-area', methods: ['walk'], minLevel: 3, maxLevel: 5, chance: 5 },
       ],
     },
   ]);

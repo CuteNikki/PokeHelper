@@ -66,30 +66,38 @@ const METHODS = [
 type Method = (typeof METHODS)[number];
 const isMethod = (slug: string): slug is Method => (METHODS as readonly string[]).includes(slug);
 
-/** Where a Pokémon is found in one game: each place, how, at which levels, and the best chance. */
-export interface GamePlace {
-  area: string;
+/**
+ * One way a Pokémon is met in one game: the area it's in, or the Pokémon met in an area, how, at which levels, and the best chance.
+ * `group` is what it's listed under, like the area of a place with several.
+ */
+export interface Sighting {
+  name: string;
+  group?: string;
   methods: string[];
   minLevel: number;
   maxLevel: number;
   chance: number;
 }
 
+/** What PokéAPI says about meeting a Pokémon in an area, in each game, with what it's about. */
+type Sightings = { name: string; group?: string; version_details: ApiEncounter['version_details'] }[];
+
 /**
- * The places by game, from PokéAPI's places by area. The newest games first, and in each game the places with the best chances.
- * @returns Each game's slug with its places.
+ * The sightings by game, newest first, and in each game the ones with the best chances first.
+ * @returns Each game's slug with its sightings.
  */
-export function placesByGame(encounters: ApiEncounter[]): { version: string; places: GamePlace[] }[] {
+export function sightingsByGame(entries: Sightings): { version: string; sightings: Sighting[] }[] {
   const order = getPokedexData().versionOrder;
-  const games = new Map<string, { order: number; places: GamePlace[] }>();
-  for (const encounter of encounters) {
-    for (const detail of encounter.version_details) {
-      const game = games.get(detail.version.name) ?? { order: order[detail.version.name] ?? idFromUrl(detail.version.url), places: [] };
+  const games = new Map<string, { order: number; sightings: Sighting[] }>();
+  for (const entry of entries) {
+    for (const detail of entry.version_details) {
+      const game = games.get(detail.version.name) ?? { order: order[detail.version.name] ?? idFromUrl(detail.version.url), sightings: [] };
       games.set(detail.version.name, game);
-      const levels = detail.encounter_details.flatMap((entry) => [entry.min_level, entry.max_level]);
-      game.places.push({
-        area: encounter.location_area.name,
-        methods: [...new Set(detail.encounter_details.map((entry) => entry.method.name))],
+      const levels = detail.encounter_details.flatMap((encounter) => [encounter.min_level, encounter.max_level]);
+      game.sightings.push({
+        name: entry.name,
+        ...(entry.group === undefined ? {} : { group: entry.group }),
+        methods: [...new Set(detail.encounter_details.map((encounter) => encounter.method.name))],
         minLevel: Math.min(...levels),
         maxLevel: Math.max(...levels),
         // Pokémon walking around add up to more than 100
@@ -97,29 +105,35 @@ export function placesByGame(encounters: ApiEncounter[]): { version: string; pla
       });
     }
   }
-  return [...games].sort(([, a], [, b]) => b.order - a.order).map(([version, game]) => ({ version, places: game.places.sort((a, b) => b.chance - a.chance) }));
+  return [...games]
+    .sort(([, a], [, b]) => b.order - a.order)
+    .map(([version, game]) => ({ version, sightings: game.sightings.sort((a, b) => b.chance - a.chance) }));
 }
 
-/** A place as a line, like `**Route 1** · Lv. 2–5 · Grass or cave · 50%`. */
-function placeLine(place: GamePlace, language: string, t: Translate): string {
+/** Where a Pokémon is found by game, from PokéAPI's places by area. */
+export const placesByGame = (encounters: ApiEncounter[]) =>
+  sightingsByGame(encounters.map((encounter) => ({ name: encounter.location_area.name, version_details: encounter.version_details })));
+
+/** A sighting as a line, like `**Route 1** · Lv. 2–5 · Grass or cave · 50%`, with what it's about already named. */
+export function sightingLine(sighting: Sighting, name: string, t: Translate): string {
   const method = (slug: string) => (isMethod(slug) ? t(`pokedex.where.methods.${slug}`) : fromSlug(slug));
   const levels =
-    place.minLevel === place.maxLevel
-      ? t('pokedex.where.level', { level: formatNumber(place.minLevel, t) })
-      : t('pokedex.where.levels', { min: formatNumber(place.minLevel, t), max: formatNumber(place.maxLevel, t) });
-  const chance = formatNumber(place.chance / 100, t, { style: 'percent' });
-  return [bold(nameOf('areas', place.area, language)), levels, [...new Set(place.methods.map(method))].join(', '), chance].join(' · ');
+    sighting.minLevel === sighting.maxLevel
+      ? t('pokedex.where.level', { level: formatNumber(sighting.minLevel, t) })
+      : t('pokedex.where.levels', { min: formatNumber(sighting.minLevel, t), max: formatNumber(sighting.maxLevel, t) });
+  const chance = formatNumber(sighting.chance / 100, t, { style: 'percent' });
+  return [bold(name), levels, [...new Set(sighting.methods.map(method))].join(', '), chance].join(' · ');
 }
 
 /** A game's name, with the ones only out in Japan marked, as they're called like the others, like Red. */
-const gameName = (version: string, language: string, t: Translate) =>
+export const gameName = (version: string, language: string, t: Translate) =>
   version.endsWith('-japan') ? t('pokedex.where.japan', { game: nameOf('versions', version, language) }) : nameOf('versions', version, language);
 
-/** The select of the games it's found in, with the one shown picked. */
-function gameSelect(slug: string, versions: string[], shown: string, language: string, t: Translate) {
+/** A select of games, with the one shown picked, that has the game as its value. */
+export function gameSelect(customId: string, versions: string[], shown: string, language: string, t: Translate) {
   return new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
     new StringSelectMenuBuilder()
-      .setCustomId(`${POKEDEX_WHERE_GAME_PREFIX}${slug}`)
+      .setCustomId(customId)
       .setPlaceholder(t('pokedex.where.select'))
       .addOptions(
         versions.slice(0, DiscordLimits.selectOptions).map((version) => ({
@@ -162,15 +176,15 @@ export async function buildWhereToFind(slug: string, version: string | null, lan
     return { components: [container], flags: [MessageFlags.IsComponentsV2] };
   }
 
-  const lines = game.places.slice(0, MAX_PLACES).map((place) => placeLine(place, language, t));
-  const more = game.places.length - MAX_PLACES;
+  const lines = game.sightings.slice(0, MAX_PLACES).map((place) => sightingLine(place, nameOf('areas', place.name, language), t));
+  const more = game.sightings.length - MAX_PLACES;
   if (more > 0) lines.push(subtext(t('pokedex.where.more', { count: more })));
   container
     .addTextDisplayComponents(new TextDisplayBuilder().setContent(lines.join('\n')))
     .addTextDisplayComponents(new TextDisplayBuilder().setContent(subtext(t('pokedex.where.note'))))
     .addActionRowComponents(
       gameSelect(
-        slug,
+        `${POKEDEX_WHERE_GAME_PREFIX}${slug}`,
         games.map((entry) => entry.version),
         game.version,
         language,
