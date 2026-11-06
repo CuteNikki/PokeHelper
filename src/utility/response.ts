@@ -22,11 +22,7 @@ export type ResponsePayload = Pick<BaseMessageOptions, 'components' | 'files' | 
   flags: [MessageFlags.IsComponentsV2];
 };
 
-/**
- * Create a Components V2 payload with a single text container.
- * @param content The text to show in the container.
- * @param kind The kind of response, which decides the accent color. Defaults to `info`.
- */
+/** A Components V2 message with one text container, in the accent color of its kind. */
 export const createResponse = (content: string, kind: ResponseKind = 'info'): ResponsePayload => ({
   components: [new ContainerBuilder().setAccentColor(ThemeColors[kind]).addTextDisplayComponents(new TextDisplayBuilder().setContent(content))],
   flags: [MessageFlags.IsComponentsV2],
@@ -54,9 +50,6 @@ export const withNotice = (content: string, kind: ResponseKind, payload: Respons
  * Never throws: failures are logged and `null` is returned.
  *
  * Ephemeral only applies to `reply` and `followUp`. After `deferReply`, the visibility chosen there is kept.
- * @param interaction The interaction to respond to.
- * @param payload The payload to send, usually from {@link createResponse}.
- * @param options.ephemeral Whether the response should only be visible to the user. Defaults to false.
  */
 export async function sendResponse(
   interaction: RepliableInteraction,
@@ -85,18 +78,13 @@ export async function sendResponse(
   }
 }
 
-/**
- * Shortcut for sending an ephemeral error response to an interaction. Never throws.
- * @param interaction The interaction to respond to.
- * @param content The error message to show.
- */
+/** An error only whoever used it sees. Never throws. */
 export const sendError = (interaction: RepliableInteraction, content: string) =>
   sendResponse(interaction, createResponse(content, 'error'), { ephemeral: true });
 
 /**
  * Returns a catch handler that logs the error with a message, for promises whose failure shouldn't stop the caller.
  * Use this instead of `.catch(() => null)` when the failure is unexpected and worth knowing about.
- * @param message The message to log alongside the error.
  * @example
  * await message.delete().catch(logFailure('Failed to delete counting message'));
  */

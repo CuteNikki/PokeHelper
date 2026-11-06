@@ -14,9 +14,6 @@ export interface RegistrationResult {
 /**
  * Register commands with Discord, replacing the ones registered before.
  * Developer commands only go to the developer server, so nobody else sees them, and are skipped without one.
- * @param rest A REST client with the bot's token.
- * @param applicationId The bot's application ID.
- * @param commands The commands to register.
  * @param devGuildId The developer server's ID, from DEV_GUILD_ID.
  */
 export async function registerCommands(

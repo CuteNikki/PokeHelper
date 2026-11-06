@@ -5,7 +5,7 @@ import type { ThemeName } from 'art/themes';
 
 import { DAY, HOUR } from 'utility/duration';
 
-/** The bot's custom status, to go with the theme it wears. What it says in each theme is in `art/statuses`. */
+// The bot's custom status, to go with the theme it wears. What it says in each theme is in `art/statuses`
 
 /**
  * How long the bot says each sentence of a theme before the next: a day, counted in UTC days like the themes, so over a season it

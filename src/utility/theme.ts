@@ -1,9 +1,6 @@
 import { Colors } from 'discord.js';
 
-/**
- * Accent colors used across all bot messages.
- * Change these to restyle every container the bot sends.
- */
+/** The accent colors of the bot's messages, by what they say. */
 export const ThemeColors = {
   success: Colors.Green,
   error: Colors.Red,

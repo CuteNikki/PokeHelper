@@ -28,8 +28,6 @@ export interface ReloadResult {
  * The files in src/handlers are imported again, but what they import
  * (utility, database, settings and so on) stays as it was loaded at startup, so changes there still need a restart.
  * The locales are read again from disk, which updates all the bot's text.
- * @param client The client to reload into.
- * @param targets What to reload.
  */
 export async function reload(client: ExtendedClient, targets: readonly ReloadTarget[]): Promise<ReloadResult[]> {
   const results: ReloadResult[] = [];
