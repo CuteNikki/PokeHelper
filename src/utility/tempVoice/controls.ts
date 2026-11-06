@@ -80,7 +80,7 @@ async function controlledChannel(interaction: Control, channelId: string, forMod
 }
 
 /** "Try again in …", for a channel Discord won't rename yet. */
-const tryAgain = (retryAt: Date, t: Translate) => t('tempVoice.controls.renameLimit', { time: time(retryAt, TimestampStyles.RelativeTime) });
+const tryAgain = (retryAt: Date, t: Translate) => t('tempVoice.controls.changeLimit', { time: time(retryAt, TimestampStyles.RelativeTime) });
 
 /**
  * After a change made from a panel, deferred with deferUpdate: shows that panel as it is now, and says so if Discord wouldn't rename

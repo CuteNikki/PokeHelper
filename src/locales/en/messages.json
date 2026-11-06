@@ -961,7 +961,7 @@
     "controls": {
       "gone": "This channel doesn't exist anymore.",
       "notOwner": "Only {{owner}} can change this channel.",
-      "renameLimit": "Discord only lets a channel be renamed so often. Try again {{time}}.",
+      "changeLimit": "Discord only lets a channel be changed so often. Try again {{time}}.",
       "notInOne": "You're not in a voice channel of your own right now.",
       "notInOneJoin": "You're not in a voice channel of your own right now. Join {{channels}} to get one.",
       "ownerOnly": "Only {{owner}} can do that, moderators can't."

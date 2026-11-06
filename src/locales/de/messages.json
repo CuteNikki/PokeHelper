@@ -497,7 +497,7 @@
     "controls": {
       "gone": "Diesen Kanal gibt es nicht mehr.",
       "notOwner": "Nur {{owner}} kann diesen Kanal ändern.",
-      "renameLimit": "Discord lässt einen Kanal nur ab und zu umbenennen. Versuch es {{time}} nochmal.",
+      "changeLimit": "Discord lässt einen Kanal nur ab und zu ändern. Versuch es {{time}} nochmal.",
       "notInOne": "Du bist gerade in keinem eigenen Sprachkanal.",
       "notInOneJoin": "Du bist gerade in keinem eigenen Sprachkanal. Geh in {{channels}}, um einen zu bekommen.",
       "ownerOnly": "Das kann nur {{owner}}, Moderatoren nicht."

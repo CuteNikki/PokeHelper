@@ -181,12 +181,9 @@ function overwrites(guild: Guild, category: CategoryChannel | null, ownerId: str
   return [...list.values()];
 }
 
-/** Puts a channel's permissions in line with its record. */
-async function applyAccess(temp: TempChannel) {
-  await temp.channel.permissionOverwrites.set(
-    overwrites(temp.channel.guild, temp.channel.parent, temp.record.ownerId, temp.record),
-    'Temporary voice channel access changed',
-  );
+/** Put a channel's permissions in line with who owns it and its access. Done before they're saved, so the record only says what Discord took. */
+async function applyAccess(channel: VoiceChannel, record: Access & { ownerId: string }) {
+  await channel.permissionOverwrites.set(overwrites(channel.guild, channel.parent, record.ownerId, record), 'Temporary voice channel access changed');
 }
 
 /** Only IDs of people on the server: Discord refuses overwrites for anyone else. */
@@ -371,13 +368,14 @@ export function handOver(temp: TempChannel, by: GuildMember, newOwnerId: string)
 async function giveTo(temp: TempChannel, newOwnerId: string) {
   const oldOwnerId = temp.record.ownerId;
   // The new owner is let in as owner, not on the lists, and can't keep themselves out
-  temp.record = await updateTempVoiceChannel(temp.channel.id, {
+  const change = {
     ownerId: newOwnerId,
     allowed: temp.record.allowed.filter((id) => id !== newOwnerId),
     blocked: temp.record.blocked.filter((id) => id !== newOwnerId),
     moderators: temp.record.moderators.filter((id) => id !== newOwnerId),
-  });
-  await applyAccess(temp);
+  };
+  await applyAccess(temp.channel, { ...temp.record, ...change });
+  temp.record = await updateTempVoiceChannel(temp.channel.id, change);
   // Nice to have: the hand-over stands even if this fails
   await renameForNewOwner(temp, oldOwnerId, newOwnerId).catch((error: unknown) => logger.error(error, 'Failed to rename a handed-over voice channel'));
   refreshPanel(temp);
@@ -434,8 +432,14 @@ export function changeTempChannel(temp: TempChannel, by: GuildMember, change: Ch
       const moderators = (access.moderators ?? temp.record.moderators).filter((id) => id !== ownerId).slice(0, MAX_MODERATORS);
       const allowed = (access.allowed ?? temp.record.allowed).filter((id) => id !== ownerId && !access.blocked?.includes(id));
       const blocked = (access.blocked ?? temp.record.blocked).filter((id) => id !== ownerId && !moderators.includes(id) && !access.allowed?.includes(id));
-      temp.record = await updateTempVoiceChannel(temp.channel.id, { ...access, allowed, blocked, moderators });
-      await applyAccess(temp);
+      const saved = { ...access, allowed, blocked, moderators };
+      try {
+        await applyAccess(temp.channel, { ...temp.record, ...saved });
+      } catch (error) {
+        if (error instanceof RateLimitError) return { retryAt: new Date(Date.now() + error.timeToReset) };
+        throw error;
+      }
+      temp.record = await updateTempVoiceChannel(temp.channel.id, saved);
       // Anyone kept out who's still here has to go
       for (const id of blocked) {
         const member = temp.channel.members.get(id);
