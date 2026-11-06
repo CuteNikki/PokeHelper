@@ -18,6 +18,13 @@ describe('durations', () => {
     expect(parseDuration('1w', now)).toEqual(new Date('2026-11-11T15:00:00Z'));
   });
 
+  test('English and German can be mixed, whatever language Discord is in', () => {
+    expect(parseDuration('in 2d und 3 Std', now)).toEqual(new Date('2026-11-06T18:00:00Z'));
+    expect(parseDuration('1 Tag 2h', now)).toEqual(new Date('2026-11-05T17:00:00Z'));
+    expect(parseDateTime('morgen 6pm', now, BERLIN)).toEqual(new Date('2026-11-05T17:00:00Z'));
+    expect(parseDateTime('friday um 18 Uhr', now, BERLIN)).toEqual(new Date('2026-11-06T17:00:00Z'));
+  });
+
   test('months go by the calendar', () => {
     expect(parseDuration('1 month', new Date('2027-01-31T10:00:00Z'))).toEqual(new Date('2027-02-28T10:00:00Z'));
     expect(parseDuration('1y', now)).toEqual(new Date('2027-11-04T15:00:00Z'));
