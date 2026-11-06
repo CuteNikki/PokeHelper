@@ -1644,6 +1644,6 @@
     "title": "### {{name}} {{icon.map}}",
     "notFound": "I couldn't find a place called **{{name}}**. Pick one of the suggestions.",
     "none": "PokéAPI doesn't know of any wild Pokémon here.",
-    "note": "From PokéAPI, which doesn't know every game yet. The chance is of meeting it that way there."
+    "region": "{{region}} region"
   }
 }

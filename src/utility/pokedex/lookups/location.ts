@@ -2,7 +2,7 @@ import { ContainerBuilder, MessageFlags, SeparatorBuilder, type StringSelectMenu
 
 import { getTranslate, resolveLanguage, type Translate } from 'utility/i18next';
 import { answerPokeApiError, getLocation, getLocationArea } from 'utility/pokedex/api';
-import { gameLine, gameSelect, sightingLines, sightingsByGame } from 'utility/pokedex/encounters';
+import { gameSelect, sightingLines, sightingsByGame } from 'utility/pokedex/encounters';
 import { apiName } from 'utility/pokedex/lookup';
 import { pokemonNames } from 'utility/pokedex/lookups/item';
 import { loadPokedexData, nameOf } from 'utility/pokedex/names';
@@ -36,7 +36,7 @@ export async function buildLocation(slug: string, language: string, t: Translate
   const game = games.find((entry) => entry.version === version) ?? games[0];
   const region = location.region ? nameOf('regions', location.region.name, language) : null;
 
-  const header = [t('locations.title', { name }), region ? subtext(region) : null, game ? gameLine(game.version, language, t) : null];
+  const header = [t('locations.title', { name }), region ? subtext(t('locations.region', { region })) : null];
   const container = new ContainerBuilder()
     .setAccentColor(ThemeColors.info)
     .addTextDisplayComponents(new TextDisplayBuilder().setContent(header.filter(Boolean).join('\n')))
@@ -68,8 +68,7 @@ export async function buildLocation(slug: string, language: string, t: Translate
         language,
         t,
       ),
-    )
-    .addTextDisplayComponents(new TextDisplayBuilder().setContent(subtext(t('locations.note'))));
+    );
   return { components: [container], flags: [MessageFlags.IsComponentsV2], allowedMentions: { parse: [] } };
 }
 

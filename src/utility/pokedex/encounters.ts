@@ -17,7 +17,7 @@ import {
 
 import { DiscordLimits } from 'utility/discordLimits';
 import { formatNumber } from 'utility/duration';
-import { buttonIcon, textIcon } from 'utility/emojis';
+import { buttonIcon } from 'utility/emojis';
 import { getTranslate, resolveLanguage, type Translate } from 'utility/i18next';
 import { answerPokeApiError, type ApiEncounter, artworkUrl, getEncounters, idFromUrl } from 'utility/pokedex/api';
 import { findBySlug, fromSlug, getPokedexData, loadPokedexData, matchName, nameOf } from 'utility/pokedex/names';
@@ -142,8 +142,9 @@ export const placesByGame = (encounters: ApiEncounter[]) =>
 const methodOf = (sighting: Sighting) => sighting.methods[0] ?? '';
 
 /**
- * Sightings by way as lines under headings, like the games list them: by group in its order, with its name when there are several,
- * then by way in the games' order, grass before water and the rods, then by chance. What doesn't fit is cut from the end.
+ * Sightings by way as lines under a bold heading of how they're met, like `**Old Rod**`, the way the games list them: by group in
+ * its order, with its name in the heading when there are several, like `**Pokémon Tower (2F) · Wandering around**`, then by way in
+ * the games' order, grass before water and the rods, then by chance. What doesn't fit is cut from the end.
  * @param name What a sighting is about, already named, like the place or the Pokémon.
  * @param groups The groups in their order, like the areas of a place, with their names.
  */
@@ -165,26 +166,25 @@ export function sightingLines(
   const lines: string[] = [];
   shown.forEach((sighting, index) => {
     const previous = shown[index - 1];
-    const newGroup = index === 0 || sighting.group !== previous?.group;
-    if (newGroup && severalGroups) lines.push(bold(groups.find((group) => group.slug === sighting.group)?.name ?? sighting.group ?? ''));
-    if (newGroup || methodOf(sighting) !== (previous && methodOf(previous))) lines.push(subtext(methodNames(sighting, t)));
-    lines.push(sightingLine(sighting, names[index] ?? sighting.name, t, { withMethods: false }));
+    if (!previous || sighting.group !== previous.group || methodOf(sighting) !== methodOf(previous)) {
+      const group = severalGroups ? (groups.find((entry) => entry.slug === sighting.group)?.name ?? sighting.group) : null;
+      // A blank line between the headings' lists, so they stand apart
+      if (previous) lines.push('');
+      lines.push(bold([group, methodNames(sighting, t)].filter(Boolean).join(' · ')));
+    }
+    lines.push(sightingLine(sighting, names[index] ?? sighting.name, t));
   });
-  if (sightings.length > shown.length) lines.push(subtext(t('lookup.more', { count: sightings.length - shown.length })));
+  if (sightings.length > shown.length) lines.push('', subtext(t('lookup.more', { count: sightings.length - shown.length })));
   return lines;
 }
 
-/** The game an answer is about, as a line of its own with a gamepad, so it's clear what it is. */
-export const gameLine = (version: string, language: string, t: Translate) => `${textIcon('gamepad-2')} ${bold(gameName(version, language, t))}`;
-
-/** A sighting as a line, like `**Route 1** · Lv. 2–5 · Grass or cave · 50%`, with what it's about already named. */
-export function sightingLine(sighting: Sighting, name: string, t: Translate, { withMethods = true } = {}): string {
+/** A sighting as a line under the heading of how it's met, like `Route 1 · Lv. 2–5 · 50%`, with what it's about already named. */
+function sightingLine(sighting: Sighting, name: string, t: Translate): string {
   const levels =
     sighting.minLevel === sighting.maxLevel
       ? t('pokedex.where.level', { level: formatNumber(sighting.minLevel, t) })
       : t('pokedex.where.levels', { min: formatNumber(sighting.minLevel, t), max: formatNumber(sighting.maxLevel, t) });
-  const chance = formatNumber(sighting.chance / 100, t, { style: 'percent' });
-  return [bold(name), levels, withMethods ? methodNames(sighting, t) : null, chance].filter(Boolean).join(' · ');
+  return [name, levels, formatNumber(sighting.chance / 100, t, { style: 'percent' })].join(' · ');
 }
 
 /** How a Pokémon is met, like `Old Rod, Good Rod`, with ways that are called the same only once. */
@@ -228,7 +228,7 @@ export async function buildWhereToFind(slug: string, version: string | null, lan
   const name = matchName(match, language);
   const games = placesByGame(encounters);
   const game = games.find((entry) => entry.version === version) ?? games[0];
-  const header = [t('pokedex.where.title', { name }), game ? gameLine(game.version, language, t) : null].filter(Boolean).join('\n');
+  const header = t('pokedex.where.title', { name });
   const container = new ContainerBuilder()
     .setAccentColor(ThemeColors.info)
     .addSectionComponents(
@@ -255,8 +255,7 @@ export async function buildWhereToFind(slug: string, version: string | null, lan
         language,
         t,
       ),
-    )
-    .addTextDisplayComponents(new TextDisplayBuilder().setContent(subtext(t('locations.note'))));
+    );
   return { components: [container], flags: [MessageFlags.IsComponentsV2] };
 }
 

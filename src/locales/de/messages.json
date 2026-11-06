@@ -1583,6 +1583,6 @@
     "title": "### {{name}} {{icon.map}}",
     "notFound": "Ich konnte keinen Ort namens **{{name}}** finden. Wähl einen der Vorschläge.",
     "none": "PokéAPI kennt hier keine wilden Pokémon.",
-    "note": "Von PokéAPI, das noch nicht jedes Spiel kennt. Die Chance ist die, es dort auf diese Art zu treffen."
+    "region": "Region {{region}}"
   }
 }
