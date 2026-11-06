@@ -1,20 +1,13 @@
 import { prisma } from 'database/index';
 
-/**
- * Get the ongoing run of a guild's counting game.
- * @param guildId {string} The ID of the guild.
- */
+/** Get the ongoing run of a guild's counting game. */
 export const getCurrentRun = async (guildId: string) =>
   prisma.countingRun.findFirst({
     where: { guildId, endedAt: null },
     orderBy: { id: 'desc' },
   });
 
-/**
- * Get a run's position among the guild's runs, starting at 1, so runs can be shown as #1, #2 and so on.
- * @param guildId {string} The ID of the guild.
- * @param runId {number} The ID of the run.
- */
+/** Get a run's position among the guild's runs, starting at 1, so runs can be shown as #1, #2 and so on. */
 export const getRunNumber = async (guildId: string, runId: number) =>
   prisma.countingRun.count({
     where: { guildId, id: { lte: runId } },
@@ -22,9 +15,8 @@ export const getRunNumber = async (guildId: string, runId: number) =>
 
 /**
  * Get the most recent runs of a guild, newest first, with their position among all runs.
- * @param guildId {string} The ID of the guild.
- * @param take {number} How many runs to get.
- * @param skip {number} How many of the newest to skip, for later pages.
+ * @param take How many runs to get.
+ * @param skip How many of the newest to skip, for later pages.
  * @returns The runs, with their number counted from the first, and how many runs there are.
  */
 export const getRecentRuns = async (guildId: string, take: number, skip = 0) => {
@@ -37,8 +29,7 @@ export const getRecentRuns = async (guildId: string, take: number, skip = 0) => 
 
 /**
  * Get when each of the given numbers was counted in a run.
- * @param runId {number} The ID of the run.
- * @param numbers {number[]} The numbers to look up, like milestones.
+ * @param numbers The numbers to look up, like milestones.
  */
 export const getEntriesForNumbers = async (runId: number, numbers: number[]) =>
   prisma.countingEntry.findMany({
@@ -48,9 +39,8 @@ export const getEntriesForNumbers = async (runId: number, numbers: number[]) =>
 
 /**
  * Get the members who counted the most in a guild.
- * @param guildId {string} The ID of the guild.
- * @param take {number} How many members to get.
- * @param skip {number} How many of the top to skip, for later pages.
+ * @param take How many members to get.
+ * @param skip How many of the top to skip, for later pages.
  * @returns The members, and how many counted at all.
  */
 export const getTopCounters = async (guildId: string, take: number, skip = 0) => {
@@ -82,8 +72,6 @@ export async function getCounterPosition(guildId: string, userId: string): Promi
 
 /**
  * Get a member's counting stats in a guild, with their place on the leaderboard, ties broken the same way.
- * @param guildId {string} The ID of the guild.
- * @param userId {string} The ID of the member.
  * @returns The stats, with a rank of null when they haven't counted.
  */
 export const getCountingUser = async (guildId: string, userId: string) => {
@@ -94,8 +82,5 @@ export const getCountingUser = async (guildId: string, userId: string) => {
   return user ? { ...user, rank } : null;
 };
 
-/**
- * Get how many runs a guild's counting game had, including the ongoing one.
- * @param guildId {string} The ID of the guild.
- */
+/** Get how many runs a guild's counting game had, including the ongoing one. */
 export const getRunCount = async (guildId: string) => prisma.countingRun.count({ where: { guildId } });

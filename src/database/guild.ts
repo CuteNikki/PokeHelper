@@ -16,8 +16,8 @@ export const forgetGuild = (guildId: string) => known.forget(guildId);
 
 /**
  * Mark guilds the bot isn't in anymore as left, keeping the time they were first marked.
- * @param presentGuildIds {string[]} The IDs of the guilds the bot is in. Every other guild is marked.
- * @param at {Date} When the bot left, or noticed it.
+ * @param presentGuildIds The IDs of the guilds the bot is in. Every other guild is marked.
+ * @param at When the bot left, or noticed it.
  */
 export const markOtherGuildsLeft = async (presentGuildIds: string[], at: Date) =>
   prisma.guild.updateMany({
@@ -27,8 +27,7 @@ export const markOtherGuildsLeft = async (presentGuildIds: string[], at: Date) =
 
 /**
  * Mark a guild as left, keeping the time it was first marked.
- * @param guildId {string} The ID of the guild the bot was removed from.
- * @param at {Date} When the bot left.
+ * @param at When the bot left.
  */
 export const markGuildLeft = async (guildId: string, at: Date) =>
   prisma.guild.updateMany({
@@ -38,7 +37,7 @@ export const markGuildLeft = async (guildId: string, at: Date) =>
 
 /**
  * Unmark guilds the bot is in again, so their data is kept.
- * @param guildIds {string[]} The IDs of the guilds the bot is in.
+ * @param guildIds The IDs of the guilds the bot is in.
  */
 export const clearGuildsLeft = async (guildIds: string[]) =>
   prisma.guild.updateMany({
@@ -48,7 +47,7 @@ export const clearGuildsLeft = async (guildIds: string[]) =>
 
 /**
  * Delete the guilds the bot left before a time, with all their data.
- * @param cutoff {Date} Guilds left before this are deleted.
+ * @param cutoff Guilds left before this are deleted.
  */
 export async function deleteGuildsLeftBefore(cutoff: Date) {
   const deleted = await prisma.guild.deleteMany({ where: { leftAt: { lt: cutoff } } });

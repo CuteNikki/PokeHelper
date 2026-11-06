@@ -8,11 +8,12 @@ const adapter = new PrismaPg(pool);
 
 export const prisma = new PrismaClient({ adapter });
 
+/** How long the database takes to answer, in milliseconds. */
 export const getDatabaseLatency = async (): Promise<number> => {
   const start = performance.now();
   
   await prisma.$queryRaw`SELECT 1`;
   
   const end = performance.now();
-  return Math.round((end - start) * 100) / 100; // Returns latency in milliseconds (ms)
+  return Math.round((end - start) * 100) / 100;
 };

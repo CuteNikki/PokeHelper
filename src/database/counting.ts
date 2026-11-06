@@ -3,29 +3,18 @@ import { prisma } from 'database/index';
 import type { GuildCounting, Prisma } from 'generated/prisma/client';
 import { isMilestone, type CountingEvent, type CountingState } from 'utility/counting/rules';
 
-/**
- * Get the counting configuration for a guild.
- * @param guildId {string} The ID of the guild to retrieve the counting configuration for.
- */
+/** Get the counting configuration for a guild. */
 export const getCounting = async (guildId: string) =>
   prisma.guildCounting.findUnique({
     where: { guildId },
   });
 
-/**
- * Get the counting configurations of all guilds.
- */
+/** Get the counting configurations of all guilds. */
 export const getAllCountings = async () => prisma.guildCounting.findMany();
 
 /**
  * Create a new counting configuration for a guild.
- * @param guildId {string} The ID of the guild to create the counting configuration for.
- * @param data.channelId {string} The ID of the channel where counting will take place.
- * @param data.maxLives {number | null} Lives per run, or null for unlimited.
- * @param data.livesLeft {number} Lives the first run starts with.
- * @param data.regenerateLives {boolean} Whether milestones give back a life.
- * @param data.allowMath {boolean} Whether numbers can be sent as math expressions.
- * @param data.lastCheckedMessageId {string} The message ID to start checking after, so older messages in the channel are left alone.
+ * @param data.lastCheckedMessageId The message to start checking after, so older messages in the channel are left alone.
  */
 export const createCounting = async (
   guildId: string,
@@ -35,21 +24,14 @@ export const createCounting = async (
     data: { guildId, ...data },
   });
 
-/**
- * Update the counting configuration for a guild.
- * @param guildId {string} The ID of the guild to update the counting configuration for.
- * @param query {Partial<Omit<Counting, 'guildId'>>} The fields to update in the counting configuration.
- */
+/** Update the counting configuration for a guild. */
 export const updateCounting = async (guildId: string, query: Partial<Omit<GuildCounting, 'guildId'>>) =>
   prisma.guildCounting.update({
     where: { guildId },
     data: query,
   });
 
-/**
- * Reset the counting configuration for a guild.
- * @param guildId {string} The ID of the guild to reset the counting configuration for.
- */
+/** Reset the counting configuration for a guild. */
 export const resetCounting = async (guildId: string) =>
   prisma.guildCounting.delete({
     where: { guildId },
@@ -57,11 +39,9 @@ export const resetCounting = async (guildId: string) =>
 
 /**
  * Save the counting state and record what happened for the stats, together, but only if no other message was checked since the state was read.
- * @param guildId {string} The ID of the guild to save the counting state for.
- * @param previousCheckedMessageId {string | null} The last checked message ID when the state was read.
- * @param state {CountingState} The new counting state.
- * @param events {CountingEvent[]} What happened, in order: counted numbers go into the current run, resets end it.
- * @returns {Promise<boolean>} Whether it was saved. False means the state changed in between and nothing was saved.
+ * @param previousCheckedMessageId The last checked message ID when the state was read.
+ * @param events What happened, in order: counted numbers go into the current run, resets end it.
+ * @returns Whether it was saved. False means the state changed in between and nothing was saved.
  */
 export const saveCountingProgress = async (guildId: string, previousCheckedMessageId: string | null, state: CountingState, events: CountingEvent[]) =>
   prisma.$transaction(async (tx) => {

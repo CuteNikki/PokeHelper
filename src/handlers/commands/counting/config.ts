@@ -53,11 +53,7 @@ export default new Command({
   },
 });
 
-/**
- * Handle the setup subcommand for the counting game.
- * @param interaction {ChatInputCommandInteraction<CacheType>} The interaction object for the command.
- * @returns {Promise<unknown>} A promise that resolves when the setup is complete.
- */
+/** Start the counting game in a channel. */
 async function handleSetup(interaction: ChatInputCommandInteraction<'cached'>): Promise<unknown> {
   const t = getTranslate(interaction.locale);
   await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });

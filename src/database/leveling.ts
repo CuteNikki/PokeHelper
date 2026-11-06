@@ -96,10 +96,7 @@ export const getActiveLevelingConfigs = () =>
       enabled: true,
     },
   });
-/**
- * Get a guild's leveling configuration, creating the default one, which has leveling turned off, if there's none yet.
- * @param guildId {string} The ID of the guild.
- */
+/** Get a guild's leveling configuration, creating the default one, which has leveling turned off, if there's none yet. */
 export const getOrCreateGuildLevelingConfiguration = async (guildId: string) =>
   prisma.guildLeveling.upsert({
     where: { guildId },
@@ -108,13 +105,7 @@ export const getOrCreateGuildLevelingConfiguration = async (guildId: string) =>
     include: { rewards: true, multipliers: true },
   });
 
-/**
- * Set the multiplier of a channel, category or role, or remove it with null.
- * @param guildId {string} The ID of the guild.
- * @param targetId {string} The ID of the channel, category or role.
- * @param type {MultiplierTarget} Whether the target is a channel or a role.
- * @param multiplier {number | null} The multiplier, or null to remove it.
- */
+/** Set the multiplier of a channel, category or role, or remove it with null. */
 export const setLevelingMultiplier = async (guildId: string, targetId: string, type: MultiplierTarget, multiplier: number | null) =>
   multiplier === null
     ? prisma.levelingMultiplier.deleteMany({ where: { guildId, targetId } })
@@ -124,22 +115,13 @@ export const setLevelingMultiplier = async (guildId: string, targetId: string, t
         create: { guildId, targetId, type, multiplier },
       });
 
-/**
- * Set the level a reward role is given at, or remove the reward with null. A role is the reward for one level at most.
- * @param guildId {string} The ID of the guild.
- * @param roleId {string} The ID of the reward role.
- * @param level {number | null} The level, or null to remove the reward.
- */
+/** Set the level a reward role is given at, or remove the reward with null. A role is the reward for one level at most. */
 export const setLevelingReward = async (guildId: string, roleId: string, level: number | null) =>
   prisma.$transaction(async (tx) => {
     await tx.guildLevelingReward.deleteMany({ where: { guildId, roleId } });
     if (level !== null) await tx.guildLevelingReward.create({ data: { guildId, roleId, level } });
   });
 
-/**
- * Get the IDs of the members of a guild with at least some XP, like everyone who reached a level.
- * @param guildId {string} The ID of the guild.
- * @param minimumXp {number} The least XP to have.
- */
+/** Get the IDs of the members of a guild with at least some XP, like everyone who reached a level. */
 export const getUserIdsWithXp = async (guildId: string, minimumXp: number) =>
   (await prisma.level.findMany({ where: { guildId, xp: { gte: minimumXp } }, select: { userId: true } })).map((level) => level.userId);
