@@ -36,7 +36,11 @@ type PanelInteraction = ButtonInteraction | AnySelectMenuInteraction | ModalSubm
  */
 async function checkPermissions(interaction: PanelInteraction, panel: SettingsPanel, t: Translate) {
   if (panel.scope === 'user') return true;
-  if (!interaction.inCachedGuild()) return false;
+  // Only a server the bot is in has settings, so a panel from anywhere else is outdated
+  if (!interaction.inCachedGuild()) {
+    await sendError(interaction, t('system.outdated'));
+    return false;
+  }
   if (interaction.memberPermissions.has(panel.permissions)) return true;
   await sendError(interaction, t('system.button.permissions', { permissions: panel.permissions.map((perm) => t(`permission.${perm}`)).join(', ') }));
   return false;
@@ -88,8 +92,9 @@ export async function handleSettingsInteraction(interaction: ButtonInteraction |
  * even across restarts.
  */
 export async function handleSettingsModal(interaction: ModalSubmitInteraction) {
-  if (!interaction.isFromMessage()) return;
   const t = getTranslate(interaction.locale);
+  // Settings popups are always opened from a panel
+  if (!interaction.isFromMessage()) return sendError(interaction, t('system.outdated'));
 
   const id = parseSettingsCustomId(interaction.customId);
   const panel = id && getSettingsPanel(id.panelId);
