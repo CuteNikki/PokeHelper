@@ -28,6 +28,8 @@ export default new Button({
     // Asks which page in a popup, which has to be the first answer
     if (parsed.action === 'goto') return interaction.showModal(buildPageModal(`${COUNTING_PAGE_MODAL_PREFIX}${parsed.list}`, parsed.page + 1, t));
 
+    // Answered before anything is looked up, which can take a moment, as Discord gives up after 3 seconds. Errors still only go to whoever pressed
+    await interaction.deferUpdate();
     let page = parsed.page;
     if (parsed.action === 'me') {
       const position = await getCounterPosition(interaction.guildId, interaction.user.id);
@@ -35,7 +37,6 @@ export default new Button({
       page = pageOfPosition(position, COUNTING_PAGE_SIZE) - 1;
     }
 
-    await interaction.deferUpdate();
     const build = parsed.list === 'leaderboard' ? buildCountingLeaderboard : buildCountingRuns;
     await interaction.editReply(await build(interaction.guildId, page, t));
   },
