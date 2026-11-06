@@ -64,6 +64,7 @@ export const ICONS = {
   'messages-square': '🧵',
   paperclip: '📎',
   'paw-print': '🐾',
+  pin: '📌',
   pencil: '✏️',
   plus: '➕',
   power: '🔁',
