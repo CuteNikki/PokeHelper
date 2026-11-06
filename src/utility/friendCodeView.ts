@@ -82,7 +82,9 @@ export async function handleFriendCodesButton(interaction: ButtonInteraction): P
   const t = getTranslate(interaction.locale);
 
   if (interaction.customId === EDIT_ID) {
-    return sendResponse(interaction, await friendCodeSettings.render(settingsContext(interaction), t), { ephemeral: true });
+    // Answered before the codes are loaded, which can take a moment, as Discord gives up after 3 seconds
+    await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
+    return sendResponse(interaction, await friendCodeSettings.render(settingsContext(interaction), t));
   }
 
   // The codes as they're saved now, which may have changed since the message was sent
