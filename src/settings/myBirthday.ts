@@ -27,7 +27,7 @@ const toInput = (date: Date) => date.toISOString().slice(0, 10);
  * The servers someone can pick to announce their birthday in: the ones they share with the bot.
  * Members are only cached once seen since the bot started, so servers already picked are listed either way.
  */
-export function birthdayGuildOptions(client: Client, userId: string, saved: string[]) {
+function birthdayGuildOptions(client: Client, userId: string, saved: string[]) {
   return client.guilds.cache
     .filter((guild) => guild.members.cache.has(userId) || saved.includes(guild.id))
     .first(DiscordLimits.selectOptions)

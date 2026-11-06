@@ -9,7 +9,7 @@ import { STAR_BUTTON_ID, STARBOARD_BUTTON_PREFIX, STARRED_BY_BUTTON_ID, toggleSt
 import { ThemeColors } from 'utility/theme';
 
 /** People named on a page of who starred, which stays readable and well within a message. */
-export const STARRED_BY_PAGE_SIZE = 50;
+const STARRED_BY_PAGE_SIZE = 50;
 /**
  * The pages of who starred are `starpost:page:<post>:<page>`. They're on the reply only the presser sees, not on the post, so they
  * carry which post they're for, and work however old the reply is.

@@ -43,7 +43,7 @@ export function loadCommandTranslations(): CommandTranslations {
 }
 
 /** The Discord locales a language covers, like `de` for German and `pt-BR` for Portuguese. */
-export const discordLocalesOf = (language: string) => Object.values(Locale).filter((locale) => locale.split('-')[0] === language);
+const discordLocalesOf = (language: string) => Object.values(Locale).filter((locale) => locale.split('-')[0] === language);
 
 /**
  * Add the translated names, descriptions and choice names to a command's JSON.

@@ -1,6 +1,6 @@
 import { getWallTime, type WallTime } from 'utility/timezone';
 /** The hour, in a member's own time, from which their birthday is announced. */
-export const ANNOUNCEMENT_HOUR = 8;
+const ANNOUNCEMENT_HOUR = 8;
 
 const isLeapYear = (year: number) => (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
 

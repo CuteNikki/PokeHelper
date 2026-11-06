@@ -34,7 +34,7 @@ import { ThemeColors } from 'utility/theme';
  */
 
 export const PRIVACY_CUSTOM_ID_PREFIX = 'privacy:';
-export const PRIVACY_POLICY_URL = 'https://github.com/CuteNikki/PokeHelper/blob/main/PRIVACY.md';
+const PRIVACY_POLICY_URL = 'https://github.com/CuteNikki/PokeHelper/blob/main/PRIVACY.md';
 /** Who can download and delete a server's data: the same people who can change its settings. */
 export const GUILD_DATA_PERMISSIONS: PermissionsString[] = ['ManageGuild'];
 

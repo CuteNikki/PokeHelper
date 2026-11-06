@@ -16,7 +16,7 @@ const UNLIMITED = 'unlimited';
 const update = (guildId: string, query: Partial<GuildCounting>) => runCountingTask(guildId, () => updateCounting(guildId, query));
 
 /** Turn counting on or off. Turned back on, it starts checking from now, so what was said while it was off is left alone. */
-export const setCountingEnabled = (guildId: string, enabled: boolean) =>
+const setCountingEnabled = (guildId: string, enabled: boolean) =>
   update(guildId, enabled ? { enabled, lastCheckedMessageId: SnowflakeUtil.generate().toString() } : { enabled });
 
 export const countingSettings = createSettingsPanel<GuildCounting>({

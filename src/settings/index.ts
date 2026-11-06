@@ -30,7 +30,7 @@ const MODAL_INPUT_ID = 'value';
 /** The most characters typed into a popup, unless it says otherwise. */
 const DEFAULT_INPUT_LENGTH = 20;
 
-export function getSettingsPanel(id: string) {
+function getSettingsPanel(id: string) {
   if (id.startsWith(ROLE_MENU_PANEL_PREFIX)) return getRoleMenuSettings(id.slice(ROLE_MENU_PANEL_PREFIX.length));
   if (id.startsWith(TEMP_VOICE_PANEL_PREFIX)) return getTempVoiceSettings(id.slice(TEMP_VOICE_PANEL_PREFIX.length));
   return panels.find((panel) => panel.id === id);

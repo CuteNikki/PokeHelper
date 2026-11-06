@@ -94,7 +94,7 @@ export const withAlpha = (hex: string, alpha: number) => {
 };
 
 /** Whether a `#rrggbb` color is light, so text on it should be dark to be readable, like on Electric's yellow. */
-export const isLight = (hex: string) => {
+const isLight = (hex: string) => {
   const value = parseInt(hex.slice(1), 16);
   return 0.299 * ((value >> 16) & 255) + 0.587 * ((value >> 8) & 255) + 0.114 * (value & 255) > 170;
 };

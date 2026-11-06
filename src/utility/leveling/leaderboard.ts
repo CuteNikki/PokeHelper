@@ -130,7 +130,7 @@ function drawRowCard(ctx: SKRSContext2D, entry: LeaderboardEntry, x: number, y: 
  * Draw a page of the leaderboard: the top 3 on a podium and the rest in rows on the first page, rows only on the others.
  * @returns The page as a PNG.
  */
-export function renderLeaderboardCanvas(entries: LeaderboardEntry[], isTopPodiumView: boolean, t: Translate): Buffer {
+function renderLeaderboardCanvas(entries: LeaderboardEntry[], isTopPodiumView: boolean, t: Translate): Buffer {
   const width = 760;
   const margin = 30;
   const podiumTopY = 110;

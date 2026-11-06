@@ -13,7 +13,7 @@ export interface BurstLimit {
   window: number;
 }
 
-export const DEFAULT_BURST: BurstLimit = { uses: 6, window: 5_000 };
+const DEFAULT_BURST: BurstLimit = { uses: 6, window: 5_000 };
 
 /** When each key, like a button and a user, was used within its window. */
 const recent = new Map<string, number[]>();

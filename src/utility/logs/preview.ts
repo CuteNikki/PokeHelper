@@ -19,7 +19,7 @@ const LONG_TEXT = Array.from(
  * Sample log entries about someone, of every kind, to see how logs look without making the changes. Built the same way as real ones,
  * with made-up details where there's nothing real to show. The bot plays the moderator, so who it's about and who did it differ.
  */
-export function previewEntries(member: GuildMember, channelId: string, t: Translate): LogEntry[] {
+function previewEntries(member: GuildMember, channelId: string, t: Translate): LogEntry[] {
   const { guild } = member;
   const bot = guild.client.user;
   const subject = userSubject(member.user);

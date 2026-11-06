@@ -46,7 +46,7 @@ export function parseCountingPageId(customId: string): { list: CountingList; pag
 }
 
 /** The list a page popup is for, or null if it isn't one. */
-export function parseCountingPageModalId(customId: string): CountingList | null {
+function parseCountingPageModalId(customId: string): CountingList | null {
   const list = customId.slice(COUNTING_PAGE_MODAL_PREFIX.length);
   return LISTS.includes(list as CountingList) ? (list as CountingList) : null;
 }

@@ -12,7 +12,7 @@ import { createSettingsPanel, type EntriesSetting } from 'utility/settings';
 type LevelingConfig = GuildLeveling & { rewards: GuildLevelingReward[]; multipliers: LevelingMultiplier[] };
 
 /** What the bot needs in the level up channel. */
-export const LEVEL_UP_CHANNEL_PERMISSIONS: PermissionsString[] = ['ViewChannel', 'SendMessages'];
+const LEVEL_UP_CHANNEL_PERMISSIONS: PermissionsString[] = ['ViewChannel', 'SendMessages'];
 /** The most entries in each list. Multipliers each get a row with a button, so they're limited by the components a message can have. */
 const MAX_LIST = 20;
 const MAX_MULTIPLIERS = 10;

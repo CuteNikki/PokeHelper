@@ -87,7 +87,7 @@ function toNames(names: Names, slug: string, languages: string[]): TranslatedNam
 }
 
 /** Turn PokéAPI's answer into the names by species, ability and type. */
-export function parseNames(result: NamesQuery, languages: string[]): PokedexData {
+function parseNames(result: NamesQuery, languages: string[]): PokedexData {
   const byName = (rows: { name: string; names: Names }[]) => Object.fromEntries(rows.map((row) => [row.name, toNames(row.names, row.name, languages)]));
   return {
     species: result.pokemon_v2_pokemonspecies.map((entry) => ({

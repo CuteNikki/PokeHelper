@@ -11,7 +11,7 @@ export type WhenError = 'invalid' | 'past' | 'tooFar';
 /** The furthest ahead a reminder can be, in years. */
 export const MAX_YEARS_AHEAD = 5;
 /** The hour a reminder for a date without a time goes off at, in the user's own time. */
-export const DEFAULT_HOUR = 9;
+const DEFAULT_HOUR = 9;
 
 /** Words of the vocabulary for a regular expression, the longest first, so `friday` is tried before `fri`. */
 const alternatives = (words: Iterable<string>) =>

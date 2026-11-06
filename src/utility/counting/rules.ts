@@ -61,7 +61,7 @@ export function applyCount(state: CountingState, number: number, message: CountM
 }
 
 /** The state after a wrong number reset the game. The highest number is kept, and the new run starts with all lives. */
-export function applyReset(state: CountingState, message: CountMessage, maxLives: number | null): CountingState {
+function applyReset(state: CountingState, message: CountMessage, maxLives: number | null): CountingState {
   return {
     ...state,
     livesLeft: maxLives ?? 0,
@@ -74,7 +74,7 @@ export function applyReset(state: CountingState, message: CountMessage, maxLives
 }
 
 /** The state after a message was checked without changing the game, like an invalid message that gets deleted. */
-export function applyChecked(state: CountingState, message: CountMessage): CountingState {
+function applyChecked(state: CountingState, message: CountMessage): CountingState {
   return { ...state, lastCheckedMessageId: message.id };
 }
 

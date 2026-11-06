@@ -15,7 +15,7 @@ import { DAY, HOUR } from 'utility/duration';
 const SAY_FOR: Partial<Record<ThemeName, number>> = { birthday: 6 * HOUR };
 
 /** What the bot says in a theme at a moment, going through its sentences one after the other. */
-export function statusFor(theme: ThemeName, now = new Date()): string {
+function statusFor(theme: ThemeName, now = new Date()): string {
   const sentences = STATUSES[theme];
   return sentences[Math.floor(now.getTime() / (SAY_FOR[theme] ?? DAY)) % sentences.length]!;
 }

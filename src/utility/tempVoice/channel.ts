@@ -149,7 +149,7 @@ export function missingCreatorPermissions(guild: Guild, creator: TempVoiceCreato
  *
  * Only permissions the bot has itself are set, as Discord refuses the rest, like a category giving a permission the bot doesn't have.
  */
-export function overwrites(guild: Guild, category: CategoryChannel | null, ownerId: string, access: Access): OverwriteData[] {
+function overwrites(guild: Guild, category: CategoryChannel | null, ownerId: string, access: Access): OverwriteData[] {
   const me = guild.members.me;
   const settable = me?.permissions.has(PermissionFlagsBits.Administrator) ? PermissionsBitField.All : (me?.permissions.bitfield ?? 0n);
   const list = new Map<string, { id: string; type: OverwriteType; allow: bigint; deny: bigint }>();

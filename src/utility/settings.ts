@@ -374,7 +374,7 @@ export const formatPermissions = (permissions: PermissionsString[], t: Translate
  * Why the bot can't give a role to members, or null if it can.
  * Unknown when the bot's member or the role isn't cached, in which case null is returned.
  */
-export function unassignableReason(guild: Guild, roleId: string, t: Translate): string | null {
+function unassignableReason(guild: Guild, roleId: string, t: Translate): string | null {
   const problem = getRoleProblem(guild, roleId);
   return problem ? t(`settings.role.${problem}`) : null;
 }

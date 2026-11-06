@@ -41,7 +41,7 @@ const ERROR_DEPTH = 3;
  * Discord and the database add, and their cause. Anything else, like a connection's error event that points back at the connection,
  * is described instead of written out field by field, which fails on references back to itself and hides what went wrong.
  */
-export function serializeError(value: unknown, depth = 0): Record<string, unknown> {
+function serializeError(value: unknown, depth = 0): Record<string, unknown> {
   if (!(value instanceof Error)) {
     return { type: value?.constructor?.name ?? typeof value, message: inspect(value, { depth: ERROR_DEPTH, breakLength: Infinity }) };
   }

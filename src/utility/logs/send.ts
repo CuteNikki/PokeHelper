@@ -48,7 +48,7 @@ const MAX_ENTRY_TEXT = 3_800;
 const cache = new Map<string, { config: GuildLogs | null; at: number }>();
 
 /** A server's log settings, or null if it never set them up. */
-export async function getLogConfig(guildId: string): Promise<GuildLogs | null> {
+async function getLogConfig(guildId: string): Promise<GuildLogs | null> {
   const cached = cache.get(guildId);
   if (cached && Date.now() - cached.at < CACHE_TTL) return cached.config;
   const config = await getGuildLogs(guildId);
@@ -109,7 +109,7 @@ export function quoteText(text: string) {
  * An entry as a card: a title like the bot's other messages, who or what it's about, where and by whom, with their picture next to it,
  * and when it happened, then the details and the buttons, each with some room above.
  */
-export function buildLogEntry(entry: LogEntry, t: Translate, doer?: User | null) {
+function buildLogEntry(entry: LogEntry, t: Translate, doer?: User | null) {
   const header = new TextDisplayBuilder().setContent(
     [
       heading(entry.label, HeadingLevel.Three),
