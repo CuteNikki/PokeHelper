@@ -1,3 +1,4 @@
+import { getGuildOrCreate } from 'database/guild';
 import { prisma } from 'database/index';
 
 import type { TempVoiceChannel, TempVoiceCreator, TempVoiceSettings } from 'generated/prisma/client';
@@ -19,7 +20,7 @@ export const countTempVoiceCreators = async (guildId: string) => prisma.tempVoic
 
 /** Make a channel a join-to-create channel. The server is added to the database first, if it isn't in it yet. */
 export async function createTempVoiceCreator(guildId: string, channelId: string) {
-  await prisma.guild.upsert({ where: { guildId }, update: {}, create: { guildId } });
+  await getGuildOrCreate(guildId);
   return prisma.tempVoiceCreator.create({ data: { guildId, channelId } });
 }
 

@@ -1,3 +1,4 @@
+import { getGuildOrCreate } from 'database/guild';
 import { prisma } from 'database/index';
 
 import type { GuildStarboard, StarboardEntry } from 'generated/prisma/client';
@@ -8,7 +9,7 @@ export const getGuildStarboard = async (guildId: string) => prisma.guildStarboar
 
 /** The server's starboard settings, made with no channel if there are none yet, so nothing is posted until one is picked. */
 export async function getOrCreateGuildStarboard(guildId: string) {
-  await prisma.guild.upsert({ where: { guildId }, update: {}, create: { guildId } });
+  await getGuildOrCreate(guildId);
   return prisma.guildStarboard.upsert({ where: { guildId }, update: {}, create: { guildId } });
 }
 
