@@ -175,11 +175,13 @@ export async function renderTempVoiceList(guild: Guild, t: Translate): Promise<R
 
   const lines = creators.map((creator, index) => {
     const category = creatorCategory(guild, creator);
-    return t('tempVoice.config.list.item', {
+    const line = t('tempVoice.config.list.item', {
       position: index + 1,
       channel: channelMention(creator.channelId),
       category: category ? channelMention(category.id) : t('tempVoice.config.status.noCategoryShort'),
     });
+    // So it's seen without opening it
+    return creator.enabled ? line : `${line} · ${t('tempVoice.config.list.off')}`;
   });
   container
     .addTextDisplayComponents(
