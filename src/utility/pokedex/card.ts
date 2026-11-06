@@ -41,9 +41,13 @@ const WIDTH = 880;
 const PADDING = 32;
 const TOP_HEIGHT = 360;
 const EVOLUTION_HEIGHT = 190;
-/** The room below the names for how they evolve, in up to two lines, when any does. */
-const EVOLUTION_HOW_HEIGHT = 34;
+/** How they evolve is written below the names, in as many lines as it takes, which the card grows by. */
 const EVOLUTION_HOW_LINE_HEIGHT = 14;
+const EVOLUTION_HOW_GAP = 6;
+/** More than any way to evolve takes, so the card can't grow without end. */
+const EVOLUTION_HOW_MAX_LINES = 6;
+const EVOLUTION_ARROW_WIDTH = 36;
+const EVOLUTION_GAP = 8;
 const ENTRY_FONT = '17px "Roboto"';
 const ENTRY_LINE_HEIGHT = 25;
 /** The most lines of Pokédex text, which is plenty for any of them. */
@@ -103,6 +107,26 @@ function drawStats(ctx: SKRSContext2D, data: PokedexCardData, color: string, x: 
   ctx.fillText(String(data.stats.reduce((sum, stat) => sum + stat.value, 0)), x + labelWidth + valueWidth, totalY);
 }
 
+/** How big each Pokémon of the evolution chain is drawn, so even Eevee's eight fit in a row. */
+function evolutionSize(data: PokedexCardData): number {
+  const count = data.evolution.reduce((sum, stage) => sum + stage.length, 0);
+  const arrows = data.evolution.length - 1;
+  const available = WIDTH - PADDING * 2 - arrows * EVOLUTION_ARROW_WIDTH - (count - arrows - 1) * EVOLUTION_GAP;
+  return Math.min(110, Math.floor(available / count));
+}
+
+/** How a Pokémon evolves, in lines as wide as it's drawn, in the font it's drawn in, which this sets. */
+function howLines(ctx: SKRSContext2D, how: string, size: number): string[] {
+  ctx.font = `${size < 90 ? 11 : 12}px "Roboto", "EmojiFallback"`;
+  return wrapText(ctx, how, size + EVOLUTION_GAP, EVOLUTION_HOW_MAX_LINES);
+}
+
+/** The most lines any of the evolution chain needs for how it evolves. */
+function mostHowLines(ctx: SKRSContext2D, data: PokedexCardData): number {
+  const size = evolutionSize(data);
+  return Math.max(0, ...data.evolution.flat().map((pokemon) => (pokemon.how ? howLines(ctx, pokemon.how, size).length : 0)));
+}
+
 /** The evolution chain in a row, with arrows between the stages, sized so even Eevee's eight fit. */
 function drawEvolution(ctx: SKRSContext2D, data: PokedexCardData, color: string, y: number) {
   ctx.textAlign = 'left';
@@ -113,10 +137,9 @@ function drawEvolution(ctx: SKRSContext2D, data: PokedexCardData, color: string,
 
   const count = data.evolution.reduce((sum, stage) => sum + stage.length, 0);
   const arrows = data.evolution.length - 1;
-  const arrowWidth = 36;
-  const gap = 8;
-  const available = WIDTH - PADDING * 2 - arrows * arrowWidth - (count - arrows - 1) * gap;
-  const size = Math.min(110, Math.floor(available / count));
+  const arrowWidth = EVOLUTION_ARROW_WIDTH;
+  const gap = EVOLUTION_GAP;
+  const size = evolutionSize(data);
   const totalWidth = count * size + arrows * arrowWidth + (count - arrows - 1) * gap;
 
   const imageY = y + 40;
@@ -156,11 +179,9 @@ function drawEvolution(ctx: SKRSContext2D, data: PokedexCardData, color: string,
       ctx.fillStyle = pokemon.current ? COLORS.textWhite : COLORS.textGray;
       ctx.fillText(truncateText(ctx, pokemon.name, size + gap), x + size / 2, imageY + size + 22);
       if (pokemon.how) {
-        ctx.font = `${size < 90 ? 11 : 12}px "Roboto", "EmojiFallback"`;
+        const lines = howLines(ctx, pokemon.how, size);
         ctx.fillStyle = COLORS.textGray;
-        wrapText(ctx, pokemon.how, size + gap, 2).forEach((line, lineIndex) =>
-          ctx.fillText(line, x + size / 2, imageY + size + 40 + lineIndex * EVOLUTION_HOW_LINE_HEIGHT),
-        );
+        lines.forEach((line, lineIndex) => ctx.fillText(line, x + size / 2, imageY + size + 40 + lineIndex * EVOLUTION_HOW_LINE_HEIGHT));
       }
       x += size;
     });
@@ -228,8 +249,9 @@ export function renderPokedexCard(data: PokedexCardData): Buffer {
   const entryLines = data.entry ? wrapText(measure, data.entry, WIDTH - PADDING * 2, ENTRY_MAX_LINES) : [];
   const aboutY = TOP_HEIGHT;
   const evolutionY = aboutY + aboutHeight(entryLines.length);
-  const hasHow = data.evolution.some((stage) => stage.some((pokemon) => pokemon.how));
-  const height = evolutionY + (hasEvolution ? EVOLUTION_HEIGHT + (hasHow ? EVOLUTION_HOW_HEIGHT : 0) : 0);
+  const howLineCount = hasEvolution ? mostHowLines(measure, data) : 0;
+  const howHeight = howLineCount > 0 ? EVOLUTION_HOW_GAP + howLineCount * EVOLUTION_HOW_LINE_HEIGHT : 0;
+  const height = evolutionY + (hasEvolution ? EVOLUTION_HEIGHT + howHeight : 0);
   const canvas = createCanvas(WIDTH, height);
   const ctx = canvas.getContext('2d');
   const color = data.types[0]?.color ?? '#a8a77a';
