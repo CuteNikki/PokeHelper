@@ -6,6 +6,7 @@ import {
   messageLink,
   MessageFlags,
   SeparatorBuilder,
+  SeparatorSpacingSize,
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder,
   subtext,
@@ -47,8 +48,10 @@ export async function renderStickyList(guild: Guild, t: Translate): Promise<Resp
   const container = new ContainerBuilder()
     .setAccentColor(ThemeColors.info)
     .addTextDisplayComponents(new TextDisplayBuilder().setContent(t('sticky.list.title')))
+    // Large, so the title, the switch and the list stand apart, like in the settings panels
+    .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large))
     .addSectionComponents(buildSwitchSection(t('sticky.list.enabled.label'), t('sticky.list.enabled.description'), stickiesEnabled, STICKY_TOGGLE_ID, t))
-    .addSeparatorComponents(new SeparatorBuilder());
+    .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large));
 
   if (stickies.length === 0) {
     container.addTextDisplayComponents(new TextDisplayBuilder().setContent(t('sticky.list.none')));
