@@ -28,7 +28,8 @@ export function stickyChannelProblem(guild: Guild, channelId: string, isThread: 
  */
 export const buildStickyModal = (channelId: string, text: string | undefined, t: Translate) =>
   buildTextModal({
-    customId: `${STICKY_MODAL_PREFIX}${channelId}`,
+    // A new ID each time, as Discord fills a popup with what was last typed in one with the same ID, like an emptied text
+    customId: `${STICKY_MODAL_PREFIX}${channelId}:${Date.now().toString(36)}`,
     title: t('sticky.modal.title'),
     label: t('sticky.modal.label'),
     inputId: STICKY_TEXT_INPUT_ID,
@@ -43,7 +44,8 @@ export const buildStickyModal = (channelId: string, text: string | undefined, t:
 export async function handleStickyModal(interaction: ModalSubmitInteraction): Promise<unknown> {
   const t = getTranslate(interaction.locale);
   if (!interaction.inCachedGuild()) return sendError(interaction, t('system.outdated'));
-  const channelId = interaction.customId.slice(STICKY_MODAL_PREFIX.length);
+  // Popups from before they had a time after the channel have only the channel
+  const [channelId = ''] = interaction.customId.slice(STICKY_MODAL_PREFIX.length).split(':');
   const channel = interaction.guild.channels.cache.get(channelId);
   const text = interaction.fields.getTextInputValue(STICKY_TEXT_INPUT_ID).trim();
   const mention = channelMention(channelId);
