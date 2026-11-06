@@ -1,3 +1,5 @@
+import { readFile } from 'node:fs/promises';
+
 import { createCanvas, loadImage, type Image } from '@napi-rs/canvas';
 
 /**
@@ -6,15 +8,35 @@ import { createCanvas, loadImage, type Image } from '@napi-rs/canvas';
  */
 const ICONS_PATH = 'assets/types';
 
-/** Each icon, loaded once. */
+/** The circle behind the symbol, which is left out where the icon goes on something in the type's color already, like a badge. */
+const BACKGROUND = /<circle class="cls-1"[^>]*\/>/;
+/** The symbol's white, which is changed to its color when it's drawn on its own. */
+const SYMBOL_FILL = '.cls-2{fill:#fff;}';
+/** The part of the icon the symbol is in, so it fills the space when drawn on its own. */
+const SYMBOL_VIEW_BOX = 'viewBox="12 12 104 104"';
+
+/** Each icon, loaded once, by type and how it's drawn. */
 const icons = new Map<string, Promise<Image | null>>();
 
-/** A type's icon, or null if there's none for it, like for a type added to the games later. */
-export function typeIcon(type: string): Promise<Image | null> {
-  let icon = icons.get(type);
+async function loadIcon(type: string, symbolColor: string | null): Promise<Image | null> {
+  let svg = await readFile(`${ICONS_PATH}/${type}.svg`, 'utf8').catch(() => null);
+  if (svg === null) return null;
+  if (symbolColor) {
+    svg = svg.replace(BACKGROUND, '').replace(SYMBOL_FILL, `.cls-2{fill:${symbolColor};}`).replace('viewBox="0 0 128 128"', SYMBOL_VIEW_BOX);
+  }
+  return loadImage(Buffer.from(svg)).catch(() => null);
+}
+
+/**
+ * A type's icon, or null if there's none for it, like for a type added to the games later.
+ * @param symbolColor Draw only the symbol, in this color, without the circle behind it.
+ */
+export function typeIcon(type: string, symbolColor: string | null = null): Promise<Image | null> {
+  const key = `${type}:${symbolColor ?? ''}`;
+  let icon = icons.get(key);
   if (!icon) {
-    icon = loadImage(`${ICONS_PATH}/${type}.svg`).catch(() => null);
-    icons.set(type, icon);
+    icon = loadIcon(type, symbolColor);
+    icons.set(key, icon);
   }
   return icon;
 }

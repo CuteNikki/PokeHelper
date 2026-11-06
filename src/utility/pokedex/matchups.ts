@@ -15,6 +15,7 @@ import {
   ThumbnailBuilder,
 } from 'discord.js';
 
+import { colorOn } from 'utility/canvas';
 import { FALLBACK_LANGUAGE, getTranslate, resolveLanguage, type Translate } from 'utility/i18next';
 import { answerPokeApiError, type ApiDamageRelations, artworkUrl, getImage, getMove, getPokemon, getType } from 'utility/pokedex/api';
 import { renderMatchupCard } from 'utility/pokedex/matchupCard';
@@ -182,7 +183,7 @@ async function getMatchups(slug: string, language: string): Promise<Matchups | n
 
 /** The matchups as a card, like the Pokédex entry, with everything on it in its description for screen readers. */
 async function buildCard(matchups: Matchups, slug: string, t: Translate): Promise<ResponsePayload> {
-  const cardType = async (type: MatchupType) => ({ name: type.name, color: toHex(type.color), icon: await typeIcon(type.slug) });
+  const cardType = async (type: MatchupType) => ({ name: type.name, color: toHex(type.color), icon: await typeIcon(type.slug, colorOn(toHex(type.color))) });
   const [artwork, weak] = await Promise.all([
     matchups.picture ? getImage(matchups.picture) : null,
     Promise.all(

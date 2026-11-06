@@ -96,10 +96,10 @@ export const withAlpha = (hex: string, alpha: number) => {
   return `rgba(${(value >> 16) & 255}, ${(value >> 8) & 255}, ${value & 255}, ${alpha})`;
 };
 
-/** Whether a `#rrggbb` color is light, so text on it should be dark to be readable, like on Electric's yellow. */
-const isLight = (hex: string) => {
+/** The color of text and symbols on a `#rrggbb` color: dark on light ones, like Electric's yellow, so they're readable, white otherwise. */
+export const colorOn = (hex: string) => {
   const value = parseInt(hex.slice(1), 16);
-  return 0.299 * ((value >> 16) & 255) + 0.587 * ((value >> 8) & 255) + 0.114 * (value & 255) > 170;
+  return 0.299 * ((value >> 16) & 255) + 0.587 * ((value >> 8) & 255) + 0.114 * (value & 255) > 170 ? '#1e1e2e' : '#ffffff';
 };
 
 /** An image scaled to fit a square, centered, keeping its shape. */
@@ -111,10 +111,11 @@ export function drawContained(ctx: SKRSContext2D, image: Image, x: number, y: nu
 }
 
 /** The room between a badge's icon and its edge. */
-const BADGE_ICON_INSET = 3;
+const BADGE_ICON_INSET = 5;
 
 /**
- * A Pokémon type's badge: its icon at the start, if there is one, and its name on a pill in its color, in dark text on light colors.
+ * A Pokémon type's badge: its symbol at the start, if there is one, and its name on a pill in its color, in dark text on light colors.
+ * The symbol is drawn as given, so it should be in {@link colorOn} the type's color, without a background.
  * As wide as given, with a name too long for it shortened, or as wide as its name needs.
  * @returns How wide it is.
  */
@@ -139,7 +140,7 @@ export function drawTypeBadge(
   if (type.icon) ctx.drawImage(type.icon, x + BADGE_ICON_INSET, y + BADGE_ICON_INSET, iconSize, iconSize);
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  ctx.fillStyle = isLight(type.color) ? '#1e1e2e' : '#ffffff';
+  ctx.fillStyle = colorOn(type.color);
   ctx.fillText(truncateText(ctx, label, badgeWidth - textStart - 16), x + textStart + (badgeWidth - textStart) / 2, y + height / 2 + 1);
   return badgeWidth;
 }

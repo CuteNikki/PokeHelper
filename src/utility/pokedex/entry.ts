@@ -21,6 +21,7 @@ import {
   ThumbnailBuilder,
 } from 'discord.js';
 
+import { colorOn } from 'utility/canvas';
 import { DiscordLimits } from 'utility/discordLimits';
 import { formatNumber } from 'utility/duration';
 import { FALLBACK_LANGUAGE, getTranslate, resolveLanguage, type Translate } from 'utility/i18next';
@@ -372,7 +373,7 @@ export async function buildPokedexEntry(match: PokedexMatch, view: PokedexView, 
     ]);
 
     const toHex = (color: number) => `#${color.toString(16).padStart(6, '0')}`;
-    const icons = await Promise.all(types.map((type) => typeIcon(type.slug)));
+    const icons = await Promise.all(types.map((type) => typeIcon(type.slug, colorOn(toHex(type.color)))));
     const card = renderPokedexCard({
       name: shownName,
       number,
