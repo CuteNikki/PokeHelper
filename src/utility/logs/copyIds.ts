@@ -1,16 +1,8 @@
-import {
-  ButtonBuilder,
-  ButtonStyle,
-  LabelBuilder,
-  ModalBuilder,
-  TextInputBuilder,
-  TextInputStyle,
-  type ButtonInteraction,
-  type ModalSubmitInteraction,
-} from 'discord.js';
+import { ButtonBuilder, ButtonStyle, type ButtonInteraction } from 'discord.js';
 
 import { DiscordLimits } from 'utility/discordLimits';
 import { getTranslate, type Translate } from 'utility/i18next';
+import { buildCopyModal } from 'utility/modal';
 import { sendError } from 'utility/response';
 
 /**
@@ -66,20 +58,12 @@ export async function showCopyIds(interaction: ButtonInteraction): Promise<unkno
   const ids = parseCopyIds(interaction.customId);
   if (ids.length === 0) return sendError(interaction, t('system.outdated'));
 
-  return interaction.showModal(
-    new ModalBuilder()
-      .setCustomId(COPY_IDS_MODAL_ID)
-      .setTitle(t('logs.copy.title'))
-      .addLabelComponents(
-        ids.map(([kind, id], index) => {
-          // The name too, to tell apart several of a kind, like the member and who did it, or several roles
-          const name = nameOf(interaction, kind, id);
-          return new LabelBuilder()
-            .setLabel((name ? `${t(`logs.copy.${kind}`)} · ${name}` : t(`logs.copy.${kind}`)).slice(0, DiscordLimits.modalLabelLength))
-            .setTextInputComponent(new TextInputBuilder().setCustomId(`${kind}${index}`).setStyle(TextInputStyle.Short).setValue(id).setRequired(false));
-        }),
-      ),
-  );
+  const fields = ids.map(([kind, id], index) => {
+    // The name too, to tell apart several of a kind, like the member and who did it, or several roles
+    const name = nameOf(interaction, kind, id);
+    return { id: `${kind}${index}`, label: name ? `${t(`logs.copy.${kind}`)} · ${name}` : t(`logs.copy.${kind}`), value: id };
+  });
+  return interaction.showModal(buildCopyModal(COPY_IDS_MODAL_ID, t('logs.copy.title'), fields));
 }
 
 /** What an ID is called, as far as the bot knows it, like a username or a role's name. */
@@ -99,6 +83,3 @@ function nameOf(interaction: ButtonInteraction, kind: IdKind, id: string): strin
       return null;
   }
 }
-
-/** Closing the popup with its button sends it, which only needs an answer. */
-export const closeCopyIds = (interaction: ModalSubmitInteraction) => interaction.deferUpdate();

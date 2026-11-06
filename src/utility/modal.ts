@@ -1,4 +1,4 @@
-import { LabelBuilder, ModalBuilder, TextInputBuilder, TextInputStyle } from 'discord.js';
+import { LabelBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, type ModalSubmitInteraction } from 'discord.js';
 
 import { DiscordLimits } from 'utility/discordLimits';
 
@@ -32,3 +32,22 @@ export function buildTextModal(options: {
     .setTitle(options.title.slice(0, DiscordLimits.modalTitleLength))
     .addLabelComponents(new LabelBuilder().setLabel(options.label.slice(0, DiscordLimits.modalLabelLength)).setTextInputComponent(input));
 }
+
+/**
+ * A popup with texts to copy, each in a field of its own, as text in messages can't be selected on phones.
+ * Its fields can be emptied, as nothing that's sent is used.
+ */
+export const buildCopyModal = (customId: string, title: string, fields: { id: string; label: string; value: string }[]) =>
+  new ModalBuilder()
+    .setCustomId(customId)
+    .setTitle(title.slice(0, DiscordLimits.modalTitleLength))
+    .addLabelComponents(
+      fields.map((field) =>
+        new LabelBuilder()
+          .setLabel(field.label.slice(0, DiscordLimits.modalLabelLength))
+          .setTextInputComponent(new TextInputBuilder().setCustomId(field.id).setStyle(TextInputStyle.Short).setValue(field.value).setRequired(false)),
+      ),
+    );
+
+/** Closing a copy popup with its button sends it, which only needs an answer. */
+export const closeCopyModal = (interaction: ModalSubmitInteraction) => interaction.deferUpdate();

@@ -7,14 +7,9 @@ import {
   ContainerBuilder,
   escapeMarkdown,
   type GuildMember,
-  LabelBuilder,
   MessageFlags,
-  ModalBuilder,
-  type ModalSubmitInteraction,
   SectionBuilder,
   TextDisplayBuilder,
-  TextInputBuilder,
-  TextInputStyle,
   ThumbnailBuilder,
   type User,
 } from 'discord.js';
@@ -23,9 +18,9 @@ import { getFriendCodes } from 'database/friendCodes';
 
 import { friendCodeSettings } from 'settings/friendCodes';
 
-import { DiscordLimits } from 'utility/discordLimits';
 import { formatFriendCode, savedFriendCodes } from 'utility/friendCodes';
 import { getTranslate, type Translate } from 'utility/i18next';
+import { buildCopyModal } from 'utility/modal';
 import { createResponse, sendError, sendResponse, type ResponsePayload } from 'utility/response';
 import { settingsContext } from 'utility/settings';
 import { ThemeColors } from 'utility/theme';
@@ -90,19 +85,6 @@ export async function handleFriendCodesButton(interaction: ButtonInteraction): P
   if (codes.length === 0) return sendError(interaction, t('friendCodes.view.gone'));
 
   // Only the digits, which is what the games take when pasted
-  return interaction.showModal(
-    new ModalBuilder()
-      .setCustomId(FRIEND_CODES_COPY_MODAL_ID)
-      .setTitle(t('friendCodes.view.copyTitle'))
-      .addLabelComponents(
-        codes.map(({ game, code }) =>
-          new LabelBuilder()
-            .setLabel(t(`friendCodes.games.${game}`).slice(0, DiscordLimits.modalLabelLength))
-            .setTextInputComponent(new TextInputBuilder().setCustomId(game).setStyle(TextInputStyle.Short).setValue(code).setRequired(false)),
-        ),
-      ),
-  );
+  const fields = codes.map(({ game, code }) => ({ id: game, label: t(`friendCodes.games.${game}`), value: code }));
+  return interaction.showModal(buildCopyModal(FRIEND_CODES_COPY_MODAL_ID, t('friendCodes.view.copyTitle'), fields));
 }
-
-/** Closing the popup with its button sends it, which only needs an answer. */
-export const closeFriendCodesCopy = (interaction: ModalSubmitInteraction) => interaction.deferUpdate();

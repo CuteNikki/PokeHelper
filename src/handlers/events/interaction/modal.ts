@@ -5,12 +5,13 @@ import { Event } from 'classes/base/event';
 import { handleSettingsModal } from 'settings/index';
 
 import { COUNTING_PAGE_MODAL_PREFIX, handleCountingPageModal } from 'utility/counting/pages';
-import { closeFriendCodesCopy, FRIEND_CODES_COPY_MODAL_ID } from 'utility/friendCodeView';
+import { FRIEND_CODES_COPY_MODAL_ID } from 'utility/friendCodeView';
 import { getTranslate } from 'utility/i18next';
 import { handleLeaderboardPageModal } from 'utility/leveling/leaderboardPageModal';
 import { LEADERBOARD_PAGE_MODAL_PREFIX } from 'utility/leveling/leaderboardView';
 import { logger } from 'utility/logger';
-import { closeCopyIds, COPY_IDS_MODAL_ID } from 'utility/logs/copyIds';
+import { COPY_IDS_MODAL_ID } from 'utility/logs/copyIds';
+import { closeCopyModal } from 'utility/modal';
 import { handlePokedexSearchModal, POKEDEX_SEARCH_MODAL_PREFIX } from 'utility/pokedex/entry';
 import { GUESS_MODAL_PREFIX, handleGuessModal } from 'utility/pokedex/guess';
 import { sendError } from 'utility/response';
@@ -35,8 +36,7 @@ export default new Event({
       else if (interaction.customId.startsWith(POKEDEX_SEARCH_MODAL_PREFIX)) await handlePokedexSearchModal(interaction);
       else if (interaction.customId.startsWith(GUESS_MODAL_PREFIX)) await handleGuessModal(interaction);
       else if (interaction.customId.startsWith(TEMP_VOICE_EDIT_MODAL_PREFIX)) await handleTempVoiceModal(interaction);
-      else if (interaction.customId === COPY_IDS_MODAL_ID) await closeCopyIds(interaction);
-      else if (interaction.customId === FRIEND_CODES_COPY_MODAL_ID) await closeFriendCodesCopy(interaction);
+      else if (interaction.customId === COPY_IDS_MODAL_ID || interaction.customId === FRIEND_CODES_COPY_MODAL_ID) await closeCopyModal(interaction);
       else await sendError(interaction, getTranslate(interaction.locale)('system.outdated'));
     } catch (error) {
       logger.error(error, `Failed to handle the popup ${interaction.customId}`);
