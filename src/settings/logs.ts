@@ -2,21 +2,11 @@ import { ChannelType } from 'discord.js';
 
 import { getOrCreateGuildLogs, updateGuildLogs, type GuildLogs } from 'database/logs';
 
+import { DiscordLimits } from 'utility/discordLimits';
 import type { Translate } from 'utility/i18next';
 import { CHANNEL_FIELDS, groupChannelOf, LOG_EVENTS, LOG_GROUPS, type LogEvent, type LogGroup } from 'utility/logs/events';
 import { forgetLogConfig, LOG_CHANNEL_PERMISSIONS } from 'utility/logs/send';
-import { createSettingsPanel, type Setting } from 'utility/settings';
-
-/** Discord's channel and role selects pick at most 25. */
-const MAX_IGNORED = 25;
-/** Channels whose messages and voice can be left out, with categories covering the channels in them. */
-const IGNORABLE_CHANNEL_TYPES = [
-  ChannelType.GuildText,
-  ChannelType.GuildAnnouncement,
-  ChannelType.GuildVoice,
-  ChannelType.GuildForum,
-  ChannelType.GuildCategory,
-];
+import { createSettingsPanel, MESSAGE_CHANNEL_TYPES, type Setting } from 'utility/settings';
 
 /** Turn an event on or off, keeping the list of those turned off. */
 async function setEvent(guildId: string, event: LogEvent, on: boolean) {
@@ -102,8 +92,8 @@ export const logSettings = createSettingsPanel<GuildLogs>({
       type: 'channels',
       key: 'ignoredChannels',
       category: 'general',
-      channelTypes: IGNORABLE_CHANNEL_TYPES,
-      max: MAX_IGNORED,
+      channelTypes: MESSAGE_CHANNEL_TYPES,
+      max: DiscordLimits.selectOptions,
       label: (t) => t('logs.settings.ignoredChannels.label'),
       description: (t) => t('logs.settings.ignoredChannels.description'),
       get: (config) => config.ignoredChannelIds,
@@ -113,7 +103,7 @@ export const logSettings = createSettingsPanel<GuildLogs>({
       type: 'roles',
       key: 'ignoredRoles',
       category: 'general',
-      max: MAX_IGNORED,
+      max: DiscordLimits.selectOptions,
       label: (t) => t('logs.settings.ignoredRoles.label'),
       description: (t) => t('logs.settings.ignoredRoles.description'),
       get: (config) => config.ignoredRoleIds,

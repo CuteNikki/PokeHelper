@@ -2,23 +2,14 @@ import { ChannelType } from 'discord.js';
 
 import { getOrCreateGuildStarboard, updateGuildStarboard, type GuildStarboard } from 'database/starboard';
 
+import { DiscordLimits } from 'utility/discordLimits';
 import { formatNumber } from 'utility/duration';
 import { parseEmoji } from 'utility/roleMenu';
-import { createSettingsPanel } from 'utility/settings';
+import { createSettingsPanel, MESSAGE_CHANNEL_TYPES } from 'utility/settings';
 import { DEFAULT_STAR_EMOJI, DEFAULT_THRESHOLD, MAX_THRESHOLD, STARBOARD_CHANNEL_PERMISSIONS } from 'utility/starboard';
 
-/** Discord's channel selects pick at most 25. */
-const MAX_IGNORED = 25;
 /** Long enough for a server emoji typed in full, like `<a:name:id>`. */
 const MAX_EMOJI_LENGTH = 64;
-/** Channels whose reactions can be left out, with categories covering the channels in them. */
-const IGNORABLE_CHANNEL_TYPES = [
-  ChannelType.GuildText,
-  ChannelType.GuildAnnouncement,
-  ChannelType.GuildVoice,
-  ChannelType.GuildForum,
-  ChannelType.GuildCategory,
-];
 
 /** The number of reactions typed, or null if it isn't a whole number in range. */
 export function parseThreshold(text: string): number | null {
@@ -83,8 +74,8 @@ export const starboardSettings = createSettingsPanel<GuildStarboard>({
     {
       type: 'channels',
       key: 'ignoredChannels',
-      channelTypes: IGNORABLE_CHANNEL_TYPES,
-      max: MAX_IGNORED,
+      channelTypes: MESSAGE_CHANNEL_TYPES,
+      max: DiscordLimits.selectOptions,
       label: (t) => t('starboard.settings.ignoredChannels.label'),
       description: (t) => t('starboard.settings.ignoredChannels.description'),
       get: (config) => config.ignoredChannelIds,

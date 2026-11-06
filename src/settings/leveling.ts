@@ -7,7 +7,7 @@ import { formatNumber } from 'utility/duration';
 import type { Translate } from 'utility/i18next';
 import { grantRewardToQualifiedMembers } from 'utility/leveling/rewards';
 import { logFailure } from 'utility/response';
-import { createSettingsPanel, type EntriesSetting } from 'utility/settings';
+import { createSettingsPanel, type EntriesSetting, MESSAGE_CHANNEL_TYPES } from 'utility/settings';
 
 type LevelingConfig = GuildLeveling & { rewards: GuildLevelingReward[]; multipliers: LevelingMultiplier[] };
 
@@ -18,9 +18,6 @@ const MAX_LIST = 20;
 const MAX_MULTIPLIERS = 10;
 const MAX_LEVEL = 1000;
 const MAX_MULTIPLIER = 10;
-
-/** Channels whose messages, threads or channels XP rules can apply to. Categories cover the channels in them. */
-const XP_CHANNEL_TYPES = [ChannelType.GuildText, ChannelType.GuildAnnouncement, ChannelType.GuildForum, ChannelType.GuildVoice, ChannelType.GuildCategory];
 
 /** Parse a multiplier like `1.5` or `1,5`, which has to be above 0 and at most 10. */
 function parseMultiplier(input: string): number | null {
@@ -43,7 +40,7 @@ function multiplierSetting(type: MultiplierTarget): EntriesSetting<LevelingConfi
     key: `${type}Multipliers`,
     category: `${type}Multipliers`,
     target: type,
-    channelTypes: XP_CHANNEL_TYPES,
+    channelTypes: MESSAGE_CHANNEL_TYPES,
     max: MAX_MULTIPLIERS,
     presets: [0.5, 1.5, 2, 3],
     defaultValue: 2,
@@ -171,7 +168,7 @@ export const levelingSettings = createSettingsPanel<LevelingConfig>({
       type: 'channels',
       key: 'ignoredChannels',
       category: 'filters',
-      channelTypes: XP_CHANNEL_TYPES,
+      channelTypes: MESSAGE_CHANNEL_TYPES,
       max: MAX_LIST,
       label: (t) => t('leveling.settings.ignoredChannels.label'),
       description: (t) => t('leveling.settings.ignoredChannels.description'),
@@ -182,7 +179,7 @@ export const levelingSettings = createSettingsPanel<LevelingConfig>({
       type: 'channels',
       key: 'enabledChannels',
       category: 'filters',
-      channelTypes: XP_CHANNEL_TYPES,
+      channelTypes: MESSAGE_CHANNEL_TYPES,
       max: MAX_LIST,
       label: (t) => t('leveling.settings.enabledChannels.label'),
       description: (t) => t('leveling.settings.enabledChannels.description'),

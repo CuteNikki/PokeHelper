@@ -6,7 +6,7 @@ import {
   ButtonStyle,
   channelMention,
   ChannelSelectMenuBuilder,
-  type ChannelType,
+  ChannelType,
   type Client,
   ContainerBuilder,
   type Guild,
@@ -40,6 +40,18 @@ import { ThemeColors } from 'utility/theme';
 export const SETTINGS_CUSTOM_ID_PREFIX = 'settings:';
 /** The page of panels without categories. */
 const SINGLE_PAGE = '_';
+/**
+ * The channels messages are sent in, which includes voice channels' chats, and categories, which cover the channels in them.
+ * For settings that pick channels to leave out or to only use.
+ */
+export const MESSAGE_CHANNEL_TYPES = [
+  ChannelType.GuildText,
+  ChannelType.GuildAnnouncement,
+  ChannelType.GuildVoice,
+  ChannelType.GuildForum,
+  ChannelType.GuildCategory,
+];
+
 /** The key of the select that switches between categories. */
 const PAGE_KEY = '_page';
 /** Placeholder in custom IDs for a missing argument or shown value. */
