@@ -22,6 +22,12 @@ export const createResponse = (content: string, kind: ResponseKind = 'info'): Re
   flags: [MessageFlags.IsComponentsV2],
 });
 
+/** A message with a notice above it, like a success message above the list it led back to. */
+export const withNotice = (content: string, kind: ResponseKind, payload: ResponsePayload): ResponsePayload => ({
+  ...payload,
+  components: [...(createResponse(content, kind).components ?? []), ...(payload.components ?? [])],
+});
+
 /**
  * Send a response to an interaction, picking `reply`, `editReply` or `followUp` based on its state.
  * Never throws: failures are logged and `null` is returned.

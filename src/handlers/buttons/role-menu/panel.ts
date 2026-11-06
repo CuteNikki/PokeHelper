@@ -8,7 +8,7 @@ import { getRoleMenu, getRoleMenus } from 'database/roleMenu';
 import { getRoleMenuSettings, renderRoleMenuList, ROLE_MENU_CUSTOM_ID, roleMenuName } from 'settings/roleMenu';
 
 import { getTranslate } from 'utility/i18next';
-import { createResponse, sendError } from 'utility/response';
+import { createResponse, sendError, withNotice } from 'utility/response';
 import { deleteRoleMenu, syncRoleMenuMessage } from 'utility/roleMenu';
 import { settingsContext } from 'utility/settings';
 import { ThemeColors } from 'utility/theme';
@@ -82,9 +82,7 @@ export default new Button({
         await interaction.deferUpdate();
         await deleteRoleMenu(interaction.guild, menu);
         // Back to the list, to go on with another menu
-        const success = createResponse(t('roleMenu.delete.success'), 'success');
-        const list = await renderRoleMenuList(interaction.guild, t);
-        return interaction.editReply({ ...list, components: [...(success.components ?? []), ...(list.components ?? [])] });
+        return interaction.editReply(withNotice(t('roleMenu.delete.success'), 'success', await renderRoleMenuList(interaction.guild, t)));
       }
 
       case ROLE_MENU_CUSTOM_ID.back:

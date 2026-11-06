@@ -8,7 +8,7 @@ import { deleteTempVoiceCreator, getTempVoiceCreator } from 'database/tempVoice'
 import { creatorName, getTempVoiceSettings, renderTempVoiceList, TEMP_VOICE_CONFIG_ID } from 'settings/tempVoice';
 
 import { getTranslate } from 'utility/i18next';
-import { createResponse, sendError } from 'utility/response';
+import { createResponse, sendError, withNotice } from 'utility/response';
 import { settingsContext } from 'utility/settings';
 import { ThemeColors } from 'utility/theme';
 
@@ -70,9 +70,7 @@ export default new Button({
         await interaction.deferUpdate();
         // The channel itself stays, it's only no longer a join channel. Channels made with it stay until they're empty
         await deleteTempVoiceCreator(creator.id);
-        const success = createResponse(t('tempVoice.config.deleted'), 'success');
-        const list = await renderTempVoiceList(interaction.guild, t);
-        return interaction.editReply({ ...list, components: [...(success.components ?? []), ...(list.components ?? [])] });
+        return interaction.editReply(withNotice(t('tempVoice.config.deleted'), 'success', await renderTempVoiceList(interaction.guild, t)));
       }
 
       case TEMP_VOICE_CONFIG_ID.back:

@@ -19,7 +19,7 @@ import { COUNTING_CHANNEL_PERMISSIONS, countingSettings } from 'settings/countin
 import { askToReset, showSettingsPanel } from 'utility/configCommand';
 import { runCountingTask } from 'utility/counting/game';
 import { getTranslate } from 'utility/i18next';
-import { createResponse } from 'utility/response';
+import { createResponse, withNotice } from 'utility/response';
 import { formatPermissions, missingBotPermissions, settingsContext } from 'utility/settings';
 
 export default new Command({
@@ -91,7 +91,6 @@ async function handleSetup(interaction: ChatInputCommandInteraction<'cached'>): 
   }
 
   // Show the settings right away, so the rest can be configured without another command
-  const success = createResponse(t('counting.setup.success', { channel: channelMention(channel.id) }), 'success');
   const settings = await countingSettings.render(settingsContext(interaction), t);
-  return interaction.editReply({ ...settings, components: [...(success.components ?? []), ...(settings.components ?? [])] });
+  return interaction.editReply(withNotice(t('counting.setup.success', { channel: channelMention(channel.id) }), 'success', settings));
 }
