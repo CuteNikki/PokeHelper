@@ -10,7 +10,21 @@ import { findBySlug, formatDexNumber, matchName } from 'utility/pokedex/names';
  * The pages of the Pokédex, which link to each other: a Pokémon, a move, an item and so on, a list of all natures, where a Pokémon
  * is found, and the moves it learns. Each is written as `<kind>:<slug>`, with the game after it for the pages that show one game.
  */
-export const PAGE_KINDS = ['pokemon', 'move', 'item', 'ability', 'berry', 'nature', 'natures', 'location', 'where', 'learnset'] as const;
+export const PAGE_KINDS = [
+  'pokemon',
+  'move',
+  'item',
+  'ability',
+  'berry',
+  'nature',
+  'natures',
+  'location',
+  'where',
+  'learnset',
+  'type',
+  'types',
+  'team',
+] as const;
 export type PageKind = (typeof PAGE_KINDS)[number];
 
 export interface DexPage {
@@ -38,6 +52,9 @@ export const PAGE_ICONS: Record<PageKind, IconName> = {
   location: 'map',
   where: 'map-pin',
   learnset: 'scroll-text',
+  type: 'tag',
+  types: 'chart-column',
+  team: 'users',
 };
 
 /** A button to a page, `dex:<page>`, with the page it's on after `|` for the Back button there. */

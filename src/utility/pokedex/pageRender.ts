@@ -20,6 +20,8 @@ import { buildMove } from 'utility/pokedex/lookups/move';
 import { buildNature, buildNatureList } from 'utility/pokedex/lookups/nature';
 import { findBySlug, loadPokedexData, matchName, nameOf } from 'utility/pokedex/names';
 import { backButton, type DexPage, type PageContext } from 'utility/pokedex/pages';
+import { buildTeam } from 'utility/pokedex/team';
+import { buildTypeChart, buildTypePage } from 'utility/pokedex/typeChart';
 import { type ResponsePayload, sendError, sendResponse } from 'utility/response';
 
 /** A page's name, like a Pokémon's or a move's, for the Back button to it. */
@@ -49,6 +51,12 @@ export function pageName(page: DexPage, language: string, t: Translate): string 
       return t('pages.where', { name: pokemon() });
     case 'learnset':
       return t('pages.learnset', { name: pokemon() });
+    case 'type':
+      return nameOf('types', page.slug, language);
+    case 'types':
+      return t('types.chart.button');
+    case 'team':
+      return t('pages.team');
   }
 }
 
@@ -92,6 +100,15 @@ export async function renderPage(context: PageContext, language: string, t: Tran
       break;
     case 'learnset':
       answer = await buildLearnset(page.slug, language, t, context);
+      break;
+    case 'type':
+      answer = await buildTypePage(page.slug, language, t, context);
+      break;
+    case 'types':
+      answer = await buildTypeChart(language, t, context);
+      break;
+    case 'team':
+      answer = await buildTeam(page.slug, language, t, context);
       break;
   }
   if (!answer) return null;

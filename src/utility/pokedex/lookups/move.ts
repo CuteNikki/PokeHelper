@@ -93,11 +93,14 @@ export async function buildMove(slug: string, language: string, t: Translate, co
   container.addTextDisplayComponents(new TextDisplayBuilder().setContent(subtext(t('moves.learnedBy', { count: move.learned_by_pokemon.length }))));
   const links = linkSelect(
     context.page,
-    pokemonLinks(
-      move.learned_by_pokemon.map((pokemon) => pokemon.name),
-      language,
-    ),
-    t('pages.links.learnedBy'),
+    [
+      { page: { kind: 'type', slug: type }, label: nameOf('types', type, language), description: t('pages.type') },
+      ...pokemonLinks(
+        move.learned_by_pokemon.map((pokemon) => pokemon.name),
+        language,
+      ),
+    ],
+    t('pages.links.move'),
   );
   if (links) container.addActionRowComponents(links);
   return { components: [container], flags: [MessageFlags.IsComponentsV2] };

@@ -1618,8 +1618,12 @@
       "item": "Mehr dazu…",
       "berry": "Mehr dazu…",
       "natures": "Zu einem Wesen…",
-      "moves": "Zu einer Attacke…"
-    }
+      "moves": "Zu einer Attacke…",
+      "move": "Mehr dazu…",
+      "types": "Zu einem Typ…"
+    },
+    "type": "Typ",
+    "team": "Dein Team"
   },
   "dex": {
     "notFound": "Ich konnte nichts namens **{{name}}** finden. Wähl einen der Vorschläge.",
@@ -1633,7 +1637,43 @@
       "natures": "Wesen",
       "location": "Ort",
       "where": "Fundorte",
-      "learnset": "Attacken"
+      "learnset": "Attacken",
+      "type": "Typ",
+      "types": "Typentabelle",
+      "team": "Team"
     }
+  },
+  "types": {
+    "title": "### {{name}} {{icon}}",
+    "subtitle": "Typ",
+    "attacking": "Seine Attacken",
+    "defending": "Pokémon dieses Typs",
+    "superEffective": "Sehr effektiv gegen ×2",
+    "notVeryEffective": "Nicht sehr effektiv gegen ×½",
+    "noEffect": "Keine Wirkung auf ×0",
+    "weakTo": "Schwach gegen ×2",
+    "resists": "Resistent gegen ×½",
+    "immuneTo": "Immun gegen ×0",
+    "notFound": "Ich konnte keinen Typ namens **{{name}}** finden. Wähl einen der Vorschläge, oder lass es leer für die Tabelle aller Typen.",
+    "chart": {
+      "button": "Typentabelle",
+      "title": "### Typentabelle {{icon.chart-column}}",
+      "type": "Typ",
+      "strong": "Stark gegen",
+      "weak": "Schwach gegen",
+      "nothing": "nichts"
+    }
+  },
+  "team": {
+    "title": "### Dein Team {{icon.users}}",
+    "dangers": "Pass auf bei",
+    "noDangers": "Kein Typ trifft mehr von ihnen sehr effektiv, als ihm widerstehen. Gut abgedeckt!",
+    "others": "Alle anderen Typen",
+    "weak_one": "{{shown}} schwach",
+    "weak_other": "{{shown}} schwach",
+    "resist_one": "{{shown}} resistent",
+    "resist_other": "{{shown}} resistent",
+    "notFound": "Ich konnte kein Pokémon namens **{{name}}** finden. Wähl sie aus den Vorschlägen.",
+    "note": "Nach ihren Typen. Fähigkeiten wie Schwebe zählen nicht mit."
   }
 }

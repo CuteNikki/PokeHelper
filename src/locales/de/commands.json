@@ -391,5 +391,45 @@
         "description": "Ein Name in irgendeiner Sprache, oder eine Pokédex-Nummer"
       }
     }
+  },
+  "type": {
+    "name": "typ",
+    "description": "Schlag einen Typ nach, oder sieh die Tabelle aller Typen: wogegen er stark und schwach ist",
+    "options": {
+      "type": {
+        "name": "typ",
+        "description": "Der Typ. Leer lassen für die Tabelle aller Typen"
+      }
+    }
+  },
+  "team": {
+    "name": "team",
+    "description": "Sieh, gegen welche Typen dein Team schwach ist",
+    "options": {
+      "pokemon": {
+        "name": "pokemon",
+        "description": "Pokémon 1 deines Teams"
+      },
+      "pokemon2": {
+        "name": "pokemon2",
+        "description": "Pokémon 2 deines Teams"
+      },
+      "pokemon3": {
+        "name": "pokemon3",
+        "description": "Pokémon 3 deines Teams"
+      },
+      "pokemon4": {
+        "name": "pokemon4",
+        "description": "Pokémon 4 deines Teams"
+      },
+      "pokemon5": {
+        "name": "pokemon5",
+        "description": "Pokémon 5 deines Teams"
+      },
+      "pokemon6": {
+        "name": "pokemon6",
+        "description": "Pokémon 6 deines Teams"
+      }
+    }
   }
 }

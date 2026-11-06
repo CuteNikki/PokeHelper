@@ -32,6 +32,9 @@ function loadIcon(type: string, withBackground: boolean): Promise<Image | null> 
 /** A type's symbol on its own, without the circle, for things in its color already, like a badge. Null if there's none for the type. */
 export const typeSymbol = (type: string) => loadIcon(type, false);
 
+/** A type's icon, the symbol on its circle. Null if there's none for the type. */
+export const typeIcon = (type: string) => loadIcon(type, true);
+
 /** A type's icon as a PNG at a size, like for an emoji, which Discord doesn't take as SVG. Null if there's none for it. */
 export async function typeIconPng(type: string, size: number): Promise<Buffer | null> {
   const icon = await loadIcon(type, true);

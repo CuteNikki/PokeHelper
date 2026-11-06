@@ -7,6 +7,10 @@ const type = (double: string[], half: string[], none: string[] = []) => ({
   double_damage_from: double.map((name) => ({ name, url: '' })),
   half_damage_from: half.map((name) => ({ name, url: '' })),
   no_damage_from: none.map((name) => ({ name, url: '' })),
+  // Not what the damage taken goes by
+  double_damage_to: [],
+  half_damage_to: [],
+  no_damage_to: [],
 });
 
 const fire = type(['water', 'ground', 'rock'], ['fire', 'grass', 'ice', 'bug', 'steel', 'fairy']);

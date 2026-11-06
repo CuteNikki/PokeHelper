@@ -413,6 +413,7 @@ export async function buildPokedexEntry(match: PokedexMatch, view: PokedexView, 
   const links = linkSelect(
     entryPage,
     [
+      ...types.map((type) => ({ page: { kind: 'type' as const, slug: type.slug }, label: type.name, description: t('pages.type') })),
       ...[...pokemon.abilities]
         .sort((a, b) => a.slot - b.slot)
         .map((ability) => ({

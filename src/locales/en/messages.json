@@ -1679,8 +1679,12 @@
       "item": "More about it…",
       "berry": "More about it…",
       "natures": "Go to a nature…",
-      "moves": "Go to a move…"
-    }
+      "moves": "Go to a move…",
+      "move": "More about it…",
+      "types": "Go to a type…"
+    },
+    "type": "Type",
+    "team": "Your team"
   },
   "dex": {
     "notFound": "I couldn't find anything called **{{name}}**. Pick one of the suggestions.",
@@ -1694,7 +1698,43 @@
       "natures": "Natures",
       "location": "Place",
       "where": "Where to find",
-      "learnset": "Moves"
+      "learnset": "Moves",
+      "type": "Type",
+      "types": "Type chart",
+      "team": "Team"
     }
+  },
+  "types": {
+    "title": "### {{name}} {{icon}}",
+    "subtitle": "Type",
+    "attacking": "Its moves",
+    "defending": "Pokémon of this type",
+    "superEffective": "Super effective against ×2",
+    "notVeryEffective": "Not very effective against ×½",
+    "noEffect": "No effect on ×0",
+    "weakTo": "Weak to ×2",
+    "resists": "Resist ×½",
+    "immuneTo": "Can't be hurt by ×0",
+    "notFound": "I couldn't find a type called **{{name}}**. Pick one of the suggestions, or leave it empty for the chart of all types.",
+    "chart": {
+      "button": "Type chart",
+      "title": "### Type chart {{icon.chart-column}}",
+      "type": "Type",
+      "strong": "Strong against",
+      "weak": "Weak to",
+      "nothing": "nothing"
+    }
+  },
+  "team": {
+    "title": "### Your team {{icon.users}}",
+    "dangers": "Watch out for",
+    "noDangers": "No type hits more of them super effectively than resist it. Nicely covered!",
+    "others": "Every other type",
+    "weak_one": "{{shown}} weak",
+    "weak_other": "{{shown}} weak",
+    "resist_one": "{{shown}} resists",
+    "resist_other": "{{shown}} resist",
+    "notFound": "I couldn't find a Pokémon called **{{name}}**. Pick them from the suggestions.",
+    "note": "From their types. Abilities like Levitate aren't counted."
   }
 }

@@ -1,16 +1,6 @@
 import { beforeAll, describe, expect, test } from 'bun:test';
 
-import {
-  findBySlug,
-  findNamed,
-  findPokemon,
-  formatDexNumber,
-  nameOf,
-  namesFromLists,
-  searchNamed,
-  searchPokemon,
-  setPokedexData,
-} from 'utility/pokedex/names';
+import { findBySlug, findNamed, findPokemon, formatDexNumber, nameOf, namesFromLists, searchNamed, searchPokemon, setPokedexData } from 'utility/pokedex/names';
 
 beforeAll(() =>
   setPokedexData({

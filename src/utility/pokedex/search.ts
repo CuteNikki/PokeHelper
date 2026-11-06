@@ -12,9 +12,11 @@ import {
   searchPokemon,
 } from 'utility/pokedex/names';
 import type { DexPage, PageKind } from 'utility/pokedex/pages';
+import { isType } from 'utility/pokedex/typeChart';
 
 /** What /dex finds besides Pokémon, in the order it looks, with the page each opens. Berries are items too, and open as berries. */
-const TABLES: { table: NameTable; kind: PageKind }[] = [
+const TABLES: { table: NameTable; kind: PageKind; only?: (slug: string) => boolean }[] = [
+  { table: 'types', kind: 'type', only: isType },
   { table: 'moves', kind: 'move' },
   { table: 'abilities', kind: 'ability' },
   { table: 'items', kind: 'item' },
@@ -53,8 +55,8 @@ export function searchEverything(input: string, language: string, limit: number)
   });
   // Numbers only find Pokémon
   if (!/^#?\d+$/.test(input.trim())) {
-    for (const { table, kind } of TABLES) {
-      for (const slug of searchNamed(table, input, limit)) {
+    for (const { table, kind, only } of TABLES) {
+      for (const slug of searchNamed(table, input, limit, only)) {
         const region = kind === 'location' ? locationRegions[slug] : undefined;
         found.push({
           page: itemPage(kind, slug),
@@ -76,8 +78,8 @@ export function searchEverything(input: string, language: string, limit: number)
 export function findAnything(input: string): DexPage | null {
   const match = findPokemon(input);
   if (match) return { kind: 'pokemon', slug: matchSlug(match) };
-  for (const { table, kind } of TABLES) {
-    const slug = findNamed(table, input);
+  for (const { table, kind, only } of TABLES) {
+    const slug = findNamed(table, input, only);
     if (slug) return itemPage(kind, slug);
   }
   return null;

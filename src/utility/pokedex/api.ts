@@ -101,6 +101,10 @@ export interface ApiDamageRelations {
   double_damage_from: Named[];
   half_damage_from: Named[];
   no_damage_from: Named[];
+  /** How much damage its moves do to others. */
+  double_damage_to: Named[];
+  half_damage_to: Named[];
+  no_damage_to: Named[];
 }
 
 export interface ApiType {
