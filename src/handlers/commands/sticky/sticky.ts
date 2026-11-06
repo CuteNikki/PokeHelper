@@ -111,5 +111,5 @@ async function handleRemove(interaction: ChatInputCommandInteraction<'cached'>):
 
 /** The server's sticky messages and the switch for all of them, which only whoever asked sees. */
 async function handleList(interaction: ChatInputCommandInteraction<'cached'>): Promise<unknown> {
-  return sendResponse(interaction, await renderStickyList(interaction.guildId, getTranslate(interaction.locale)), { ephemeral: true });
+  return sendResponse(interaction, await renderStickyList(interaction.guild, getTranslate(interaction.locale)), { ephemeral: true });
 }

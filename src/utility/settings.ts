@@ -711,15 +711,21 @@ function textModal<C>(
  * An On/Off row that looks like a boolean setting, for messages that aren't settings panels, like the list of role menus.
  * @param customId What the button does, which its handler toggles.
  */
-export function buildSwitchSection(label: string, description: string, on: boolean, customId: string, t: Translate): SectionBuilder {
-  return new SectionBuilder().addTextDisplayComponents(new TextDisplayBuilder().setContent(`${bold(label)}\n${subtext(description)}`)).setButtonAccessory(
-    new ButtonBuilder()
-      .setCustomId(customId)
-      .setLabel(t(on ? 'state.on' : 'state.off'))
-      .setEmoji(switchIcon(on))
-      .setStyle(on ? ButtonStyle.Success : ButtonStyle.Secondary),
-  );
-}
+export const buildSwitchSection = (label: string, description: string, on: boolean, customId: string, t: Translate): SectionBuilder =>
+  new SectionBuilder()
+    .addTextDisplayComponents(new TextDisplayBuilder().setContent(`${bold(label)}\n${subtext(description)}`))
+    .setButtonAccessory(buildSwitchButton(on, customId, t));
+
+/**
+ * The On/Off button of a boolean setting, for a switch next to other text, like a list's title.
+ * @param customId What the button does, which its handler toggles.
+ */
+export const buildSwitchButton = (on: boolean, customId: string, t: Translate) =>
+  new ButtonBuilder()
+    .setCustomId(customId)
+    .setLabel(t(on ? 'state.on' : 'state.off'))
+    .setEmoji(switchIcon(on))
+    .setStyle(on ? ButtonStyle.Success : ButtonStyle.Secondary);
 
 /**
  * Create a settings panel: an interactive message where each setting can be changed in place,

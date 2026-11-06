@@ -16,6 +16,6 @@ export default new Button({
     await interaction.deferUpdate();
     const { stickiesEnabled } = await getFeatureSwitches(interaction.guildId);
     await setStickiesEnabled(interaction.client, interaction.guildId, !stickiesEnabled);
-    return interaction.editReply(await renderStickyList(interaction.guildId, getTranslate(interaction.locale)));
+    return interaction.editReply(await renderStickyList(interaction.guild, getTranslate(interaction.locale)));
   },
 });

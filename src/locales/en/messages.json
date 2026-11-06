@@ -1578,12 +1578,13 @@
     },
     "list": {
       "title": "### Sticky messages {{icon.pin}}",
-      "enabled": {
-        "label": "Sticky messages",
-        "description": "Whether the sticky messages stay at the bottom of their channels. Turned off, they're taken out of the channels but kept"
-      },
+      "switch": "Turned off, they're taken out of their channels but kept for later",
+      "count": "{{count, number}}/{{max}} sticky messages",
       "none": "This server doesn't have any sticky messages yet. Add one with `/sticky set`.",
-      "entry": "{{channel}}\n-# {{preview}}"
+      "entry": "- {{channel}}",
+      "entryPosted": "- {{channel}} · [Jump to it]({{link}})",
+      "placeholder": "Pick one to change it",
+      "gone": "That sticky message was removed meanwhile. Here's the list again with `/sticky list`."
     }
   },
   "lookup": {

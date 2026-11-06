@@ -1522,12 +1522,13 @@
     },
     "list": {
       "title": "### Sticky-Nachrichten {{icon.pin}}",
-      "enabled": {
-        "label": "Sticky-Nachrichten",
-        "description": "Ob die Sticky-Nachrichten unten in ihren Kanälen bleiben. Aus werden sie aus den Kanälen genommen, aber behalten"
-      },
+      "switch": "Aus werden sie aus ihren Kanälen genommen, aber für später behalten",
+      "count": "{{count, number}}/{{max}} Sticky-Nachrichten",
       "none": "Dieser Server hat noch keine Sticky-Nachrichten. Füg eine mit `/sticky setzen` hinzu.",
-      "entry": "{{channel}}\n-# {{preview}}"
+      "entry": "- {{channel}}",
+      "entryPosted": "- {{channel}} · [Hinspringen]({{link}})",
+      "placeholder": "Such dir eine aus, um sie zu ändern",
+      "gone": "Diese Sticky-Nachricht wurde inzwischen entfernt. Mit `/sticky liste` siehst du die Liste nochmal."
     }
   },
   "lookup": {
