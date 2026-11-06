@@ -194,13 +194,17 @@ async function syncCounting(client: Client, counting: GuildCounting): Promise<Gu
   // Fetch everything sent since, oldest first
   const messages: Message[] = [];
   let after = startAfter;
+  let reachedEnd = false;
   while (messages.length < SYNC_MESSAGE_LIMIT) {
     const batch = await channel.messages.fetch({ after, limit: 100, cache: false });
     // Discord returns them newest first
     messages.push(...[...batch.values()].sort((a, b) => (BigInt(a.id) < BigInt(b.id) ? -1 : 1)));
-    if (batch.size < 100) break;
+    reachedEnd = batch.size < 100;
+    if (reachedEnd) break;
     after = messages.at(-1)!.id;
   }
+  // With exactly as many as are caught up on, there may be none left
+  if (!reachedEnd) reachedEnd = (await channel.messages.fetch({ after, limit: 1, cache: false })).size === 0;
   if (messages.length === 0) return counting;
 
   const replay = replayCounts(
@@ -212,7 +216,7 @@ async function syncCounting(client: Client, counting: GuildCounting): Promise<Gu
   let { state } = replay;
   const invalid = messages.filter((message) => replay.invalidIds.includes(message.id));
 
-  if (messages.length >= SYNC_MESSAGE_LIMIT) {
+  if (!reachedEnd) {
     // Skip what's left, so live counting continues from now instead of from somewhere in the backlog
     logger.warn(`Counting in guild ${counting.guildId} had more than ${SYNC_MESSAGE_LIMIT} messages to catch up on, the rest were skipped`);
     state = { ...state, lastCheckedMessageId: SnowflakeUtil.generate().toString() };
