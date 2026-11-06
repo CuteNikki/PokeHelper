@@ -29,6 +29,7 @@ import {
   getStarboardEntry,
   getStarboardEntryByPost,
   saveStarboardEntry,
+  updateGuildStarboard,
   updateStarboardEntry,
   type GuildStarboard,
   type StarboardEntry,
@@ -350,4 +351,10 @@ export async function handleDeletedMessage(guild: Guild, messageId: string): Pro
     const entry = await getStarboardEntry(messageId);
     if (entry) await forget(guild, config, entry);
   });
+}
+
+/** A deleted custom star goes back to ⭐, as nobody can react with it anymore, and Discord wouldn't take posts with it. */
+export async function handleDeletedStarEmoji(guildId: string, emojiId: string) {
+  const config = await getGuildStarboard(guildId);
+  if (config?.emoji && customEmojiId(config.emoji) === emojiId) await updateGuildStarboard(guildId, { emoji: null });
 }
