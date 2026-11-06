@@ -7,6 +7,5 @@ export default new Button({
   customId: GUESS_CUSTOM_ID_PREFIX,
   includesCustomId: true,
   isAuthorOnly: true,
-  // Guessing and hints come one after another quickly
   execute: handleGuessButton,
 });

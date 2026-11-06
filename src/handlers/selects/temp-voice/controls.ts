@@ -7,6 +7,5 @@ import { TEMP_VOICE_CUSTOM_ID_PREFIX } from 'utility/tempVoice/panel';
 export default new SelectMenu({
   customId: TEMP_VOICE_CUSTOM_ID_PREFIX,
   includesCustomId: true,
-  // Picking people is quick, several in a row, and changes to a channel wait their turn anyway
   execute: (interaction) => handleTempVoiceSelect(interaction),
 });

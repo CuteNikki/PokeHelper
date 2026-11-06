@@ -7,6 +7,5 @@ import { TEMP_VOICE_CUSTOM_ID_PREFIX } from 'utility/tempVoice/panel';
 export default new Button({
   customId: TEMP_VOICE_CUSTOM_ID_PREFIX,
   includesCustomId: true,
-  // Changes to a channel wait their turn anyway
   execute: (interaction) => handleTempVoiceButton(interaction),
 });

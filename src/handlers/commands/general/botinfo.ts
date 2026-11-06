@@ -55,16 +55,13 @@ export default new Command({
     const wsPing = interaction.client.ws.ping;
     const pingText = wsPing >= 0 ? `${formatNumber(wsPing, t)} ms` : '...';
 
-    // Application & Guild statistics
     const totalGuilds = interaction.client.guilds.cache.size;
     const totalUsers = interaction.client.guilds.cache.reduce((acc, guild) => acc + (guild.memberCount || 0), 0);
 
-    // Bot Application Info
     const app = await interaction.client.application.fetch();
     const developer = app.owner ? (app.owner instanceof Team ? userMention(app.owner.ownerId!) : userMention(app.owner.id)) : t('botinfo.na');
     const createdTimestamp = Math.floor((interaction.client.user.createdTimestamp || 0) / 1000);
 
-    // Memory stats
     const processMem = process.memoryUsage();
     const processMb = formatNumber(processMem.heapUsed / 1024 / 1024, t, ONE_DECIMAL);
     const totalMemBytes = os.totalmem();
@@ -77,7 +74,6 @@ export default new Command({
     const usedGb = formatNumber(usedMemBytes / 1024 / 1024 / 1024, t, ONE_DECIMAL);
     const ramPercent = Math.round((usedMemBytes / totalMemBytes) * 100);
 
-    // Host stats
     const cpuName =
       os
         .cpus()[0]
