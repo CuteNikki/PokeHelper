@@ -1140,6 +1140,7 @@
       "isTemporary": "Someone's own voice channel can't be a join channel.",
       "list": {
         "title": "### {{icon.volume-2}} Join Channels",
+        "description": "Joining a join channel gives you a voice channel of your own, which you can lock, hide, rename and give a limit. It's deleted once everyone has left.",
         "enabled": {
           "label": "Voice channels",
           "description": "Whether joining any of the join channels gives you a voice channel. Each can also be turned off on its own"

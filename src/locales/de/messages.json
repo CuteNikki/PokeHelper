@@ -700,6 +700,7 @@
       "isTemporary": "Ein eigener Sprachkanal kann kein Beitrittskanal sein.",
       "list": {
         "title": "### {{icon.volume-2}} Beitrittskanäle",
+        "description": "Trittst du einem Beitrittskanal bei, bekommst du einen eigenen Sprachkanal, den du abschließen, verstecken, umbenennen und begrenzen kannst. Er wird gelöscht, sobald alle raus sind.",
         "enabled": {
           "label": "Sprachkanäle",
           "description": "Ob man über die Beitrittskanäle einen Sprachkanal bekommt. Jeder lässt sich auch einzeln ausschalten"

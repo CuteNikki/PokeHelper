@@ -154,7 +154,8 @@ export async function renderTempVoiceList(guild: Guild, t: Translate): Promise<R
   // The switch for all join channels at once, above the list, as each has its own too
   const container = new ContainerBuilder()
     .setAccentColor(ThemeColors.info)
-    .addTextDisplayComponents(new TextDisplayBuilder().setContent(t('tempVoice.config.list.title')))
+    // What join channels are, as the list is where admins start
+    .addTextDisplayComponents(new TextDisplayBuilder().setContent(`${t('tempVoice.config.list.title')}\n${t('tempVoice.config.list.description')}`))
     // Large, so the title, the switch and the list stand apart, like in the settings panels
     .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large))
     .addSectionComponents(
