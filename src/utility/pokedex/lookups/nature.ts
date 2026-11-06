@@ -1,12 +1,13 @@
-import { bold, ContainerBuilder, MessageFlags, SeparatorBuilder, subtext, TextDisplayBuilder } from 'discord.js';
+import { ActionRowBuilder, bold, type ButtonBuilder, ContainerBuilder, MessageFlags, SeparatorBuilder, subtext, TextDisplayBuilder } from 'discord.js';
 
 import { formatNumber } from 'utility/duration';
-import { statChangeIcon } from 'utility/emojis';
+import { buttonIcon, statChangeIcon } from 'utility/emojis';
 import type { Translate } from 'utility/i18next';
 import { type ApiNature, getNature } from 'utility/pokedex/api';
 import { apiName } from 'utility/pokedex/lookup';
 import { flavorName } from 'utility/pokedex/lookups/berry';
 import { getPokedexData, nameOf } from 'utility/pokedex/names';
+import { linkSelect, type PageContext, pageButton } from 'utility/pokedex/pages';
 import type { ResponsePayload } from 'utility/response';
 import { ThemeColors } from 'utility/theme';
 
@@ -33,7 +34,7 @@ const statChange = (stat: string, up: boolean, t: Translate) =>
  * @throws {PokeApiError} When PokéAPI can't be reached.
  * @returns The answer, or null when PokéAPI doesn't know the nature.
  */
-export async function buildNature(slug: string, language: string, t: Translate): Promise<ResponsePayload | null> {
+export async function buildNature(slug: string, language: string, t: Translate, context: PageContext): Promise<ResponsePayload | null> {
   const nature = await getNature(slug);
   if (!nature) return null;
 
@@ -58,6 +59,14 @@ export async function buildNature(slug: string, language: string, t: Translate):
         ),
       );
   }
+  // To the others, unless that's where it was opened from and its Back button goes there already
+  if (context.back?.kind !== 'natures') {
+    container.addActionRowComponents(
+      new ActionRowBuilder<ButtonBuilder>().addComponents(
+        pageButton({ kind: 'natures', slug: 'all' }, context.page).setEmoji(buttonIcon('leaf')).setLabel(t('pages.allNatures')),
+      ),
+    );
+  }
   return { components: [container], flags: [MessageFlags.IsComponentsV2] };
 }
 
@@ -65,22 +74,31 @@ export async function buildNature(slug: string, language: string, t: Translate):
  * Every nature, a line each with the stat it raises and the one it lowers, by the stat it raises. The ones that do nothing come last.
  * @throws {PokeApiError} When PokéAPI can't be reached.
  */
-export async function buildNatureList(language: string, t: Translate): Promise<ResponsePayload> {
+export async function buildNatureList(language: string, t: Translate, context: PageContext): Promise<ResponsePayload> {
   const natures = (await Promise.all(Object.keys(getPokedexData().natures).map((slug) => getNature(slug)))).filter((nature) => nature !== null);
   const order = (nature: ApiNature) => (changesStats(nature) && isStat(nature.increased_stat.name) ? STATS.indexOf(nature.increased_stat.name) : STATS.length);
-  const lines = natures
-    .sort((a, b) => order(a) - order(b) || a.id - b.id)
-    .map((nature) => {
-      const name = bold(apiName(nature.names, language) ?? nameOf('natures', nature.name, language));
-      if (!changesStats(nature)) return `${name} · ${t('natures.neutralShort')}`;
-      const up = `${statChangeIcon(true)} ${statName(nature.increased_stat.name, t)}`;
-      const down = `${statChangeIcon(false)} ${statName(nature.decreased_stat.name, t)}`;
-      return `${name} · ${up} ${down}`;
-    });
+  const sorted = natures.sort((a, b) => order(a) - order(b) || a.id - b.id);
+  const natureName = (nature: ApiNature) => apiName(nature.names, language) ?? nameOf('natures', nature.name, language);
+  const lines = sorted.map((nature) => {
+    const name = bold(natureName(nature));
+    if (!changesStats(nature)) return `${name} · ${t('natures.neutralShort')}`;
+    const up = `${statChangeIcon(true)} ${statName(nature.increased_stat.name, t)}`;
+    const down = `${statChangeIcon(false)} ${statName(nature.decreased_stat.name, t)}`;
+    return `${name} · ${up} ${down}`;
+  });
   const container = new ContainerBuilder()
     .setAccentColor(ThemeColors.info)
     .addTextDisplayComponents(new TextDisplayBuilder().setContent(`${t('natures.listTitle')}\n${subtext(t('natures.listNote'))}`))
     .addSeparatorComponents(new SeparatorBuilder())
     .addTextDisplayComponents(new TextDisplayBuilder().setContent(lines.join('\n')));
+  // Without icons in the select, which only takes one emoji for each
+  const effect = (nature: ApiNature) =>
+    changesStats(nature) ? `+${statName(nature.increased_stat.name, t)} −${statName(nature.decreased_stat.name, t)}` : t('natures.neutralShort');
+  const links = linkSelect(
+    context.page,
+    sorted.map((nature) => ({ page: { kind: 'nature' as const, slug: nature.name }, label: natureName(nature), description: effect(nature) })),
+    t('pages.links.natures'),
+  );
+  if (links) container.addActionRowComponents(links);
   return { components: [container], flags: [MessageFlags.IsComponentsV2] };
 }

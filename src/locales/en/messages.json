@@ -1645,5 +1645,26 @@
     "notFound": "I couldn't find a place called **{{name}}**. Pick one of the suggestions.",
     "none": "PokéAPI doesn't know of any wild Pokémon here.",
     "region": "{{region}} region"
+  },
+  "pages": {
+    "back": "Back to {{name}}",
+    "allNatures": "All natures",
+    "where": "Where to find {{name}}",
+    "learnset": "Moves of {{name}}",
+    "berryOf": "{{name}} as a berry",
+    "itemOf": "{{name}} as an item",
+    "likes": "Likes {{flavor}}",
+    "ability": "Ability",
+    "heldItem": "Held by wild ones",
+    "links": {
+      "entry": "More about {{name}}…",
+      "pokemon": "Go to a Pokémon…",
+      "learnedBy": "Go to a Pokémon that learns it…",
+      "places": "Go to a place…",
+      "item": "More about it…",
+      "berry": "More about it…",
+      "natures": "Go to a nature…",
+      "moves": "Go to a move…"
+    }
   }
 }

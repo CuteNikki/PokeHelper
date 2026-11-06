@@ -7,6 +7,7 @@ import { getContestEffect, getMove, idFromUrl } from 'utility/pokedex/api';
 import { CONDITION_TYPES, emojiBar } from 'utility/pokedex/bars';
 import { apiName, newestText, textIn } from 'utility/pokedex/lookup';
 import { nameOf } from 'utility/pokedex/names';
+import { linkSelect, type PageContext, pokemonLinks } from 'utility/pokedex/pages';
 import { TYPE_COLORS } from 'utility/pokedex/types';
 import type { ResponsePayload } from 'utility/response';
 import { quote } from 'utility/text';
@@ -27,7 +28,7 @@ const CONTEST_MAX = 8;
  * @throws {PokeApiError} When PokéAPI can't be reached.
  * @returns The answer, or null when PokéAPI doesn't know the move.
  */
-export async function buildMove(slug: string, language: string, t: Translate): Promise<ResponsePayload | null> {
+export async function buildMove(slug: string, language: string, t: Translate, context: PageContext): Promise<ResponsePayload | null> {
   const move = await getMove(slug);
   if (!move) return null;
   const contest = move.contest_effect ? await getContestEffect(idFromUrl(move.contest_effect.url)) : null;
@@ -90,5 +91,14 @@ export async function buildMove(slug: string, language: string, t: Translate): P
     container.addSeparatorComponents(new SeparatorBuilder()).addTextDisplayComponents(new TextDisplayBuilder().setContent(lines.join('\n')));
   }
   container.addTextDisplayComponents(new TextDisplayBuilder().setContent(subtext(t('moves.learnedBy', { count: move.learned_by_pokemon.length }))));
+  const links = linkSelect(
+    context.page,
+    pokemonLinks(
+      move.learned_by_pokemon.map((pokemon) => pokemon.name),
+      language,
+    ),
+    t('pages.links.learnedBy'),
+  );
+  if (links) container.addActionRowComponents(links);
   return { components: [container], flags: [MessageFlags.IsComponentsV2] };
 }

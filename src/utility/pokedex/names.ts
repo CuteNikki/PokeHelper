@@ -62,6 +62,8 @@ export type PokedexData = Record<NameTable, NamesBySlug> & {
   versionOrder: Record<string, number>;
   /** The region of each place, as several have the same name, like the Pokémon League. */
   locationRegions: Record<string, string>;
+  /** The place each area is part of, like `pokemon-tower` for its floors. */
+  areaLocations: Record<string, string>;
 };
 
 /** A species, or one of its forms. */
@@ -87,6 +89,7 @@ type NamesQuery = Record<NameTable, NamedRows> & {
   berries: { name: string; item: { name: string } | null }[];
   versionOrder: { name: string; versiongroup: { id: number; generation_id: number } | null }[];
   locationRegions: { name: string; region: { name: string } | null }[];
+  areaLocations: { name: string; location: { name: string } | null }[];
 };
 
 /** The names of every species, form and everything else with a name in the bot's languages, in one request. */
@@ -113,6 +116,7 @@ function namesQuery(languages: string[]) {
     berries: berry { name item { name } }
     versionOrder: version { name versiongroup { id generation_id } }
     locationRegions: location { name region { name } }
+    areaLocations: locationarea { name location { name } }
   }`;
 }
 
@@ -151,6 +155,7 @@ function parseNames(result: NamesQuery, languages: string[]): PokedexData {
       ),
     ),
     locationRegions: Object.fromEntries(result.locationRegions.flatMap((location) => (location.region ? [[location.name, location.region.name]] : []))),
+    areaLocations: Object.fromEntries(result.areaLocations.flatMap((area) => (area.location ? [[area.name, area.location.name]] : []))),
   };
 }
 
@@ -190,6 +195,7 @@ export function namesFromLists(lists: Pick<PokedexLists, 'species' | 'pokemon'> 
       berries: (lists.berries ?? []).map((entry) => ({ name: entry.name, item: null })),
       versionOrder: [],
       locationRegions: [],
+      areaLocations: [],
     },
     languages,
   );
@@ -202,6 +208,7 @@ const emptyData = (): PokedexData => ({
   berries: {},
   versionOrder: {},
   locationRegions: {},
+  areaLocations: {},
 });
 
 const EMPTY = emptyData();

@@ -4,7 +4,8 @@ import { formatNumber } from 'utility/duration';
 import type { Translate } from 'utility/i18next';
 import { getItem, getItemCategory } from 'utility/pokedex/api';
 import { addBlocks, apiName, labeled, newestText, textIn } from 'utility/pokedex/lookup';
-import { findBySlug, fromSlug, matchName, nameOf } from 'utility/pokedex/names';
+import { findBySlug, fromSlug, getPokedexData, matchName, nameOf } from 'utility/pokedex/names';
+import { linkSelect, type PageContext, pokemonLinks } from 'utility/pokedex/pages';
 import type { ResponsePayload } from 'utility/response';
 import { quote } from 'utility/text';
 import { ThemeColors } from 'utility/theme';
@@ -18,6 +19,9 @@ export function listWithMore(names: string[], max: number, t: Translate): string
   return names.length > max ? `${listed} ${t('lookup.more', { count: names.length - max })}` : listed;
 }
 
+/** Whether an item is a berry, for suggesting only those. */
+export const isBerryItem = (slug: string) => Object.values(getPokedexData().berries).includes(slug);
+
 /** The names of Pokémon by their slugs, in the language. */
 export const pokemonNames = (slugs: string[], language: string) =>
   slugs.map((slug) => {
@@ -30,7 +34,7 @@ export const pokemonNames = (slugs: string[], language: string) =>
  * @throws {PokeApiError} When PokéAPI can't be reached.
  * @returns The answer, or null when PokéAPI doesn't know the item.
  */
-export async function buildItem(slug: string, language: string, t: Translate): Promise<ResponsePayload | null> {
+export async function buildItem(slug: string, language: string, t: Translate, context: PageContext): Promise<ResponsePayload | null> {
   const item = await getItem(slug);
   if (!item) return null;
   const category = await getItemCategory(item.category.name);
@@ -68,5 +72,18 @@ export async function buildItem(slug: string, language: string, t: Translate): P
       .filter(Boolean)
       .join('\n\n'),
   ]);
+  // A berry's own page first, then the Pokémon holding it
+  const links = linkSelect(
+    context.page,
+    [
+      ...(isBerryItem(slug) ? [{ page: { kind: 'berry' as const, slug }, label: t('pages.berryOf', { name }) }] : []),
+      ...pokemonLinks(
+        item.held_by_pokemon.map((holder) => holder.pokemon.name),
+        language,
+      ),
+    ],
+    t('pages.links.item'),
+  );
+  if (links) container.addActionRowComponents(links);
   return { components: [container], flags: [MessageFlags.IsComponentsV2] };
 }

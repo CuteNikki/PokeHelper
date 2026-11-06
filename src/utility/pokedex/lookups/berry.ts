@@ -3,10 +3,11 @@ import { bold, ContainerBuilder, MessageFlags, SectionBuilder, SeparatorBuilder,
 import { formatNumber } from 'utility/duration';
 import { withTypeEmoji } from 'utility/emojis';
 import type { Translate } from 'utility/i18next';
-import { getBerry, getItem } from 'utility/pokedex/api';
+import { type ApiNature, getBerry, getItem, getNature } from 'utility/pokedex/api';
 import { CONDITION_TYPES, emojiBar } from 'utility/pokedex/bars';
 import { apiName, newestText } from 'utility/pokedex/lookup';
 import { getPokedexData, nameOf } from 'utility/pokedex/names';
+import { linkSelect, type PageContext } from 'utility/pokedex/pages';
 import { TYPE_COLORS } from 'utility/pokedex/types';
 import type { ResponsePayload } from 'utility/response';
 import { quote } from 'utility/text';
@@ -18,8 +19,11 @@ const MAX_POTENCY = 40;
 const FIRMNESSES = ['very-soft', 'soft', 'hard', 'very-hard', 'super-hard'] as const;
 const isOneOf = <T extends string>(list: readonly T[], value: string): value is T => (list as readonly string[]).includes(value);
 
-/** Whether an item is a berry, for suggesting only those. */
-export const isBerryItem = (slug: string) => Object.values(getPokedexData().berries).includes(slug);
+/** The natures whose Pokémon like a flavor, like Adamant ones Spicy. */
+export async function naturesLiking(flavor: string): Promise<ApiNature[]> {
+  const natures = await Promise.all(Object.keys(getPokedexData().natures).map((slug) => getNature(slug)));
+  return natures.filter((nature) => nature !== null && nature.likes_flavor?.name === flavor) as ApiNature[];
+}
 
 /** A berry flavor's name, like Spicy. */
 export const flavorName = (slug: string, t: Translate) => (isOneOf(FLAVORS, slug) ? t(`berries.flavors.${slug}`) : slug);
@@ -30,7 +34,7 @@ export const flavorName = (slug: string, t: Translate) => (isOneOf(FLAVORS, slug
  * @throws {PokeApiError} When PokéAPI can't be reached.
  * @returns The answer, or null when PokéAPI doesn't know the berry.
  */
-export async function buildBerry(itemSlug: string, language: string, t: Translate): Promise<ResponsePayload | null> {
+export async function buildBerry(itemSlug: string, language: string, t: Translate, context: PageContext): Promise<ResponsePayload | null> {
   const berrySlug = Object.entries(getPokedexData().berries).find(([, item]) => item === itemSlug)?.[0];
   if (!berrySlug) return null;
   const [berry, item] = await Promise.all([getBerry(berrySlug), getItem(itemSlug)]);
@@ -72,5 +76,21 @@ export async function buildBerry(itemSlug: string, language: string, t: Translat
     .addTextDisplayComponents(new TextDisplayBuilder().setContent([bold(t('berries.flavor')), ...flavors].join('\n')))
     .addSeparatorComponents(new SeparatorBuilder())
     .addTextDisplayComponents(new TextDisplayBuilder().setContent(details.join('\n')));
+  // Its item's page, and the natures that like its strongest flavor, as Pokémon of those like it best
+  const strongest = [...berry.flavors].sort((a, b) => b.potency - a.potency)[0];
+  const natures = strongest && strongest.potency > 0 ? await naturesLiking(strongest.flavor.name) : [];
+  const links = linkSelect(
+    context.page,
+    [
+      { page: { kind: 'item', slug: itemSlug }, label: t('pages.itemOf', { name }) },
+      ...natures.map((nature) => ({
+        page: { kind: 'nature' as const, slug: nature.name },
+        label: apiName(nature.names, language) ?? nameOf('natures', nature.name, language),
+        description: t('pages.likes', { flavor: flavorName(strongest?.flavor.name ?? '', t) }),
+      })),
+    ],
+    t('pages.links.berry'),
+  );
+  if (links) container.addActionRowComponents(links);
   return { components: [container], flags: [MessageFlags.IsComponentsV2] };
 }

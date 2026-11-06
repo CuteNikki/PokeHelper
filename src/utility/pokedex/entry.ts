@@ -38,9 +38,9 @@ import {
 } from 'utility/pokedex/api';
 import { renderPokedexCard, STAT_BAR_MAX } from 'utility/pokedex/card';
 import { evolutionCondition } from 'utility/pokedex/evolution';
-import { whereToFindButton } from 'utility/pokedex/encounters';
 import { newestText } from 'utility/pokedex/lookup';
 import { matchupsButton } from 'utility/pokedex/matchups';
+import { linkSelect, pageButton } from 'utility/pokedex/pages';
 import { TYPE_COLORS } from 'utility/pokedex/types';
 import { buttonIcon, withTypeEmoji } from 'utility/emojis';
 import { emojiBar } from 'utility/pokedex/bars';
@@ -188,7 +188,7 @@ function buildControls(match: PokedexMatch, view: PokedexView, hasShiny: boolean
       .setLabel(t(view.shiny ? 'pokedex.shiny.hide' : 'pokedex.shiny.show'))
       .setDisabled(!hasShiny),
     matchupsButton(slug, view.text, t),
-    whereToFindButton(slug, t),
+    pageButton({ kind: 'where', slug }, { kind: 'pokemon', slug }).setEmoji(buttonIcon('map-pin')).setLabel(t('pokedex.where.button')),
   ];
   // Switches between the card and text, like for screen readers, keeping the Pokémon and whether it's shiny
   const mode = new ButtonBuilder()
@@ -407,6 +407,27 @@ export async function buildPokedexEntry(match: PokedexMatch, view: PokedexView, 
   const evolutionButtons = evolves && !view.text ? buildEvolutionButtons(stages.flat(), match, shownView, speciesName) : [];
   container.addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large)).addActionRowComponents(...navigation, ...evolutionButtons);
   if (forms.length > 0) container.addActionRowComponents(...forms);
+  // Its abilities and the items wild ones hold, each with a page of its own
+  const entryPage = { kind: 'pokemon' as const, slug: matchSlug(match) };
+  const links = linkSelect(
+    entryPage,
+    [
+      ...[...pokemon.abilities]
+        .sort((a, b) => a.slot - b.slot)
+        .map((ability) => ({
+          page: { kind: 'ability' as const, slug: ability.ability.name },
+          label: nameIn(data.abilities[ability.ability.name], language) || ability.ability.name,
+          description: ability.is_hidden ? t('abilities.hidden') : t('pages.ability'),
+        })),
+      ...pokemon.held_items.map((held) => ({
+        page: { kind: 'item' as const, slug: held.item.name },
+        label: nameOf('items', held.item.name, language),
+        description: t('pages.heldItem'),
+      })),
+    ],
+    t('pages.links.entry', { name }),
+  );
+  if (links) container.addActionRowComponents(links);
 
   return { components: [container], files, flags: [MessageFlags.IsComponentsV2], allowedMentions: { parse: [] } };
 }

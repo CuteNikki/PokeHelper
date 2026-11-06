@@ -23,6 +23,8 @@ export interface ApiPokemon {
   types: { slot: number; type: Named }[];
   stats: { base_stat: number; stat: Named }[];
   abilities: { is_hidden: boolean; slot: number; ability: Named }[];
+  /** The items wild ones can be holding. */
+  held_items: { item: Named }[];
   sprites: {
     front_default: string | null;
     front_shiny: string | null;

@@ -1584,5 +1584,26 @@
     "notFound": "Ich konnte keinen Ort namens **{{name}}** finden. Wähl einen der Vorschläge.",
     "none": "PokéAPI kennt hier keine wilden Pokémon.",
     "region": "Region {{region}}"
+  },
+  "pages": {
+    "back": "Zurück zu {{name}}",
+    "allNatures": "Alle Wesen",
+    "where": "Fundorte von {{name}}",
+    "learnset": "Attacken von {{name}}",
+    "berryOf": "{{name}} als Beere",
+    "itemOf": "{{name}} als Item",
+    "likes": "Mag {{flavor}}",
+    "ability": "Fähigkeit",
+    "heldItem": "Tragen wilde Exemplare",
+    "links": {
+      "entry": "Mehr zu {{name}}…",
+      "pokemon": "Zu einem Pokémon…",
+      "learnedBy": "Zu einem Pokémon, das sie lernt…",
+      "places": "Zu einem Ort…",
+      "item": "Mehr dazu…",
+      "berry": "Mehr dazu…",
+      "natures": "Zu einem Wesen…",
+      "moves": "Zu einer Attacke…"
+    }
   }
 }

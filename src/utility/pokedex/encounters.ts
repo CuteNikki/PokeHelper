@@ -1,15 +1,11 @@
 import {
   ActionRowBuilder,
   bold,
-  ButtonBuilder,
-  type ButtonInteraction,
-  ButtonStyle,
   ContainerBuilder,
   MessageFlags,
   SectionBuilder,
   SeparatorBuilder,
   StringSelectMenuBuilder,
-  type StringSelectMenuInteraction,
   subtext,
   TextDisplayBuilder,
   ThumbnailBuilder,
@@ -18,18 +14,12 @@ import {
 import { DiscordLimits } from 'utility/discordLimits';
 import { formatNumber } from 'utility/duration';
 import { buttonIcon } from 'utility/emojis';
-import { getTranslate, resolveLanguage, type Translate } from 'utility/i18next';
-import { answerPokeApiError, type ApiEncounter, artworkUrl, getEncounters, idFromUrl } from 'utility/pokedex/api';
-import { findBySlug, fromSlug, getPokedexData, loadPokedexData, matchName, nameOf } from 'utility/pokedex/names';
-import { type ResponsePayload, sendError, sendResponse } from 'utility/response';
+import type { Translate } from 'utility/i18next';
+import { type ApiEncounter, artworkUrl, getEncounters, idFromUrl } from 'utility/pokedex/api';
+import { findBySlug, fromSlug, getPokedexData, matchName, nameOf } from 'utility/pokedex/names';
+import { gameSelectId, linkSelect, type PageContext } from 'utility/pokedex/pages';
+import type { ResponsePayload } from 'utility/response';
 import { ThemeColors } from 'utility/theme';
-
-/**
- * The Where to find button of a Pokédex entry is `pokedex-where:<slug>`, and the select of games on its answer is
- * `pokedex-where-game:<slug>` with the game as its value, so they work however old they are.
- */
-export const POKEDEX_WHERE_PREFIX = 'pokedex-where:';
-export const POKEDEX_WHERE_GAME_PREFIX = 'pokedex-where-game:';
 
 /** The most places listed for a game, so the answer stays well within what a message can hold. Those with the best chances first. */
 const MAX_PLACES = 20;
@@ -215,25 +205,24 @@ export function gameSelect(customId: string, versions: string[], shown: string, 
 }
 
 /**
- * Where a Pokémon or form is found in the wild in one game, with a select for the others.
- * @param version The game, or the newest it's found in.
+ * Where a Pokémon or form is found in the wild in one game, with links to the places and a select for the other games.
+ * @param context The page, with the game, or none for the newest it's found in.
  * @throws {PokeApiError} When PokéAPI can't be reached.
  * @returns The answer, or null when the Pokémon isn't known.
  */
-export async function buildWhereToFind(slug: string, version: string | null, language: string, t: Translate): Promise<ResponsePayload | null> {
+export async function buildWhereToFind(slug: string, language: string, t: Translate, context: PageContext): Promise<ResponsePayload | null> {
   const match = findBySlug(slug);
   const encounters = match && (await getEncounters(slug));
   if (!match || !encounters) return null;
 
   const name = matchName(match, language);
   const games = placesByGame(encounters);
-  const game = games.find((entry) => entry.version === version) ?? games[0];
-  const header = t('pokedex.where.title', { name });
+  const game = games.find((entry) => entry.version === context.page.game) ?? games[0];
   const container = new ContainerBuilder()
     .setAccentColor(ThemeColors.info)
     .addSectionComponents(
       new SectionBuilder()
-        .addTextDisplayComponents(new TextDisplayBuilder().setContent(header))
+        .addTextDisplayComponents(new TextDisplayBuilder().setContent(t('pokedex.where.title', { name })))
         .setThumbnailAccessory(new ThumbnailBuilder().setURL(artworkUrl(match.species.id, false)).setDescription(t('pokedex.picture', { name }))),
     )
     .addSeparatorComponents(new SeparatorBuilder());
@@ -244,48 +233,26 @@ export async function buildWhereToFind(slug: string, version: string | null, lan
   }
 
   const lines = sightingLines(game.sightings, MAX_PLACES, (shown) => shown.map((place) => nameOf('areas', place.name, language)), t);
+  // The places, once each, as several areas can be parts of one, like the floors of a tower
+  const { areaLocations } = getPokedexData();
+  const places = [...new Set(game.sightings.flatMap((sighting) => areaLocations[sighting.name] ?? []))];
+  const links = linkSelect(
+    { ...context.page, game: game.version },
+    places.map((place) => ({ page: { kind: 'location', slug: place, game: game.version }, label: nameOf('locations', place, language) })),
+    t('pages.links.places'),
+  );
   container
     .addTextDisplayComponents(new TextDisplayBuilder().setContent(lines.join('\n')))
     .addSeparatorComponents(new SeparatorBuilder())
     .addActionRowComponents(
       gameSelect(
-        `${POKEDEX_WHERE_GAME_PREFIX}${slug}`,
+        gameSelectId(context.page, context.back),
         games.map((entry) => entry.version),
         game.version,
         language,
         t,
       ),
     );
+  if (links) container.addActionRowComponents(links);
   return { components: [container], flags: [MessageFlags.IsComponentsV2] };
-}
-
-/** The Where to find button of a Pokédex entry. */
-export const whereToFindButton = (slug: string, t: Translate) =>
-  new ButtonBuilder()
-    .setCustomId(`${POKEDEX_WHERE_PREFIX}${slug}`)
-    .setStyle(ButtonStyle.Secondary)
-    .setEmoji(buttonIcon('map-pin'))
-    .setLabel(t('pokedex.where.button'));
-
-/**
- * Show where the entry's Pokémon is found to whoever pressed the button, or another game of it to whoever picked one, so the entry
- * stays as it is for everyone.
- */
-export async function showWhereToFind(interaction: ButtonInteraction | StringSelectMenuInteraction): Promise<unknown> {
-  const t = getTranslate(interaction.locale);
-  const fromSelect = interaction.isStringSelectMenu();
-  const slug = interaction.customId.slice((fromSelect ? POKEDEX_WHERE_GAME_PREFIX : POKEDEX_WHERE_PREFIX).length);
-  if (!slug) return sendError(interaction, t('system.outdated'));
-
-  // The select changes the answer it's on, the button on the entry answers with a new one
-  if (fromSelect) await interaction.deferUpdate();
-  else await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
-  try {
-    await loadPokedexData();
-    const answer = await buildWhereToFind(slug, fromSelect ? (interaction.values[0] ?? null) : null, resolveLanguage(interaction.locale), t);
-    if (!answer) return sendError(interaction, t('system.outdated'));
-    return fromSelect ? interaction.editReply(answer) : sendResponse(interaction, answer);
-  } catch (error) {
-    return answerPokeApiError(interaction, error, t);
-  }
 }

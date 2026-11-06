@@ -1,0 +1,126 @@
+import {
+  ActionRowBuilder,
+  type ButtonBuilder,
+  type ButtonInteraction,
+  type ContainerBuilder,
+  MessageFlags,
+  type StringSelectMenuInteraction,
+} from 'discord.js';
+
+import { getTranslate, resolveLanguage, type Translate } from 'utility/i18next';
+import { answerPokeApiError } from 'utility/pokedex/api';
+import { buildWhereToFind } from 'utility/pokedex/encounters';
+import { buildPokedexEntry } from 'utility/pokedex/entry';
+import { buildAbility } from 'utility/pokedex/lookups/ability';
+import { buildBerry } from 'utility/pokedex/lookups/berry';
+import { buildItem } from 'utility/pokedex/lookups/item';
+import { buildLocation } from 'utility/pokedex/lookups/location';
+import { buildMove } from 'utility/pokedex/lookups/move';
+import { buildNature, buildNatureList } from 'utility/pokedex/lookups/nature';
+import { findBySlug, loadPokedexData, matchName, nameOf } from 'utility/pokedex/names';
+import { backButton, type DexPage, type PageContext } from 'utility/pokedex/pages';
+import { type ResponsePayload, sendError, sendResponse } from 'utility/response';
+
+/** A page's name, like a Pokémon's or a move's, for the Back button to it. */
+export function pageName(page: DexPage, language: string, t: Translate): string {
+  const pokemon = () => {
+    const match = findBySlug(page.slug);
+    return match ? matchName(match, language) : page.slug;
+  };
+  switch (page.kind) {
+    case 'pokemon':
+      return pokemon();
+    case 'move':
+      return nameOf('moves', page.slug, language);
+    case 'item':
+      return nameOf('items', page.slug, language);
+    case 'berry':
+      return nameOf('items', page.slug, language);
+    case 'ability':
+      return nameOf('abilities', page.slug, language);
+    case 'nature':
+      return nameOf('natures', page.slug, language);
+    case 'natures':
+      return t('pages.allNatures');
+    case 'location':
+      return nameOf('locations', page.slug, language);
+    case 'where':
+      return t('pages.where', { name: pokemon() });
+    case 'learnset':
+      return t('pages.learnset', { name: pokemon() });
+  }
+}
+
+/**
+ * A page of the Pokédex, with a button back to the one it was opened from.
+ * @throws {PokeApiError} When PokéAPI can't be reached.
+ * @returns The page, or null when PokéAPI doesn't know what it's about.
+ */
+export async function renderPage(context: PageContext, language: string, t: Translate): Promise<ResponsePayload | null> {
+  const { page, back } = context;
+  let answer: ResponsePayload | null;
+  switch (page.kind) {
+    case 'pokemon': {
+      const match = findBySlug(page.slug);
+      answer = match ? await buildPokedexEntry(match, { shiny: false, text: false }, language, t) : null;
+      break;
+    }
+    case 'move':
+      answer = await buildMove(page.slug, language, t, context);
+      break;
+    case 'item':
+      answer = await buildItem(page.slug, language, t, context);
+      break;
+    case 'berry':
+      answer = await buildBerry(page.slug, language, t, context);
+      break;
+    case 'ability':
+      answer = await buildAbility(page.slug, language, t, context);
+      break;
+    case 'nature':
+      answer = await buildNature(page.slug, language, t, context);
+      break;
+    case 'natures':
+      answer = await buildNatureList(language, t, context);
+      break;
+    case 'location':
+      answer = await buildLocation(page.slug, language, t, context);
+      break;
+    case 'where':
+      answer = await buildWhereToFind(page.slug, language, t, context);
+      break;
+    case 'learnset':
+      answer = null;
+      break;
+  }
+  if (!answer) return null;
+  if (back) {
+    // At the bottom of the page's container, below everything else on it
+    const container = answer.components?.[0] as ContainerBuilder | undefined;
+    container?.addActionRowComponents(new ActionRowBuilder<ButtonBuilder>().addComponents(backButton(back, pageName(back, language, t), t)));
+  }
+  return answer;
+}
+
+/**
+ * Open a page from a button or select on another. Whoever the message is for goes there on the message itself, anyone else gets the
+ * page as an answer only they see, so the message stays as it is for everyone.
+ */
+export async function openPage(interaction: ButtonInteraction | StringSelectMenuInteraction, context: PageContext): Promise<unknown> {
+  const t = getTranslate(interaction.locale);
+  const { message } = interaction;
+  const owner = message.interactionMetadata?.user.id;
+  const own = message.flags.has(MessageFlags.Ephemeral) || !owner || owner === interaction.user.id;
+
+  if (own) await interaction.deferUpdate();
+  else await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
+  try {
+    await loadPokedexData();
+    const answer = await renderPage(context, resolveLanguage(interaction.locale), t);
+    if (!answer) return sendError(interaction, t('system.outdated'));
+    // The pictures of the page before, like the Pokédex card, are replaced by this one's, or none
+    return own ? interaction.editReply({ ...answer, files: answer.files ?? [], attachments: [] }) : sendResponse(interaction, answer);
+  } catch (error) {
+    return answerPokeApiError(interaction, error, t);
+  }
+}

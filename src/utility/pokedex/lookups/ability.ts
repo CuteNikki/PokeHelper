@@ -6,6 +6,7 @@ import { getAbility, idFromUrl } from 'utility/pokedex/api';
 import { addBlocks, apiName, labeled, newestText, textIn } from 'utility/pokedex/lookup';
 import { listWithMore, pokemonNames } from 'utility/pokedex/lookups/item';
 import { nameOf } from 'utility/pokedex/names';
+import { linkSelect, type PageContext, pokemonLinks } from 'utility/pokedex/pages';
 import type { ResponsePayload } from 'utility/response';
 import { quote } from 'utility/text';
 import { ThemeColors } from 'utility/theme';
@@ -19,7 +20,7 @@ const MAX_POKEMON = 30;
  * @throws {PokeApiError} When PokéAPI can't be reached.
  * @returns The answer, or null when PokéAPI doesn't know the ability.
  */
-export async function buildAbility(slug: string, language: string, t: Translate): Promise<ResponsePayload | null> {
+export async function buildAbility(slug: string, language: string, t: Translate, context: PageContext): Promise<ResponsePayload | null> {
   const ability = await getAbility(slug);
   if (!ability) return null;
 
@@ -48,5 +49,16 @@ export async function buildAbility(slug: string, language: string, t: Translate)
     effect && labeled(t('abilities.effect'), effect),
     [list(t('abilities.pokemon'), usual), list(t('abilities.hidden'), hidden)].filter(Boolean).join('\n\n'),
   ]);
+  const hiddenSlugs = new Set(ability.pokemon.filter((entry) => entry.is_hidden).map((entry) => entry.pokemon.name));
+  const links = linkSelect(
+    context.page,
+    pokemonLinks(
+      ability.pokemon.map((entry) => entry.pokemon.name),
+      language,
+      (pokemon) => (hiddenSlugs.has(pokemon) ? t('abilities.hidden') : null),
+    ),
+    t('pages.links.pokemon'),
+  );
+  if (links) container.addActionRowComponents(links);
   return { components: [container], flags: [MessageFlags.IsComponentsV2] };
 }
