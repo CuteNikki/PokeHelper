@@ -4,8 +4,9 @@ import { Event } from 'classes/base/event';
 
 import type { Translate } from 'utility/i18next';
 import { oldNew } from 'utility/logs/changes';
-import { avatarOf, code, userSubject } from 'utility/logs/format';
+import { avatarOf, userSubject } from 'utility/logs/format';
 import { sendLog } from 'utility/logs/send';
+import { code } from 'utility/text';
 
 /** Someone changed their username, display name or avatar, logged in every server they share with the bot. */
 export default new Event({

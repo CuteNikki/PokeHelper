@@ -4,8 +4,9 @@ import { Event } from 'classes/base/event';
 
 import { whoDid } from 'utility/logs/audit';
 import { oldNew } from 'utility/logs/changes';
-import { avatarOf, code, reasonPart, roleSubject, userSubject, when } from 'utility/logs/format';
+import { avatarOf, reasonPart, roleSubject, userSubject, when } from 'utility/logs/format';
 import { sendLog } from 'utility/logs/send';
+import { code } from 'utility/text';
 
 /** A member changed: their nickname, roles or server avatar, or a timeout given or taken away. Each is its own log. */
 export default new Event({

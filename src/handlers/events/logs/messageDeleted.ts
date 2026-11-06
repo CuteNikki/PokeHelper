@@ -3,9 +3,10 @@ import { Events, messageLink } from 'discord.js';
 import { Event } from 'classes/base/event';
 
 import { whoDeleted } from 'utility/logs/audit';
-import { avatarOf, channelRef, code, userSubject } from 'utility/logs/format';
+import { avatarOf, channelRef, userSubject } from 'utility/logs/format';
 import { deletedText } from 'utility/logs/messages';
 import { isIgnoredChannel, isIgnoredMember, sendLog, shouldLog } from 'utility/logs/send';
+import { code } from 'utility/text';
 
 /** A message deleted, with what it said and its attachments, and who deleted it if it wasn't its author. */
 export default new Event({

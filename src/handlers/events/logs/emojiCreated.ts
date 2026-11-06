@@ -2,8 +2,8 @@ import { AuditLogEvent, Events } from 'discord.js';
 
 import { Event } from 'classes/base/event';
 
-import { code } from 'utility/logs/format';
 import { logServerChange } from 'utility/logs/server';
+import { code } from 'utility/text';
 
 export default new Event({
   name: Events.GuildEmojiCreate,

@@ -1,22 +1,9 @@
-import {
-  channelMention,
-  inlineCode,
-  roleMention,
-  time,
-  TimestampStyles,
-  userMention,
-  type Guild,
-  type GuildMember,
-  type PartialUser,
-  type User,
-} from 'discord.js';
+import { channelMention, roleMention, time, TimestampStyles, userMention, type Guild, type GuildMember, type PartialUser, type User } from 'discord.js';
 
 import type { Translate } from 'utility/i18next';
 import type { Doer } from 'utility/logs/audit';
 import { quoteText } from 'utility/logs/send';
-
-/** A name in code, so whatever it's called can't turn into formatting, like a name with stars or underscores. */
-export const code = (text: string) => inlineCode(text.replace(/`/g, 'ˋ'));
+import { code } from 'utility/text';
 
 /**
  * Someone as they're shown in logs: a mention, to open their profile, and their username in code, as a mention only shows

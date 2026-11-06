@@ -3,9 +3,10 @@ import { type GuildMember, type SendableChannels } from 'discord.js';
 import type { Translate } from 'utility/i18next';
 import { oldNew } from 'utility/logs/changes';
 import { transcriptFile, type TranscriptMessage } from 'utility/logs/files';
-import { when, avatarOf, channelRef, channelSubject, code, reasonPart, roleSubject, userSubject } from 'utility/logs/format';
+import { when, avatarOf, channelRef, channelSubject, reasonPart, roleSubject, userSubject } from 'utility/logs/format';
 import { deletedText, editedText } from 'utility/logs/messages';
 import { postLogEntry, type LogEntry } from 'utility/logs/send';
+import { code } from 'utility/text';
 
 /** A long text, to show how entries handle messages too long to show in full. */
 const LONG_TEXT = Array.from(

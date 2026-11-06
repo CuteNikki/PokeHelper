@@ -2,8 +2,9 @@ import { Events } from 'discord.js';
 
 import { Event } from 'classes/base/event';
 
-import { avatarOf, channelRef, code, when } from 'utility/logs/format';
+import { avatarOf, channelRef, when } from 'utility/logs/format';
 import { sendLog } from 'utility/logs/send';
+import { code } from 'utility/text';
 
 /** An invite made. The invite says who made it, so the audit log isn't needed. */
 export default new Event({

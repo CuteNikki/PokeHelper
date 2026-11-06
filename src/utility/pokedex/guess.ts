@@ -24,6 +24,7 @@ import { artworkUrl, getImage, getPokemon, PokeApiError } from 'utility/pokedex/
 import { buildPokedexEntry } from 'utility/pokedex/entry';
 import { findPokemon, getPokedexData, isNameOf, loadPokedexData, matchName, nameIn, speciesById, type PokedexSpecies } from 'utility/pokedex/names';
 import { sendError, sendResponse, type ResponsePayload } from 'utility/response';
+import { escapeCode } from 'utility/text';
 import { ThemeColors } from 'utility/theme';
 
 /**
@@ -318,6 +319,6 @@ export async function handleGuessModal(interaction: ModalSubmitInteraction): Pro
 
   // Numbers aren't names, and a typo shouldn't cost a guess
   const match = /^\s*#?\d+\s*$/.test(input) ? null : findPokemon(input);
-  if (!match) return sendError(interaction, t('guess.unknown', { name: input.trim().replace(/`/g, 'ˋ').slice(0, 100) }));
+  if (!match) return sendError(interaction, t('guess.unknown', { name: escapeCode(input.trim()).slice(0, 100) }));
   return showGame(interaction, guessed, 'playing', t, matchName(match, resolveLanguage(interaction.locale)));
 }

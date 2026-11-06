@@ -2,9 +2,10 @@ import { AuditLogEvent, Events } from 'discord.js';
 
 import { Event } from 'classes/base/event';
 
-import { channelSubject, code } from 'utility/logs/format';
+import { channelSubject } from 'utility/logs/format';
 import { oldNew } from 'utility/logs/changes';
 import { logServerChange } from 'utility/logs/server';
+import { code } from 'utility/text';
 
 /** A thread renamed, archived, locked or opened again. Threads archiving on their own after a while aren't logged, nobody did that. */
 export default new Event({

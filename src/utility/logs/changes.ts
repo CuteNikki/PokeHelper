@@ -1,7 +1,8 @@
-import { inlineCode, OverwriteType, PermissionsBitField, type Guild, type GuildBasedChannel, type PermissionsString, type Role } from 'discord.js';
+import { OverwriteType, PermissionsBitField, type Guild, type GuildBasedChannel, type PermissionsString, type Role } from 'discord.js';
 
 import type { Translate } from 'utility/i18next';
-import { channelRef, code, roleRef, userRef } from 'utility/logs/format';
+import { channelRef, roleRef, userRef } from 'utility/logs/format';
+import { code } from 'utility/text';
 
 /**
  * What changed about a channel, role or the server, as a block for each change with its old and new value, in the server's language.
@@ -14,7 +15,7 @@ type Value = string | number | boolean | null | undefined;
 function show(value: Value, t: Translate): string {
   if (value === null || value === undefined || value === '') return `*${t('logs.changes.none')}*`;
   if (typeof value === 'boolean') return t(value ? 'state.yes' : 'state.no');
-  return inlineCode(String(value).replace(/`/g, "'"));
+  return code(String(value));
 }
 
 /**

@@ -2,8 +2,9 @@ import { AuditLogEvent, Events } from 'discord.js';
 
 import { Event } from 'classes/base/event';
 
-import { channelRef, code } from 'utility/logs/format';
+import { channelRef } from 'utility/logs/format';
 import { logServerChange } from 'utility/logs/server';
+import { code } from 'utility/text';
 
 /** An invite deleted by someone. Invites that ran out or were used up aren't in the audit log, but are logged too, with no one named. */
 export default new Event({

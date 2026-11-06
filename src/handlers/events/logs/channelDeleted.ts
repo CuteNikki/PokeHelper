@@ -2,8 +2,9 @@ import { AuditLogEvent, Events } from 'discord.js';
 
 import { Event } from 'classes/base/event';
 
-import { channelRef, code } from 'utility/logs/format';
+import { channelRef } from 'utility/logs/format';
 import { logServerChange } from 'utility/logs/server';
+import { code } from 'utility/text';
 
 export default new Event({
   name: Events.ChannelDelete,
