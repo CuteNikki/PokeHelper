@@ -1,0 +1,8 @@
+A Pokémon themed bot for your community.
+
+🔢 Counting with lives, math and records
+📈 Leveling with rank cards and weekly and monthly leaderboards
+🎂 Birthdays, 🎭 role menus and 🔊 temporary voice channels
+⭐ A starboard, 📌 sticky messages and 📜 detailed server logs
+📖 A Pokédex, a "Who's that Pokémon?" guessing game and friend codes
+⏰ Reminders, once or repeating
