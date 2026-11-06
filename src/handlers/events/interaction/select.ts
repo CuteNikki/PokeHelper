@@ -1,4 +1,4 @@
-import { Collection, Events, PermissionsBitField, time, TimestampStyles } from 'discord.js';
+import { Events, PermissionsBitField } from 'discord.js';
 import { t } from 'i18next';
 
 import { Event } from 'classes/base/event';
@@ -6,7 +6,7 @@ import { Event } from 'classes/base/event';
 import { findHandler } from 'utility/customId';
 import { getTranslate } from 'utility/i18next';
 import { logger } from 'utility/logger';
-import { takeBurst } from 'utility/rateLimit';
+import { takeBurst, takeCooldown, waitMessage } from 'utility/rateLimit';
 import { sendError } from 'utility/response';
 
 export default new Event({
@@ -51,42 +51,15 @@ export default new Event({
       }
     }
 
-    /**
-     * Cooldown check: If the select menu has a cooldown defined, we need to check if the user is currently on cooldown for this select menu
-     */
-    if (selectMenu.options.cooldown && selectMenu.options.cooldown > 0) {
-      const cooldowns = client.cooldowns;
-
-      if (!cooldowns.has(selectMenu.options.customId)) {
-        cooldowns.set(selectMenu.options.customId, new Collection());
-      }
-
-      const now = Date.now();
-      const timestamps = cooldowns.get(selectMenu.options.customId)!; // Forcing the type because we just created the collection above
-      const cooldownAmount = selectMenu.options.cooldown * 1_000; // Convert cooldown from seconds to milliseconds
-      const userId = interaction.user.id;
-
-      if (timestamps.has(userId)) {
-        const expirationTime = timestamps.get(userId)! + cooldownAmount; // Forcing the type because we know the userId exists in the collection
-
-        if (now < expirationTime) {
-          const expirationTimestamp = Math.round(expirationTime / 1_000); // Convert to seconds for discords timestamp format
-
-          // Using a relative time format for the cooldown message, will show like "in 5 seconds"
-          return sendError(interaction, translate('system.cooldown.message', { remaining: time(expirationTimestamp, TimestampStyles.RelativeTime) }));
-        }
-      }
-
-      // Set the timestamp for the user
-      timestamps.set(userId, now);
-      // Remove the userId from the cooldowns after the cooldown period
-      setTimeout(() => timestamps.delete(userId), cooldownAmount);
+    if (selectMenu.options.cooldown) {
+      const freeAt = takeCooldown(selectMenu.options.customId, interaction.user.id, selectMenu.options.cooldown);
+      if (freeAt !== null) return sendError(interaction, waitMessage(freeAt, translate));
     }
 
     // Clicking a few times in a row is normal use, like paging or changing settings, so only spamming is stopped
     const freeAt = takeBurst(`${selectMenu.options.customId}:${interaction.user.id}`);
     if (freeAt !== null) {
-      return sendError(interaction, translate('system.cooldown.message', { remaining: time(Math.ceil(freeAt / 1_000), TimestampStyles.RelativeTime) }));
+      return sendError(interaction, waitMessage(freeAt, translate));
     }
 
     /**

@@ -1,4 +1,4 @@
-import { Collection, Events, time, TimestampStyles } from 'discord.js';
+import { Events } from 'discord.js';
 import { t } from 'i18next';
 
 import { Event } from 'classes/base/event';
@@ -9,6 +9,7 @@ import { getUserData } from 'database/user';
 import { isDeveloper } from 'utility/developers';
 import { getTranslate } from 'utility/i18next';
 import { logger } from 'utility/logger';
+import { takeCooldown, waitMessage } from 'utility/rateLimit';
 import { sendError } from 'utility/response';
 
 export default new Event({
@@ -36,34 +37,9 @@ export default new Event({
       if (!allowed) return sendError(interaction, translate('system.command.devOnly'));
     }
 
-    // Handling cooldowns for the command
-    if (command.options.cooldown && command.options.cooldown > 0) {
-      const cooldowns = client.cooldowns;
-
-      if (!cooldowns.has(command.options.data.name)) {
-        cooldowns.set(command.options.data.name, new Collection());
-      }
-
-      const now = Date.now();
-      const timestamps = cooldowns.get(command.options.data.name)!; // Forcing the type because we just created the collection above
-      const cooldownAmount = command.options.cooldown * 1_000; // Convert cooldown from seconds to milliseconds
-      const userId = interaction.user.id;
-
-      if (timestamps.has(userId)) {
-        const expirationTime = timestamps.get(userId)! + cooldownAmount; // Forcing the type because we know the userId exists in the collection
-
-        if (now < expirationTime) {
-          const expirationTimestamp = Math.round(expirationTime / 1_000); // Convert to seconds for discords timestamp format
-
-          // Using a relative time format for the cooldown message, will show like "in 5 seconds"
-          return sendError(interaction, translate('system.cooldown.message', { remaining: time(expirationTimestamp, TimestampStyles.RelativeTime) }));
-        }
-      }
-
-      // Set the timestamp for the user
-      timestamps.set(userId, now);
-      // Remove the userId from the cooldowns after the cooldown period
-      setTimeout(() => timestamps.delete(userId), cooldownAmount);
+    if (command.options.cooldown) {
+      const freeAt = takeCooldown(command.options.data.name, interaction.user.id, command.options.cooldown);
+      if (freeAt !== null) return sendError(interaction, waitMessage(freeAt, translate));
     }
 
     // Trying to execute the command

@@ -1,6 +1,6 @@
 import { beforeEach, expect, test } from 'bun:test';
 
-import { resetBursts, takeBurst } from 'utility/rateLimit';
+import { resetBursts, takeBurst, takeCooldown } from 'utility/rateLimit';
 
 const limit = { uses: 3, window: 5_000 };
 
@@ -18,4 +18,11 @@ test('a few uses in a row go ahead, and the next waits until the oldest leaves t
 test('each button and user is counted on its own', () => {
   for (let i = 0; i < 3; i++) takeBurst('a', limit, 0);
   expect(takeBurst('b', limit, 0)).toBeNull();
+});
+
+test('a cooldown makes someone wait until it ran out, and only them', () => {
+  expect(takeCooldown('test-cooldown', 'a', 10, 1_000)).toBeNull();
+  expect(takeCooldown('test-cooldown', 'a', 10, 5_000)).toBe(11_000);
+  expect(takeCooldown('test-cooldown', 'b', 10, 5_000)).toBeNull();
+  expect(takeCooldown('test-cooldown', 'a', 10, 11_000)).toBeNull();
 });
