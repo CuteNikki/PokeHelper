@@ -14,11 +14,12 @@ import {
 } from 'discord.js';
 
 import { FALLBACK_LANGUAGE, type Translate } from 'utility/i18next';
-import { type ApiDamageRelations, artworkUrl, getImage, getMove, getPokemon, getType } from 'utility/pokedex/api';
+import { type ApiDamageRelations, type ApiPokemon, artworkUrl, getImage, getMove, getPokemon, getType } from 'utility/pokedex/api';
 import { renderMatchupCard } from 'utility/pokedex/matchupCard';
 import { buttonIcon, withTypeEmoji } from 'utility/emojis';
 import { typeSymbol } from 'utility/pokedex/typeIcons';
 import { findBySlug, getPokedexData, matchName, nameIn, type PokedexMatch } from 'utility/pokedex/names';
+import { pokemonHeader } from 'utility/pokedex/pokemonHeader';
 import { type DexPage, linkSelect, type PageContext, pageButton, pokemonPage, viewButton } from 'utility/pokedex/pages';
 import { TYPE_COLORS } from 'utility/pokedex/types';
 import { imageWithDescription, type ResponsePayload } from 'utility/response';
@@ -104,6 +105,9 @@ interface MatchupType {
 }
 
 interface Matchups {
+  /** The Pokémon, and its data, for the top of the text, which is like its Pokédex entry's. */
+  match: PokedexMatch;
+  pokemon: ApiPokemon;
   name: string;
   picture: string | null;
   types: MatchupType[];
@@ -157,6 +161,8 @@ async function getMatchups(slug: string, language: string): Promise<Matchups | n
   );
 
   return {
+    match,
+    pokemon,
     name: matchName(match, language),
     picture: pokemon.sprites.other?.['official-artwork']?.front_default ?? pokemon.sprites.front_default,
     types: ownTypes.map(toType),
@@ -225,20 +231,10 @@ async function buildCard(matchups: Matchups, slug: string, t: Translate): Promis
 }
 
 /** The matchups as text, a type to a line, with the Pokémon's picture and one of the Pokémon to use against each weakness. */
-function buildText(matchups: Matchups, slug: string, t: Translate): ResponsePayload {
-  const header = new TextDisplayBuilder().setContent(
-    `${t('pokedex.matchups.title', { name: matchups.name })}\n${subtext(matchups.types.map((type) => withTypeEmoji(type.slug, type.name)).join(' / '))}`,
-  );
-  const container = new ContainerBuilder().setAccentColor(matchups.types[0]?.color ?? ThemeColors.info);
-  if (matchups.picture) {
-    container.addSectionComponents(
-      new SectionBuilder()
-        .addTextDisplayComponents(header)
-        .setThumbnailAccessory(new ThumbnailBuilder().setURL(matchups.picture).setDescription(t('pokedex.picture', { name: matchups.name }))),
-    );
-  } else {
-    container.addTextDisplayComponents(header);
-  }
+async function buildText(matchups: Matchups, slug: string, language: string, t: Translate): Promise<ResponsePayload> {
+  const container = new ContainerBuilder()
+    .setAccentColor(matchups.types[0]?.color ?? ThemeColors.info)
+    .addSectionComponents(await pokemonHeader(t('pokedex.matchups.title', { name: matchups.name }), matchups.match, matchups.pokemon, language, t));
 
   if (matchups.weak.length > 0) {
     container
@@ -293,7 +289,7 @@ export async function buildMatchupsPage(slug: string, language: string, t: Trans
   const matchups = await getMatchups(slug, language);
   if (!matchups) return null;
   const text = context.page.game === 't';
-  const answer = text ? buildText(matchups, slug, t) : await buildCard(matchups, slug, t);
+  const answer = text ? await buildText(matchups, slug, language, t) : await buildCard(matchups, slug, t);
   const types = [...matchups.weak, ...matchups.resists, ...matchups.immune].map((entry) => entry.type);
   const links = linkSelect(
     context.page,
