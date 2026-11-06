@@ -58,13 +58,15 @@ export async function renderStickyList(guild: Guild, t: Translate): Promise<Resp
     return { components: [container], flags: [MessageFlags.IsComponentsV2] };
   }
 
-  const entries = stickies.map((sticky) => {
+  const entries = stickies.map((sticky, index) => {
     const channel = channelMention(sticky.channelId);
+    const position = index + 1;
     // Only while it's posted, which it isn't while they're turned off
     const line = sticky.messageId
-      ? t('sticky.list.entryPosted', { channel, link: messageLink(sticky.channelId, sticky.messageId, guild.id) })
-      : t('sticky.list.entry', { channel });
-    return `${line}\n${subtext(preview(sticky.text))}`;
+      ? t('sticky.list.entryPosted', { position, channel, link: messageLink(sticky.channelId, sticky.messageId, guild.id) })
+      : t('sticky.list.entry', { position, channel });
+    // Indented under its channel, as an item of its own, which is how Discord indents
+    return `${line}\n   - ${subtext(preview(sticky.text))}`;
   });
   container
     .addTextDisplayComponents(
@@ -80,10 +82,10 @@ export async function renderStickyList(guild: Guild, t: Translate): Promise<Resp
           .setCustomId(STICKY_EDIT_ID)
           .setPlaceholder(t('sticky.list.placeholder'))
           .addOptions(
-            stickies.map((sticky) =>
+            stickies.map((sticky, index) =>
               new StringSelectMenuOptionBuilder()
-                // A select can't show a channel mention, so it's the channel's name
-                .setLabel(`#${guild.channels.cache.get(sticky.channelId)?.name ?? sticky.channelId}`.slice(0, DiscordLimits.optionLabelLength))
+                // A select can't show a channel mention, so it's the channel's name, with its number in the list
+                .setLabel(`${index + 1}. #${guild.channels.cache.get(sticky.channelId)?.name ?? sticky.channelId}`.slice(0, DiscordLimits.optionLabelLength))
                 .setDescription(preview(sticky.text, DiscordLimits.optionLabelLength))
                 .setValue(sticky.channelId),
             ),

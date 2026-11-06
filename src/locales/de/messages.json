@@ -1528,8 +1528,8 @@
       },
       "count": "{{count, number}}/{{max}} Sticky-Nachrichten",
       "none": "Dieser Server hat noch keine Sticky-Nachrichten. Füg eine mit `/sticky setzen` hinzu.",
-      "entry": "- {{channel}}",
-      "entryPosted": "- {{channel}} · [Hinspringen]({{link}})",
+      "entry": "{{position}}. {{channel}}",
+      "entryPosted": "{{position}}. {{channel}} · [Hinspringen]({{link}})",
       "placeholder": "Such dir eine aus, um sie zu ändern",
       "gone": "Diese Sticky-Nachricht wurde inzwischen entfernt. Mit `/sticky liste` siehst du die Liste nochmal."
     }

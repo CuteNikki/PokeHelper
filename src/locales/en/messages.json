@@ -1584,8 +1584,8 @@
       },
       "count": "{{count, number}}/{{max}} sticky messages",
       "none": "This server doesn't have any sticky messages yet. Add one with `/sticky set`.",
-      "entry": "- {{channel}}",
-      "entryPosted": "- {{channel}} · [Jump to it]({{link}})",
+      "entry": "{{position}}. {{channel}}",
+      "entryPosted": "{{position}}. {{channel}} · [Jump to it]({{link}})",
       "placeholder": "Pick one to change it",
       "gone": "That sticky message was removed meanwhile. Here's the list again with `/sticky list`."
     }
