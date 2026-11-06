@@ -1,6 +1,6 @@
 import { createCanvas, type Image, type SKRSContext2D } from '@napi-rs/canvas';
 
-import { truncateText } from 'utility/canvas';
+import { drawContained, drawTypeBadge, truncateText, withAlpha } from 'utility/canvas';
 
 export interface MatchupCardType {
   name: string;
@@ -58,45 +58,8 @@ const COLORS = {
   rowBg: 'rgba(255, 255, 255, 0.04)',
   textWhite: '#ffffff',
   textGray: '#a6adc8',
-  textDark: '#1e1e2e',
   divider: 'rgba(255, 255, 255, 0.08)',
 };
-
-/** A color with some transparency, from `#rrggbb`. */
-const withAlpha = (hex: string, alpha: number) => {
-  const value = parseInt(hex.slice(1), 16);
-  return `rgba(${(value >> 16) & 255}, ${(value >> 8) & 255}, ${value & 255}, ${alpha})`;
-};
-
-/** Whether a `#rrggbb` color is light, so text on it should be dark to be readable, like on Electric's yellow. */
-const isLight = (hex: string) => {
-  const value = parseInt(hex.slice(1), 16);
-  return 0.299 * ((value >> 16) & 255) + 0.587 * ((value >> 8) & 255) + 0.114 * (value & 255) > 170;
-};
-
-/** An image scaled to fit a square, centered, keeping its shape. */
-function drawContained(ctx: SKRSContext2D, image: Image, x: number, y: number, size: number) {
-  const scale = Math.min(size / image.width, size / image.height);
-  const width = image.width * scale;
-  const height = image.height * scale;
-  ctx.drawImage(image, x + (size - width) / 2, y + (size - height) / 2, width, height);
-}
-
-/** A type badge, as wide as given, or as its name needs. Returns its width. */
-function drawBadge(ctx: SKRSContext2D, type: MatchupCardType, x: number, y: number, width?: number): number {
-  ctx.font = 'bold 15px "Roboto"';
-  const label = type.name.toUpperCase();
-  const badgeWidth = width ?? ctx.measureText(label).width + 32;
-  ctx.fillStyle = type.color;
-  ctx.beginPath();
-  ctx.roundRect(x, y, badgeWidth, BADGE_HEIGHT, BADGE_HEIGHT / 2);
-  ctx.fill();
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.fillStyle = isLight(type.color) ? COLORS.textDark : COLORS.textWhite;
-  ctx.fillText(truncateText(ctx, label, badgeWidth - 16), x + badgeWidth / 2, y + BADGE_HEIGHT / 2 + 1);
-  return badgeWidth;
-}
 
 /** The multiplier next to a badge, like `×2`. */
 function drawMultiplier(ctx: SKRSContext2D, multiplier: string, x: number, centerY: number) {
@@ -157,7 +120,7 @@ function drawWeakness(ctx: SKRSContext2D, weakness: MatchupCardWeakness, labels:
   ctx.fill();
 
   const centerY = y + rowHeight / 2;
-  drawBadge(ctx, weakness.type, PADDING + 14, centerY - BADGE_HEIGHT / 2, BADGE_WIDTH);
+  drawTypeBadge(ctx, weakness.type, PADDING + 14, centerY - BADGE_HEIGHT / 2, BADGE_HEIGHT, BADGE_WIDTH);
   drawMultiplier(ctx, weakness.multiplier, PADDING + 14 + BADGE_WIDTH + 14, centerY);
 
   const labelX = PADDING + 14 + BADGE_WIDTH + 70;
@@ -194,7 +157,7 @@ function drawEntries(ctx: SKRSContext2D, entries: MatchupCardEntry[], y: number)
   entries.forEach((entry, index) => {
     const x = PADDING + (index % ENTRY_COLUMNS) * columnWidth;
     const rowY = y + Math.floor(index / ENTRY_COLUMNS) * ENTRY_ROW_HEIGHT;
-    drawBadge(ctx, entry.type, x, rowY, BADGE_WIDTH);
+    drawTypeBadge(ctx, entry.type, x, rowY, BADGE_HEIGHT, BADGE_WIDTH);
     drawMultiplier(ctx, entry.multiplier, x + BADGE_WIDTH + 14, rowY + BADGE_HEIGHT / 2);
   });
 }
@@ -248,7 +211,7 @@ export function renderMatchupCard(data: MatchupCardData): Buffer {
   ctx.fillStyle = COLORS.textWhite;
   ctx.fillText(truncateText(ctx, data.name, WIDTH - PADDING - contentX - titleWidth - 20), contentX, 72);
   let badgeX = contentX;
-  for (const type of data.types) badgeX += drawBadge(ctx, type, badgeX, 90) + 10;
+  for (const type of data.types) badgeX += drawTypeBadge(ctx, type, badgeX, 90, BADGE_HEIGHT) + 10;
 
   let y = HEADER_HEIGHT;
   for (const section of sections) {

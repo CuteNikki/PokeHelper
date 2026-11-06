@@ -86,3 +86,43 @@ export function fitFontSize(ctx: SKRSContext2D, font: (size: number) => string, 
   }
   return minSize;
 }
+
+/** A color with some transparency, from `#rrggbb`. */
+export const withAlpha = (hex: string, alpha: number) => {
+  const value = parseInt(hex.slice(1), 16);
+  return `rgba(${(value >> 16) & 255}, ${(value >> 8) & 255}, ${value & 255}, ${alpha})`;
+};
+
+/** Whether a `#rrggbb` color is light, so text on it should be dark to be readable, like on Electric's yellow. */
+export const isLight = (hex: string) => {
+  const value = parseInt(hex.slice(1), 16);
+  return 0.299 * ((value >> 16) & 255) + 0.587 * ((value >> 8) & 255) + 0.114 * (value & 255) > 170;
+};
+
+/** An image scaled to fit a square, centered, keeping its shape. */
+export function drawContained(ctx: SKRSContext2D, image: Image, x: number, y: number, size: number) {
+  const scale = Math.min(size / image.width, size / image.height);
+  const width = image.width * scale;
+  const height = image.height * scale;
+  ctx.drawImage(image, x + (size - width) / 2, y + (size - height) / 2, width, height);
+}
+
+/**
+ * A Pokémon type's badge: its name on a pill in its color, in dark text on light colors. As wide as given, with a name too long for it
+ * shortened, or as wide as its name needs.
+ * @returns How wide it is.
+ */
+export function drawTypeBadge(ctx: SKRSContext2D, type: { name: string; color: string }, x: number, y: number, height: number, width?: number): number {
+  ctx.font = 'bold 15px "Roboto"';
+  const label = type.name.toUpperCase();
+  const badgeWidth = width ?? ctx.measureText(label).width + 32;
+  ctx.fillStyle = type.color;
+  ctx.beginPath();
+  ctx.roundRect(x, y, badgeWidth, height, height / 2);
+  ctx.fill();
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillStyle = isLight(type.color) ? '#1e1e2e' : '#ffffff';
+  ctx.fillText(truncateText(ctx, label, badgeWidth - 16), x + badgeWidth / 2, y + height / 2 + 1);
+  return badgeWidth;
+}

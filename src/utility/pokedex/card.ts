@@ -1,6 +1,6 @@
 import { createCanvas, type Image, type SKRSContext2D } from '@napi-rs/canvas';
 
-import { truncateText } from 'utility/canvas';
+import { drawContained, drawTypeBadge, truncateText, withAlpha } from 'utility/canvas';
 
 export interface PokedexCardType {
   name: string;
@@ -51,49 +51,8 @@ const COLORS = {
   trackBg: '#1e1e2e',
   textWhite: '#ffffff',
   textGray: '#a6adc8',
-  textDark: '#1e1e2e',
   divider: 'rgba(255, 255, 255, 0.08)',
 };
-
-/** A color with some transparency, from `#rrggbb`. */
-const withAlpha = (hex: string, alpha: number) => {
-  const value = parseInt(hex.slice(1), 16);
-  return `rgba(${(value >> 16) & 255}, ${(value >> 8) & 255}, ${value & 255}, ${alpha})`;
-};
-
-/** Whether a `#rrggbb` color is light, so text on it should be dark to be readable, like on Electric's yellow. */
-const isLight = (hex: string) => {
-  const value = parseInt(hex.slice(1), 16);
-  return 0.299 * ((value >> 16) & 255) + 0.587 * ((value >> 8) & 255) + 0.114 * (value & 255) > 170;
-};
-
-/** An image scaled to fit a square, centered, keeping its shape. */
-function drawContained(ctx: SKRSContext2D, image: Image, x: number, y: number, size: number) {
-  const scale = Math.min(size / image.width, size / image.height);
-  const width = image.width * scale;
-  const height = image.height * scale;
-  ctx.drawImage(image, x + (size - width) / 2, y + (size - height) / 2, width, height);
-}
-
-/** The type badges in a row, returning where the row ends. */
-function drawTypes(ctx: SKRSContext2D, types: PokedexCardType[], x: number, y: number) {
-  const height = 30;
-  ctx.font = 'bold 15px "Roboto"';
-  ctx.textBaseline = 'middle';
-  ctx.textAlign = 'center';
-  let left = x;
-  for (const type of types) {
-    const label = type.name.toUpperCase();
-    const width = ctx.measureText(label).width + 32;
-    ctx.fillStyle = type.color;
-    ctx.beginPath();
-    ctx.roundRect(left, y, width, height, height / 2);
-    ctx.fill();
-    ctx.fillStyle = isLight(type.color) ? COLORS.textDark : COLORS.textWhite;
-    ctx.fillText(label, left + width / 2, y + height / 2 + 1);
-    left += width + 10;
-  }
-}
 
 /** The base stats as bars in the type's color, with the total below. */
 function drawStats(ctx: SKRSContext2D, data: PokedexCardData, color: string, x: number, y: number, width: number) {
@@ -296,7 +255,8 @@ export function renderPokedexCard(data: PokedexCardData): Buffer {
     ctx.fillText(truncateText(ctx, data.genus, contentWidth), contentX, 88);
   }
 
-  drawTypes(ctx, data.types, contentX, 102);
+  let badgeX = contentX;
+  for (const type of data.types) badgeX += drawTypeBadge(ctx, type, badgeX, 102, 30) + 10;
   drawStats(ctx, data, color, contentX, 148, contentWidth);
 
   ctx.fillStyle = COLORS.divider;
