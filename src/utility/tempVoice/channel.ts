@@ -20,6 +20,7 @@ import {
   deleteTempVoiceChannel,
   getOwnedTempVoiceChannels,
   getTempVoiceChannel,
+  getTempVoiceCreator,
   getTempVoiceCreatorByChannel,
   getTempVoiceSettings,
   saveTempVoiceSettings,
@@ -225,11 +226,12 @@ export function createTempChannel(member: GuildMember, creator: TempVoiceCreator
     const key = `${guild.id}:${member.id}`;
     const wait = (lastCreated.get(key) ?? 0) + CREATE_COOLDOWN - Date.now();
     if (wait > 0) {
-      // Still there once the cooldown's over, they get it then
-      setTimeout(
-        () => void createTempChannel(member, creator).catch((error: unknown) => logger.error(error, 'Failed to create a temporary voice channel')),
-        wait,
-      );
+      // Still there once the cooldown's over, they get it then. From the join channel as it is by then, as it may have been turned off or deleted
+      const retry = async () => {
+        const current = await getTempVoiceCreator(creator.id);
+        if (current) await createTempChannel(member, current);
+      };
+      setTimeout(() => void retry().catch((error: unknown) => logger.error(error, 'Failed to create a temporary voice channel')), wait);
       return;
     }
 
