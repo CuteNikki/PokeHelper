@@ -906,7 +906,7 @@ function handleEntries<C>(
     const targetId = input.type === 'select' ? input.values[0] : undefined;
     if (!targetId) return {};
     const existing = entries.find((entry) => entry.targetId === targetId);
-    if (!existing && entries.length >= setting.max) return {};
+    if (!existing && entries.length >= setting.max) return { error: t('settings.entries.full', { max: formatNumber(setting.max, t) }) };
 
     if (!existing && setting.target === 'role' && setting.assignable) {
       const refusal = roleRefusal(guild, targetId, member, t);
