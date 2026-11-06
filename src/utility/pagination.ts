@@ -1,16 +1,8 @@
-import {
-  ActionRowBuilder,
-  ButtonBuilder,
-  ButtonStyle,
-  LabelBuilder,
-  ModalBuilder,
-  TextInputBuilder,
-  TextInputStyle,
-  type ModalSubmitInteraction,
-} from 'discord.js';
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, type ModalSubmitInteraction } from 'discord.js';
 
 import { formatNumber } from 'utility/duration';
 import type { Translate } from 'utility/i18next';
+import { buildTextModal } from 'utility/modal';
 
 export function parseSortOrder(sortOrder: unknown): 'asc' | 'desc' {
   if (typeof sortOrder === 'string' && ['asc', 'desc'].includes(sortOrder)) {
@@ -29,22 +21,15 @@ const MAX_PAGE_LENGTH = 6;
  * @param current The page shown now, counted from 1, to start from.
  */
 export function buildPageModal(customId: string, current: number, t: Translate) {
-  return new ModalBuilder()
-    .setCustomId(customId)
-    .setTitle(t('pagination.modal.title'))
-    .addLabelComponents(
-      new LabelBuilder()
-        .setLabel(t('pagination.modal.label'))
-        .setTextInputComponent(
-          new TextInputBuilder()
-            .setCustomId(PAGE_INPUT_ID)
-            .setStyle(TextInputStyle.Short)
-            .setValue(current.toString())
-            .setMaxLength(MAX_PAGE_LENGTH)
-            .setMinLength(1)
-            .setRequired(true),
-        ),
-    );
+  return buildTextModal({
+    customId,
+    title: t('pagination.modal.title'),
+    label: t('pagination.modal.label'),
+    inputId: PAGE_INPUT_ID,
+    value: current.toString(),
+    maxLength: MAX_PAGE_LENGTH,
+    minLength: 1,
+  });
 }
 
 /** The page typed into a page popup, counted from 1, or null if it isn't one. A page past the end is the list's to handle. */

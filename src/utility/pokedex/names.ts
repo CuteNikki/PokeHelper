@@ -9,6 +9,9 @@ const TIMEOUT = 30 * SECOND;
 /** How long to wait before asking again after the names couldn't be loaded, so a PokéAPI outage isn't asked about on every keystroke. */
 const RETRY_AFTER = MINUTE;
 
+/** The longest a typed Pokémon name can be, far more than any name or number needs. */
+export const MAX_NAME_INPUT = 100;
+
 /** A name in each of the bot's languages. */
 export type TranslatedName = Record<string, string>;
 

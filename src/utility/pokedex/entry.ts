@@ -8,9 +8,7 @@ import {
   ContainerBuilder,
   heading,
   HeadingLevel,
-  LabelBuilder,
   MessageFlags,
-  ModalBuilder,
   type ModalMessageModalSubmitInteraction,
   type ModalSubmitInteraction,
   SectionBuilder,
@@ -20,14 +18,13 @@ import {
   type StringSelectMenuInteraction,
   subtext,
   TextDisplayBuilder,
-  TextInputBuilder,
-  TextInputStyle,
   ThumbnailBuilder,
 } from 'discord.js';
 
 import { DiscordLimits } from 'utility/discordLimits';
 import { formatNumber } from 'utility/duration';
 import { FALLBACK_LANGUAGE, getTranslate, resolveLanguage, type Translate } from 'utility/i18next';
+import { buildTextModal } from 'utility/modal';
 import {
   answerPokeApiError,
   type ApiEvolutionLink,
@@ -51,9 +48,10 @@ import {
   loadPokedexData,
   matchName,
   matchSlug,
+  MAX_NAME_INPUT,
   nameIn,
-  speciesById,
   type PokedexMatch,
+  speciesById,
 } from 'utility/pokedex/names';
 import { imageWithDescription, type ResponsePayload, sendError } from 'utility/response';
 import { quote } from 'utility/text';
@@ -431,21 +429,14 @@ export async function updatePokedexEntry(
 
 /** The popup asking which Pokémon to show next, opened on an entry with the view it keeps. */
 export function buildPokedexSearchModal(view: PokedexView, t: Translate) {
-  return new ModalBuilder()
-    .setCustomId(`${POKEDEX_SEARCH_MODAL_PREFIX}${encodeView(view)}`)
-    .setTitle(t('pokedex.search.title'))
-    .addLabelComponents(
-      new LabelBuilder()
-        .setLabel(t('pokedex.search.label'))
-        .setTextInputComponent(
-          new TextInputBuilder()
-            .setCustomId(SEARCH_INPUT_ID)
-            .setStyle(TextInputStyle.Short)
-            .setPlaceholder(t('pokedex.search.placeholder'))
-            .setMaxLength(100)
-            .setRequired(true),
-        ),
-    );
+  return buildTextModal({
+    customId: `${POKEDEX_SEARCH_MODAL_PREFIX}${encodeView(view)}`,
+    title: t('pokedex.search.title'),
+    label: t('pokedex.search.label'),
+    inputId: SEARCH_INPUT_ID,
+    placeholder: t('pokedex.search.placeholder'),
+    maxLength: MAX_NAME_INPUT,
+  });
 }
 
 /** Show the Pokémon typed into the popup, by any name or number, on the entry it was opened from. */

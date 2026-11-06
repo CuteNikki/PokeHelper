@@ -7,23 +7,30 @@ import {
   type ButtonInteraction,
   ButtonStyle,
   ContainerBuilder,
-  LabelBuilder,
   MediaGalleryBuilder,
   MessageFlags,
-  ModalBuilder,
   type ModalSubmitInteraction,
   SeparatorBuilder,
   SeparatorSpacingSize,
   subtext,
   TextDisplayBuilder,
-  TextInputBuilder,
-  TextInputStyle,
 } from 'discord.js';
 
 import { getTranslate, resolveLanguage, type Translate } from 'utility/i18next';
+import { buildTextModal } from 'utility/modal';
 import { answerPokeApiError, artworkUrl, getImage, getPokemon } from 'utility/pokedex/api';
 import { buildPokedexEntry } from 'utility/pokedex/entry';
-import { findPokemon, getPokedexData, isNameOf, loadPokedexData, matchName, nameIn, speciesById, type PokedexSpecies } from 'utility/pokedex/names';
+import {
+  findPokemon,
+  getPokedexData,
+  isNameOf,
+  loadPokedexData,
+  matchName,
+  MAX_NAME_INPUT,
+  nameIn,
+  type PokedexSpecies,
+  speciesById,
+} from 'utility/pokedex/names';
 import { sendError, sendResponse, type ResponsePayload } from 'utility/response';
 import { escapeCode, shorten } from 'utility/text';
 import { ThemeColors } from 'utility/theme';
@@ -216,21 +223,14 @@ export async function buildGuessGame(game: GuessGame, outcome: Outcome, language
 
 /** The popup to type a guess in. */
 function buildGuessModal(game: GuessGame, t: Translate) {
-  return new ModalBuilder()
-    .setCustomId(`${GUESS_MODAL_PREFIX}${encodeGame(game)}`)
-    .setTitle(t('guess.modal.title'))
-    .addLabelComponents(
-      new LabelBuilder()
-        .setLabel(t('guess.modal.label'))
-        .setTextInputComponent(
-          new TextInputBuilder()
-            .setCustomId(GUESS_INPUT_ID)
-            .setStyle(TextInputStyle.Short)
-            .setPlaceholder(t('guess.modal.placeholder'))
-            .setMaxLength(100)
-            .setRequired(true),
-        ),
-    );
+  return buildTextModal({
+    customId: `${GUESS_MODAL_PREFIX}${encodeGame(game)}`,
+    title: t('guess.modal.title'),
+    label: t('guess.modal.label'),
+    inputId: GUESS_INPUT_ID,
+    placeholder: t('guess.modal.placeholder'),
+    maxLength: MAX_NAME_INPUT,
+  });
 }
 
 /** Show a game on the message the button or popup is on, in place of what was there, picture included. */

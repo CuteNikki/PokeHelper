@@ -1,14 +1,6 @@
-import {
-  LabelBuilder,
-  MessageFlags,
-  ModalBuilder,
-  TextInputBuilder,
-  TextInputStyle,
-  type AnySelectMenuInteraction,
-  type ButtonInteraction,
-  type ModalSubmitInteraction,
-} from 'discord.js';
+import { MessageFlags, type AnySelectMenuInteraction, type ButtonInteraction, type ModalSubmitInteraction } from 'discord.js';
 import { getTranslate, type Translate } from 'utility/i18next';
+import { buildTextModal } from 'utility/modal';
 
 import { birthdaySettings } from 'settings/birthday';
 import { countingSettings } from 'settings/counting';
@@ -110,16 +102,15 @@ export async function handleSettingsModal(interaction: ModalSubmitInteraction) {
 }
 
 function buildModal(modal: SettingsModal) {
-  const textInput = new TextInputBuilder()
-    .setCustomId(MODAL_INPUT_ID)
-    .setStyle(modal.paragraph ? TextInputStyle.Paragraph : TextInputStyle.Short)
-    .setRequired(!modal.optional)
-    .setMaxLength(modal.maxLength ?? DEFAULT_INPUT_LENGTH);
-  if (modal.placeholder) textInput.setPlaceholder(modal.placeholder);
-  if (modal.value) textInput.setValue(modal.value);
-
-  return new ModalBuilder()
-    .setCustomId(modal.customId)
-    .setTitle(modal.title)
-    .addLabelComponents(new LabelBuilder().setLabel(modal.label).setTextInputComponent(textInput));
+  return buildTextModal({
+    customId: modal.customId,
+    title: modal.title,
+    label: modal.label,
+    inputId: MODAL_INPUT_ID,
+    placeholder: modal.placeholder,
+    value: modal.value,
+    maxLength: modal.maxLength ?? DEFAULT_INPUT_LENGTH,
+    optional: modal.optional,
+    paragraph: modal.paragraph,
+  });
 }
