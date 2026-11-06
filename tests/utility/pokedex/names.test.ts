@@ -1,6 +1,16 @@
 import { beforeAll, describe, expect, test } from 'bun:test';
 
-import { findBySlug, findPokemon, formatDexNumber, namesFromLists, searchPokemon, setPokedexData } from 'utility/pokedex/names';
+import {
+  findBySlug,
+  findNamed,
+  findPokemon,
+  formatDexNumber,
+  nameOf,
+  namesFromLists,
+  searchNamed,
+  searchPokemon,
+  setPokedexData,
+} from 'utility/pokedex/names';
 
 beforeAll(() =>
   setPokedexData({
@@ -11,8 +21,12 @@ beforeAll(() =>
       { id: 669, slug: 'flabebe', names: { en: 'Flabébé', de: 'Flabébé' }, forms: [] },
       { id: 6, slug: 'charizard', names: { en: 'Charizard', de: 'Glurak' }, forms: [] },
     ],
-    abilities: {},
-    types: {},
+    items: {
+      'thunder-stone': { en: 'Thunder Stone', de: 'Donnerstein' },
+      'cheri-berry': { en: 'Cheri Berry', de: 'Amrenabeere' },
+      'master-ball': { en: 'Master Ball', de: 'Meisterball' },
+    },
+    berries: { cheri: 'cheri-berry' },
   }),
 );
 
@@ -57,6 +71,28 @@ test('findBySlug finds species and forms by the exact slug', () => {
   expect(findBySlug('raichualola')).toBeNull();
 });
 
+describe('findNamed and searchNamed', () => {
+  const berry = (slug: string) => slug.endsWith('-berry');
+
+  test('find an item by its slug or its name in any language', () => {
+    expect(findNamed('items', 'Donnerstein')).toBe('thunder-stone');
+    expect(findNamed('items', 'master ball')).toBe('master-ball');
+    expect(findNamed('items', 'Meister')).toBeNull();
+    expect(findNamed('items', 'Master Ball', berry)).toBeNull();
+  });
+
+  test('suggest names starting with the text first, then names containing it, only the ones asked for', () => {
+    expect(searchNamed('items', 'stein', 5)).toEqual(['thunder-stone']);
+    expect(searchNamed('items', 'm', 5)).toEqual(['master-ball', 'cheri-berry']);
+    expect(searchNamed('items', '', 5, berry)).toEqual(['cheri-berry']);
+  });
+
+  test('nameOf makes a name from the slug when there is none', () => {
+    expect(nameOf('items', 'cheri-berry', 'de')).toBe('Amrenabeere');
+    expect(nameOf('moves', 'thunder-punch', 'de')).toBe('Thunder Punch');
+  });
+});
+
 test('formatDexNumber pads to four digits like the games', () => {
   expect(formatDexNumber(25)).toBe('#0025');
   expect(formatDexNumber(1025)).toBe('#1025');
@@ -88,6 +124,7 @@ test('namesFromLists makes names from slugs and puts forms with the species thei
       ),
       types: listed([['fire', 10]], 'type'),
       abilities: listed([['static', 9]], 'ability'),
+      berries: listed([['cheri', 1]], 'berry'),
     },
     ['en', 'de'],
   );
@@ -99,4 +136,6 @@ test('namesFromLists makes names from slugs and puts forms with the species thei
     [474, 'Porygon Z', []],
   ]);
   expect(data.types.fire).toEqual({ en: 'Fire', de: 'Fire' });
+  expect(data.berries).toEqual({ cheri: 'cheri-berry' });
+  expect(data.items).toEqual({});
 });

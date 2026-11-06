@@ -30,11 +30,35 @@ export interface PokedexSpecies {
   forms: PokedexForm[];
 }
 
-export interface PokedexData {
+/**
+ * The other things with names, besides Pokémon, by what they're called in the data, with their table in PokéAPI's GraphQL and
+ * their list in its REST API.
+ */
+const NAME_TABLES = {
+  abilities: { table: 'ability', list: 'ability' },
+  types: { table: 'type', list: 'type' },
+  items: { table: 'item', list: 'item' },
+  moves: { table: 'move', list: 'move' },
+  natures: { table: 'nature', list: 'nature' },
+  locations: { table: 'location', list: 'location' },
+  areas: { table: 'locationarea', list: 'location-area' },
+  regions: { table: 'region', list: 'region' },
+  versions: { table: 'version', list: 'version' },
+  eggGroups: { table: 'egggroup', list: 'egg-group' },
+} as const;
+
+/** What has names, like `items`. */
+export type NameTable = keyof typeof NAME_TABLES;
+const NAME_TABLE_KEYS = Object.keys(NAME_TABLES) as NameTable[];
+
+/** Names by slug, like `thunder-stone`. */
+export type NamesBySlug = Record<string, TranslatedName>;
+
+export type PokedexData = Record<NameTable, NamesBySlug> & {
   species: PokedexSpecies[];
-  abilities: Record<string, TranslatedName>;
-  types: Record<string, TranslatedName>;
-}
+  /** The item of each berry, which has the berry's name, like `cheri-berry` for `cheri`. */
+  berries: Record<string, string>;
+};
 
 /** A species, or one of its forms. */
 export interface PokedexMatch {
@@ -43,46 +67,49 @@ export interface PokedexMatch {
 }
 
 type Names = { name: string; language: { name: string } }[];
+type NamedRows = { name: string; names: Names }[];
 
-interface NamesQuery {
-  pokemonspecies: {
+type NamesQuery = Record<NameTable, NamedRows> & {
+  species: {
     id: number;
     name: string;
-    pokemonspeciesnames: Names;
+    names: Names;
     pokemons: {
       name: string;
       is_default: boolean;
       pokemonforms: { is_default: boolean; pokemonformnames: { pokemon_name: string; language: { name: string } }[] }[];
     }[];
   }[];
-  ability: { name: string; abilitynames: Names }[];
-  type: { name: string; typenames: Names }[];
-}
+  berries: { name: string; item: { name: string } | null }[];
+};
 
-/** The names of every species, form, ability and type in the bot's languages, in one request. */
+/** The names of every species, form and everything else with a name in the bot's languages, in one request. */
 function namesQuery(languages: string[]) {
-  const names = `(where: { language: { name: { _in: ${JSON.stringify(languages)} } } }) { name language { name } }`;
+  const where = `(where: { language: { name: { _in: ${JSON.stringify(languages)} } } })`;
+  const names = `${where} { name language { name } }`;
+  // Each table is renamed to what it's called in the data, and its names to `names`, so they can all be read the same way
+  const tables = NAME_TABLE_KEYS.map((key) => `${key}: ${NAME_TABLES[key].table} { name names: ${NAME_TABLES[key].table}names${names} }`);
   return `{
-    pokemonspecies(order_by: { id: asc }) {
+    species: pokemonspecies(order_by: { id: asc }) {
       id
       name
-      pokemonspeciesnames${names}
+      names: pokemonspeciesnames${names}
       pokemons(order_by: { id: asc }) {
         name
         is_default
         pokemonforms {
           is_default
-          pokemonformnames(where: { language: { name: { _in: ${JSON.stringify(languages)} } } }) { pokemon_name language { name } }
+          pokemonformnames${where} { pokemon_name language { name } }
         }
       }
     }
-    ability { name abilitynames${names} }
-    type { name typenames${names} }
+    ${tables.join('\n    ')}
+    berries: berry { name item { name } }
   }`;
 }
 
 /** `raichu-alola` as `Raichu Alola`, for the rare one without a name. */
-const fromSlug = (slug: string) => slug.replace(/(^|-)(\w)/g, (_, dash: string, letter: string) => `${dash ? ' ' : ''}${letter.toUpperCase()}`);
+export const fromSlug = (slug: string) => slug.replace(/(^|-)(\w)/g, (_, dash: string, letter: string) => `${dash ? ' ' : ''}${letter.toUpperCase()}`);
 
 /** The names by language, with English, or else the slug, for languages that have none. */
 function toNames(names: Names, slug: string, languages: string[]): TranslatedName {
@@ -90,14 +117,16 @@ function toNames(names: Names, slug: string, languages: string[]): TranslatedNam
   return Object.fromEntries(languages.map((language) => [language, byLanguage[language] ?? byLanguage.en ?? fromSlug(slug)]));
 }
 
-/** Turn PokéAPI's answer into the names by species, ability and type. */
+/** Turn PokéAPI's answer into the names by species and everything else. */
 function parseNames(result: NamesQuery, languages: string[]): PokedexData {
-  const byName = (rows: { name: string; names: Names }[]) => Object.fromEntries(rows.map((row) => [row.name, toNames(row.names, row.name, languages)]));
+  const byName = (rows: NamedRows) => Object.fromEntries(rows.map((row) => [row.name, toNames(row.names, row.name, languages)]));
+  const tables = Object.fromEntries(NAME_TABLE_KEYS.map((key) => [key, byName(result[key])])) as Record<NameTable, NamesBySlug>;
   return {
-    species: result.pokemonspecies.map((entry) => ({
+    ...tables,
+    species: result.species.map((entry) => ({
       id: entry.id,
       slug: entry.name,
-      names: toNames(entry.pokemonspeciesnames, entry.name, languages),
+      names: toNames(entry.names, entry.name, languages),
       forms: entry.pokemons
         .filter((pokemon) => !pokemon.is_default)
         .map((pokemon) => {
@@ -106,12 +135,14 @@ function parseNames(result: NamesQuery, languages: string[]): PokedexData {
           return { slug: pokemon.name, names: toNames(names, pokemon.name, languages) };
         }),
     })),
-    abilities: byName(result.ability.map((row) => ({ name: row.name, names: row.abilitynames }))),
-    types: byName(result.type.map((row) => ({ name: row.name, names: row.typenames }))),
+    berries: Object.fromEntries(result.berries.map((berry) => [berry.name, berry.item?.name ?? `${berry.name}-berry`])),
   };
 }
 
 type Listed = { name: string; url: string }[];
+
+/** PokéAPI's lists by their name, with the species and Pokémon for the forms. */
+export type PokedexLists = Record<NameTable, Listed> & { species: Listed; pokemon: Listed; berries: Listed };
 
 /** The number at the end of a PokéAPI URL, like 25 in `.../pokemon-species/25/`. */
 const idFromUrl = (url: string) => Number(url.match(/\/(\d+)\/?$/)?.[1]) || 0;
@@ -119,9 +150,9 @@ const idFromUrl = (url: string) => Number(url.match(/\/(\d+)\/?$/)?.[1]) || 0;
 /**
  * Names from PokéAPI's lists, for when its GraphQL, which has the real names, is down. The lists only have slugs, so the names are
  * made from them, like `Mr Mime`, the same in every language. Forms are put with the species their slug starts with, like
- * `raichu-alola` with Raichu.
+ * `raichu-alola` with Raichu. A berry's item is called like its slug, like `cheri-berry`.
  */
-export function namesFromLists(lists: { species: Listed; pokemon: Listed; types: Listed; abilities: Listed }, languages: string[]): PokedexData {
+export function namesFromLists(lists: Pick<PokedexLists, 'species' | 'pokemon'> & Partial<PokedexLists>, languages: string[]): PokedexData {
   const species = lists.species.map((entry) => ({ id: idFromUrl(entry.url), slug: entry.name, forms: [] as string[] }));
   // The longest first, so a form goes with the species whose whole slug it starts with
   const byLength = [...species].sort((a, b) => b.slug.length - a.slug.length);
@@ -132,24 +163,32 @@ export function namesFromLists(lists: { species: Listed; pokemon: Listed; types:
   }
 
   const noNames: Names = [];
+  const tables = Object.fromEntries(NAME_TABLE_KEYS.map((key) => [key, (lists[key] ?? []).map((entry) => ({ name: entry.name, names: noNames }))]));
   return parseNames(
     {
-      pokemonspecies: species
+      ...(tables as Record<NameTable, NamedRows>),
+      species: species
         .sort((a, b) => a.id - b.id)
         .map((entry) => ({
           id: entry.id,
           name: entry.slug,
-          pokemonspeciesnames: noNames,
+          names: noNames,
           pokemons: entry.forms.map((form) => ({ name: form, is_default: false, pokemonforms: [] })),
         })),
-      ability: lists.abilities.map((entry) => ({ name: entry.name, abilitynames: noNames })),
-      type: lists.types.map((entry) => ({ name: entry.name, typenames: noNames })),
+      berries: (lists.berries ?? []).map((entry) => ({ name: entry.name, item: null })),
     },
     languages,
   );
 }
 
-const EMPTY: PokedexData = { species: [], abilities: {}, types: {} };
+/** No names, with every table there. */
+const emptyData = (): PokedexData => ({
+  ...(Object.fromEntries(NAME_TABLE_KEYS.map((key) => [key, {}])) as Record<NameTable, NamesBySlug>),
+  species: [],
+  berries: {},
+});
+
+const EMPTY = emptyData();
 let data: PokedexData = EMPTY;
 /** Whether the names are the real ones from GraphQL, and not the ones made from slugs. */
 let complete = false;
@@ -184,9 +223,14 @@ function loadCompleteNames(): Promise<PokedexData> {
 async function loadListedNames(): Promise<PokedexData> {
   const list = (path: string) =>
     fetchJson<{ results: Listed }>(`${API_URL}/${path}?limit=100000`, `the list of ${path}`, { timeout: TIMEOUT }).then((body) => body.results);
-  const [species, pokemon, types, abilities] = await Promise.all([list('pokemon-species'), list('pokemon'), list('type'), list('ability')]);
+  const [species, pokemon, berries, ...tables] = await Promise.all([
+    list('pokemon-species'),
+    list('pokemon'),
+    list('berry'),
+    ...NAME_TABLE_KEYS.map((key) => list(NAME_TABLES[key].list)),
+  ]);
   if (complete) return data;
-  data = namesFromLists({ species, pokemon, types, abilities }, supportedLanguages);
+  data = namesFromLists({ species, pokemon, berries, ...Object.fromEntries(NAME_TABLE_KEYS.map((key, index) => [key, tables[index]])) }, supportedLanguages);
   logger.warn(`PokéAPI's names aren't there yet, so the names of ${data.species.length} Pokémon are made from their slugs for now`);
   return data;
 }
@@ -222,9 +266,9 @@ export function loadPokedexData(): Promise<PokedexData> {
 /** The names loaded by {@link loadPokedexData}, or none before they are. */
 export const getPokedexData = () => data;
 
-/** Use other names, like in tests. */
-export const setPokedexData = (value: PokedexData) => {
-  data = value;
+/** Use other names, like in tests. What's left out has none. */
+export const setPokedexData = (value: Partial<PokedexData>) => {
+  data = { ...emptyData(), ...value };
 };
 
 /** A name in the language, or English. */
@@ -322,6 +366,44 @@ export function searchPokemon(input: string, limit: number): PokedexMatch[] {
   for (const match of everyMatch()) {
     if (match.keys.some((candidate) => candidate.startsWith(key))) starts.push({ species: match.species, form: match.form });
     else if (match.keys.some((candidate) => candidate.includes(key))) contains.push({ species: match.species, form: match.form });
+    if (starts.length >= limit) break;
+  }
+  return [...starts, ...contains].slice(0, limit);
+}
+
+/** The name of an item, move, location or anything else in the language, or one made from its slug if PokéAPI has none. */
+export const nameOf = (table: NameTable, slug: string, language: string) => nameIn(getPokedexData()[table][slug], language) || fromSlug(slug);
+
+/**
+ * Find an item, move or anything else by what's typed: its slug, or its name in any language.
+ * @param only Which of them can be found, like only the items that are berries.
+ * @returns Its slug, or null when nothing has exactly that name.
+ */
+export function findNamed(table: NameTable, input: string, only?: (slug: string) => boolean): string | null {
+  const key = normalize(input);
+  if (!key) return null;
+  for (const [slug, names] of Object.entries(getPokedexData()[table])) {
+    if (only && !only(slug)) continue;
+    if ([slug, ...Object.values(names)].some((name) => normalize(name) === key)) return slug;
+  }
+  return null;
+}
+
+/**
+ * The items, moves or anything else matching what's typed so far, for autocomplete: names starting with it first, then names
+ * containing it. With nothing typed, the first ones.
+ * @param only Which of them can be suggested, like only the items that are berries.
+ * @returns Their slugs, at most `limit`.
+ */
+export function searchNamed(table: NameTable, input: string, limit: number, only?: (slug: string) => boolean): string[] {
+  const key = normalize(input);
+  const starts: string[] = [];
+  const contains: string[] = [];
+  for (const [slug, names] of Object.entries(getPokedexData()[table])) {
+    if (only && !only(slug)) continue;
+    const keys = [slug, ...Object.values(names)].map(normalize);
+    if (keys.some((candidate) => candidate.startsWith(key))) starts.push(slug);
+    else if (keys.some((candidate) => candidate.includes(key))) contains.push(slug);
     if (starts.length >= limit) break;
   }
   return [...starts, ...contains].slice(0, limit);
