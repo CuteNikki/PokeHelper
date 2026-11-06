@@ -24,6 +24,18 @@ describe('custom IDs', () => {
     expect(parseGuessCustomId(guessCustomId('again', { ...game, generation: null }))?.game.generation).toBeNull();
   });
 
+  test('hide the Pokémon, and still read games from before it was hidden', () => {
+    const customId = guessCustomId('hint', { speciesId: 6, generation: null, guesses: 0, hints: 0 });
+    expect(customId.split(':')[2]).not.toBe('6');
+    expect(parseGuessCustomId('guess:hint:6:1:2:0')).toEqual({ action: 'hint', game: { speciesId: 6, generation: 1, guesses: 2, hints: 0 } });
+  });
+
+  test("aren't read as another Pokémon when the check doesn't match", () => {
+    const [nonce, hidden, check] = guessCustomId('hint', { speciesId: 6, generation: null, guesses: 0, hints: 0 }).split(':')[2]!.split('.');
+    const wrong = ((parseInt(check!, 36) + 1) % 36).toString(36);
+    expect(parseGuessCustomId(`guess:hint:${nonce}.${hidden}.${wrong}:0:0:0`)).toBeNull();
+  });
+
   test("aren't games when they're something else", () => {
     expect(parseGuessCustomId('guess:dance:6:0:0:0')).toBeNull();
     expect(parseGuessCustomId('guess:hint:6:0:0')).toBeNull();

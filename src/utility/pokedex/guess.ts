@@ -1,3 +1,5 @@
+import { createHash, randomInt } from 'node:crypto';
+
 import { createCanvas, type Image } from '@napi-rs/canvas';
 import {
   ActionRowBuilder,
@@ -37,7 +39,7 @@ import { ThemeColors } from 'utility/theme';
 
 /**
  * Who's that Pokémon: a silhouette to guess, for whoever started it. Everything about a game is in its buttons, like
- * `guess:hint:6:1:2:0`, so it needs nothing saved and works however old it is.
+ * `guess:hint:k3.1x2.f:1:2:0`, so it needs nothing saved and works however old it is. The Pokémon in there is hidden, see {@link hideSpecies}.
  */
 
 export const GUESS_CUSTOM_ID_PREFIX = 'guess:';
@@ -66,12 +68,42 @@ export interface GuessGame {
 export type GuessAction = 'guess' | 'hint' | 'giveup' | 'again' | 'dex';
 const ACTIONS: GuessAction[] = ['guess', 'hint', 'giveup', 'again', 'dex'];
 
-const encodeGame = (game: GuessGame) => `${game.speciesId}:${game.generation ?? 0}:${game.guesses}:${game.hints}`;
+/** The key the Pokémon is hidden with. From the bot's token, so it's secret, but stays the same across restarts. */
+const SECRET = process.env.DISCORD_TOKEN ?? '';
+/** Room for every Pokédex number, as the hidden one goes round within it. */
+const SPECIES_SPACE = 100_000;
+const NONCE_SPACE = 36 ** 3;
+
+const hashOf = (text: string) => createHash('sha256').update(`${SECRET}:${text}`).digest().readUInt32BE(0);
+const checkOf = (nonce: string, speciesId: number) => (hashOf(`${nonce}:${speciesId}`) % 36).toString(36);
+
+/**
+ * The Pokémon of a game, hidden, as anyone can read custom IDs with the right tools and would see the answer. Shifted by a key from the
+ * secret and a random part, so it's different on every button, and with a check, so a game from before the token changed isn't read
+ * as another Pokémon.
+ */
+function hideSpecies(speciesId: number): string {
+  const nonce = randomInt(NONCE_SPACE).toString(36);
+  const hidden = (speciesId + hashOf(nonce)) % SPECIES_SPACE;
+  return `${nonce}.${hidden.toString(36)}.${checkOf(nonce, speciesId)}`;
+}
+
+/** The Pokémon hidden by {@link hideSpecies}, a plain number from games before it was hidden, or null if it doesn't check out. */
+function revealSpecies(text: string): number | null {
+  if (/^\d+$/.test(text)) return Number(text);
+  const [nonce, hidden, check, ...rest] = text.split('.');
+  if (!nonce || !hidden || !check || rest.length > 0 || !/^[0-9a-z]+$/.test(nonce + hidden)) return null;
+  const speciesId = (((parseInt(hidden, 36) - hashOf(nonce)) % SPECIES_SPACE) + SPECIES_SPACE) % SPECIES_SPACE;
+  return checkOf(nonce, speciesId) === check ? speciesId : null;
+}
+
+const encodeGame = (game: GuessGame) => `${hideSpecies(game.speciesId)}:${game.generation ?? 0}:${game.guesses}:${game.hints}`;
 
 function decodeGame(parts: string[]): GuessGame | null {
-  if (parts.length !== 4 || parts.some((part) => !/^\d+$/.test(part))) return null;
-  const [speciesId, generation, guesses, hints] = parts.map(Number) as [number, number, number, number];
-  if (speciesId < 1 || generation > GENERATIONS) return null;
+  if (parts.length !== 4 || parts.slice(1).some((part) => !/^\d+$/.test(part))) return null;
+  const speciesId = revealSpecies(parts[0]!);
+  const [generation, guesses, hints] = parts.slice(1).map(Number) as [number, number, number];
+  if (speciesId === null || speciesId < 1 || generation > GENERATIONS) return null;
   return { speciesId, generation: generation || null, guesses, hints };
 }
 
