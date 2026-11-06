@@ -4,16 +4,17 @@ import {
   ButtonStyle,
   ContainerBuilder,
   DiscordAPIError,
+  type Guild,
   MessageFlags,
+  quote,
   RESTJSONErrorCodes,
   SectionBuilder,
   SeparatorBuilder,
   SeparatorSpacingSize,
   StringSelectMenuBuilder,
   TextDisplayBuilder,
+  userMention,
   UserSelectMenuBuilder,
-  quote,
-  type Guild,
 } from 'discord.js';
 
 import { getTempVoiceChannel, updateTempVoiceChannel } from 'database/tempVoice';
@@ -129,7 +130,7 @@ export function buildPanel({ channel, record }: TempChannel, t: Translate): Resp
     someone.setPlaceholder(t('tempVoice.panel.nobodyHere')).addOptions({ label: '-', value: 'nobody' }).setDisabled(true);
   }
 
-  const owner = t('tempVoice.panel.owner', { owner: `<@${record.ownerId}>` }) + (here.has(record.ownerId) ? '' : ` ${t('tempVoice.panel.ownerAway')}`);
+  const owner = t('tempVoice.panel.owner', { owner: userMention(record.ownerId) }) + (here.has(record.ownerId) ? '' : ` ${t('tempVoice.panel.ownerAway')}`);
   const people = channel.userLimit
     ? t('tempVoice.panel.peopleLimit', { count: here.size, limit: channel.userLimit })
     : t('tempVoice.panel.people', { count: here.size });

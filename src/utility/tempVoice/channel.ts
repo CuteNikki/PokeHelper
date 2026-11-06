@@ -1,15 +1,16 @@
 import {
-  ChannelType,
-  OverwriteType,
-  PermissionFlagsBits,
-  PermissionsBitField,
-  RateLimitError,
   type CategoryChannel,
+  ChannelType,
   type Guild,
   type GuildMember,
   type OverwriteData,
+  OverwriteType,
+  PermissionFlagsBits,
+  PermissionsBitField,
   type PermissionsString,
   type RateLimitData,
+  RateLimitError,
+  userMention,
   type VoiceChannel,
 } from 'discord.js';
 
@@ -309,7 +310,7 @@ export function settleTempChannel(channel: VoiceChannel, ownerGrace = OWNER_GRAC
       const newOwner = here.first()!;
       await giveTo(temp, newOwner.id);
       const t = serverTranslate(channel.guild);
-      await announce(temp, t('tempVoice.announce.ownerLeft', { old: `<@${oldOwnerId}>`, new: `<@${newOwner.id}>` }), [newOwner.id]);
+      await announce(temp, t('tempVoice.announce.ownerLeft', { old: userMention(oldOwnerId), new: userMention(newOwner.id) }), [newOwner.id]);
       return;
     } else if (!ownerAway.has(channel.id)) {
       ownerAway.set(
@@ -455,7 +456,8 @@ export function changeTempChannel(temp: TempChannel, by: GuildMember, change: Ch
 
     const t = serverTranslate(temp.channel.guild);
     const changes = describeChanges(before, { name: temp.channel.name, userLimit: temp.channel.userLimit, ...temp.record }, t);
-    if (changes.length > 0) await announce(temp, [t('tempVoice.announce.changed', { user: `<@${by.id}>` }), ...changes.map((line) => `- ${line}`)].join('\n'));
+    if (changes.length > 0)
+      await announce(temp, [t('tempVoice.announce.changed', { user: userMention(by.id) }), ...changes.map((line) => `- ${line}`)].join('\n'));
   });
 }
 
@@ -465,7 +467,7 @@ type Described = Access & { name: string; userLimit: number; namePrefix: string 
 export function describeChanges(before: Described, after: Described, t: Translate): string[] {
   const changes: string[] = [];
   const added = (from: string[], to: string[]) => to.filter((id) => !from.includes(id));
-  const mentions = (ids: string[]) => ids.map((id) => `<@${id}>`).join(', ');
+  const mentions = (ids: string[]) => ids.map((id) => userMention(id)).join(', ');
 
   if (after.name !== before.name) changes.push(t('tempVoice.announce.renamed', { name: channelLabel(after.namePrefix, after.name) }));
   if (after.userLimit !== before.userLimit)

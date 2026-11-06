@@ -1,18 +1,20 @@
 import {
   ActionRowBuilder,
+  type AnySelectMenuInteraction,
   ButtonBuilder,
+  type ButtonInteraction,
   ButtonStyle,
+  channelMention,
+  type ChatInputCommandInteraction,
   LabelBuilder,
   MessageFlags,
   ModalBuilder,
+  type ModalSubmitInteraction,
   TextInputBuilder,
   TextInputStyle,
   time,
   TimestampStyles,
-  type AnySelectMenuInteraction,
-  type ButtonInteraction,
-  type ChatInputCommandInteraction,
-  type ModalSubmitInteraction,
+  userMention,
 } from 'discord.js';
 
 import { getTempVoiceCreators } from 'database/tempVoice';
@@ -66,7 +68,7 @@ async function controlledChannel(interaction: Control, channelId: string, forMod
     return null;
   }
   if (!(forModerators ? canModerate(interaction.member, temp) : canChange(interaction.member, temp))) {
-    const owner = `<@${temp.record.ownerId}>`;
+    const owner = userMention(temp.record.ownerId);
     // A moderator can use some of the controls, so they're told this one is the owner's
     const text = canModerate(interaction.member, temp) ? t('tempVoice.controls.ownerOnly', { owner }) : t('tempVoice.controls.notOwner', { owner });
     await sendError(interaction, text);
@@ -145,7 +147,7 @@ export async function handleTempVoiceButton(interaction: ButtonInteraction): Pro
       return interaction.showModal(buildEditModal(temp, 'both', t));
     case 'delete': {
       await interaction.deferUpdate();
-      await announce(temp, serverTranslate(interaction.guild)('tempVoice.announce.deleted', { user: `<@${interaction.user.id}>` }));
+      await announce(temp, serverTranslate(interaction.guild)('tempVoice.announce.deleted', { user: userMention(interaction.user.id) }));
       setTimeout(() => void deleteTempChannel(temp).catch((error: unknown) => logger.error(error, 'Failed to delete a temporary voice channel')), DELETE_DELAY);
       return;
     }
@@ -161,7 +163,7 @@ export async function handleTempVoiceButton(interaction: ButtonInteraction): Pro
 /** Hand over, kick or keep out someone, after picking them from the panel. Answered on the question, which only whoever picked sees. */
 async function handleMemberAction(interaction: ButtonInteraction<'cached'>, temp: TempChannel, action: TempVoiceAction, memberId: string, t: Translate) {
   const answer = (text: string, kind: 'info' | 'error' = 'info') => interaction.editReply({ ...createResponse(text, kind), allowedMentions: { parse: [] } });
-  const mention = `<@${memberId}>`;
+  const mention = userMention(memberId);
   const serverT = serverTranslate(interaction.guild);
   await interaction.deferUpdate();
 
@@ -175,7 +177,7 @@ async function handleMemberAction(interaction: ButtonInteraction<'cached'>, temp
     if (!member) return answer(t('tempVoice.member.alreadyLeft'));
     await member.voice.disconnect(`Kicked from a temporary voice channel by ${interaction.user.tag}`);
     await answer(t('tempVoice.member.kicked', { user: mention }));
-    return announce(temp, serverT('tempVoice.announce.kicked', { user: `<@${interaction.user.id}>`, target: mention }));
+    return announce(temp, serverT('tempVoice.announce.kicked', { user: userMention(interaction.user.id), target: mention }));
   }
 
   if (action === 'keepout') {
@@ -202,10 +204,10 @@ async function handleMemberAction(interaction: ButtonInteraction<'cached'>, temp
   const by = interaction.user.id;
   const text =
     by === from
-      ? serverT('tempVoice.announce.handedOver', { old: `<@${from}>`, new: mention })
+      ? serverT('tempVoice.announce.handedOver', { old: userMention(from), new: mention })
       : by === member.id
-        ? serverT('tempVoice.announce.tookOver', { old: `<@${from}>`, new: mention })
-        : serverT('tempVoice.announce.gaveAway', { user: `<@${by}>`, old: `<@${from}>`, new: mention });
+        ? serverT('tempVoice.announce.tookOver', { old: userMention(from), new: mention })
+        : serverT('tempVoice.announce.gaveAway', { user: userMention(by), old: userMention(from), new: mention });
   // Pings the new owner, so they know the controls are theirs now
   return announce(temp, text, [member.id]);
 }
@@ -249,7 +251,9 @@ export async function handleTempVoiceSelect(interaction: AnySelectMenuInteractio
     });
     await showChanged(interaction, temp, await changeTempChannel(temp, interaction.member, change), t);
     if (skipped.size > 0) {
-      const lines = [...skipped].map(([why, users]) => t(`tempVoice.skipped.${why}`, { users: users.map((id) => `<@${id}>`).join(', '), count: users.length }));
+      const lines = [...skipped].map(([why, users]) =>
+        t(`tempVoice.skipped.${why}`, { users: users.map((id) => userMention(id)).join(', '), count: users.length }),
+      );
       await interaction.followUp({
         // Says which list it's about, as the message shows up apart from the panel
         ...createResponse([t(`tempVoice.skipped.title.${list}`), ...lines.map((line) => `- ${line}`)].join('\n'), 'warning'),
@@ -266,7 +270,7 @@ export async function handleTempVoiceSelect(interaction: AnySelectMenuInteractio
         .setCustomId(tempVoiceCustomId(action, temp.channel.id, target))
         .setLabel(label)
         .setStyle(style);
-    const question = createResponse(t('tempVoice.member.question', { user: `<@${target}>` }));
+    const question = createResponse(t('tempVoice.member.question', { user: userMention(target) }));
     return interaction.reply({
       components: [
         ...(question.components ?? []),
@@ -319,10 +323,10 @@ export async function showOwnPanel(interaction: ChatInputCommandInteraction<'cac
   const temp = await findTempChannel(interaction.guild, interaction.member.voice.channelId);
   if (!temp) {
     const creators = (await getTempVoiceCreators(interaction.guildId)).filter((creator) => interaction.guild.channels.cache.has(creator.channelId));
-    const join = creators.map((creator) => `<#${creator.channelId}>`).join(', ');
+    const join = creators.map((creator) => channelMention(creator.channelId)).join(', ');
     return sendError(interaction, creators.length > 0 ? t('tempVoice.controls.notInOneJoin', { channels: join }) : t('tempVoice.controls.notInOne'));
   }
-  if (!canModerate(interaction.member, temp)) return sendError(interaction, t('tempVoice.controls.notOwner', { owner: `<@${temp.record.ownerId}>` }));
+  if (!canModerate(interaction.member, temp)) return sendError(interaction, t('tempVoice.controls.notOwner', { owner: userMention(temp.record.ownerId) }));
   const panel = buildPanel(temp, t);
   return interaction.reply({ ...panel, flags: [MessageFlags.IsComponentsV2, MessageFlags.Ephemeral], allowedMentions: { parse: [] } });
 }
