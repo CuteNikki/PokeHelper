@@ -65,8 +65,8 @@ export async function renderStickyList(guild: Guild, t: Translate): Promise<Resp
     const line = sticky.messageId
       ? t('sticky.list.entryPosted', { position, channel, link: messageLink(sticky.channelId, sticky.messageId, guild.id) })
       : t('sticky.list.entry', { position, channel });
-    // Indented under its channel, as an item of its own, which is how Discord indents
-    return `${line}\n   - ${subtext(preview(sticky.text))}`;
+    // Indented under its channel, as an item of its own, which is how Discord indents. Small text doesn't work in lists, so it's normal size
+    return `${line}\n   - ${preview(sticky.text)}`;
   });
   container
     .addTextDisplayComponents(
