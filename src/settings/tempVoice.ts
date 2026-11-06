@@ -186,6 +186,8 @@ export async function renderTempVoiceList(guild: Guild, t: Translate): Promise<R
         [subtext(t('tempVoice.config.list.count', { count: creators.length, max: formatNumber(MAX_TEMP_VOICE_CREATORS, t) })), ...lines].join('\n'),
       ),
     )
+    // Large, like before the buttons at the bottom of the settings panels
+    .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large))
     .addActionRowComponents(
       new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
         new StringSelectMenuBuilder()
