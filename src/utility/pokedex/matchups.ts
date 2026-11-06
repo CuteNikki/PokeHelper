@@ -13,7 +13,7 @@ import {
   type ButtonInteraction,
 } from 'discord.js';
 
-import { getTranslate, resolveLanguage, type Translate } from 'utility/i18next';
+import { FALLBACK_LANGUAGE, getTranslate, resolveLanguage, type Translate } from 'utility/i18next';
 import { logger } from 'utility/logger';
 import { artworkUrl, getImage, getMove, getPokemon, getType, PokeApiError, type ApiDamageRelations } from 'utility/pokedex/api';
 import { renderMatchupCard } from 'utility/pokedex/matchupCard';
@@ -161,7 +161,7 @@ async function getMatchups(slug: string, language: string): Promise<Matchups | n
         moves: moves.flatMap((move) => {
           if (!move) return [];
           const named = (lang: string) => move.names.find((name) => name.language.name === lang)?.name;
-          return [named(language) ?? named('en') ?? move.name];
+          return [named(language) ?? named(FALLBACK_LANGUAGE) ?? move.name];
         }),
       };
     }),

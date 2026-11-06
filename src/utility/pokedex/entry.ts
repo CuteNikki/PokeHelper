@@ -23,7 +23,7 @@ import {
 } from 'discord.js';
 
 import { DiscordLimits } from 'utility/discordLimits';
-import { getTranslate, resolveLanguage, type Translate } from 'utility/i18next';
+import { FALLBACK_LANGUAGE, getTranslate, resolveLanguage, type Translate } from 'utility/i18next';
 import { logger } from 'utility/logger';
 import {
   artworkUrl,
@@ -144,7 +144,7 @@ export function parsePokedexFormSelectId(customId: string): PokedexView | null {
 /** The newest Pokédex entry in the language, or English. Text from the old games has hard line breaks and hyphens, which are joined. */
 function flavorText(species: ApiSpecies, language: string): string | null {
   const latest = (lang: string) => species.flavor_text_entries.findLast((entry) => entry.language.name === lang)?.flavor_text;
-  const text = latest(language) ?? latest('en');
+  const text = latest(language) ?? latest(FALLBACK_LANGUAGE);
   return text
     ? text
         .replace(/\u00ad\s+/g, '')
@@ -156,7 +156,7 @@ function flavorText(species: ApiSpecies, language: string): string | null {
 /** A species' kind in the language, or English, like "Mouse Pokémon". */
 function genus(species: ApiSpecies, language: string): string | null {
   const find = (lang: string) => species.genera.find((entry) => entry.language.name === lang)?.genus;
-  return find(language) ?? find('en') ?? null;
+  return find(language) ?? find(FALLBACK_LANGUAGE) ?? null;
 }
 
 /** The species of an evolution chain by stage, branches side by side: Eevee, then all eight of its evolutions. */
