@@ -337,15 +337,16 @@ export async function buildPokedexEntry(match: PokedexMatch, view: PokedexView, 
   const details = [
     { label: t('pokedex.details.height'), value: `${format(pokemon.height / 10)} m` },
     { label: t('pokedex.details.weight'), value: `${format(pokemon.weight / 10)} kg` },
+    // Last, as it's the longest and gets the space that's left
     { label: t('pokedex.details.abilities'), value: abilities.join(', ') },
   ];
-  // How it's bred and raised, in a row of its own
+  // How it's caught, raised and bred, in a row of its own, with the egg groups last as there can be two
   const breeding = [
-    { label: t('pokedex.details.eggGroups'), value: species.egg_groups.map((group) => nameOf('eggGroups', group.name, language)).join(', ') },
     { label: t('pokedex.details.gender'), value: genderRatio(species.gender_rate, t) },
     { label: t('pokedex.details.catchRate'), value: format(species.capture_rate) },
-    ...(species.hatch_counter === null ? [] : [{ label: t('pokedex.details.eggCycles'), value: format(species.hatch_counter) }]),
     { label: t('pokedex.details.growth'), value: growthRate(species.growth_rate.name, t) },
+    ...(species.hatch_counter === null ? [] : [{ label: t('pokedex.details.eggCycles'), value: format(species.hatch_counter) }]),
+    { label: t('pokedex.details.eggGroups'), value: species.egg_groups.map((group) => nameOf('eggGroups', group.name, language)).join(', ') },
   ];
   const statsText = [...stats.map((stat) => `${stat.label} ${stat.value}`), `${t('pokedex.stats.total')} ${total}`];
   const evolutionText = evolves
