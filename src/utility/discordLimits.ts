@@ -10,6 +10,8 @@ export const DiscordLimits = {
   buttonsPerRow: 5,
   /** Characters in a popup field's label. */
   modalLabelLength: 45,
+  /** Characters in a popup's title. */
+  modalTitleLength: 45,
   /** Characters in the custom ID of a button, select or popup. */
   customIdLength: 100,
   /** Characters of text in all of a Components V2 message's text displays together. */

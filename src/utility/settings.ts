@@ -531,7 +531,10 @@ function addSetting<C>(container: ContainerBuilder, context: SettingsContext, pa
             .setMaxValues(options.length)
             .addOptions(
               options.map((option) =>
-                new StringSelectMenuOptionBuilder().setLabel(option.label.slice(0, DiscordLimits.optionLabelLength)).setValue(option.value).setDefault(saved.includes(option.value)),
+                new StringSelectMenuOptionBuilder()
+                  .setLabel(option.label.slice(0, DiscordLimits.optionLabelLength))
+                  .setValue(option.value)
+                  .setDefault(saved.includes(option.value)),
               ),
             ),
         ),
@@ -613,8 +616,8 @@ function addEntries<C>(container: ContainerBuilder, guild: Guild, panelId: strin
           .addOptions(
             entries.slice(0, DiscordLimits.selectOptions).map((entry) =>
               new StringSelectMenuOptionBuilder()
-                .setLabel(targetName(guild, setting.target, entry.targetId, t))
-                .setDescription(setting.formatValue(entry.value, t))
+                .setLabel(targetName(guild, setting.target, entry.targetId, t).slice(0, DiscordLimits.optionLabelLength))
+                .setDescription(setting.formatValue(entry.value, t).slice(0, DiscordLimits.optionLabelLength))
                 .setValue(entry.targetId),
             ),
           ),
@@ -640,7 +643,7 @@ function entryModal<C>(
 ): SettingsModal {
   return {
     customId: customId(id.panelId, id.page, setting.key, targetId, MODAL_MARK),
-    title: t('settings.entries.modalTitle', { target: targetName(guild, setting.target, targetId, t) }).slice(0, 45),
+    title: t('settings.entries.modalTitle', { target: targetName(guild, setting.target, targetId, t) }).slice(0, DiscordLimits.modalTitleLength),
     label: setting.input.label(t),
     placeholder: setting.input.placeholder?.(t),
     value: current === undefined ? undefined : String(current),
@@ -664,8 +667,8 @@ function textModal<C>(
 ): SettingsModal {
   return {
     customId: customId(id.panelId, id.page, setting.key, undefined, MODAL_MARK),
-    title: setting.label(t).slice(0, 45),
-    label: setting.label(t).slice(0, 45),
+    title: setting.label(t).slice(0, DiscordLimits.modalTitleLength),
+    label: setting.label(t).slice(0, DiscordLimits.modalLabelLength),
     placeholder: setting.placeholder?.(t),
     value: current ?? setting.defaultText?.(t),
     maxLength: setting.maxLength,
