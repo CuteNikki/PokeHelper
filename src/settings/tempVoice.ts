@@ -109,12 +109,14 @@ export function getTempVoiceSettings(creatorId: string): SettingsPanel {
         label: (t) => t('tempVoice.config.channel.label'),
         description: (t) => t('tempVoice.config.channel.description'),
         get: (creator) => creator.channelId,
-        set: async (_guildId, channelId) => {
-          if (!channelId) return;
-          // A channel can only be one join channel, and a temporary channel can't become one
+        // A channel can only be one join channel, and a temporary channel can't become one
+        refusal: async (channelId, t) => {
           const [other, temporary] = await Promise.all([getTempVoiceCreatorByChannel(channelId), getTempVoiceChannel(channelId)]);
-          if ((other && other.id !== creatorId) || temporary) return;
-          await updateTempVoiceCreator(creatorId, { channelId });
+          if (other && other.id !== creatorId) return t('tempVoice.config.alreadyJoin', { channel: channelMention(channelId) });
+          return temporary ? t('tempVoice.config.isTemporary') : null;
+        },
+        set: async (_guildId, channelId) => {
+          if (channelId) await updateTempVoiceCreator(creatorId, { channelId });
         },
       },
       {

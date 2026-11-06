@@ -116,6 +116,8 @@ export type ChannelSetting<C> = BaseSetting<C, string | null> & {
    * so channels where the bot is missing any of these are refused, and a saved one that lost them gets a warning.
    */
   botPermissions?: PermissionsString[];
+  /** Why a channel can't be picked, like one that's already used for something else, or null if it can. */
+  refusal?: (channelId: string, t: Translate) => Promise<string | null>;
 };
 /** A role, picked with a role select. Without `required`, the selection can be cleared. */
 export type RoleSetting<C> = BaseSetting<C, string | null> & {
@@ -825,6 +827,10 @@ export function createSettingsPanel<C>(definition: SettingsPanelDefinition<C>): 
                 error: t('settings.channel.botPermissionsRefused', { channel: channelMention(value), permissions: formatPermissions(missing, t) }),
               };
             }
+          }
+          if (value !== null && setting.type === 'channel' && setting.refusal) {
+            const refusal = await setting.refusal(value, t);
+            if (refusal) return { page, error: refusal };
           }
           if (value !== null && setting.type === 'role' && setting.assignable) {
             const refusal = roleRefusal(guild, value, context.member, t);
