@@ -4,7 +4,7 @@ import { MAX_BAN_DAYS, MAX_TIMEOUT_DAYS } from 'utility/moderation/run';
 import { parseDuration, parseWhen } from 'utility/reminders/time';
 
 /** Words that make a ban one for good, in the languages the bot speaks. */
-const NEVER = new Set(['never', 'forever', 'permanent', 'nie', 'niemals', 'für immer', 'dauerhaft']);
+const NEVER = new Set(['never', 'forever', 'permanent', 'permanently', 'nie', 'niemals', 'für immer', 'dauerhaft']);
 
 /** Why a new end can't be used: it isn't one, it's in the past, it's too far ahead, or it's "never" for a timeout. */
 export type EndError = 'invalid' | 'past' | 'tooLong' | 'neverTimeout';

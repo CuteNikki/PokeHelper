@@ -27,6 +27,7 @@ describe('changing when a timeout or ban ends', () => {
   test('never makes a ban one for good, but not a timeout', () => {
     expect(parseNewEnd('never', 'ban', current, 'UTC', now)).toBeNull();
     expect(parseNewEnd('Für immer', 'ban', current, 'UTC', now)).toBeNull();
+    expect(parseNewEnd('permanently', 'ban', current, 'UTC', now)).toBeNull();
     expect(parseNewEnd('never', 'timeout', current, 'UTC', now)).toBe('neverTimeout');
   });
 
