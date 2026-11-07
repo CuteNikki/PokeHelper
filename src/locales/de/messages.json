@@ -1646,6 +1646,16 @@
       },
       "count_one": "{{count, number}} Fall",
       "count_other": "{{count, number}} Fälle"
+    },
+    "purge": {
+      "missing": "Dafür brauche ich in diesem Kanal diese Berechtigungen: {{permissions}}",
+      "none": "Hier gibt es nichts, was ich löschen kann. Nachrichten, die älter als 14 Tage oder angepinnt sind, lasse ich stehen.",
+      "noneOf": "{{user}} hat hier keine Nachrichten, die ich löschen kann. Ich schau die letzten 100 durch und lasse Nachrichten stehen, die älter als 14 Tage oder angepinnt sind.",
+      "done_one": "{{count, number}} Nachricht gelöscht.",
+      "done_other": "{{count, number}} Nachrichten gelöscht.",
+      "doneOf_one": "{{count, number}} Nachricht von {{user}} gelöscht.",
+      "doneOf_other": "{{count, number}} Nachrichten von {{user}} gelöscht.",
+      "skipped": "Ein paar sind stehen geblieben, weil Discord Bots keine Nachrichten auf einmal löschen lässt, die älter als 14 Tage sind, und angepinnte bleiben."
     }
   },
   "lookup": {

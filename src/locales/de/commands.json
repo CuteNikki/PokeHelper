@@ -581,5 +581,19 @@
   },
   "Cases": {
     "name": "Fälle"
+  },
+  "purge": {
+    "name": "aufräumen",
+    "description": "Lösch die letzten Nachrichten in diesem Kanal, oder nur die von jemandem",
+    "options": {
+      "amount": {
+        "name": "anzahl",
+        "description": "Wie viele, höchstens 100"
+      },
+      "user": {
+        "name": "person",
+        "description": "Nur die Nachrichten dieser Person, unter den letzten 100"
+      }
+    }
   }
 }

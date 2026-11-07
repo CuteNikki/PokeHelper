@@ -1702,6 +1702,16 @@
       },
       "count_one": "{{count, number}} case",
       "count_other": "{{count, number}} cases"
+    },
+    "purge": {
+      "missing": "I need these permissions in this channel for that: {{permissions}}",
+      "none": "There's nothing here I can delete. Messages older than 14 days and pinned ones are left alone.",
+      "noneOf": "{{user}} doesn't have any messages here I can delete. I look through the latest 100, and leave out ones older than 14 days and pinned ones.",
+      "done_one": "Deleted {{count, number}} message.",
+      "done_other": "Deleted {{count, number}} messages.",
+      "doneOf_one": "Deleted {{count, number}} message of {{user}}.",
+      "doneOf_other": "Deleted {{count, number}} messages of {{user}}.",
+      "skipped": "Some were left, as Discord doesn't let bots delete messages older than 14 days at once, and pinned ones stay."
     }
   },
   "lookup": {
