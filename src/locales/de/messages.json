@@ -1660,16 +1660,19 @@
       "endModal": {
         "title": "Ende von Fall {{number}}",
         "label": "Wann es endet",
-        "placeholderTimeout": "Zum Beispiel 3d ab jetzt, +1d oder -2h zum Verschieben, oder 24.12. 18:00",
-        "placeholderBan": "Zum Beispiel 3d ab jetzt, +1d oder -2h zum Verschieben, 24.12. 18:00 oder nie",
+        "placeholderTimeout": "Zum Beispiel 3d ab jetzt, +1d oder -2h zum Verschieben, 24.12. 18:00, oder 0 zum Beenden",
+        "placeholderBan": "Zum Beispiel 3d ab jetzt, +1d oder -2h, 24.12. 18:00, nie, oder 0 zum Beenden",
         "invalid": "Das ist keine Zeit. Schreib, wie lange ab jetzt, zum Beispiel 3d, verschieb das Ende mit +1d oder -2h, oder gib ein Datum an, zum Beispiel 24.12. 18:00.",
-        "past": "Das liegt in der Vergangenheit. Um es sofort zu beenden, nimm `/entbannen` oder `/timeout-aufheben`.",
+        "past": "Das liegt in der Vergangenheit. Um es sofort zu beenden, schreib 0.",
         "neverTimeout": "Timeouts können nicht für immer gehen, Discord lässt höchstens {{max}} Tage zu. Ein Bann kann das.",
         "notRunning": "Der läuft schon nicht mehr, also lässt sich sein Ende nicht ändern.",
         "noBanPermission": "Um das Ende eines Banns zu ändern, brauchst du die Berechtigung Mitglieder bannen.",
         "audit": "Ende von Fall {{number}} geändert",
         "done": "Fall {{number}} läuft jetzt bis {{until}}.",
-        "doneNever": "Fall {{number}} ist jetzt ein Bann für immer."
+        "doneNever": "Fall {{number}} ist jetzt ein Bann für immer.",
+        "reasonLabel": "Grund, wenn du es jetzt beendest",
+        "reasonDescription": "Nur bei 0, für den Fall, der es beendet",
+        "doneNow": "Beendet, das ist Fall {{number}}."
       }
     },
     "purge": {

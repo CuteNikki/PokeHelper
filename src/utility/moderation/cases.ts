@@ -7,7 +7,9 @@ import {
   ButtonStyle,
   ContainerBuilder,
   type Guild,
+  LabelBuilder,
   MessageFlags,
+  ModalBuilder,
   type ModalSubmitInteraction,
   SeparatorBuilder,
   SeparatorSpacingSize,
@@ -15,9 +17,11 @@ import {
   StringSelectMenuOptionBuilder,
   subtext,
   TextDisplayBuilder,
+  TextInputBuilder,
+  TextInputStyle,
 } from 'discord.js';
 
-import { CASE_SORTS, CASE_TYPES, type CaseSort, deleteCase, getCase, getUserCases, setCaseEnd, setCaseReason } from 'database/moderation';
+import { CASE_SORTS, CASE_TYPES, type CaseSort, createCase, deleteCase, getCase, getUserCases, setCaseEnd, setCaseReason, undoCase } from 'database/moderation';
 import { getReminderTimezone } from 'database/reminders';
 
 import type { ModCase } from 'generated/prisma/client';
@@ -26,8 +30,18 @@ import { buttonIcon, textIcon } from 'utility/emojis';
 import { getTranslate, type Translate } from 'utility/i18next';
 import { userRef, when } from 'utility/logs/format';
 import { buildTextModal } from 'utility/modal';
-import { canChangeEnd, type EndError, parseNewEnd } from 'utility/moderation/end';
-import { auditReason, CASE_ICONS, caseNumber, formatUntil, MAX_BAN_DAYS, MAX_REASON_LENGTH, MAX_TIMEOUT_DAYS, moderationProblem } from 'utility/moderation/run';
+import { canChangeEnd, END_NOW, type EndError, parseNewEnd } from 'utility/moderation/end';
+import {
+  auditReason,
+  buildCaseDm,
+  CASE_ICONS,
+  caseNumber,
+  formatUntil,
+  MAX_BAN_DAYS,
+  MAX_REASON_LENGTH,
+  MAX_TIMEOUT_DAYS,
+  moderationProblem,
+} from 'utility/moderation/run';
 import { buildPageModal, buildPageRow, clampPage, type PageButton, readPageInput } from 'utility/pagination';
 import { sendError, withNotice, type ResponsePayload } from 'utility/response';
 import { quote, shorten } from 'utility/text';
@@ -47,6 +61,7 @@ export const CASES_PAGE_SIZE = 5;
 const LIST_REASON_LENGTH = 100;
 const REASON_INPUT_ID = 'reason';
 const END_INPUT_ID = 'end';
+const END_REASON_INPUT_ID = 'end-reason';
 
 /** Where someone is in a case history, which every button, select and popup carries. */
 export interface CasesState {
@@ -296,16 +311,7 @@ export async function handleCasesButton(interaction: ButtonInteraction<'cached'>
     const modCase = await getCase(interaction.guildId, parsed.caseId);
     if (!modCase) return sendError(interaction, t('moderation.cases.gone'));
     if (!canChangeEnd(modCase)) return sendError(interaction, t('moderation.cases.endModal.notRunning'));
-    return interaction.showModal(
-      buildTextModal({
-        customId: caseId('end', modCase.id, state),
-        title: t('moderation.cases.endModal.title', { number: caseNumber(modCase, t) }),
-        label: t('moderation.cases.endModal.label'),
-        inputId: END_INPUT_ID,
-        placeholder: t(modCase.type === 'ban' ? 'moderation.cases.endModal.placeholderBan' : 'moderation.cases.endModal.placeholderTimeout'),
-        maxLength: 50,
-      }),
-    );
+    return interaction.showModal(buildEndModal(modCase, state, t));
   }
 
   // Answered before anything is looked up, as Discord gives up after 3 seconds
@@ -376,6 +382,66 @@ export async function handleCasesModal(interaction: ModalSubmitInteraction): Pro
   );
 }
 
+/** The popup asking when a timeout or ban ends, and why, for when it ends it right away, which makes a case of its own. */
+function buildEndModal(modCase: ModCase, state: CasesState, t: Translate): ModalBuilder {
+  const end = new TextInputBuilder()
+    .setCustomId(END_INPUT_ID)
+    .setStyle(TextInputStyle.Short)
+    .setMaxLength(50)
+    .setRequired(true)
+    .setPlaceholder(t(modCase.type === 'ban' ? 'moderation.cases.endModal.placeholderBan' : 'moderation.cases.endModal.placeholderTimeout'));
+  const reason = new TextInputBuilder().setCustomId(END_REASON_INPUT_ID).setStyle(TextInputStyle.Paragraph).setMaxLength(MAX_REASON_LENGTH).setRequired(false);
+  return new ModalBuilder()
+    .setCustomId(caseId('end', modCase.id, state))
+    .setTitle(t('moderation.cases.endModal.title', { number: caseNumber(modCase, t) }).slice(0, DiscordLimits.modalTitleLength))
+    .addLabelComponents(
+      new LabelBuilder().setLabel(t('moderation.cases.endModal.label')).setTextInputComponent(end),
+      new LabelBuilder()
+        .setLabel(t('moderation.cases.endModal.reasonLabel'))
+        .setDescription(t('moderation.cases.endModal.reasonDescription'))
+        .setTextInputComponent(reason),
+    );
+}
+
+/**
+ * End a running timeout or ban right away, from the popup: take the timeout away or lift the ban on Discord, as a case of its own with the
+ * reason given, like `/untimeout` and `/unban` do. The case is made first, so the logs find it, and taken back if Discord says no.
+ */
+async function endNow(interaction: ModalSubmitInteraction<'cached'>, modCase: ModCase, state: CasesState, t: Translate): Promise<unknown> {
+  const { guild } = interaction;
+  const reason = interaction.fields.getTextInputValue(END_REASON_INPUT_ID).trim() || null;
+  const type = modCase.type === 'ban' ? 'unban' : 'untimeout';
+
+  let act: (auditReason: string) => Promise<unknown>;
+  if (type === 'unban') {
+    if (!interaction.member.permissions.has('BanMembers')) return sendError(interaction, t('moderation.cases.endModal.noBanPermission'));
+    act = (audit) => guild.members.unban(modCase.userId, audit);
+  } else {
+    const member = await guild.members.fetch(modCase.userId).catch(() => null);
+    if (!member) return sendError(interaction, t('moderation.problems.notMember'));
+    const problem = moderationProblem(guild, interaction.member, member.user, member, 'untimeout', t);
+    if (problem) return sendError(interaction, problem);
+    act = (audit) => member.timeout(null, audit);
+  }
+
+  const lifted = await createCase({ guildId: guild.id, type, userId: modCase.userId, moderatorId: interaction.user.id, reason });
+  try {
+    await act(auditReason(interaction.user, reason));
+  } catch {
+    await undoCase(lifted);
+    return sendError(interaction, t('moderation.failed'));
+  }
+  // Told by DM like with /untimeout. Someone unbanned rarely shares a server with the bot to get one, like with /unban
+  if (type === 'untimeout') {
+    const user = await interaction.client.users.fetch(modCase.userId).catch(() => null);
+    await user?.send(buildCaseDm(guild, lifted, getTranslate(guild.preferredLocale))).catch(() => null);
+  }
+
+  const ended = (await getCase(guild.id, modCase.id)) ?? { ...modCase, endedAt: lifted.createdAt };
+  const notice = t('moderation.cases.endModal.doneNow', { number: caseNumber(lifted, t) });
+  return interaction.editReply(withNotice(notice, 'success', renderCase(guild, ended, state, t)));
+}
+
 /** Why a new end can't be used, for the one who typed it. */
 function endProblem(error: EndError, type: 'timeout' | 'ban', t: Translate): string {
   if (error === 'tooLong') {
@@ -399,6 +465,7 @@ async function changeEnd(interaction: ModalSubmitInteraction<'cached'>, id: stri
   // Dates are in the timezone the moderator picked for their reminders, or UTC. Discord shows the result in everyone's own time
   const timezone = (await getReminderTimezone(interaction.user.id)) ?? 'UTC';
   const end = parseNewEnd(interaction.fields.getTextInputValue(END_INPUT_ID), type, modCase.expiresAt, timezone);
+  if (end === END_NOW) return endNow(interaction, modCase, state, t);
   if (typeof end === 'string') return sendError(interaction, endProblem(end, type, t));
 
   const reason = auditReason(interaction.user, t('moderation.cases.endModal.audit', { number: caseNumber(modCase, t) }));

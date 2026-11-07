@@ -6,6 +6,11 @@ import { parseDuration, parseWhen } from 'utility/reminders/time';
 /** Words that make a ban one for good, in the languages the bot speaks. */
 const NEVER = new Set(['never', 'forever', 'permanent', 'permanently', 'nie', 'niemals', 'für immer', 'dauerhaft']);
 
+/** Words that end a timeout or ban right away. */
+const NOW = new Set(['0', 'now', 'jetzt', 'sofort']);
+/** What {@link parseNewEnd} gives for a timeout or ban to end right away. */
+export const END_NOW = 'now';
+
 /** Why a new end can't be used: it isn't one, it's in the past, it's too far ahead, or it's "never" for a timeout. */
 export type EndError = 'invalid' | 'past' | 'tooLong' | 'neverTimeout';
 
@@ -17,12 +22,20 @@ export const canChangeEnd = (modCase: Pick<ModCase, 'type' | 'endedAt' | 'expire
 
 /**
  * When a running timeout or ban ends after it was changed, from what was typed: a duration from now, like `3d`, the end moved by
- * a duration, like `+1d` or `-2h`, a date, like `24.12. 18:00` in the timezone given, or for bans `never`, to make it one for good.
+ * a duration, like `+1d` or `-2h`, a date, like `24.12. 18:00` in the timezone given, `0` or `now` to end it right away, or for bans
+ * `never`, to make it one for good.
  * @param current When it ends now, or null for a ban for good, whose end a `+` or `-` counts from now.
- * @returns The new end, null for a ban for good, or why it can't be used.
+ * @returns The new end, null for a ban for good, {@link END_NOW} to end it right away, or why it can't be used.
  */
-export function parseNewEnd(input: string, type: 'timeout' | 'ban', current: Date | null, timezone: string, now = new Date()): Date | null | EndError {
+export function parseNewEnd(
+  input: string,
+  type: 'timeout' | 'ban',
+  current: Date | null,
+  timezone: string,
+  now = new Date(),
+): Date | null | typeof END_NOW | EndError {
   const text = input.trim().toLowerCase();
+  if (NOW.has(text)) return END_NOW;
   if (NEVER.has(text)) return type === 'ban' ? null : 'neverTimeout';
 
   let end: Date;

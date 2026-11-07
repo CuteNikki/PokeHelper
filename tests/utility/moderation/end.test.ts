@@ -31,6 +31,12 @@ describe('changing when a timeout or ban ends', () => {
     expect(parseNewEnd('never', 'timeout', current, 'UTC', now)).toBe('neverTimeout');
   });
 
+  test('0 or now ends it right away', () => {
+    expect(parseNewEnd('0', 'timeout', current, 'UTC', now)).toBe('now');
+    expect(parseNewEnd(' Now ', 'ban', null, 'UTC', now)).toBe('now');
+    expect(parseNewEnd('jetzt', 'ban', current, 'UTC', now)).toBe('now');
+  });
+
   test("can't end in the past, too late, or be nonsense", () => {
     expect(parseNewEnd('-4d', 'timeout', current, 'UTC', now)).toBe('past');
     expect(parseNewEnd('+26d', 'timeout', current, 'UTC', now)).toBe('tooLong');

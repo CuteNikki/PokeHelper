@@ -1716,16 +1716,19 @@
       "endModal": {
         "title": "End of case {{number}}",
         "label": "When it ends",
-        "placeholderTimeout": "Like 3d from now, +1d or -2h to move it, or 24.12. 18:00",
-        "placeholderBan": "Like 3d from now, +1d or -2h to move it, 24.12. 18:00 or never",
+        "placeholderTimeout": "Like 3d from now, +1d or -2h to move it, 24.12. 18:00, or 0 to end it now",
+        "placeholderBan": "Like 3d from now, +1d or -2h, 24.12. 18:00, never, or 0 to end it now",
         "invalid": "That's not a time. Write how long from now, like 3d, move the end with +1d or -2h, or give a date, like 24.12. 18:00.",
-        "past": "That's in the past. To end it right away, use `/unban` or `/untimeout`.",
+        "past": "That's in the past. To end it right away, write 0.",
         "neverTimeout": "Timeouts can't last for good, Discord allows at most {{max}} days. A ban can.",
         "notRunning": "That one isn't running anymore, so its end can't be changed.",
         "noBanPermission": "Changing when a ban ends needs the Ban Members permission.",
         "audit": "Changed the end of case {{number}}",
         "done": "Case {{number}} now lasts until {{until}}.",
-        "doneNever": "Case {{number}} is a ban for good now."
+        "doneNever": "Case {{number}} is a ban for good now.",
+        "reasonLabel": "Reason, when ending it now",
+        "reasonDescription": "Only used with 0, for the case that ends it",
+        "doneNow": "Ended it, that's case {{number}}."
       }
     },
     "purge": {

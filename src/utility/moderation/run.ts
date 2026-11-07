@@ -120,7 +120,7 @@ export function moderationProblem(
 export const isBanned = async (guild: Guild, userId: string) => (await guild.bans.fetch({ user: userId, force: true }).catch(() => null)) !== null;
 
 /** The DM telling someone what happened to them on a server, in the server's language, as theirs isn't known. */
-function buildCaseDm(guild: Guild, modCase: ModCase, t: Translate): ResponsePayload {
+export function buildCaseDm(guild: Guild, modCase: ModCase, t: Translate): ResponsePayload {
   const lines = [
     t(`moderation.dm.${modCase.type}`, { icon: textIcon(CASE_ICONS[modCase.type]), server: bold(guild.name) }),
     `${bold(t('moderation.reason'))}\n${quote(modCase.reason ?? t('moderation.noReason'))}`,
