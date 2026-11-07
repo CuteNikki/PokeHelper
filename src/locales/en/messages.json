@@ -958,14 +958,14 @@
       "title": "About you",
       "description": "Your XP, counting stats, birthday, friend codes and temporary voice channel settings, in every server",
       "downloaded": "Here's everything stored about you, as a file only you can see.",
-      "confirm": "### Delete your data?\nYour XP, counting stats, birthday, friend codes and saved voice channel settings are deleted in **every server**. This can't be undone.",
+      "confirm": "### Delete your data?\nYour XP, counting stats, birthday, friend codes and saved voice channel settings are deleted in **every server**. Moderation cases about you stay, as they're the servers' records. This can't be undone.",
       "deleted": "Your data is deleted. Using the bot again, like chatting where leveling is on, starts over from zero."
     },
     "guild": {
       "title": "About {{name}}",
-      "description": "The server's settings, and its members' levels and counting stats",
+      "description": "The server's settings, and its members' levels, counting stats and moderation cases",
       "downloaded": "Here's everything stored about this server, as a file only you can see.",
-      "confirm": "### Delete all data of {{name}}?\nEvery setting, role menu, log setting and join channel, and everyone's levels and counting stats here are deleted, as if the bot was just added. This can't be undone.",
+      "confirm": "### Delete all data of {{name}}?\nEvery setting, role menu, log setting and join channel, and everyone's levels, counting stats and moderation cases here are deleted, as if the bot was just added. This can't be undone.",
       "deleted": "All data of this server is deleted. Every feature is back to how it was when the bot was added."
     }
   },
