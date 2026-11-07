@@ -1653,6 +1653,45 @@
       "ban": "Ban",
       "unban": "Unban"
     },
+    "panel": {
+      "title": "### {{icon.shield}} Moderation of {{user}}",
+      "timedOut": "Timed out until {{until}}",
+      "banned": "Banned",
+      "notMember": "Not on the server",
+      "actions": {
+        "warn": "Warn",
+        "timeout": "Timeout",
+        "untimeout": "Remove timeout",
+        "kick": "Kick",
+        "ban": "Ban",
+        "unban": "Unban",
+        "cases": "Cases"
+      },
+      "noPermission": "You need the {{permission}} permission for that.",
+      "modal": {
+        "title": {
+          "warn": "Warn {{user}}",
+          "timeout": "Time out {{user}}",
+          "untimeout": "Remove {{user}}'s timeout",
+          "kick": "Kick {{user}}",
+          "ban": "Ban {{user}}",
+          "unban": "Unban {{user}}"
+        },
+        "reason": "Reason",
+        "duration": "Duration",
+        "durationTimeout": "Like 10m, 2h or 3d. At most {{max}} days",
+        "durationBan": "Like 3d or 2w. Leave it empty to ban them for good",
+        "deleteMessages": "Delete their messages",
+        "deleteOptions": {
+          "none": "Don't delete any",
+          "hour": "From the last hour",
+          "day": "From the last day",
+          "week": "From the last 7 days"
+        },
+        "dm": "Tell them by DM",
+        "dmDescription": "They get a DM with what happened and why"
+      }
+    },
     "cases": {
       "title": "### {{icon.gavel}} Cases of {{user}}",
       "none": "No cases yet. They show up here once someone warns, times out, kicks or bans them.",

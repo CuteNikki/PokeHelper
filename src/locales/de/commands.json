@@ -579,8 +579,8 @@
       }
     }
   },
-  "Cases": {
-    "name": "Fälle"
+  "Moderation": {
+    "name": "Moderation"
   },
   "purge": {
     "name": "aufräumen",

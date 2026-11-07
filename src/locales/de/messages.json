@@ -1597,6 +1597,45 @@
       "ban": "Bann",
       "unban": "Entbannung"
     },
+    "panel": {
+      "title": "### {{icon.shield}} Moderation von {{user}}",
+      "timedOut": "Im Timeout bis {{until}}",
+      "banned": "Gebannt",
+      "notMember": "Nicht auf dem Server",
+      "actions": {
+        "warn": "Verwarnen",
+        "timeout": "Timeout",
+        "untimeout": "Timeout aufheben",
+        "kick": "Kicken",
+        "ban": "Bannen",
+        "unban": "Entbannen",
+        "cases": "Fälle"
+      },
+      "noPermission": "Dafür brauchst du die Berechtigung {{permission}}.",
+      "modal": {
+        "title": {
+          "warn": "{{user}} verwarnen",
+          "timeout": "{{user}} einen Timeout geben",
+          "untimeout": "Timeout von {{user}} aufheben",
+          "kick": "{{user}} kicken",
+          "ban": "{{user}} bannen",
+          "unban": "{{user}} entbannen"
+        },
+        "reason": "Grund",
+        "duration": "Dauer",
+        "durationTimeout": "Zum Beispiel 10m, 2h oder 3d. Höchstens {{max}} Tage",
+        "durationBan": "Zum Beispiel 3d oder 2w. Lass es leer, um für immer zu bannen",
+        "deleteMessages": "Nachrichten der Person löschen",
+        "deleteOptions": {
+          "none": "Keine löschen",
+          "hour": "Von der letzten Stunde",
+          "day": "Vom letzten Tag",
+          "week": "Von den letzten 7 Tagen"
+        },
+        "dm": "Per DM Bescheid geben",
+        "dmDescription": "Die Person bekommt eine DM, was passiert ist und warum"
+      }
+    },
     "cases": {
       "title": "### {{icon.gavel}} Fälle von {{user}}",
       "none": "Noch keine Fälle. Sie tauchen hier auf, sobald die Person verwarnt, gekickt oder gebannt wird oder einen Timeout bekommt.",
