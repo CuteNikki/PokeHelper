@@ -137,21 +137,21 @@ export async function renderCaseList(guild: Guild, requested: CasesState, t: Tra
     page === requested.page ? first : await getUserCases(guild.id, requested.userId, requested.sort, page * CASES_PAGE_SIZE, CASES_PAGE_SIZE);
   const state: CasesState = { ...requested, page };
 
+  // How many there are, and of which types, under the title, where they don't run into the first case
+  const count = [
+    t('moderation.cases.count', { count: total }),
+    ...CASE_TYPES.filter((type) => counts[type] > 0).map((type) => t(`moderation.cases.counts.${type}`, { count: counts[type] })),
+  ].join(' · ');
+  const title = t('moderation.cases.title', { user: userRef(guild, requested.userId) });
   const container = new ContainerBuilder()
     .setAccentColor(ThemeColors.info)
-    .addTextDisplayComponents(new TextDisplayBuilder().setContent(t('moderation.cases.title', { user: userRef(guild, requested.userId) })))
+    .addTextDisplayComponents(new TextDisplayBuilder().setContent(total > 0 ? `${title}\n${subtext(count)}` : title))
     // Large, so the title, the list and the selects stand apart, like in the settings panels
     .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large));
   if (total === 0) {
     container.addTextDisplayComponents(new TextDisplayBuilder().setContent(t('moderation.cases.none')));
     return { components: [container], flags: [MessageFlags.IsComponentsV2], allowedMentions: { parse: [] } };
   }
-
-  // How many there are, and of which types, above the list like on the other lists
-  const count = [
-    t('moderation.cases.count', { count: total }),
-    ...CASE_TYPES.filter((type) => counts[type] > 0).map((type) => t(`moderation.cases.counts.${type}`, { count: counts[type] })),
-  ].join(' · ');
 
   const entries = cases.map((modCase) => {
     const line = t('moderation.cases.entry', {
@@ -188,7 +188,7 @@ export async function renderCaseList(guild: Guild, requested: CasesState, t: Tra
     );
 
   container
-    .addTextDisplayComponents(new TextDisplayBuilder().setContent([subtext(count), ...entries].join('\n')))
+    .addTextDisplayComponents(new TextDisplayBuilder().setContent(entries.join('\n')))
     .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large))
     .addActionRowComponents(
       new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(sortSelect),
