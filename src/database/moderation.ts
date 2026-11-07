@@ -1,6 +1,7 @@
 import { prisma } from 'database/index';
 
 import type { ModCase, ModCaseType, Prisma } from 'generated/prisma/client';
+import { DiscordLimits } from 'utility/discordLimits';
 
 /** How a member's cases are listed: the newest or the oldest first, or by type, the newest first within each. */
 export type CaseSort = 'newest' | 'oldest' | 'type';
@@ -105,3 +106,19 @@ export const getRecentCase = (guildId: string, userId: string, type: ModCaseType
 /** Change when a running timeout or ban ends, or make a ban one for good with null. Returns whether it was still running. */
 export const setCaseEnd = async (guildId: string, id: string, expiresAt: Date | null) =>
   (await prisma.modCase.updateMany({ where: { id, guildId, endedAt: null }, data: { expiresAt } })).count > 0;
+
+/**
+ * The cases related to one: the case that ended it, and the cases it ended. A case that ends others is made at the very moment they end,
+ * see {@link createCase}, which is how they're found, also for cases made before this was shown.
+ */
+export const getRelatedCases = (modCase: ModCase) =>
+  prisma.modCase.findMany({
+    where: {
+      guildId: modCase.guildId,
+      userId: modCase.userId,
+      id: { not: modCase.id },
+      OR: [{ endedAt: modCase.createdAt }, ...(modCase.endedAt ? [{ createdAt: modCase.endedAt }] : [])],
+    },
+    orderBy: { createdAt: 'asc' },
+    take: DiscordLimits.buttonsPerRow,
+  });

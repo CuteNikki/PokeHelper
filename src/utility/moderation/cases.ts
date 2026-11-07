@@ -19,9 +19,23 @@ import {
   TextDisplayBuilder,
   TextInputBuilder,
   TextInputStyle,
+  time,
+  TimestampStyles,
 } from 'discord.js';
 
-import { CASE_SORTS, CASE_TYPES, type CaseSort, createCase, deleteCase, getCase, getUserCases, setCaseEnd, setCaseReason, undoCase } from 'database/moderation';
+import {
+  CASE_SORTS,
+  CASE_TYPES,
+  type CaseSort,
+  createCase,
+  deleteCase,
+  getCase,
+  getRelatedCases,
+  getUserCases,
+  setCaseEnd,
+  setCaseReason,
+  undoCase,
+} from 'database/moderation';
 import { getReminderTimezone } from 'database/reminders';
 
 import type { ModCase } from 'generated/prisma/client';
@@ -215,8 +229,14 @@ export async function renderCaseList(guild: Guild, requested: CasesState, t: Tra
   return { components: [container], flags: [MessageFlags.IsComponentsV2], allowedMentions: { parse: [] } };
 }
 
-/** One case with everything about it, and buttons to go back to the list, change its reason or when it ends, or delete it. */
-export function renderCase(guild: Guild, modCase: ModCase, state: CasesState, t: Translate): ResponsePayload {
+/** How a related case is related to one: whether it ended that one, or that one ended it. */
+const endedThis = (related: ModCase, modCase: ModCase) => modCase.endedAt !== null && related.createdAt.getTime() === modCase.endedAt.getTime();
+
+/**
+ * One case with everything about it and the cases related to it, like the timeout a removed timeout ended, with buttons to go back to the
+ * list, change its reason or when it ends, or delete it, and to open the related ones.
+ */
+export function renderCase(guild: Guild, modCase: ModCase, related: ModCase[], state: CasesState, t: Translate): ResponsePayload {
   const field = (label: string, value: string) => `${bold(label)}\n${value}`;
   const fields = [
     t('moderation.cases.view.title', { number: caseNumber(modCase, t), type: typeLabel(modCase, t) }),
@@ -228,6 +248,15 @@ export function renderCase(guild: Guild, modCase: ModCase, state: CasesState, t:
   if (modCase.endedAt) fields.push(field(t('moderation.cases.view.ended'), when(modCase.endedAt)!));
   else if (modCase.expiresAt)
     fields.push(field(t(modCase.expiresAt > new Date() ? 'moderation.cases.view.until' : 'moderation.cases.view.ranOut'), when(modCase.expiresAt)!));
+  if (related.length > 0) {
+    const lines = related.map((other) =>
+      t(endedThis(other, modCase) ? 'moderation.cases.view.relatedEndedThis' : 'moderation.cases.view.relatedEndedByThis', {
+        case: `${bold(caseNumber(other, t))} ${typeLabel(other, t)}`,
+        time: time(other.createdAt, TimestampStyles.RelativeTime),
+      }),
+    );
+    fields.push(field(t('moderation.cases.view.related'), lines.join('\n')));
+  }
 
   const button = (customId: string, label: string, icon: Parameters<typeof buttonIcon>[0], style = ButtonStyle.Secondary) =>
     new ButtonBuilder().setCustomId(customId).setLabel(label).setEmoji(buttonIcon(icon)).setStyle(style);
@@ -244,8 +273,22 @@ export function renderCase(guild: Guild, modCase: ModCase, state: CasesState, t:
         button(caseId('delete', modCase.id, state), t('moderation.cases.view.delete'), 'trash-2', ButtonStyle.Danger),
       ),
     );
+  // A button to open each related case, on a row of their own under the case's own buttons
+  if (related.length > 0) {
+    container.addActionRowComponents(
+      new ActionRowBuilder<ButtonBuilder>().addComponents(
+        related.map((other) =>
+          button(caseId('view', other.id, state), t('moderation.cases.view.open', { number: caseNumber(other, t) }), CASE_ICONS[other.type]),
+        ),
+      ),
+    );
+  }
   return { components: [container], flags: [MessageFlags.IsComponentsV2], allowedMentions: { parse: [] } };
 }
+
+/** One case with the cases related to it, which are looked up for it. */
+const renderCaseView = async (guild: Guild, modCase: ModCase, state: CasesState, t: Translate) =>
+  renderCase(guild, modCase, await getRelatedCases(modCase), state, t);
 
 /** The question whether to delete a case, as it can't be undone. */
 function renderDeleteQuestion(modCase: ModCase, state: CasesState, t: Translate): ResponsePayload {
@@ -321,7 +364,7 @@ export async function handleCasesButton(interaction: ButtonInteraction<'cached'>
       return interaction.editReply(await renderCaseList(interaction.guild, state, t));
     case 'view': {
       const modCase = await caseOrGone(interaction, parsed.caseId, state, t);
-      return modCase && interaction.editReply(renderCase(interaction.guild, modCase, state, t));
+      return modCase && interaction.editReply(await renderCaseView(interaction.guild, modCase, state, t));
     }
     case 'delete': {
       const modCase = await caseOrGone(interaction, parsed.caseId, state, t);
@@ -352,7 +395,7 @@ export async function handleCasesSelect(interaction: AnySelectMenuInteraction<'c
   }
   const modCase = await getCase(interaction.guildId, value);
   if (!modCase) return interaction.editReply(await listWithNotice(interaction.guild, parsed.state, t('moderation.cases.gone'), 'info', t));
-  return interaction.editReply(renderCase(interaction.guild, modCase, parsed.state, t));
+  return interaction.editReply(await renderCaseView(interaction.guild, modCase, parsed.state, t));
 }
 
 /** The popups of a case history: which page to go to, and a case's new reason. */
@@ -378,7 +421,8 @@ export async function handleCasesModal(interaction: ModalSubmitInteraction): Pro
   }
   const modCase = await caseOrGone(interaction, parsed.caseId, parsed.state, t);
   return (
-    modCase && interaction.editReply(withNotice(t('moderation.cases.reasonModal.done'), 'success', renderCase(interaction.guild, modCase, parsed.state, t)))
+    modCase &&
+    interaction.editReply(withNotice(t('moderation.cases.reasonModal.done'), 'success', await renderCaseView(interaction.guild, modCase, parsed.state, t)))
   );
 }
 
@@ -439,7 +483,7 @@ async function endNow(interaction: ModalSubmitInteraction<'cached'>, modCase: Mo
 
   const ended = (await getCase(guild.id, modCase.id)) ?? { ...modCase, endedAt: lifted.createdAt };
   const notice = t('moderation.cases.endModal.doneNow', { number: caseNumber(lifted, t) });
-  return interaction.editReply(withNotice(notice, 'success', renderCase(guild, ended, state, t)));
+  return interaction.editReply(withNotice(notice, 'success', await renderCaseView(guild, ended, state, t)));
 }
 
 /** Why a new end can't be used, for the one who typed it. */
@@ -487,7 +531,7 @@ async function changeEnd(interaction: ModalSubmitInteraction<'cached'>, id: stri
   const notice = end
     ? t('moderation.cases.endModal.done', { number: caseNumber(modCase, t), until: formatUntil(end) })
     : t('moderation.cases.endModal.doneNever', { number: caseNumber(modCase, t) });
-  return interaction.editReply(withNotice(notice, 'success', renderCase(interaction.guild, { ...modCase, expiresAt: end }, state, t)));
+  return interaction.editReply(withNotice(notice, 'success', await renderCaseView(interaction.guild, { ...modCase, expiresAt: end }, state, t)));
 }
 
 /** Someone's case history from its first page, newest first, for `/cases` and the Cases menu on their name. */

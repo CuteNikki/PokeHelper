@@ -1698,7 +1698,11 @@
         "back": "Back",
         "editReason": "Change reason",
         "delete": "Delete",
-        "changeEnd": "Change end"
+        "changeEnd": "Change end",
+        "related": "Related cases",
+        "relatedEndedThis": "{{case}} ended this one {{time}}",
+        "relatedEndedByThis": "{{case}} was ended by this one",
+        "open": "Open {{number}}"
       },
       "delete": {
         "question": "Delete case {{number}}? This can't be undone.",

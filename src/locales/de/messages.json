@@ -1642,7 +1642,11 @@
         "back": "Zurück",
         "editReason": "Grund ändern",
         "delete": "Löschen",
-        "changeEnd": "Ende ändern"
+        "changeEnd": "Ende ändern",
+        "related": "Zugehörige Fälle",
+        "relatedEndedThis": "{{case}} hat diesen {{time}} beendet",
+        "relatedEndedByThis": "{{case}} wurde von diesem beendet",
+        "open": "{{number}} öffnen"
       },
       "delete": {
         "question": "Fall {{number}} löschen? Das lässt sich nicht rückgängig machen.",
