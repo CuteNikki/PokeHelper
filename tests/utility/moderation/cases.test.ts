@@ -12,8 +12,13 @@ describe('case history custom IDs', () => {
     expect(parseCasesId(listId(state, 'goto'))).toEqual({ action: 'list', state, goto: true });
   });
 
-  test('the select and the page popup', () => {
+  test("a case's buttons carry the case and the page they came from", () => {
+    expect(parseCasesId(`cases:view:abc123:${userId}:type:0`)).toEqual({ action: 'view', caseId: 'abc123', state: { userId, sort: 'type', page: 0 } });
+  });
+
+  test('the selects and the page popup', () => {
     expect(parseCasesId(`cases:sort:${userId}`)).toEqual({ action: 'sort', userId });
+    expect(parseCasesId(`cases:pick:${userId}:newest:2`)).toEqual({ action: 'pick', state });
     expect(parseCasesId(`cases:goto:${userId}:type`)).toEqual({ action: 'goto', userId, sort: 'type' });
   });
 

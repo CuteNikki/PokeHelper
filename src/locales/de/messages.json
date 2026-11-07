@@ -1619,6 +1619,18 @@
         "oldest": "Älteste zuerst",
         "type": "Nach Art"
       },
+      "pick": "Wähl einen Fall, um ihn anzusehen, zu ändern oder zu löschen",
+      "gone": "Der Fall wurde inzwischen gelöscht.",
+      "view": {
+        "title": "### {{type}} · Fall {{number}}",
+        "member": "Mitglied",
+        "moderator": "Von",
+        "date": "Datum",
+        "until": "Läuft bis",
+        "ranOut": "Abgelaufen",
+        "ended": "Beendet",
+        "back": "Zurück"
+      },
       "count_one": "{{count, number}} Fall",
       "count_other": "{{count, number}} Fälle"
     }

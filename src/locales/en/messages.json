@@ -1675,6 +1675,18 @@
         "oldest": "Oldest first",
         "type": "By type"
       },
+      "pick": "Pick a case to see, change or delete it",
+      "gone": "That case was deleted meanwhile.",
+      "view": {
+        "title": "### {{type}} · Case {{number}}",
+        "member": "Member",
+        "moderator": "By",
+        "date": "Date",
+        "until": "Lasts until",
+        "ranOut": "Ran out",
+        "ended": "Ended",
+        "back": "Back"
+      },
       "count_one": "{{count, number}} case",
       "count_other": "{{count, number}} cases"
     }

@@ -2,7 +2,7 @@ import { SelectMenu } from 'classes/base/select';
 
 import { CASES_PREFIX, handleCasesSelect } from 'utility/moderation/cases';
 
-/** The select of a case history that sorts it. */
+/** The selects of a case history, to sort it and to pick a case. */
 export default new SelectMenu({
   customId: CASES_PREFIX,
   includesCustomId: true,
