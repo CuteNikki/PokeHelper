@@ -1559,7 +1559,8 @@
       "aboveYou": "Die höchste Rolle von {{user}} ist nicht unter deiner, also kannst du das nicht mit der Person machen.",
       "aboveMe": "Die höchste Rolle von {{user}} ist nicht unter meiner, also kann ich das nicht machen. Schieb meine Rolle in den Servereinstellungen über ihre.",
       "duration": "Das ist keine Dauer. Schreib sie zum Beispiel als 10m, 2h oder 3d.",
-      "timeoutTooLong": "Ein Timeout geht höchstens {{max}} Tage, länger lässt Discord nicht zu."
+      "timeoutTooLong": "Ein Timeout geht höchstens {{max}} Tage, länger lässt Discord nicht zu.",
+      "alreadyBanned": "{{user}} ist schon gebannt."
     },
     "dm": {
       "warn": "### {{icon}} Du wurdest auf {{server}} verwarnt",

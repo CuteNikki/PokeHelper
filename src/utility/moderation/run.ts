@@ -132,6 +132,8 @@ export interface ModerationAction {
   dm: boolean;
   /** Do it on Discord, with the reason for the audit log. */
   act: (auditReason: string) => Promise<unknown>;
+  /** Why it can't be done after all, or null if it can, for checks that ask Discord, which can take longer than it waits for an answer. */
+  check?: () => Promise<string | null>;
 }
 
 /**
@@ -143,6 +145,9 @@ export async function runModeration(interaction: ChatInputCommandInteraction<'ca
   const t = getTranslate(interaction.locale);
   await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
   const { guild } = interaction;
+
+  const problem = (await action.check?.()) ?? null;
+  if (problem) return sendResponse(interaction, createResponse(problem, 'error'));
 
   const modCase = await createCase({
     guildId: guild.id,

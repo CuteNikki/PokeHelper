@@ -522,5 +522,33 @@
         "description": "Ob die Person eine DM dazu bekommt. Standardmäßig ja"
       }
     }
+  },
+  "ban": {
+    "name": "bannen",
+    "description": "Bann jemanden vom Server, auch wenn die Person nicht drauf ist",
+    "options": {
+      "user": {
+        "name": "person",
+        "description": "Wen du bannen willst. Füg die ID ein, wenn die Person nicht auf dem Server ist"
+      },
+      "reason": {
+        "name": "grund",
+        "description": "Warum die Person gebannt wird"
+      },
+      "delete-messages": {
+        "name": "nachrichten-löschen",
+        "description": "Lösch ihre Nachrichten von einer Weile zurück. Standardmäßig keine",
+        "choices": {
+          "0": "Keine löschen",
+          "3600": "Von der letzten Stunde",
+          "86400": "Vom letzten Tag",
+          "604800": "Von den letzten 7 Tagen"
+        }
+      },
+      "dm": {
+        "name": "dm",
+        "description": "Ob die Person eine DM dazu bekommt. Standardmäßig ja"
+      }
+    }
   }
 }
