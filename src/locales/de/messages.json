@@ -1609,8 +1609,7 @@
         "unban_other": "{{count, number}} Entbannungen"
       },
       "entry": "**{{number}}** {{type}}",
-      "entryBy": "{{date}} · von {{moderator}}",
-      "entryReason": "Grund: {{reason}}",
+      "entryBy": "von {{moderator}}",
       "unknown": "unbekannt",
       "status": {
         "until": "Endet {{time}}",

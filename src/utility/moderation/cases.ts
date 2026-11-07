@@ -15,8 +15,6 @@ import {
   StringSelectMenuOptionBuilder,
   subtext,
   TextDisplayBuilder,
-  time,
-  TimestampStyles,
 } from 'discord.js';
 
 import { CASE_SORTS, CASE_TYPES, type CaseSort, deleteCase, getCase, getUserCases, setCaseEnd, setCaseReason } from 'database/moderation';
@@ -118,11 +116,11 @@ const typeLabel = (modCase: ModCase, t: Translate) => `${textIcon(CASE_ICONS[mod
 
 /** Whether a timeout or ban is still on, was ended early, or ran out, with when. Null for cases that don't last, and bans for good that are still on. */
 function caseStatus(modCase: ModCase, t: Translate, now = new Date()): string | null {
-  if (modCase.endedAt) return t('moderation.cases.status.ended', { time: time(modCase.endedAt, TimestampStyles.RelativeTime) });
+  if (modCase.endedAt) return t('moderation.cases.status.ended', { time: when(modCase.endedAt) });
   if (!modCase.expiresAt) return null;
   return modCase.expiresAt > now
-    ? t('moderation.cases.status.until', { time: time(modCase.expiresAt, TimestampStyles.RelativeTime) })
-    : t('moderation.cases.status.ranOut', { time: time(modCase.expiresAt, TimestampStyles.RelativeTime) });
+    ? t('moderation.cases.status.until', { time: when(modCase.expiresAt) })
+    : t('moderation.cases.status.ranOut', { time: when(modCase.expiresAt) });
 }
 
 const moderatorOf = (guild: Guild, modCase: ModCase, t: Translate) =>
@@ -153,12 +151,12 @@ export async function renderCaseList(guild: Guild, requested: CasesState, t: Tra
     return { components: [container], flags: [MessageFlags.IsComponentsV2], allowedMentions: { parse: [] } };
   }
 
-  // The case and its type, then each detail small on a line of its own under it
+  // The case and its type, then small under it, each on a line of its own: why, by whom, when, and until when
   const entries = cases.map((modCase) => {
-    const reason = shorten((modCase.reason ?? t('moderation.noReason')).replace(/\s+/g, ' '), LIST_REASON_LENGTH);
     const details = [
-      t('moderation.cases.entryBy', { date: time(modCase.createdAt, TimestampStyles.ShortDate), moderator: moderatorOf(guild, modCase, t) }),
-      t('moderation.cases.entryReason', { reason }),
+      shorten((modCase.reason ?? t('moderation.noReason')).replace(/\s+/g, ' '), LIST_REASON_LENGTH),
+      t('moderation.cases.entryBy', { moderator: moderatorOf(guild, modCase, t) }),
+      when(modCase.createdAt),
       caseStatus(modCase, t),
     ];
     const heading = t('moderation.cases.entry', { number: caseNumber(modCase, t), type: typeLabel(modCase, t) });
