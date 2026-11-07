@@ -1,1 +1,1 @@
-A Pokémon themed bot for your community: counting, leveling, birthdays, role menus, temp voice, a starboard, sticky messages, server logs, reminders, a Pokédex, a guessing game and friend codes.
+A Pokémon bot for your community: counting, leveling, moderation, server logs, birthdays, role menus, temp voice, a starboard, sticky messages, reminders, a Pokédex, a guessing game and friend codes.

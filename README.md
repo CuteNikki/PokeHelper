@@ -2,7 +2,7 @@
 
 _A Pokémon themed Discord bot_
 
-**Poke Helper** is a Discord bot made for a Pokémon community server. It runs the server's counting game, levels, birthdays, role menus, temporary voice channels, starboard, sticky messages and server logs, and has a Pokédex, a guessing game and a place for everyone's friend codes.
+**Poke Helper** is a Discord bot made for a Pokémon community server. It runs the server's counting game, levels, birthdays, role menus, temporary voice channels, starboard, sticky messages, moderation and server logs, and has a Pokédex, a guessing game and a place for everyone's friend codes.
 
 ## ✨ Features
 
@@ -96,11 +96,22 @@ _A Pokémon themed Discord bot_
 - Written and changed in a popup, emptied to remove it, and a list of where the server has them to change them from
 - All turned off at once from that list, which takes them out of the channels but keeps them for later
 
+### 🔨 Moderation
+
+- `/warn`, `/timeout`, `/kick`, `/ban` and `/unban`, with a reason and a DM telling the member why, which can be skipped
+- Bans for good or for a while, lifted by themselves once they run out, also when the bot was offline meanwhile
+- Bans also for people who aren't on the server, by their ID, and their messages deleted from up to 7 days back
+- Every action is a numbered case, also when it's done through Discord itself, like from the menu on someone's name
+- `/cases` or the Cases menu on a name shows someone's history: how many of each type, every case with its reason, who did it and until when, sorted newest or oldest first or by type
+- Each case can be opened, its reason changed, or deleted after confirming
+- Nobody can act on the server's owner, themselves, or someone whose highest role isn't below theirs
+- `/purge` deletes up to 100 of a channel's latest messages, or only someone's
+
 ### 📜 Server Logs
 
 - Messages, members, moderation, roles, channels, the server, emojis, threads, invites and voice
 - A log channel for each group, or one default channel for all of them, and every event turned on or off on its own
-- Who did it, from the audit log, with the reason they gave
+- Who did it, from the audit log, with the reason they gave, and the case of bans, kicks and timeouts
 - Edits with what changed crossed out and underlined, and long messages and bulk deletes as a file to read right in Discord
 - A Copy IDs button with every ID of an entry, as text can't be selected on phones
 - Channels and roles to leave out, like staff channels
@@ -174,9 +185,16 @@ Days change at midnight UTC, and the bot puts the new look on within 15 minutes.
 | `/starboard-config` | Set up the starboard and change its settings                      |
 | `/logs-config`      | Set up the log channels and which events are logged               |
 | `/sticky`           | Keep a message at the bottom of a channel, change or remove it    |
+| `/warn`             | Warn a member, which goes in their case history                   |
+| `/timeout`          | Time out a member for as long as you say, up to 28 days           |
+| `/kick`             | Kick a member from the server                                     |
+| `/ban`              | Ban someone, for good or for a while, also when they're not there |
+| `/unban`            | Lift a ban                                                        |
+| `/cases`            | Someone's case history, also in the menu of their name            |
+| `/purge`            | Delete a channel's latest messages, or only someone's             |
 | `/dev`              | Reload, restart, log previews and the bot's look, dev server only |
 
-The config commands need the **Manage Server** permission, `/counting-config` and `/voice-config` need **Manage Channels**, and `/sticky` needs **Manage Messages**.
+The config commands need the **Manage Server** permission, `/counting-config` and `/voice-config` need **Manage Channels**, and `/sticky` needs **Manage Messages**. The moderation commands need what they do on Discord: **Moderate Members** for `/warn`, `/timeout` and `/cases`, **Kick Members** for `/kick`, **Ban Members** for `/ban` and `/unban`, and **Manage Messages** for `/purge`.
 
 ## 🛠️ Tech Stack
 
@@ -196,7 +214,7 @@ The config commands need the **Manage Server** permission, `/counting-config` an
 
 When inviting the bot, give it these permissions: View Channels, Send Messages, Attach Files, Add Reactions, Read Message History and Manage Roles. For role rewards, the bot's role has to be above the roles it gives out.
 
-For temporary voice channels it also needs Manage Channels, Connect and Move Members, and for server logs View Audit Log, to say who did what.
+For temporary voice channels it also needs Manage Channels, Connect and Move Members, for server logs View Audit Log, to say who did what, and for moderation Moderate Members, Kick Members, Ban Members and Manage Messages, plus View Audit Log so actions done through Discord itself become cases too.
 
 ### 2. Install dependencies
 
