@@ -1640,7 +1640,39 @@
       "dmSent": "They got a DM about it",
       "dmFailed": "I couldn't DM them, their DMs are closed"
     },
-    "tempBanEnded": "Temporary ban ran out (case {{number}})"
+    "tempBanEnded": "Temporary ban ran out (case {{number}})",
+    "types": {
+      "warn": "Warn",
+      "timeout": "Timeout",
+      "kick": "Kick",
+      "ban": "Ban",
+      "unban": "Unban"
+    },
+    "cases": {
+      "title": "### {{icon.gavel}} Cases of {{user}}",
+      "none": "No cases yet. They show up here once someone warns, times out, kicks or bans them.",
+      "counts": {
+        "warn_one": "{{count, number}} warn",
+        "warn_other": "{{count, number}} warns",
+        "timeout_one": "{{count, number}} timeout",
+        "timeout_other": "{{count, number}} timeouts",
+        "kick_one": "{{count, number}} kick",
+        "kick_other": "{{count, number}} kicks",
+        "ban_one": "{{count, number}} ban",
+        "ban_other": "{{count, number}} bans",
+        "unban_one": "{{count, number}} unban",
+        "unban_other": "{{count, number}} unbans"
+      },
+      "entry": "**{{number}}** {{type}} · {{date}} · by {{moderator}}",
+      "unknown": "unknown",
+      "status": {
+        "until": "ends {{time}}",
+        "ranOut": "ran out {{time}}",
+        "ended": "ended {{time}}"
+      },
+      "count_one": "{{count, number}} case",
+      "count_other": "{{count, number}} cases"
+    }
   },
   "lookup": {
     "generation": "Generation {{number}}",

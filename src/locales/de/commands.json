@@ -568,5 +568,18 @@
         "description": "Warum die Person entbannt wird"
       }
     }
+  },
+  "cases": {
+    "name": "fälle",
+    "description": "Sieh dir Verwarnungen, Timeouts, Kicks und Banns von jemandem an, und änder oder lösch sie",
+    "options": {
+      "user": {
+        "name": "person",
+        "description": "Wessen Fälle du sehen willst. Füg die ID ein, wenn die Person nicht auf dem Server ist"
+      }
+    }
+  },
+  "Cases": {
+    "name": "Fälle"
   }
 }

@@ -1584,7 +1584,39 @@
       "dmSent": "Hat eine DM dazu bekommen",
       "dmFailed": "Ich konnte keine DM schicken, die DMs sind zu"
     },
-    "tempBanEnded": "Bann auf Zeit abgelaufen (Fall {{number}})"
+    "tempBanEnded": "Bann auf Zeit abgelaufen (Fall {{number}})",
+    "types": {
+      "warn": "Verwarnung",
+      "timeout": "Timeout",
+      "kick": "Kick",
+      "ban": "Bann",
+      "unban": "Entbannung"
+    },
+    "cases": {
+      "title": "### {{icon.gavel}} Fälle von {{user}}",
+      "none": "Noch keine Fälle. Sie tauchen hier auf, sobald die Person verwarnt, gekickt oder gebannt wird oder einen Timeout bekommt.",
+      "counts": {
+        "warn_one": "{{count, number}} Verwarnung",
+        "warn_other": "{{count, number}} Verwarnungen",
+        "timeout_one": "{{count, number}} Timeout",
+        "timeout_other": "{{count, number}} Timeouts",
+        "kick_one": "{{count, number}} Kick",
+        "kick_other": "{{count, number}} Kicks",
+        "ban_one": "{{count, number}} Bann",
+        "ban_other": "{{count, number}} Banns",
+        "unban_one": "{{count, number}} Entbannung",
+        "unban_other": "{{count, number}} Entbannungen"
+      },
+      "entry": "**{{number}}** {{type}} · {{date}} · von {{moderator}}",
+      "unknown": "unbekannt",
+      "status": {
+        "until": "endet {{time}}",
+        "ranOut": "abgelaufen {{time}}",
+        "ended": "beendet {{time}}"
+      },
+      "count_one": "{{count, number}} Fall",
+      "count_other": "{{count, number}} Fälle"
+    }
   },
   "lookup": {
     "generation": "Generation {{number}}",
