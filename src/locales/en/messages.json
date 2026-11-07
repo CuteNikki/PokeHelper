@@ -1664,12 +1664,14 @@
         "unban_one": "{{count, number}} unban",
         "unban_other": "{{count, number}} unbans"
       },
-      "entry": "**{{number}}** {{type}} · {{date}} · by {{moderator}}",
+      "entry": "**{{number}}** {{type}}",
+      "entryBy": "{{date}} · by {{moderator}}",
+      "entryReason": "Reason: {{reason}}",
       "unknown": "unknown",
       "status": {
-        "until": "ends {{time}}",
-        "ranOut": "ran out {{time}}",
-        "ended": "ended {{time}}"
+        "until": "Ends {{time}}",
+        "ranOut": "Ran out {{time}}",
+        "ended": "Ended {{time}}"
       },
       "sort": {
         "newest": "Newest first",

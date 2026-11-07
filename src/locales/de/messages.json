@@ -1608,12 +1608,14 @@
         "unban_one": "{{count, number}} Entbannung",
         "unban_other": "{{count, number}} Entbannungen"
       },
-      "entry": "**{{number}}** {{type}} · {{date}} · von {{moderator}}",
+      "entry": "**{{number}}** {{type}}",
+      "entryBy": "{{date}} · von {{moderator}}",
+      "entryReason": "Grund: {{reason}}",
       "unknown": "unbekannt",
       "status": {
-        "until": "endet {{time}}",
-        "ranOut": "abgelaufen {{time}}",
-        "ended": "beendet {{time}}"
+        "until": "Endet {{time}}",
+        "ranOut": "Abgelaufen {{time}}",
+        "ended": "Beendet {{time}}"
       },
       "sort": {
         "newest": "Neueste zuerst",

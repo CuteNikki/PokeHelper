@@ -43,8 +43,8 @@ import { ThemeColors } from 'utility/theme';
  * - the selects `sort:<user>` and `pick:<user>:<sort>:<page>`, and the page popup `goto:<user>:<sort>`
  */
 export const CASES_PREFIX = 'cases:';
-/** How many cases a page shows. */
-export const CASES_PAGE_SIZE = 10;
+/** How many cases a page shows. Each takes a few lines, so fewer than on other lists. */
+export const CASES_PAGE_SIZE = 5;
 /** How much of a reason the list shows. The whole reason is in the case's own view. */
 const LIST_REASON_LENGTH = 100;
 const REASON_INPUT_ID = 'reason';
@@ -153,16 +153,16 @@ export async function renderCaseList(guild: Guild, requested: CasesState, t: Tra
     return { components: [container], flags: [MessageFlags.IsComponentsV2], allowedMentions: { parse: [] } };
   }
 
+  // The case and its type, then each detail small on a line of its own under it
   const entries = cases.map((modCase) => {
-    const line = t('moderation.cases.entry', {
-      number: caseNumber(modCase, t),
-      type: typeLabel(modCase, t),
-      date: time(modCase.createdAt, TimestampStyles.ShortDate),
-      moderator: moderatorOf(guild, modCase, t),
-    });
-    // Small, under the case, with a dot like the tips have
-    const details = [shorten((modCase.reason ?? t('moderation.noReason')).replace(/\s+/g, ' '), LIST_REASON_LENGTH), caseStatus(modCase, t)];
-    return `${line}\n${subtext(`• ${details.filter(Boolean).join(' · ')}`)}`;
+    const reason = shorten((modCase.reason ?? t('moderation.noReason')).replace(/\s+/g, ' '), LIST_REASON_LENGTH);
+    const details = [
+      t('moderation.cases.entryBy', { date: time(modCase.createdAt, TimestampStyles.ShortDate), moderator: moderatorOf(guild, modCase, t) }),
+      t('moderation.cases.entryReason', { reason }),
+      caseStatus(modCase, t),
+    ];
+    const heading = t('moderation.cases.entry', { number: caseNumber(modCase, t), type: typeLabel(modCase, t) });
+    return [heading, ...details.filter((detail): detail is string => detail !== null).map((detail) => subtext(detail))].join('\n');
   });
 
   const sortSelect = new StringSelectMenuBuilder().setCustomId(`${CASES_PREFIX}sort:${state.userId}`).addOptions(
@@ -188,7 +188,7 @@ export async function renderCaseList(guild: Guild, requested: CasesState, t: Tra
     );
 
   container
-    .addTextDisplayComponents(new TextDisplayBuilder().setContent(entries.join('\n')))
+    .addTextDisplayComponents(new TextDisplayBuilder().setContent(entries.join('\n\n')))
     .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large))
     .addActionRowComponents(
       new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(sortSelect),
