@@ -504,5 +504,23 @@
         "description": "Ob die Person eine DM dazu bekommt. Standardmäßig ja"
       }
     }
+  },
+  "kick": {
+    "name": "kicken",
+    "description": "Kick ein Mitglied vom Server. Mit einer Einladung kann es wieder beitreten",
+    "options": {
+      "member": {
+        "name": "mitglied",
+        "description": "Wen du kicken willst"
+      },
+      "reason": {
+        "name": "grund",
+        "description": "Warum die Person gekickt wird"
+      },
+      "dm": {
+        "name": "dm",
+        "description": "Ob die Person eine DM dazu bekommt. Standardmäßig ja"
+      }
+    }
   }
 }
