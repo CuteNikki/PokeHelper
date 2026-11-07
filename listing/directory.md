@@ -18,7 +18,7 @@ Poke Helper brings the games and tools a community server needs, in a look that 
 
 **🛠️ Tools**
 
-• **Moderation:** warn, time out, kick and ban, also for a while, with a DM telling them why, and everyone's case history to sort, change and delete
+• **Moderation:** warn, time out, kick and ban, also for a while, with a DM telling them why, and everyone's case history to sort, change and delete, all also from the menu on someone's name
 
 • **Server logs:** edited and deleted messages, members, moderation, roles, channels and voice, with who did it and a Copy IDs button that works on phones
 
