@@ -98,7 +98,7 @@ _A Pokémon themed Discord bot_
 
 ### 🔨 Moderation
 
-- `/warn`, `/timeout`, `/kick`, `/ban` and `/unban`, with a reason and a DM telling the member why, which can be skipped
+- `/warn`, `/timeout`, `/untimeout`, `/kick`, `/ban` and `/unban`, with a reason and a DM telling the member why, which can be skipped
 - Bans for good or for a while, lifted by themselves once they run out, also when the bot was offline meanwhile
 - Bans also for people who aren't on the server, by their ID, and their messages deleted from up to 7 days back
 - Every action is a numbered case, also when it's done through Discord itself, like from the menu on someone's name
@@ -188,6 +188,7 @@ Days change at midnight UTC, and the bot puts the new look on within 15 minutes.
 | `/sticky`           | Keep a message at the bottom of a channel, change or remove it    |
 | `/warn`             | Warn a member, which goes in their case history                   |
 | `/timeout`          | Time out a member for as long as you say, up to 28 days           |
+| `/untimeout`        | Take a member's timeout away before it runs out, with why         |
 | `/kick`             | Kick a member from the server                                     |
 | `/ban`              | Ban someone, for good or for a while, also when they're not there |
 | `/unban`            | Lift a ban                                                        |
@@ -195,7 +196,7 @@ Days change at midnight UTC, and the bot puts the new look on within 15 minutes.
 | `/purge`            | Delete a channel's latest messages, or only someone's             |
 | `/dev`              | Reload, restart, log previews and the bot's look, dev server only |
 
-The config commands need the **Manage Server** permission, `/counting-config` and `/voice-config` need **Manage Channels**, and `/sticky` needs **Manage Messages**. The moderation commands need what they do on Discord: **Moderate Members** for `/warn`, `/timeout` and `/cases`, **Kick Members** for `/kick`, **Ban Members** for `/ban` and `/unban`, and **Manage Messages** for `/purge`.
+The config commands need the **Manage Server** permission, `/counting-config` and `/voice-config` need **Manage Channels**, and `/sticky` needs **Manage Messages**. The moderation commands need what they do on Discord: **Moderate Members** for `/warn`, `/timeout`, `/untimeout` and `/cases`, **Kick Members** for `/kick`, **Ban Members** for `/ban` and `/unban`, and **Manage Messages** for `/purge`.
 
 ## 🛠️ Tech Stack
 

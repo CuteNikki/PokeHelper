@@ -1619,7 +1619,8 @@
       "timeoutTooLong": "A timeout can be at most {{max}} days long, that's as long as Discord allows.",
       "alreadyBanned": "{{user}} is already banned.",
       "notBanned": "{{user}} isn't banned.",
-      "banTooLong": "A temporary ban can be at most 5 years long. Leave the duration out to ban them for good."
+      "banTooLong": "A temporary ban can be at most 5 years long. Leave the duration out to ban them for good.",
+      "notTimedOut": "{{user}} isn't timed out."
     },
     "dm": {
       "warn": "### {{icon}} You were warned on {{server}}",
@@ -1718,7 +1719,7 @@
         "placeholderTimeout": "Like 3d from now, +1d or -2h to move it, or 24.12. 18:00",
         "placeholderBan": "Like 3d from now, +1d or -2h to move it, 24.12. 18:00 or never",
         "invalid": "That's not a time. Write how long from now, like 3d, move the end with +1d or -2h, or give a date, like 24.12. 18:00.",
-        "past": "That's in the past. To end it right away, unban them or take the timeout away.",
+        "past": "That's in the past. To end it right away, use `/unban` or `/untimeout`.",
         "neverTimeout": "Timeouts can't last for good, Discord allows at most {{max}} days. A ban can.",
         "notRunning": "That one isn't running anymore, so its end can't be changed.",
         "noBanPermission": "Changing when a ban ends needs the Ban Members permission.",

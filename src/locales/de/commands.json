@@ -595,5 +595,23 @@
         "description": "Nur die Nachrichten dieser Person, unter den letzten 100"
       }
     }
+  },
+  "untimeout": {
+    "name": "timeout-aufheben",
+    "description": "Heb den Timeout eines Mitglieds auf, bevor er abläuft",
+    "options": {
+      "member": {
+        "name": "mitglied",
+        "description": "Wessen Timeout du aufheben willst"
+      },
+      "reason": {
+        "name": "grund",
+        "description": "Warum er aufgehoben wird"
+      },
+      "dm": {
+        "name": "dm",
+        "description": "Ob die Person eine DM dazu bekommt. Standardmäßig ja"
+      }
+    }
   }
 }
