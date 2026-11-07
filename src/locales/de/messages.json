@@ -1557,7 +1557,9 @@
       "missing": "Mir fehlt dafür die Berechtigung {{permission}}.",
       "notMember": "Die Person ist nicht auf diesem Server.",
       "aboveYou": "Die höchste Rolle von {{user}} ist nicht unter deiner, also kannst du das nicht mit der Person machen.",
-      "aboveMe": "Die höchste Rolle von {{user}} ist nicht unter meiner, also kann ich das nicht machen. Schieb meine Rolle in den Servereinstellungen über ihre."
+      "aboveMe": "Die höchste Rolle von {{user}} ist nicht unter meiner, also kann ich das nicht machen. Schieb meine Rolle in den Servereinstellungen über ihre.",
+      "duration": "Das ist keine Dauer. Schreib sie zum Beispiel als 10m, 2h oder 3d.",
+      "timeoutTooLong": "Ein Timeout geht höchstens {{max}} Tage, länger lässt Discord nicht zu."
     },
     "dm": {
       "warn": "### {{icon}} Du wurdest auf {{server}} verwarnt",

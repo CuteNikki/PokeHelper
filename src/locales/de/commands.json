@@ -482,5 +482,27 @@
         "description": "Ob die Person eine DM dazu bekommt. Standardmäßig ja"
       }
     }
+  },
+  "timeout": {
+    "name": "timeout",
+    "description": "Gib einem Mitglied einen Timeout, dann kann es eine Weile nicht schreiben oder reden",
+    "options": {
+      "member": {
+        "name": "mitglied",
+        "description": "Wer den Timeout bekommt"
+      },
+      "duration": {
+        "name": "dauer",
+        "description": "Wie lange, zum Beispiel 10m, 2h oder 3d. Höchstens 28 Tage"
+      },
+      "reason": {
+        "name": "grund",
+        "description": "Warum die Person den Timeout bekommt"
+      },
+      "dm": {
+        "name": "dm",
+        "description": "Ob die Person eine DM dazu bekommt. Standardmäßig ja"
+      }
+    }
   }
 }

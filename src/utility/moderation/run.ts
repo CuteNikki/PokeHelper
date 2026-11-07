@@ -16,12 +16,13 @@ import {
 import { createCase, deleteCase } from 'database/moderation';
 
 import type { ModCase, ModCaseType } from 'generated/prisma/client';
-import { formatNumber } from 'utility/duration';
+import { DAY, formatNumber } from 'utility/duration';
 import { textIcon } from 'utility/emojis';
 import type { IconName } from 'utility/icons';
 import { getTranslate, type Translate } from 'utility/i18next';
 import { logger } from 'utility/logger';
 import { userSubject } from 'utility/logs/format';
+import { parseDuration } from 'utility/reminders/time';
 import { createResponse, sendResponse, type ResponsePayload } from 'utility/response';
 import { quote } from 'utility/text';
 import { ThemeColors } from 'utility/theme';
@@ -50,6 +51,17 @@ export const formatUntil = (date: Date) => `${time(date, TimestampStyles.LongDat
  * The reason for Discord's audit log, with who gave it in front, as the audit log names the bot as who did it.
  */
 export const auditReason = (moderator: User, reason: string | null) => `${moderator.username}: ${reason ?? '-'}`.slice(0, MAX_AUDIT_REASON);
+
+/**
+ * When a timeout or temporary ban that lasts as long as typed ends, like for `10m`, `2h 30m` or `3d`, in the units of any language.
+ * @param maxDays The longest it can be.
+ * @returns When it ends, or why it can't: it isn't a duration, or it's longer than allowed.
+ */
+export function parseModerationDuration(input: string, maxDays: number, now = new Date()): Date | 'invalid' | 'tooLong' {
+  const end = parseDuration(input, now);
+  if (!end || end.getTime() <= now.getTime()) return 'invalid';
+  return end.getTime() - now.getTime() > maxDays * DAY ? 'tooLong' : end;
+}
 
 /** What a moderation command does to whom: the bot's permission it needs, and whether the member has to be on the server. */
 interface ActionRules {

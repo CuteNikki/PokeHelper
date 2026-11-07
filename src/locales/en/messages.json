@@ -1613,7 +1613,9 @@
       "missing": "I'm missing the {{permission}} permission for that.",
       "notMember": "They're not on this server.",
       "aboveYou": "{{user}}'s highest role isn't below yours, so you can't do that to them.",
-      "aboveMe": "{{user}}'s highest role isn't below mine, so I can't do that to them. Move my role above theirs in the server settings."
+      "aboveMe": "{{user}}'s highest role isn't below mine, so I can't do that to them. Move my role above theirs in the server settings.",
+      "duration": "That's not a duration. Write it like 10m, 2h or 3d.",
+      "timeoutTooLong": "A timeout can be at most {{max}} days long, that's as long as Discord allows."
     },
     "dm": {
       "warn": "### {{icon}} You were warned on {{server}}",
