@@ -1686,6 +1686,7 @@
         "ranOut": "Ran out",
         "ended": "Ended",
         "back": "Back",
+        "editReason": "Change reason",
         "delete": "Delete"
       },
       "delete": {
@@ -1693,6 +1694,11 @@
         "confirm": "Delete",
         "cancel": "Keep it",
         "done": "Deleted case {{number}}."
+      },
+      "reasonModal": {
+        "title": "Reason of case {{number}}",
+        "placeholder": "Leave it empty to take the reason away",
+        "done": "Changed the reason."
       },
       "count_one": "{{count, number}} case",
       "count_other": "{{count, number}} cases"

@@ -19,14 +19,15 @@ import {
   TimestampStyles,
 } from 'discord.js';
 
-import { CASE_SORTS, CASE_TYPES, type CaseSort, deleteCase, getCase, getUserCases } from 'database/moderation';
+import { CASE_SORTS, CASE_TYPES, type CaseSort, deleteCase, getCase, getUserCases, setCaseReason } from 'database/moderation';
 
 import type { ModCase } from 'generated/prisma/client';
 import { DiscordLimits } from 'utility/discordLimits';
 import { buttonIcon, textIcon } from 'utility/emojis';
 import { getTranslate, type Translate } from 'utility/i18next';
 import { userRef, when } from 'utility/logs/format';
-import { CASE_ICONS, caseNumber } from 'utility/moderation/run';
+import { buildTextModal } from 'utility/modal';
+import { CASE_ICONS, caseNumber, MAX_REASON_LENGTH } from 'utility/moderation/run';
 import { buildPageModal, buildPageRow, clampPage, type PageButton, readPageInput } from 'utility/pagination';
 import { sendError, withNotice, type ResponsePayload } from 'utility/response';
 import { quote, shorten } from 'utility/text';
@@ -36,7 +37,7 @@ import { ThemeColors } from 'utility/theme';
  * Someone's case history, from `/cases` or the Cases menu on their name. Every button, select and popup carries where it is in it,
  * as `cases:<action>:...`, so they work however old the message is:
  * - `list:<user>:<sort>:<page>`, with `first`, `last` or `goto` after it for those page buttons, as they can lead to the same page
- * - `view`, `delete` and `deleteYes`, each `:<case>:<user>:<sort>:<page>`, to go back to the same page
+ * - `view`, `reason`, `delete` and `deleteYes`, each `:<case>:<user>:<sort>:<page>`, to go back to the same page
  * - the selects `sort:<user>` and `pick:<user>:<sort>:<page>`, and the page popup `goto:<user>:<sort>`
  */
 export const CASES_PREFIX = 'cases:';
@@ -44,6 +45,7 @@ export const CASES_PREFIX = 'cases:';
 export const CASES_PAGE_SIZE = 10;
 /** How much of a reason the list shows. The whole reason is in the case's own view. */
 const LIST_REASON_LENGTH = 100;
+const REASON_INPUT_ID = 'reason';
 
 /** Where someone is in a case history, which every button, select and popup carries. */
 export interface CasesState {
@@ -55,14 +57,14 @@ export interface CasesState {
 /** What a custom ID of a case history asks for. */
 export type CasesAction =
   | { action: 'list'; state: CasesState; goto: boolean }
-  | { action: 'view' | 'delete' | 'deleteYes'; caseId: string; state: CasesState }
+  | { action: 'view' | 'reason' | 'delete' | 'deleteYes'; caseId: string; state: CasesState }
   | { action: 'sort'; userId: string }
   | { action: 'pick'; state: CasesState }
   | { action: 'goto'; userId: string; sort: CaseSort };
 
 const stateId = (state: CasesState) => `${state.userId}:${state.sort}:${state.page}`;
 export const listId = (state: CasesState, suffix?: 'first' | 'last' | 'goto') => `${CASES_PREFIX}list:${stateId(state)}${suffix ? `:${suffix}` : ''}`;
-const caseId = (action: 'view' | 'delete' | 'deleteYes', id: string, state: CasesState) => `${CASES_PREFIX}${action}:${id}:${stateId(state)}`;
+const caseId = (action: 'view' | 'reason' | 'delete' | 'deleteYes', id: string, state: CasesState) => `${CASES_PREFIX}${action}:${id}:${stateId(state)}`;
 
 const isId = (value: string | undefined): value is string => /^\d{15,25}$/.test(value ?? '');
 const isSort = (value: string | undefined): value is CaseSort => CASE_SORTS.includes(value as CaseSort);
@@ -83,6 +85,7 @@ export function parseCasesId(customId: string): CasesAction | null {
       return { action, state: parsed, goto: suffix === 'goto' };
     }
     case 'view':
+    case 'reason':
     case 'delete':
     case 'deleteYes': {
       const [id, userId, sort, page] = parts;
@@ -194,7 +197,7 @@ export async function renderCaseList(guild: Guild, requested: CasesState, t: Tra
   return { components: [container], flags: [MessageFlags.IsComponentsV2], allowedMentions: { parse: [] } };
 }
 
-/** One case with everything about it, and buttons to go back to the list or delete it. */
+/** One case with everything about it, and buttons to go back to the list, change its reason, or delete it. */
 export function renderCase(guild: Guild, modCase: ModCase, state: CasesState, t: Translate): ResponsePayload {
   const field = (label: string, value: string) => `${bold(label)}\n${value}`;
   const fields = [
@@ -217,6 +220,7 @@ export function renderCase(guild: Guild, modCase: ModCase, state: CasesState, t:
     .addActionRowComponents(
       new ActionRowBuilder<ButtonBuilder>().addComponents(
         button(listId(state), t('moderation.cases.view.back'), 'chevron-left'),
+        button(caseId('reason', modCase.id, state), t('moderation.cases.view.editReason'), 'pencil'),
         button(caseId('delete', modCase.id, state), t('moderation.cases.view.delete'), 'trash-2', ButtonStyle.Danger),
       ),
     );
@@ -248,22 +252,39 @@ const listWithNotice = async (guild: Guild, state: CasesState, notice: string, k
   withNotice(notice, kind, await renderCaseList(guild, state, t));
 
 /** The case a button is about, or the list again saying it's gone, as someone may have deleted it meanwhile. */
-async function caseOrGone(interaction: ButtonInteraction<'cached'>, id: string, state: CasesState, t: Translate) {
+async function caseOrGone(interaction: ButtonInteraction<'cached'> | ModalSubmitInteraction<'cached'>, id: string, state: CasesState, t: Translate) {
   const modCase = await getCase(interaction.guildId, id);
   if (!modCase) await interaction.editReply(await listWithNotice(interaction.guild, state, t('moderation.cases.gone'), 'info', t));
   return modCase;
 }
 
-/** The buttons of a case history: pages, a case's view, and deleting it. */
+/** The buttons of a case history: pages, a case's view, and changing or deleting it. */
 export async function handleCasesButton(interaction: ButtonInteraction<'cached'>): Promise<unknown> {
   const t = getTranslate(interaction.locale);
   const parsed = parseCasesId(interaction.customId);
   if (!parsed || !('state' in parsed)) return sendError(interaction, t('system.outdated'));
   const { state } = parsed;
 
-  // A popup has to be the first answer, so this can't wait for anything else
+  // Popups have to be the first answer, so these can't wait for anything else
   if (parsed.action === 'list' && parsed.goto) {
     return interaction.showModal(buildPageModal(`${CASES_PREFIX}goto:${state.userId}:${state.sort}`, state.page + 1, t));
+  }
+  if (parsed.action === 'reason') {
+    const modCase = await getCase(interaction.guildId, parsed.caseId);
+    if (!modCase) return sendError(interaction, t('moderation.cases.gone'));
+    return interaction.showModal(
+      buildTextModal({
+        customId: caseId('reason', modCase.id, state),
+        title: t('moderation.cases.reasonModal.title', { number: caseNumber(modCase, t) }),
+        label: t('moderation.reason'),
+        inputId: REASON_INPUT_ID,
+        placeholder: t('moderation.cases.reasonModal.placeholder'),
+        value: modCase.reason ?? undefined,
+        maxLength: MAX_REASON_LENGTH,
+        optional: true,
+        paragraph: true,
+      }),
+    );
   }
 
   // Answered before anything is looked up, as Discord gives up after 3 seconds
@@ -307,17 +328,30 @@ export async function handleCasesSelect(interaction: AnySelectMenuInteraction<'c
   return interaction.editReply(renderCase(interaction.guild, modCase, parsed.state, t));
 }
 
-/** The popup of a case history asking which page to go to. */
+/** The popups of a case history: which page to go to, and a case's new reason. */
 export async function handleCasesModal(interaction: ModalSubmitInteraction): Promise<unknown> {
   const t = getTranslate(interaction.locale);
   const parsed = parseCasesId(interaction.customId);
-  if (!parsed || parsed.action !== 'goto' || !interaction.inCachedGuild() || !interaction.isFromMessage()) return sendError(interaction, t('system.outdated'));
+  if (!parsed || !interaction.inCachedGuild() || !interaction.isFromMessage()) return sendError(interaction, t('system.outdated'));
 
-  const page = readPageInput(interaction);
-  if (page === null) return sendError(interaction, t('pagination.modal.invalid'));
+  if (parsed.action === 'goto') {
+    const page = readPageInput(interaction);
+    if (page === null) return sendError(interaction, t('pagination.modal.invalid'));
+    await interaction.deferUpdate();
+    // A page past the end shows the last one
+    return interaction.editReply(await renderCaseList(interaction.guild, { userId: parsed.userId, sort: parsed.sort, page: page - 1 }, t));
+  }
+  if (parsed.action !== 'reason') return sendError(interaction, t('system.outdated'));
+
   await interaction.deferUpdate();
-  // A page past the end shows the last one
-  return interaction.editReply(await renderCaseList(interaction.guild, { userId: parsed.userId, sort: parsed.sort, page: page - 1 }, t));
+  const reason = interaction.fields.getTextInputValue(REASON_INPUT_ID).trim() || null;
+  if (!(await setCaseReason(interaction.guildId, parsed.caseId, reason))) {
+    return interaction.editReply(await listWithNotice(interaction.guild, parsed.state, t('moderation.cases.gone'), 'info', t));
+  }
+  const modCase = await caseOrGone(interaction, parsed.caseId, parsed.state, t);
+  return (
+    modCase && interaction.editReply(withNotice(t('moderation.cases.reasonModal.done'), 'success', renderCase(interaction.guild, modCase, parsed.state, t)))
+  );
 }
 
 /** Someone's case history from its first page, newest first, for `/cases` and the Cases menu on their name. */

@@ -1630,6 +1630,7 @@
         "ranOut": "Abgelaufen",
         "ended": "Beendet",
         "back": "Zurück",
+        "editReason": "Grund ändern",
         "delete": "Löschen"
       },
       "delete": {
@@ -1637,6 +1638,11 @@
         "confirm": "Löschen",
         "cancel": "Behalten",
         "done": "Fall {{number}} ist gelöscht."
+      },
+      "reasonModal": {
+        "title": "Grund von Fall {{number}}",
+        "placeholder": "Lass es leer, um den Grund zu entfernen",
+        "done": "Der Grund ist geändert."
       },
       "count_one": "{{count, number}} Fall",
       "count_other": "{{count, number}} Fälle"
