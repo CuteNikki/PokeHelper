@@ -26,6 +26,8 @@ export async function getUserData(userId: string) {
     voiceSettings,
     onOthersSettings,
     starred,
+    casesAbout,
+    casesMade,
   ] = await Promise.all([
     prisma.user.findUnique({
       where: { userId },
@@ -49,6 +51,12 @@ export async function getUserData(userId: string) {
     prisma.tempVoiceSettings.findMany({ where: { userId } }),
     prisma.tempVoiceSettings.findMany({ where: { userId: { not: userId }, OR: onAList(userId) } }),
     prisma.starboardEntry.findMany({ where: { OR: [{ authorId: userId }, { starredBy: { has: userId } }] } }),
+    prisma.modCase.findMany({ where: { userId }, orderBy: { createdAt: 'asc' } }),
+    prisma.modCase.findMany({
+      where: { moderatorId: userId, userId: { not: userId } },
+      select: { guildId: true, number: true, type: true, createdAt: true },
+      orderBy: { createdAt: 'asc' },
+    }),
   ]);
 
   return {
@@ -58,6 +66,12 @@ export async function getUserData(userId: string) {
     friendCodes: user?.friendCodes ?? null,
     reminders: { timezone: user?.reminderTimezone ?? null, list: user?.reminders ?? [] },
     birthdayRoles,
+    moderation: {
+      // Cases about them, in full, with who made them and why
+      cases: casesAbout,
+      // Cases they made as a moderator, without who they were about or why, which is about someone else
+      made: casesMade,
+    },
     starboard: {
       // Their messages that were starred, with who starred them. What they said is in the posts on Discord, not stored here
       starred: starred.filter((entry) => entry.authorId === userId),
@@ -96,6 +110,7 @@ export async function getUserData(userId: string) {
 /**
  * Delete everything stored about someone, in every server. Where they're named in a server's data, like as who holds the counting
  * record, their ID is taken out and the rest stays. Channels they own right now stay theirs until they're deleted, as they're in use.
+ * Moderation cases stay, about them and made by them, as they're the server's records, which they can't be allowed to wipe.
  */
 export async function deleteUserData(userId: string) {
   const without = (ids: string[]) => ids.filter((id) => id !== userId);
@@ -136,7 +151,7 @@ export async function deleteUserData(userId: string) {
   forgetUser(userId);
 }
 
-/** Everything stored about a server: its settings, and its members' levels and counting stats. The numbers of each counting run are left out, as there can be many. */
+/** Everything stored about a server: its settings, its members' levels and counting stats, and its moderation cases. The numbers of each counting run are left out, as there can be many. */
 export const getGuildData = (guildId: string) =>
   prisma.guild.findUnique({
     where: { guildId },
@@ -152,6 +167,7 @@ export const getGuildData = (guildId: string) =>
       starboard: true,
       starboardEntries: true,
       stickyMessages: true,
+      modCases: true,
       reactionRoleMenus: { include: { roles: true } },
       tempVoiceCreators: true,
       tempVoiceChannels: true,
