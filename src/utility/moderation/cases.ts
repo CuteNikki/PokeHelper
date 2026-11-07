@@ -19,8 +19,6 @@ import {
   TextDisplayBuilder,
   TextInputBuilder,
   TextInputStyle,
-  time,
-  TimestampStyles,
 } from 'discord.js';
 
 import {
@@ -248,41 +246,42 @@ export function renderCase(guild: Guild, modCase: ModCase, related: ModCase[], s
   if (modCase.endedAt) fields.push(field(t('moderation.cases.view.ended'), when(modCase.endedAt)!));
   else if (modCase.expiresAt)
     fields.push(field(t(modCase.expiresAt > new Date() ? 'moderation.cases.view.until' : 'moderation.cases.view.ranOut'), when(modCase.expiresAt)!));
-  if (related.length > 0) {
-    const lines = related.map((other) =>
-      t(endedThis(other, modCase) ? 'moderation.cases.view.relatedEndedThis' : 'moderation.cases.view.relatedEndedByThis', {
-        case: `${bold(caseNumber(other, t))} ${typeLabel(other, t)}`,
-        time: time(other.createdAt, TimestampStyles.RelativeTime),
-      }),
-    );
-    fields.push(field(t('moderation.cases.view.related'), lines.join('\n')));
-  }
-
   const button = (customId: string, label: string, icon: Parameters<typeof buttonIcon>[0], style = ButtonStyle.Secondary) =>
     new ButtonBuilder().setCustomId(customId).setLabel(label).setEmoji(buttonIcon(icon)).setStyle(style);
   const container = new ContainerBuilder()
     .setAccentColor(ThemeColors.info)
     .addTextDisplayComponents(new TextDisplayBuilder().setContent(fields.join('\n')))
-    .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large))
-    .addActionRowComponents(
-      new ActionRowBuilder<ButtonBuilder>().addComponents(
-        button(listId(state), t('moderation.cases.view.back'), 'chevron-left'),
-        button(caseId('reason', modCase.id, state), t('moderation.cases.view.editReason'), 'pencil'),
-        // Only while it runs, as a timeout or ban that ended is over
-        ...(canChangeEnd(modCase) ? [button(caseId('end', modCase.id, state), t('moderation.cases.view.changeEnd'), 'clock')] : []),
-        button(caseId('delete', modCase.id, state), t('moderation.cases.view.delete'), 'trash-2', ButtonStyle.Danger),
-      ),
-    );
-  // A button to open each related case, on a row of their own under the case's own buttons
+    .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large));
+
+  // The related cases in a part of their own, with a button to open each under them
   if (related.length > 0) {
-    container.addActionRowComponents(
-      new ActionRowBuilder<ButtonBuilder>().addComponents(
-        related.map((other) =>
-          button(caseId('view', other.id, state), t('moderation.cases.view.open', { number: caseNumber(other, t) }), CASE_ICONS[other.type]),
-        ),
-      ),
+    const entries = related.map((other) =>
+      t(endedThis(other, modCase) ? 'moderation.cases.view.relatedEndedThis' : 'moderation.cases.view.relatedEndedByThis', {
+        case: `${bold(caseNumber(other, t))} ${typeLabel(other, t)}`,
+        time: when(other.createdAt),
+      }),
     );
+    container
+      .addTextDisplayComponents(new TextDisplayBuilder().setContent([bold(t('moderation.cases.view.related')), ...entries].join('\n')))
+      .addActionRowComponents(
+        new ActionRowBuilder<ButtonBuilder>().addComponents(
+          related.map((other) =>
+            button(caseId('view', other.id, state), t('moderation.cases.view.open', { number: caseNumber(other, t) }), CASE_ICONS[other.type]),
+          ),
+        ),
+      )
+      .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large));
   }
+
+  container.addActionRowComponents(
+    new ActionRowBuilder<ButtonBuilder>().addComponents(
+      button(listId(state), t('moderation.cases.view.back'), 'chevron-left'),
+      button(caseId('reason', modCase.id, state), t('moderation.cases.view.editReason'), 'pencil'),
+      // Only while it runs, as a timeout or ban that ended is over
+      ...(canChangeEnd(modCase) ? [button(caseId('end', modCase.id, state), t('moderation.cases.view.changeEnd'), 'clock')] : []),
+      button(caseId('delete', modCase.id, state), t('moderation.cases.view.delete'), 'trash-2', ButtonStyle.Danger),
+    ),
+  );
   return { components: [container], flags: [MessageFlags.IsComponentsV2], allowedMentions: { parse: [] } };
 }
 
