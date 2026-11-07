@@ -53,9 +53,10 @@ export const caseNumber = (modCase: Pick<ModCase, 'number'>, t: Translate) => `#
 export const formatUntil = (date: Date) => `${time(date, TimestampStyles.LongDateShortTime)} (${time(date, TimestampStyles.RelativeTime)})`;
 
 /**
- * The reason for Discord's audit log, with who gave it in front, as the audit log names the bot as who did it.
+ * The reason for Discord's audit log, with who gave it in front, as the audit log names the bot as who did it. Just who, without a reason.
  */
-export const auditReason = (moderator: User, reason: string | null) => `${moderator.username}: ${reason ?? '-'}`.slice(0, MAX_AUDIT_REASON);
+export const auditReason = (moderator: User, reason: string | null) =>
+  (reason ? `${moderator.username}: ${reason}` : moderator.username).slice(0, MAX_AUDIT_REASON);
 
 /**
  * When a timeout or temporary ban that lasts as long as typed ends, like for `10m`, `2h 30m` or `3d`, in the units of any language.
