@@ -464,5 +464,23 @@
         "description": "Pokémon 6 deines Teams"
       }
     }
+  },
+  "warn": {
+    "name": "verwarnen",
+    "description": "Verwarn ein Mitglied, was in seinen Fällen landet",
+    "options": {
+      "member": {
+        "name": "mitglied",
+        "description": "Wen du verwarnen willst"
+      },
+      "reason": {
+        "name": "grund",
+        "description": "Warum die Person verwarnt wird"
+      },
+      "dm": {
+        "name": "dm",
+        "description": "Ob die Person eine DM dazu bekommt. Standardmäßig ja"
+      }
+    }
   }
 }

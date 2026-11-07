@@ -275,6 +275,7 @@
       "starboard": "Nachrichten mit den meisten Reaktionen, gesammelt",
       "sticky": "Nachrichten, die unten im Kanal bleiben",
       "logs": "Was auf dem Server passiert, geloggt",
+      "moderation": "Verwarnungen, Timeouts, Kicks und Banns, mit einem Verlauf der Fälle",
       "reminders": "Lass dich später an etwas erinnern",
       "general": "Über den Bot"
     },
@@ -288,6 +289,7 @@
       "starboard": "Starboard",
       "sticky": "Sticky-Nachrichten",
       "logs": "Logs",
+      "moderation": "Moderation",
       "reminders": "Erinnerungen",
       "general": "Allgemein"
     },
@@ -1542,6 +1544,40 @@
         "Nachdem jemand schreibt, rutscht die Sticky-Nachricht wieder nach unten, sobald es im Kanal {{quiet}} Sekunden ruhig war, oder spätestens nach {{max}} Sekunden, wenn weiter geschrieben wird.",
         "Jeder Kanal kann eine Sticky-Nachricht haben."
       ]
+    }
+  },
+  "moderation": {
+    "reason": "Grund",
+    "noReason": "Kein Grund angegeben.",
+    "failed": "Das hat nicht geklappt, Discord hat mich nicht gelassen. Vielleicht haben sich meine Rolle oder Berechtigungen inzwischen geändert. Gespeichert wurde nichts.",
+    "problems": {
+      "self": "Das kannst du nicht mit dir selbst machen.",
+      "bot": "Das kann ich nicht mit mir selbst machen.",
+      "owner": "Der Person gehört der Server, das kann niemand mit ihr machen.",
+      "missing": "Mir fehlt dafür die Berechtigung {{permission}}.",
+      "notMember": "Die Person ist nicht auf diesem Server.",
+      "aboveYou": "Die höchste Rolle von {{user}} ist nicht unter deiner, also kannst du das nicht mit der Person machen.",
+      "aboveMe": "Die höchste Rolle von {{user}} ist nicht unter meiner, also kann ich das nicht machen. Schieb meine Rolle in den Servereinstellungen über ihre."
+    },
+    "dm": {
+      "warn": "### {{icon}} Du wurdest auf {{server}} verwarnt",
+      "timeout": "### {{icon}} Du hast auf {{server}} einen Timeout bekommen",
+      "kick": "### {{icon}} Du wurdest von {{server}} gekickt",
+      "ban": "### {{icon}} Du wurdest von {{server}} gebannt",
+      "unban": "### {{icon}} Du wurdest auf {{server}} entbannt",
+      "until": "Läuft bis {{until}}.",
+      "case": "Fall {{number}}"
+    },
+    "done": {
+      "warn": "{{user}} ist verwarnt.",
+      "timeout": "{{user}} hat einen Timeout bis {{until}}.",
+      "kick": "{{user}} ist gekickt.",
+      "ban": "{{user}} ist gebannt.",
+      "banUntil": "{{user}} ist gebannt bis {{until}}.",
+      "unban": "{{user}} ist entbannt.",
+      "case": "Fall {{number}}",
+      "dmSent": "Hat eine DM dazu bekommen",
+      "dmFailed": "Ich konnte keine DM schicken, die DMs sind zu"
     }
   },
   "lookup": {

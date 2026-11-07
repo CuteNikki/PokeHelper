@@ -715,6 +715,7 @@
       "starboard": "Messages with the most reactions, collected",
       "sticky": "Messages that stay at the bottom of a channel",
       "logs": "What happens on the server, logged",
+      "moderation": "Warnings, timeouts, kicks and bans, with a history of cases",
       "reminders": "Get reminded of something later",
       "general": "About the bot"
     },
@@ -728,6 +729,7 @@
       "starboard": "Starboard",
       "sticky": "Sticky messages",
       "logs": "Logs",
+      "moderation": "Moderation",
       "reminders": "Reminders",
       "general": "General"
     },
@@ -1598,6 +1600,40 @@
         "After someone writes, the sticky message moves back to the bottom once the channel has been quiet for {{quiet}} seconds, or after {{max}} seconds at most while people keep chatting.",
         "Each channel can have one sticky message."
       ]
+    }
+  },
+  "moderation": {
+    "reason": "Reason",
+    "noReason": "No reason given.",
+    "failed": "That didn't work, Discord didn't let me. Maybe my role or permissions changed meanwhile. Nothing was saved.",
+    "problems": {
+      "self": "You can't do that to yourself.",
+      "bot": "I can't do that to myself.",
+      "owner": "That's who owns the server, nobody can do that to them.",
+      "missing": "I'm missing the {{permission}} permission for that.",
+      "notMember": "They're not on this server.",
+      "aboveYou": "{{user}}'s highest role isn't below yours, so you can't do that to them.",
+      "aboveMe": "{{user}}'s highest role isn't below mine, so I can't do that to them. Move my role above theirs in the server settings."
+    },
+    "dm": {
+      "warn": "### {{icon}} You were warned on {{server}}",
+      "timeout": "### {{icon}} You were timed out on {{server}}",
+      "kick": "### {{icon}} You were kicked from {{server}}",
+      "ban": "### {{icon}} You were banned from {{server}}",
+      "unban": "### {{icon}} You were unbanned on {{server}}",
+      "until": "Lasts until {{until}}.",
+      "case": "Case {{number}}"
+    },
+    "done": {
+      "warn": "Warned {{user}}.",
+      "timeout": "Timed out {{user}} until {{until}}.",
+      "kick": "Kicked {{user}}.",
+      "ban": "Banned {{user}}.",
+      "banUntil": "Banned {{user}} until {{until}}.",
+      "unban": "Unbanned {{user}}.",
+      "case": "Case {{number}}",
+      "dmSent": "They got a DM about it",
+      "dmFailed": "I couldn't DM them, their DMs are closed"
     }
   },
   "lookup": {
