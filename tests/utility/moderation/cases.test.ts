@@ -12,7 +12,8 @@ describe('case history custom IDs', () => {
     expect(parseCasesId(listId(state, 'goto'))).toEqual({ action: 'list', state, goto: true });
   });
 
-  test('the page popup', () => {
+  test('the select and the page popup', () => {
+    expect(parseCasesId(`cases:sort:${userId}`)).toEqual({ action: 'sort', userId });
     expect(parseCasesId(`cases:goto:${userId}:type`)).toEqual({ action: 'goto', userId, sort: 'type' });
   });
 

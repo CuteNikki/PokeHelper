@@ -1614,6 +1614,11 @@
         "ranOut": "abgelaufen {{time}}",
         "ended": "beendet {{time}}"
       },
+      "sort": {
+        "newest": "Neueste zuerst",
+        "oldest": "Älteste zuerst",
+        "type": "Nach Art"
+      },
       "count_one": "{{count, number}} Fall",
       "count_other": "{{count, number}} Fälle"
     }

@@ -1670,6 +1670,11 @@
         "ranOut": "ran out {{time}}",
         "ended": "ended {{time}}"
       },
+      "sort": {
+        "newest": "Newest first",
+        "oldest": "Oldest first",
+        "type": "By type"
+      },
       "count_one": "{{count, number}} case",
       "count_other": "{{count, number}} cases"
     }

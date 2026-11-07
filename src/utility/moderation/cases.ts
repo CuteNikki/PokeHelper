@@ -1,4 +1,6 @@
 import {
+  ActionRowBuilder,
+  type AnySelectMenuInteraction,
   type ButtonInteraction,
   ContainerBuilder,
   type Guild,
@@ -6,6 +8,8 @@ import {
   type ModalSubmitInteraction,
   SeparatorBuilder,
   SeparatorSpacingSize,
+  StringSelectMenuBuilder,
+  StringSelectMenuOptionBuilder,
   subtext,
   TextDisplayBuilder,
   time,
@@ -15,7 +19,7 @@ import {
 import { CASE_SORTS, CASE_TYPES, type CaseSort, getUserCases } from 'database/moderation';
 
 import type { ModCase } from 'generated/prisma/client';
-import { textIcon } from 'utility/emojis';
+import { buttonIcon, textIcon } from 'utility/emojis';
 import { getTranslate, type Translate } from 'utility/i18next';
 import { userRef } from 'utility/logs/format';
 import { CASE_ICONS, caseNumber } from 'utility/moderation/run';
@@ -28,7 +32,7 @@ import { ThemeColors } from 'utility/theme';
  * Someone's case history, from `/cases` or the Cases menu on their name. Every button, select and popup carries where it is in it,
  * as `cases:<action>:...`, so they work however old the message is:
  * - `list:<user>:<sort>:<page>`, with `first`, `last` or `goto` after it for those page buttons, as they can lead to the same page
- * - the page popup `goto:<user>:<sort>`
+ * - the select `sort:<user>`, and the page popup `goto:<user>:<sort>`
  */
 export const CASES_PREFIX = 'cases:';
 /** How many cases a page shows. */
@@ -44,7 +48,8 @@ export interface CasesState {
 }
 
 /** What a custom ID of a case history asks for. */
-export type CasesAction = { action: 'list'; state: CasesState; goto: boolean } | { action: 'goto'; userId: string; sort: CaseSort };
+export type CasesAction =
+  { action: 'list'; state: CasesState; goto: boolean } | { action: 'sort'; userId: string } | { action: 'goto'; userId: string; sort: CaseSort };
 
 const stateId = (state: CasesState) => `${state.userId}:${state.sort}:${state.page}`;
 export const listId = (state: CasesState, suffix?: 'first' | 'last' | 'goto') => `${CASES_PREFIX}list:${stateId(state)}${suffix ? `:${suffix}` : ''}`;
@@ -67,6 +72,8 @@ export function parseCasesId(customId: string): CasesAction | null {
       if (!parsed || parts.length > 4 || (suffix !== undefined && !['first', 'last', 'goto'].includes(suffix))) return null;
       return { action, state: parsed, goto: suffix === 'goto' };
     }
+    case 'sort':
+      return parts.length === 1 && isId(parts[0]) ? { action, userId: parts[0] } : null;
     case 'goto': {
       const [userId, sort] = parts;
       return parts.length === 2 && isId(userId) && isSort(sort) ? { action, userId, sort } : null;
@@ -128,7 +135,20 @@ export async function renderCaseList(guild: Guild, requested: CasesState, t: Tra
     return `${line}\n${subtext(`• ${details.filter(Boolean).join(' · ')}`)}`;
   });
 
-  container.addTextDisplayComponents(new TextDisplayBuilder().setContent([subtext(count), ...entries].join('\n')));
+  const sortSelect = new StringSelectMenuBuilder().setCustomId(`${CASES_PREFIX}sort:${state.userId}`).addOptions(
+    CASE_SORTS.map((sort) =>
+      new StringSelectMenuOptionBuilder()
+        .setValue(sort)
+        .setLabel(t(`moderation.cases.sort.${sort}`))
+        .setEmoji(buttonIcon(sort === 'oldest' ? 'arrow-up-narrow-wide' : sort === 'newest' ? 'arrow-down-wide-narrow' : 'tag'))
+        .setDefault(sort === state.sort),
+    ),
+  );
+
+  container
+    .addTextDisplayComponents(new TextDisplayBuilder().setContent([subtext(count), ...entries].join('\n')))
+    .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large))
+    .addActionRowComponents(new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(sortSelect));
   if (pages > 1) {
     const customId = (button: PageButton, target: number) =>
       listId({ ...state, page: target }, button === 'first' || button === 'last' || button === 'goto' ? button : undefined);
@@ -152,6 +172,19 @@ export async function handleCasesButton(interaction: ButtonInteraction<'cached'>
   // Answered before anything is looked up, as Discord gives up after 3 seconds
   await interaction.deferUpdate();
   return interaction.editReply(await renderCaseList(interaction.guild, state, t));
+}
+
+/** The select of a case history that sorts it. */
+export async function handleCasesSelect(interaction: AnySelectMenuInteraction<'cached'>): Promise<unknown> {
+  const t = getTranslate(interaction.locale);
+  const parsed = parseCasesId(interaction.customId);
+  if (!parsed || parsed.action !== 'sort') return sendError(interaction, t('system.outdated'));
+
+  await interaction.deferUpdate();
+  // Back to the first page, as the cases on the page asked for would be others now
+  const value = interaction.values[0];
+  const sort = isSort(value) ? value : 'newest';
+  return interaction.editReply(await renderCaseList(interaction.guild, { userId: parsed.userId, sort, page: 0 }, t));
 }
 
 /** The popup of a case history asking which page to go to. */
