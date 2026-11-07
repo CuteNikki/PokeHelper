@@ -104,6 +104,7 @@ _A Pokémon themed Discord bot_
 - Every action is a numbered case, also when it's done through Discord itself, like from the menu on someone's name
 - `/cases` or the Cases menu on a name shows someone's history: how many of each type, every case with its reason, who did it and until when, sorted newest or oldest first or by type
 - Each case can be opened, its reason changed, or deleted after confirming
+- A running timeout or ban can end at another time: `3d` from now, `+1d` or `-2h` to move it, a date like `24.12. 18:00`, or `never` to make a ban one for good
 - Nobody can act on the server's owner, themselves, or someone whose highest role isn't below theirs
 - `/purge` deletes up to 100 of a channel's latest messages, or only someone's
 

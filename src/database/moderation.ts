@@ -105,3 +105,7 @@ export const endCase = (id: string, now = new Date()) => prisma.modCase.updateMa
 /** Someone's newest case of a type made since a time, like the one a log is about, or null if there's none. */
 export const getRecentCase = (guildId: string, userId: string, type: ModCaseType, since: Date) =>
   prisma.modCase.findFirst({ where: { guildId, userId, type, createdAt: { gte: since } }, orderBy: { createdAt: 'desc' } });
+
+/** Change when a running timeout or ban ends, or make a ban one for good with null. Returns whether it was still running. */
+export const setCaseEnd = async (guildId: string, id: string, expiresAt: Date | null) =>
+  (await prisma.modCase.updateMany({ where: { id, guildId, endedAt: null }, data: { expiresAt } })).count > 0;

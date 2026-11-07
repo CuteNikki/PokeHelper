@@ -19,7 +19,8 @@ import {
   TimestampStyles,
 } from 'discord.js';
 
-import { CASE_SORTS, CASE_TYPES, type CaseSort, deleteCase, getCase, getUserCases, setCaseReason } from 'database/moderation';
+import { CASE_SORTS, CASE_TYPES, type CaseSort, deleteCase, getCase, getUserCases, setCaseEnd, setCaseReason } from 'database/moderation';
+import { getReminderTimezone } from 'database/reminders';
 
 import type { ModCase } from 'generated/prisma/client';
 import { DiscordLimits } from 'utility/discordLimits';
@@ -27,7 +28,8 @@ import { buttonIcon, textIcon } from 'utility/emojis';
 import { getTranslate, type Translate } from 'utility/i18next';
 import { userRef, when } from 'utility/logs/format';
 import { buildTextModal } from 'utility/modal';
-import { CASE_ICONS, caseNumber, MAX_REASON_LENGTH } from 'utility/moderation/run';
+import { canChangeEnd, type EndError, parseNewEnd } from 'utility/moderation/end';
+import { auditReason, CASE_ICONS, caseNumber, formatUntil, MAX_BAN_DAYS, MAX_REASON_LENGTH, MAX_TIMEOUT_DAYS, moderationProblem } from 'utility/moderation/run';
 import { buildPageModal, buildPageRow, clampPage, type PageButton, readPageInput } from 'utility/pagination';
 import { sendError, withNotice, type ResponsePayload } from 'utility/response';
 import { quote, shorten } from 'utility/text';
@@ -37,7 +39,7 @@ import { ThemeColors } from 'utility/theme';
  * Someone's case history, from `/cases` or the Cases menu on their name. Every button, select and popup carries where it is in it,
  * as `cases:<action>:...`, so they work however old the message is:
  * - `list:<user>:<sort>:<page>`, with `first`, `last` or `goto` after it for those page buttons, as they can lead to the same page
- * - `view`, `reason`, `delete` and `deleteYes`, each `:<case>:<user>:<sort>:<page>`, to go back to the same page
+ * - `view`, `reason`, `end`, `delete` and `deleteYes`, each `:<case>:<user>:<sort>:<page>`, to go back to the same page
  * - the selects `sort:<user>` and `pick:<user>:<sort>:<page>`, and the page popup `goto:<user>:<sort>`
  */
 export const CASES_PREFIX = 'cases:';
@@ -46,6 +48,7 @@ export const CASES_PAGE_SIZE = 10;
 /** How much of a reason the list shows. The whole reason is in the case's own view. */
 const LIST_REASON_LENGTH = 100;
 const REASON_INPUT_ID = 'reason';
+const END_INPUT_ID = 'end';
 
 /** Where someone is in a case history, which every button, select and popup carries. */
 export interface CasesState {
@@ -57,14 +60,15 @@ export interface CasesState {
 /** What a custom ID of a case history asks for. */
 export type CasesAction =
   | { action: 'list'; state: CasesState; goto: boolean }
-  | { action: 'view' | 'reason' | 'delete' | 'deleteYes'; caseId: string; state: CasesState }
+  | { action: 'view' | 'reason' | 'end' | 'delete' | 'deleteYes'; caseId: string; state: CasesState }
   | { action: 'sort'; userId: string }
   | { action: 'pick'; state: CasesState }
   | { action: 'goto'; userId: string; sort: CaseSort };
 
 const stateId = (state: CasesState) => `${state.userId}:${state.sort}:${state.page}`;
 export const listId = (state: CasesState, suffix?: 'first' | 'last' | 'goto') => `${CASES_PREFIX}list:${stateId(state)}${suffix ? `:${suffix}` : ''}`;
-const caseId = (action: 'view' | 'reason' | 'delete' | 'deleteYes', id: string, state: CasesState) => `${CASES_PREFIX}${action}:${id}:${stateId(state)}`;
+const caseId = (action: 'view' | 'reason' | 'end' | 'delete' | 'deleteYes', id: string, state: CasesState) =>
+  `${CASES_PREFIX}${action}:${id}:${stateId(state)}`;
 
 const isId = (value: string | undefined): value is string => /^\d{15,25}$/.test(value ?? '');
 const isSort = (value: string | undefined): value is CaseSort => CASE_SORTS.includes(value as CaseSort);
@@ -86,6 +90,7 @@ export function parseCasesId(customId: string): CasesAction | null {
     }
     case 'view':
     case 'reason':
+    case 'end':
     case 'delete':
     case 'deleteYes': {
       const [id, userId, sort, page] = parts;
@@ -197,7 +202,7 @@ export async function renderCaseList(guild: Guild, requested: CasesState, t: Tra
   return { components: [container], flags: [MessageFlags.IsComponentsV2], allowedMentions: { parse: [] } };
 }
 
-/** One case with everything about it, and buttons to go back to the list, change its reason, or delete it. */
+/** One case with everything about it, and buttons to go back to the list, change its reason or when it ends, or delete it. */
 export function renderCase(guild: Guild, modCase: ModCase, state: CasesState, t: Translate): ResponsePayload {
   const field = (label: string, value: string) => `${bold(label)}\n${value}`;
   const fields = [
@@ -221,6 +226,8 @@ export function renderCase(guild: Guild, modCase: ModCase, state: CasesState, t:
       new ActionRowBuilder<ButtonBuilder>().addComponents(
         button(listId(state), t('moderation.cases.view.back'), 'chevron-left'),
         button(caseId('reason', modCase.id, state), t('moderation.cases.view.editReason'), 'pencil'),
+        // Only while it runs, as a timeout or ban that ended is over
+        ...(canChangeEnd(modCase) ? [button(caseId('end', modCase.id, state), t('moderation.cases.view.changeEnd'), 'clock')] : []),
         button(caseId('delete', modCase.id, state), t('moderation.cases.view.delete'), 'trash-2', ButtonStyle.Danger),
       ),
     );
@@ -287,6 +294,22 @@ export async function handleCasesButton(interaction: ButtonInteraction<'cached'>
     );
   }
 
+  if (parsed.action === 'end') {
+    const modCase = await getCase(interaction.guildId, parsed.caseId);
+    if (!modCase) return sendError(interaction, t('moderation.cases.gone'));
+    if (!canChangeEnd(modCase)) return sendError(interaction, t('moderation.cases.endModal.notRunning'));
+    return interaction.showModal(
+      buildTextModal({
+        customId: caseId('end', modCase.id, state),
+        title: t('moderation.cases.endModal.title', { number: caseNumber(modCase, t) }),
+        label: t('moderation.cases.endModal.label'),
+        inputId: END_INPUT_ID,
+        placeholder: t(modCase.type === 'ban' ? 'moderation.cases.endModal.placeholderBan' : 'moderation.cases.endModal.placeholderTimeout'),
+        maxLength: 50,
+      }),
+    );
+  }
+
   // Answered before anything is looked up, as Discord gives up after 3 seconds
   await interaction.deferUpdate();
   switch (parsed.action) {
@@ -341,6 +364,7 @@ export async function handleCasesModal(interaction: ModalSubmitInteraction): Pro
     // A page past the end shows the last one
     return interaction.editReply(await renderCaseList(interaction.guild, { userId: parsed.userId, sort: parsed.sort, page: page - 1 }, t));
   }
+  if (parsed.action === 'end') return changeEnd(interaction, parsed.caseId, parsed.state, t);
   if (parsed.action !== 'reason') return sendError(interaction, t('system.outdated'));
 
   await interaction.deferUpdate();
@@ -352,6 +376,53 @@ export async function handleCasesModal(interaction: ModalSubmitInteraction): Pro
   return (
     modCase && interaction.editReply(withNotice(t('moderation.cases.reasonModal.done'), 'success', renderCase(interaction.guild, modCase, parsed.state, t)))
   );
+}
+
+/** Why a new end can't be used, for the one who typed it. */
+function endProblem(error: EndError, type: 'timeout' | 'ban', t: Translate): string {
+  if (error === 'tooLong') {
+    return type === 'timeout' ? t('moderation.problems.timeoutTooLong', { max: MAX_TIMEOUT_DAYS }) : t('moderation.problems.banTooLong');
+  }
+  return t(`moderation.cases.endModal.${error}`, { max: MAX_TIMEOUT_DAYS, years: MAX_BAN_DAYS / 365 });
+}
+
+/**
+ * Change when a running timeout or ban ends, from the popup. A timeout is changed on Discord too, which also checks the member can still
+ * be timed out by whoever changes it. A ban's end is only the bot's, which lifts it then, so changing it needs the right to ban.
+ */
+async function changeEnd(interaction: ModalSubmitInteraction<'cached'>, id: string, state: CasesState, t: Translate): Promise<unknown> {
+  await interaction.deferUpdate();
+  const modCase = await caseOrGone(interaction, id, state, t);
+  if (!modCase) return;
+  if (!canChangeEnd(modCase) || (modCase.type !== 'timeout' && modCase.type !== 'ban'))
+    return sendError(interaction, t('moderation.cases.endModal.notRunning'));
+  const type = modCase.type;
+
+  // Dates are in the timezone the moderator picked for their reminders, or UTC. Discord shows the result in everyone's own time
+  const timezone = (await getReminderTimezone(interaction.user.id)) ?? 'UTC';
+  const end = parseNewEnd(interaction.fields.getTextInputValue(END_INPUT_ID), type, modCase.expiresAt, timezone);
+  if (typeof end === 'string') return sendError(interaction, endProblem(end, type, t));
+
+  const reason = auditReason(interaction.user, t('moderation.cases.endModal.audit', { number: caseNumber(modCase, t) }));
+  if (type === 'ban') {
+    if (!interaction.member.permissions.has('BanMembers')) return sendError(interaction, t('moderation.cases.endModal.noBanPermission'));
+  } else {
+    const member = await interaction.guild.members.fetch(modCase.userId).catch(() => null);
+    if (!member) return sendError(interaction, t('moderation.problems.notMember'));
+    const problem = moderationProblem(interaction.guild, interaction.member, member.user, member, 'timeout', t);
+    if (problem) return sendError(interaction, problem);
+    try {
+      await member.disableCommunicationUntil(end, reason);
+    } catch {
+      return sendError(interaction, t('moderation.failed'));
+    }
+  }
+
+  if (!(await setCaseEnd(interaction.guildId, modCase.id, end))) return sendError(interaction, t('moderation.cases.endModal.notRunning'));
+  const notice = end
+    ? t('moderation.cases.endModal.done', { number: caseNumber(modCase, t), until: formatUntil(end) })
+    : t('moderation.cases.endModal.doneNever', { number: caseNumber(modCase, t) });
+  return interaction.editReply(withNotice(notice, 'success', renderCase(interaction.guild, { ...modCase, expiresAt: end }, state, t)));
 }
 
 /** Someone's case history from its first page, newest first, for `/cases` and the Cases menu on their name. */
