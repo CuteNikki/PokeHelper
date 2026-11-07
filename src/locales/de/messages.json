@@ -1644,8 +1644,8 @@
         "delete": "Löschen",
         "changeEnd": "Ende ändern",
         "related": "Zugehörige Fälle",
-        "relatedEndedThis": "{{case}} hat diesen {{time}} beendet",
-        "relatedEndedByThis": "{{case}} wurde von diesem beendet",
+        "relatedEndedThis": "Hat diesen Fall beendet",
+        "relatedEndedByThis": "Wurde von diesem Fall beendet",
         "open": "{{number}} öffnen"
       },
       "delete": {

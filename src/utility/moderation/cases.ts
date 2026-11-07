@@ -253,13 +253,14 @@ export function renderCase(guild: Guild, modCase: ModCase, related: ModCase[], s
     .addTextDisplayComponents(new TextDisplayBuilder().setContent(fields.join('\n')))
     .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large));
 
-  // The related cases in a part of their own, with a button to open each under them
+  // The related cases in a part of their own, each like in the list, with how it's related, and a button to open each under them
   if (related.length > 0) {
     const entries = related.map((other) =>
-      t(endedThis(other, modCase) ? 'moderation.cases.view.relatedEndedThis' : 'moderation.cases.view.relatedEndedByThis', {
-        case: `${bold(caseNumber(other, t))} ${typeLabel(other, t)}`,
-        time: when(other.createdAt),
-      }),
+      [
+        t('moderation.cases.entry', { number: caseNumber(other, t), type: typeLabel(other, t) }),
+        subtext(t(endedThis(other, modCase) ? 'moderation.cases.view.relatedEndedThis' : 'moderation.cases.view.relatedEndedByThis')),
+        subtext(t('moderation.cases.entryCreated', { time: when(other.createdAt) })),
+      ].join('\n'),
     );
     container
       .addTextDisplayComponents(new TextDisplayBuilder().setContent([bold(t('moderation.cases.view.related')), ...entries].join('\n')))

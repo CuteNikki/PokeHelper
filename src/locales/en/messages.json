@@ -1700,8 +1700,8 @@
         "delete": "Delete",
         "changeEnd": "Change end",
         "related": "Related cases",
-        "relatedEndedThis": "{{case}} ended this one {{time}}",
-        "relatedEndedByThis": "{{case}} was ended by this one",
+        "relatedEndedThis": "Ended this case",
+        "relatedEndedByThis": "Was ended by this case",
         "open": "Open {{number}}"
       },
       "delete": {
