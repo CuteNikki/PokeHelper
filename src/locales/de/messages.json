@@ -1634,7 +1634,7 @@
       "view": {
         "title": "### {{type}} · Fall {{number}}",
         "member": "Mitglied",
-        "moderator": "Von",
+        "moderator": "Moderation",
         "date": "Datum",
         "until": "Läuft bis",
         "ranOut": "Abgelaufen",

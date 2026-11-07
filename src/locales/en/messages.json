@@ -1690,7 +1690,7 @@
       "view": {
         "title": "### {{type}} · Case {{number}}",
         "member": "Member",
-        "moderator": "By",
+        "moderator": "Moderator",
         "date": "Date",
         "until": "Lasts until",
         "ranOut": "Ran out",
