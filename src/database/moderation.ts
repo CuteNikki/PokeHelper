@@ -101,3 +101,7 @@ export const getExpiredBans = (now: Date) =>
 
 /** Mark a case as ended, like a temporary ban once it's lifted. */
 export const endCase = (id: string, now = new Date()) => prisma.modCase.updateMany({ where: { id, endedAt: null }, data: { endedAt: now } });
+
+/** Someone's newest case of a type made since a time, like the one a log is about, or null if there's none. */
+export const getRecentCase = (guildId: string, userId: string, type: ModCaseType, since: Date) =>
+  prisma.modCase.findFirst({ where: { guildId, userId, type, createdAt: { gte: since } }, orderBy: { createdAt: 'desc' } });

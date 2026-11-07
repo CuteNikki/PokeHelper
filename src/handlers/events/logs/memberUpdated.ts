@@ -6,6 +6,7 @@ import { whoDid } from 'utility/logs/audit';
 import { oldNew } from 'utility/logs/changes';
 import { avatarOf, reasonPart, roleSubject, userSubject, when } from 'utility/logs/format';
 import { sendLog, shouldLog } from 'utility/logs/send';
+import { casePart, findLoggedCase } from 'utility/moderation/logs';
 import { code } from 'utility/text';
 
 /** A member changed: their nickname, roles or server avatar, or a timeout given or taken away. Each is its own log. */
@@ -92,7 +93,11 @@ export default new Event({
     const timedOut = isUntil > Date.now();
     // A timeout running out on its own isn't a change anyone made
     if (wasUntil !== isUntil && (timedOut || wasUntil > Date.now()) && (await shouldLog(guild, 'memberTimedOut'))) {
-      const doer = await whoDid(guild.id, AuditLogEvent.MemberUpdate, after.id);
+      // Taking a timeout away early only ends its case, so only new ones have a case
+      const [doer, number] = await Promise.all([
+        whoDid(guild.id, AuditLogEvent.MemberUpdate, after.id),
+        timedOut ? findLoggedCase(guild.id, after.id, 'timeout') : null,
+      ]);
       await sendLog(guild, 'memberTimedOut', (t) => ({
         kind: timedOut ? 'deleted' : 'created',
         label: t(timedOut ? 'logs.labels.timedOut' : 'logs.labels.timeoutRemoved'),
@@ -100,7 +105,7 @@ export default new Event({
         subject,
         thumbnail,
         by: doer,
-        details: [timedOut ? `${bold(t('logs.until'))} ${when(isUntil)}` : null, reasonPart(doer, t)],
+        details: [casePart(number, t), timedOut ? `${bold(t('logs.until'))} ${when(isUntil)}` : null, reasonPart(doer, t)],
         ids,
       }));
     }
