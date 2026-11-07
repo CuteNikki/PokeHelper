@@ -1665,7 +1665,9 @@
         "unban_other": "{{count, number}} unbans"
       },
       "entry": "**{{number}}** {{type}}",
+      "entryReason": "Reason: {{reason}}",
       "entryBy": "by {{moderator}}",
+      "entryCreated": "Created {{time}}",
       "unknown": "unknown",
       "status": {
         "until": "Ends {{time}}",

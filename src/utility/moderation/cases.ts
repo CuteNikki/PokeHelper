@@ -154,9 +154,9 @@ export async function renderCaseList(guild: Guild, requested: CasesState, t: Tra
   // The case and its type, then small under it, each on a line of its own: why, by whom, when, and until when
   const entries = cases.map((modCase) => {
     const details = [
-      shorten((modCase.reason ?? t('moderation.noReason')).replace(/\s+/g, ' '), LIST_REASON_LENGTH),
+      t('moderation.cases.entryReason', { reason: shorten((modCase.reason ?? t('moderation.noReason')).replace(/\s+/g, ' '), LIST_REASON_LENGTH) }),
       t('moderation.cases.entryBy', { moderator: moderatorOf(guild, modCase, t) }),
-      when(modCase.createdAt),
+      t('moderation.cases.entryCreated', { time: when(modCase.createdAt) }),
       caseStatus(modCase, t),
     ];
     const heading = t('moderation.cases.entry', { number: caseNumber(modCase, t), type: typeLabel(modCase, t) });
