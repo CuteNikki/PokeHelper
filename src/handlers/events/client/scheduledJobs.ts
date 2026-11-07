@@ -4,6 +4,7 @@ import { Event } from 'classes/base/event';
 
 import { runBirthdayJob } from 'utility/birthday/job';
 import { runResetJob } from 'utility/leveling/reset';
+import { runTempBanJob } from 'utility/moderation/tempBans';
 import { runReminderJob } from 'utility/reminders/job';
 import { runProfileThemeJob } from 'utility/profileTheme';
 import { forgetOldUnposted } from 'utility/starboard';
@@ -14,6 +15,8 @@ import { DAY, MINUTE, SECOND } from 'utility/duration';
 const JOB_INTERVAL = 15 * MINUTE;
 /** How often reminders are checked, so they go off at most this late. */
 const REMINDER_INTERVAL = 15 * SECOND;
+/** How often temporary bans are checked, so they're lifted at most this late. */
+const TEMP_BAN_INTERVAL = MINUTE;
 
 /** Started once the bot is ready, as the jobs need the guilds, and running right away catches up on what was missed while offline. */
 export default new Event({
@@ -29,6 +32,7 @@ export default new Event({
     scheduleJob('profile theme', JOB_INTERVAL, () => runProfileThemeJob(client));
     // Often, as reminders are often only minutes away
     scheduleJob('reminders', REMINDER_INTERVAL, () => runReminderJob(client));
+    scheduleJob('temporary bans', TEMP_BAN_INTERVAL, () => runTempBanJob(client));
     scheduleJob('starboard cleanup', DAY, forgetOldUnposted);
   },
 });

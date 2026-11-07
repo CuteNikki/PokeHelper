@@ -1617,7 +1617,8 @@
       "duration": "That's not a duration. Write it like 10m, 2h or 3d.",
       "timeoutTooLong": "A timeout can be at most {{max}} days long, that's as long as Discord allows.",
       "alreadyBanned": "{{user}} is already banned.",
-      "notBanned": "{{user}} isn't banned."
+      "notBanned": "{{user}} isn't banned.",
+      "banTooLong": "A temporary ban can be at most 5 years long. Leave the duration out to ban them for good."
     },
     "dm": {
       "warn": "### {{icon}} You were warned on {{server}}",
@@ -1638,7 +1639,8 @@
       "case": "Case {{number}}",
       "dmSent": "They got a DM about it",
       "dmFailed": "I couldn't DM them, their DMs are closed"
-    }
+    },
+    "tempBanEnded": "Temporary ban ran out (case {{number}})"
   },
   "lookup": {
     "generation": "Generation {{number}}",

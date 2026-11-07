@@ -548,6 +548,10 @@
       "dm": {
         "name": "dm",
         "description": "Ob die Person eine DM dazu bekommt. Standardmäßig ja"
+      },
+      "duration": {
+        "name": "dauer",
+        "description": "Wie lange, zum Beispiel 3d oder 2w, danach wird er aufgehoben. Standardmäßig für immer"
       }
     }
   },
