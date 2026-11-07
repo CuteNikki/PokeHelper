@@ -1616,7 +1616,8 @@
       "aboveMe": "{{user}}'s highest role isn't below mine, so I can't do that to them. Move my role above theirs in the server settings.",
       "duration": "That's not a duration. Write it like 10m, 2h or 3d.",
       "timeoutTooLong": "A timeout can be at most {{max}} days long, that's as long as Discord allows.",
-      "alreadyBanned": "{{user}} is already banned."
+      "alreadyBanned": "{{user}} is already banned.",
+      "notBanned": "{{user}} isn't banned."
     },
     "dm": {
       "warn": "### {{icon}} You were warned on {{server}}",

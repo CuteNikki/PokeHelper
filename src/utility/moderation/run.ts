@@ -108,6 +108,9 @@ export function moderationProblem(
   return null;
 }
 
+/** Whether someone is banned from a server, asked of Discord. */
+export const isBanned = async (guild: Guild, userId: string) => (await guild.bans.fetch({ user: userId, force: true }).catch(() => null)) !== null;
+
 /** The DM telling someone what happened to them on a server, in the server's language, as theirs isn't known. */
 function buildCaseDm(guild: Guild, modCase: ModCase, t: Translate): ResponsePayload {
   const lines = [

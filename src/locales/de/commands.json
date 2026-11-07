@@ -550,5 +550,19 @@
         "description": "Ob die Person eine DM dazu bekommt. Standardmäßig ja"
       }
     }
+  },
+  "unban": {
+    "name": "entbannen",
+    "description": "Heb einen Bann auf, dann kann die Person wieder beitreten",
+    "options": {
+      "user": {
+        "name": "person",
+        "description": "Wen du entbannen willst. Füg die ID ein, um die Person zu finden"
+      },
+      "reason": {
+        "name": "grund",
+        "description": "Warum die Person entbannt wird"
+      }
+    }
   }
 }

@@ -1,15 +1,12 @@
-import { ApplicationIntegrationType, type Guild, InteractionContextType, PermissionFlagsBits, SlashCommandBuilder } from 'discord.js';
+import { ApplicationIntegrationType, InteractionContextType, PermissionFlagsBits, SlashCommandBuilder } from 'discord.js';
 
 import { Command } from 'classes/base/command';
 
 import { DAY, HOUR } from 'utility/duration';
 import { getTranslate } from 'utility/i18next';
 import { userSubject } from 'utility/logs/format';
-import { MAX_REASON_LENGTH, moderationProblem, runModeration } from 'utility/moderation/run';
+import { isBanned, MAX_REASON_LENGTH, moderationProblem, runModeration } from 'utility/moderation/run';
 import { sendError } from 'utility/response';
-
-/** Whether someone is banned from a server. */
-export const isBanned = async (guild: Guild, userId: string) => (await guild.bans.fetch({ user: userId, force: true }).catch(() => null)) !== null;
 
 /** A ban, which also works on people who aren't on the server, like by pasting their ID. */
 export default new Command({
