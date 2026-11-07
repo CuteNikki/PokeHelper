@@ -3,11 +3,8 @@ import { ApplicationIntegrationType, InteractionContextType, PermissionFlagsBits
 import { Command } from 'classes/base/command';
 
 import { getTranslate } from 'utility/i18next';
-import { MAX_REASON_LENGTH, moderationProblem, parseModerationDuration, runModeration } from 'utility/moderation/run';
+import { MAX_REASON_LENGTH, MAX_TIMEOUT_DAYS, moderationProblem, parseModerationDuration, runModeration } from 'utility/moderation/run';
 import { sendError } from 'utility/response';
-
-/** The longest timeout Discord allows, in days. */
-const MAX_TIMEOUT_DAYS = 28;
 
 /** A timeout, during which the member can't chat, talk or react, and which Discord ends by itself. */
 export default new Command({

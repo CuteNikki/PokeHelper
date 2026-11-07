@@ -5,11 +5,8 @@ import { Command } from 'classes/base/command';
 import { DAY, HOUR } from 'utility/duration';
 import { getTranslate } from 'utility/i18next';
 import { userSubject } from 'utility/logs/format';
-import { isBanned, MAX_REASON_LENGTH, moderationProblem, parseModerationDuration, runModeration } from 'utility/moderation/run';
+import { isBanned, MAX_BAN_DAYS, MAX_REASON_LENGTH, moderationProblem, parseModerationDuration, runModeration } from 'utility/moderation/run';
 import { sendError } from 'utility/response';
-
-/** The longest temporary ban, in days, which is 5 years. Longer ones can just as well be lifted by hand. */
-const MAX_BAN_DAYS = 5 * 365;
 
 /** A ban, for good or for a while, which also works on people who aren't on the server, like by pasting their ID. */
 export default new Command({

@@ -27,6 +27,11 @@ import { createResponse, sendResponse, type ResponsePayload } from 'utility/resp
 import { quote } from 'utility/text';
 import { ThemeColors } from 'utility/theme';
 
+/** The longest timeout Discord allows, in days. */
+export const MAX_TIMEOUT_DAYS = 28;
+/** The longest temporary ban, in days, which is 5 years. Longer ones can just as well be lifted by hand. */
+export const MAX_BAN_DAYS = 5 * 365;
+
 /** The longest reason, short enough to also go in Discord's audit log with who gave it. */
 export const MAX_REASON_LENGTH = 400;
 /** The longest reason Discord's audit log takes. */
