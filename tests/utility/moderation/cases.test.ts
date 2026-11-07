@@ -14,6 +14,11 @@ describe('case history custom IDs', () => {
 
   test("a case's buttons carry the case and the page they came from", () => {
     expect(parseCasesId(`cases:view:abc123:${userId}:type:0`)).toEqual({ action: 'view', caseId: 'abc123', state: { userId, sort: 'type', page: 0 } });
+    expect(parseCasesId(`cases:deleteYes:abc123:${userId}:oldest:4`)).toEqual({
+      action: 'deleteYes',
+      caseId: 'abc123',
+      state: { userId, sort: 'oldest', page: 4 },
+    });
   });
 
   test('the selects and the page popup', () => {

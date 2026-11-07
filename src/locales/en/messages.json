@@ -1685,7 +1685,14 @@
         "until": "Lasts until",
         "ranOut": "Ran out",
         "ended": "Ended",
-        "back": "Back"
+        "back": "Back",
+        "delete": "Delete"
+      },
+      "delete": {
+        "question": "Delete case {{number}}? This can't be undone.",
+        "confirm": "Delete",
+        "cancel": "Keep it",
+        "done": "Deleted case {{number}}."
       },
       "count_one": "{{count, number}} case",
       "count_other": "{{count, number}} cases"

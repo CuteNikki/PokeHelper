@@ -19,7 +19,7 @@ import {
   TimestampStyles,
 } from 'discord.js';
 
-import { CASE_SORTS, CASE_TYPES, type CaseSort, getCase, getUserCases } from 'database/moderation';
+import { CASE_SORTS, CASE_TYPES, type CaseSort, deleteCase, getCase, getUserCases } from 'database/moderation';
 
 import type { ModCase } from 'generated/prisma/client';
 import { DiscordLimits } from 'utility/discordLimits';
@@ -36,7 +36,7 @@ import { ThemeColors } from 'utility/theme';
  * Someone's case history, from `/cases` or the Cases menu on their name. Every button, select and popup carries where it is in it,
  * as `cases:<action>:...`, so they work however old the message is:
  * - `list:<user>:<sort>:<page>`, with `first`, `last` or `goto` after it for those page buttons, as they can lead to the same page
- * - `view:<case>:<user>:<sort>:<page>`, to go back to the same page
+ * - `view`, `delete` and `deleteYes`, each `:<case>:<user>:<sort>:<page>`, to go back to the same page
  * - the selects `sort:<user>` and `pick:<user>:<sort>:<page>`, and the page popup `goto:<user>:<sort>`
  */
 export const CASES_PREFIX = 'cases:';
@@ -55,13 +55,14 @@ export interface CasesState {
 /** What a custom ID of a case history asks for. */
 export type CasesAction =
   | { action: 'list'; state: CasesState; goto: boolean }
-  | { action: 'view'; caseId: string; state: CasesState }
+  | { action: 'view' | 'delete' | 'deleteYes'; caseId: string; state: CasesState }
   | { action: 'sort'; userId: string }
   | { action: 'pick'; state: CasesState }
   | { action: 'goto'; userId: string; sort: CaseSort };
 
 const stateId = (state: CasesState) => `${state.userId}:${state.sort}:${state.page}`;
 export const listId = (state: CasesState, suffix?: 'first' | 'last' | 'goto') => `${CASES_PREFIX}list:${stateId(state)}${suffix ? `:${suffix}` : ''}`;
+const caseId = (action: 'view' | 'delete' | 'deleteYes', id: string, state: CasesState) => `${CASES_PREFIX}${action}:${id}:${stateId(state)}`;
 
 const isId = (value: string | undefined): value is string => /^\d{15,25}$/.test(value ?? '');
 const isSort = (value: string | undefined): value is CaseSort => CASE_SORTS.includes(value as CaseSort);
@@ -81,7 +82,9 @@ export function parseCasesId(customId: string): CasesAction | null {
       if (!parsed || parts.length > 4 || (suffix !== undefined && !['first', 'last', 'goto'].includes(suffix))) return null;
       return { action, state: parsed, goto: suffix === 'goto' };
     }
-    case 'view': {
+    case 'view':
+    case 'delete':
+    case 'deleteYes': {
       const [id, userId, sort, page] = parts;
       const parsed = state(userId, sort, page);
       if (!parsed || !id || parts.length !== 4) return null;
@@ -191,7 +194,7 @@ export async function renderCaseList(guild: Guild, requested: CasesState, t: Tra
   return { components: [container], flags: [MessageFlags.IsComponentsV2], allowedMentions: { parse: [] } };
 }
 
-/** One case with everything about it, and a button to go back to the list. */
+/** One case with everything about it, and buttons to go back to the list or delete it. */
 export function renderCase(guild: Guild, modCase: ModCase, state: CasesState, t: Translate): ResponsePayload {
   const field = (label: string, value: string) => `${bold(label)}\n${value}`;
   const fields = [
@@ -211,11 +214,36 @@ export function renderCase(guild: Guild, modCase: ModCase, state: CasesState, t:
     .setAccentColor(ThemeColors.info)
     .addTextDisplayComponents(new TextDisplayBuilder().setContent(fields.join('\n')))
     .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large))
-    .addActionRowComponents(new ActionRowBuilder<ButtonBuilder>().addComponents(button(listId(state), t('moderation.cases.view.back'), 'chevron-left')));
+    .addActionRowComponents(
+      new ActionRowBuilder<ButtonBuilder>().addComponents(
+        button(listId(state), t('moderation.cases.view.back'), 'chevron-left'),
+        button(caseId('delete', modCase.id, state), t('moderation.cases.view.delete'), 'trash-2', ButtonStyle.Danger),
+      ),
+    );
   return { components: [container], flags: [MessageFlags.IsComponentsV2], allowedMentions: { parse: [] } };
 }
 
-/** The list again with a note above it, for a case that was deleted meanwhile. */
+/** The question whether to delete a case, as it can't be undone. */
+function renderDeleteQuestion(modCase: ModCase, state: CasesState, t: Translate): ResponsePayload {
+  const container = new ContainerBuilder()
+    .setAccentColor(ThemeColors.warning)
+    .addTextDisplayComponents(new TextDisplayBuilder().setContent(t('moderation.cases.delete.question', { number: caseNumber(modCase, t) })))
+    .addActionRowComponents(
+      new ActionRowBuilder<ButtonBuilder>().addComponents(
+        new ButtonBuilder()
+          .setCustomId(caseId('deleteYes', modCase.id, state))
+          .setLabel(t('moderation.cases.delete.confirm'))
+          .setStyle(ButtonStyle.Danger),
+        new ButtonBuilder()
+          .setCustomId(caseId('view', modCase.id, state))
+          .setLabel(t('moderation.cases.delete.cancel'))
+          .setStyle(ButtonStyle.Secondary),
+      ),
+    );
+  return { components: [container], flags: [MessageFlags.IsComponentsV2] };
+}
+
+/** The list again with a note above it, for a case that was deleted, meanwhile or just now. */
 const listWithNotice = async (guild: Guild, state: CasesState, notice: string, kind: 'success' | 'info', t: Translate) =>
   withNotice(notice, kind, await renderCaseList(guild, state, t));
 
@@ -226,7 +254,7 @@ async function caseOrGone(interaction: ButtonInteraction<'cached'>, id: string, 
   return modCase;
 }
 
-/** The buttons of a case history: pages and a case's view. */
+/** The buttons of a case history: pages, a case's view, and deleting it. */
 export async function handleCasesButton(interaction: ButtonInteraction<'cached'>): Promise<unknown> {
   const t = getTranslate(interaction.locale);
   const parsed = parseCasesId(interaction.customId);
@@ -246,6 +274,17 @@ export async function handleCasesButton(interaction: ButtonInteraction<'cached'>
     case 'view': {
       const modCase = await caseOrGone(interaction, parsed.caseId, state, t);
       return modCase && interaction.editReply(renderCase(interaction.guild, modCase, state, t));
+    }
+    case 'delete': {
+      const modCase = await caseOrGone(interaction, parsed.caseId, state, t);
+      return modCase && interaction.editReply(renderDeleteQuestion(modCase, state, t));
+    }
+    case 'deleteYes': {
+      const modCase = await caseOrGone(interaction, parsed.caseId, state, t);
+      if (!modCase) return;
+      await deleteCase(interaction.guildId, modCase.id);
+      const notice = t('moderation.cases.delete.done', { number: caseNumber(modCase, t) });
+      return interaction.editReply(await listWithNotice(interaction.guild, state, notice, 'success', t));
     }
   }
 }
