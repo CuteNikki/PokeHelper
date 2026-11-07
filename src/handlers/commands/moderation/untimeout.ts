@@ -2,10 +2,7 @@ import { ApplicationIntegrationType, InteractionContextType, PermissionFlagsBits
 
 import { Command } from 'classes/base/command';
 
-import { getTranslate } from 'utility/i18next';
-import { userSubject } from 'utility/logs/format';
-import { MAX_REASON_LENGTH, moderationProblem, runModeration } from 'utility/moderation/run';
-import { sendError } from 'utility/response';
+import { MAX_REASON_LENGTH, runModeration } from 'utility/moderation/run';
 
 /** Take a timeout away before it runs out, with why, which Discord's own way to do it doesn't ask for. */
 export default new Command({
@@ -21,20 +18,12 @@ export default new Command({
 
   async execute(interaction) {
     if (!interaction.inCachedGuild()) return;
-    const t = getTranslate(interaction.locale);
-    const user = interaction.options.getUser('member', true);
-    const member = interaction.options.getMember('member');
-    if (!member) return sendError(interaction, t('moderation.problems.notMember'));
-    if (!member.isCommunicationDisabled()) return sendError(interaction, t('moderation.problems.notTimedOut', { user: userSubject(user) }));
-    const problem = moderationProblem(interaction.guild, interaction.member, user, member, 'untimeout', t);
-    if (problem) return sendError(interaction, problem);
-
     return runModeration(interaction, {
       type: 'untimeout',
-      user,
+      user: interaction.options.getUser('member', true),
+      member: interaction.options.getMember('member'),
       reason: interaction.options.getString('reason'),
       dm: interaction.options.getBoolean('dm') ?? true,
-      act: (reason) => member.timeout(null, reason),
     });
   },
 });

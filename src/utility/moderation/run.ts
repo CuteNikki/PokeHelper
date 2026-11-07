@@ -133,59 +133,110 @@ export function buildCaseDm(guild: Guild, modCase: ModCase, t: Translate): Respo
   };
 }
 
-/** What a moderation command does, besides making its case. */
-export interface ModerationAction {
+/** What a moderator asked for, from a command or a popup of the moderation panel. */
+export interface ModerationRequest {
   type: ModCaseType;
   user: User;
+  /** Who it's about as a member of the server, or null if they're not on it. */
+  member: GuildMember | null;
   reason: string | null;
-  expiresAt?: Date | null;
+  /** How long, as typed, which a timeout needs and a ban can have, for a temporary one. */
+  duration?: string | null;
+  /** How far back to delete their messages when banning them, in seconds. */
+  deleteMessageSeconds?: number;
   /** Whether to tell them by DM. Sent before the action, as after a kick or ban they may not share a server with the bot anymore. */
   dm: boolean;
-  /** Do it on Discord, with the reason for the audit log. */
-  act: (auditReason: string) => Promise<unknown>;
-  /** Why it can't be done after all, or null if it can, for checks that ask Discord, which can take longer than it waits for an answer. */
-  check?: () => Promise<string | null>;
+}
+
+/** How a moderation action went, as said to who asked for it. */
+export interface ModerationResult {
+  ok: boolean;
+  content: string;
+}
+
+/** The moderator, the server and the language, which is all moderating needs of where it was asked for. */
+type ModerationContext = Pick<ChatInputCommandInteraction<'cached'>, 'guild' | 'member' | 'user' | 'locale'>;
+
+/** The checks a request needs before it can be done, and how it's done on Discord, or why it can't be done. */
+async function prepareModeration(
+  { guild, member: moderator }: ModerationContext,
+  request: ModerationRequest,
+  t: Translate,
+): Promise<string | { expiresAt: Date | null; act: (auditReason: string) => Promise<unknown> }> {
+  const { type, user, member } = request;
+  if (!member && type !== 'ban' && type !== 'unban') return t('moderation.problems.notMember');
+  if (type === 'untimeout' && !member?.isCommunicationDisabled()) return t('moderation.problems.notTimedOut', { user: userSubject(user) });
+  const problem = moderationProblem(guild, moderator, user, member, type, t);
+  if (problem) return problem;
+
+  let expiresAt: Date | null = null;
+  if (type === 'timeout' || (type === 'ban' && request.duration)) {
+    const parsed = parseModerationDuration(request.duration ?? '', type === 'timeout' ? MAX_TIMEOUT_DAYS : MAX_BAN_DAYS);
+    if (parsed === 'invalid') return t('moderation.problems.duration');
+    if (parsed === 'tooLong')
+      return type === 'timeout' ? t('moderation.problems.timeoutTooLong', { max: MAX_TIMEOUT_DAYS }) : t('moderation.problems.banTooLong');
+    expiresAt = parsed;
+  }
+  if (type === 'ban' && (await isBanned(guild, user.id))) return t('moderation.problems.alreadyBanned', { user: userSubject(user) });
+  if (type === 'unban' && !(await isBanned(guild, user.id))) return t('moderation.problems.notBanned', { user: userSubject(user) });
+
+  const actions: Record<ModCaseType, (reason: string) => Promise<unknown>> = {
+    warn: () => Promise.resolve(),
+    timeout: (reason) => member!.disableCommunicationUntil(expiresAt, reason),
+    untimeout: (reason) => member!.timeout(null, reason),
+    kick: (reason) => member!.kick(reason),
+    ban: (reason) => guild.members.ban(user.id, { reason, deleteMessageSeconds: request.deleteMessageSeconds ?? 0 }),
+    unban: (reason) => guild.members.unban(user.id, reason),
+  };
+  return { expiresAt, act: actions[type] };
 }
 
 /**
- * Run a moderation command's action, after its checks: make its case, tell them by DM if wanted, do it, and say how it went.
+ * Do what a moderator asked for, after its checks: make its case, tell them by DM if wanted, do it on Discord, and say how it went.
  * The case is made first, so the logs find it when Discord tells them about it. If the action fails, the case and the DM are taken back.
- * Answered first, as Discord gives up after 3 seconds, and only who used it sees the answer, as the logs are where others see it.
+ * Someone unbanned is never told by DM, as they rarely share a server with the bot to get one.
+ * Only call it once the interaction is answered, as the checks ask Discord, and Discord gives up after 3 seconds.
  */
-export async function runModeration(interaction: ChatInputCommandInteraction<'cached'>, action: ModerationAction): Promise<unknown> {
-  const t = getTranslate(interaction.locale);
-  await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
-  const { guild } = interaction;
+export async function moderate(context: ModerationContext, request: ModerationRequest): Promise<ModerationResult> {
+  const t = getTranslate(context.locale);
+  const { guild } = context;
+  const prepared = await prepareModeration(context, request, t);
+  if (typeof prepared === 'string') return { ok: false, content: prepared };
 
-  const problem = (await action.check?.()) ?? null;
-  if (problem) return sendResponse(interaction, createResponse(problem, 'error'));
-
+  const { type, user, reason } = request;
   const modCase = await createCase({
     guildId: guild.id,
-    type: action.type,
-    userId: action.user.id,
-    moderatorId: interaction.user.id,
-    reason: action.reason,
-    expiresAt: action.expiresAt ?? null,
+    type,
+    userId: user.id,
+    moderatorId: context.user.id,
+    reason,
+    expiresAt: prepared.expiresAt,
   });
 
-  const dm = action.dm ? await action.user.send(buildCaseDm(guild, modCase, getTranslate(guild.preferredLocale))).catch(() => null) : null;
+  const wantsDm = request.dm && type !== 'unban';
+  const dm = wantsDm ? await user.send(buildCaseDm(guild, modCase, getTranslate(guild.preferredLocale))).catch(() => null) : null;
   try {
-    await action.act(auditReason(interaction.user, action.reason));
+    await prepared.act(auditReason(context.user, reason));
   } catch (error) {
-    logger.warn(error, `Failed to ${action.type} ${action.user.id} in ${guild.id}`);
+    logger.warn(error, `Failed to ${type} ${user.id} in ${guild.id}`);
     await Promise.all([undoCase(modCase), dm?.delete().catch(() => null)]);
-    return sendResponse(interaction, createResponse(t('moderation.failed'), 'error'));
+    return { ok: false, content: t('moderation.failed') };
   }
 
-  const user = userSubject(action.user);
   // Bans say until when only if they end, timeouts always do
-  const key = action.type === 'ban' && modCase.expiresAt ? 'banUntil' : action.type;
-  const done = t(`moderation.done.${key}`, { user, until: modCase.expiresAt ? formatUntil(modCase.expiresAt) : '' });
+  const key = type === 'ban' && modCase.expiresAt ? 'banUntil' : type;
+  const done = t(`moderation.done.${key}`, { user: userSubject(user), until: modCase.expiresAt ? formatUntil(modCase.expiresAt) : '' });
   const notes = [t('moderation.done.case', { number: caseNumber(modCase, t) })];
-  if (action.dm) notes.push(dm ? t('moderation.done.dmSent') : t('moderation.done.dmFailed'));
-  return sendResponse(interaction, {
-    ...createResponse(`${textIcon(CASE_ICONS[action.type])} ${done}\n${subtext(notes.join(' · '))}`, 'success'),
-    allowedMentions: { parse: [] },
-  });
+  if (wantsDm) notes.push(dm ? t('moderation.done.dmSent') : t('moderation.done.dmFailed'));
+  return { ok: true, content: `${textIcon(CASE_ICONS[type])} ${done}\n${subtext(notes.join(' · '))}` };
+}
+
+/**
+ * Run a moderation command. Answered first, as Discord gives up after 3 seconds, and only who used it sees the answer, as the logs are
+ * where others see it.
+ */
+export async function runModeration(interaction: ChatInputCommandInteraction<'cached'>, request: ModerationRequest): Promise<unknown> {
+  await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
+  const result = await moderate(interaction, request);
+  return sendResponse(interaction, { ...createResponse(result.content, result.ok ? 'success' : 'error'), allowedMentions: { parse: [] } });
 }

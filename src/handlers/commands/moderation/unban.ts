@@ -2,10 +2,7 @@ import { ApplicationIntegrationType, InteractionContextType, PermissionFlagsBits
 
 import { Command } from 'classes/base/command';
 
-import { getTranslate } from 'utility/i18next';
-import { userSubject } from 'utility/logs/format';
-import { isBanned, MAX_REASON_LENGTH, moderationProblem, runModeration } from 'utility/moderation/run';
-import { sendError } from 'utility/response';
+import { MAX_REASON_LENGTH, runModeration } from 'utility/moderation/run';
 
 /**
  * Lift a ban, which ends a temporary one early. Nobody is told by DM, as someone banned rarely shares a server with the bot to get one.
@@ -22,18 +19,12 @@ export default new Command({
 
   async execute(interaction) {
     if (!interaction.inCachedGuild()) return;
-    const t = getTranslate(interaction.locale);
-    const user = interaction.options.getUser('user', true);
-    const problem = moderationProblem(interaction.guild, interaction.member, user, null, 'unban', t);
-    if (problem) return sendError(interaction, problem);
-
     return runModeration(interaction, {
       type: 'unban',
-      user,
+      user: interaction.options.getUser('user', true),
+      member: null,
       reason: interaction.options.getString('reason'),
       dm: false,
-      check: async () => ((await isBanned(interaction.guild, user.id)) ? null : t('moderation.problems.notBanned', { user: userSubject(user) })),
-      act: (reason) => interaction.guild.members.unban(user.id, reason),
     });
   },
 });

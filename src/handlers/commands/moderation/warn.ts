@@ -2,9 +2,7 @@ import { ApplicationIntegrationType, InteractionContextType, PermissionFlagsBits
 
 import { Command } from 'classes/base/command';
 
-import { getTranslate } from 'utility/i18next';
-import { MAX_REASON_LENGTH, moderationProblem, runModeration } from 'utility/moderation/run';
-import { sendError } from 'utility/response';
+import { MAX_REASON_LENGTH, runModeration } from 'utility/moderation/run';
 
 /** A warning, which only does something as a case in someone's history, and as a DM telling them. */
 export default new Command({
@@ -20,19 +18,12 @@ export default new Command({
 
   async execute(interaction) {
     if (!interaction.inCachedGuild()) return;
-    const t = getTranslate(interaction.locale);
-    const user = interaction.options.getUser('member', true);
-    const member = interaction.options.getMember('member');
-    if (!member) return sendError(interaction, t('moderation.problems.notMember'));
-    const problem = moderationProblem(interaction.guild, interaction.member, user, member, 'warn', t);
-    if (problem) return sendError(interaction, problem);
-
     return runModeration(interaction, {
       type: 'warn',
-      user,
+      user: interaction.options.getUser('member', true),
+      member: interaction.options.getMember('member'),
       reason: interaction.options.getString('reason', true),
       dm: interaction.options.getBoolean('dm') ?? true,
-      act: () => Promise.resolve(),
     });
   },
 });

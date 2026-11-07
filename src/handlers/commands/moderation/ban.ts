@@ -3,10 +3,7 @@ import { ApplicationIntegrationType, InteractionContextType, PermissionFlagsBits
 import { Command } from 'classes/base/command';
 
 import { DAY, HOUR } from 'utility/duration';
-import { getTranslate } from 'utility/i18next';
-import { userSubject } from 'utility/logs/format';
-import { isBanned, MAX_BAN_DAYS, MAX_REASON_LENGTH, moderationProblem, parseModerationDuration, runModeration } from 'utility/moderation/run';
-import { sendError } from 'utility/response';
+import { MAX_REASON_LENGTH, runModeration } from 'utility/moderation/run';
 
 /** A ban, for good or for a while, which also works on people who aren't on the server, like by pasting their ID. */
 export default new Command({
@@ -36,26 +33,14 @@ export default new Command({
 
   async execute(interaction) {
     if (!interaction.inCachedGuild()) return;
-    const t = getTranslate(interaction.locale);
-    const user = interaction.options.getUser('user', true);
-    const member = interaction.options.getMember('user');
-    const problem = moderationProblem(interaction.guild, interaction.member, user, member, 'ban', t);
-    if (problem) return sendError(interaction, problem);
-
-    const duration = interaction.options.getString('duration');
-    const expiresAt = duration ? parseModerationDuration(duration, MAX_BAN_DAYS) : null;
-    if (expiresAt === 'invalid') return sendError(interaction, t('moderation.problems.duration'));
-    if (expiresAt === 'tooLong') return sendError(interaction, t('moderation.problems.banTooLong'));
-
-    const deleteMessageSeconds = interaction.options.getInteger('delete-messages') ?? 0;
     return runModeration(interaction, {
       type: 'ban',
-      user,
-      expiresAt,
+      user: interaction.options.getUser('user', true),
+      member: interaction.options.getMember('user'),
       reason: interaction.options.getString('reason'),
+      duration: interaction.options.getString('duration'),
+      deleteMessageSeconds: interaction.options.getInteger('delete-messages') ?? 0,
       dm: interaction.options.getBoolean('dm') ?? true,
-      check: async () => ((await isBanned(interaction.guild, user.id)) ? t('moderation.problems.alreadyBanned', { user: userSubject(user) }) : null),
-      act: (reason) => interaction.guild.members.ban(user.id, { reason, deleteMessageSeconds }),
     });
   },
 });
