@@ -7,7 +7,7 @@ export type CaseSort = 'newest' | 'oldest' | 'type';
 export const CASE_SORTS: CaseSort[] = ['newest', 'oldest', 'type'];
 
 /** Every type of case, in the order they're counted up in a member's summary and sorted by type. */
-export const CASE_TYPES: ModCaseType[] = ['warn', 'timeout', 'kick', 'ban', 'unban'];
+export const CASE_TYPES: ModCaseType[] = ['warn', 'timeout', 'untimeout', 'kick', 'ban', 'unban'];
 
 /** What a new case says. Its number is the server's next one. */
 export interface NewCase {
@@ -24,9 +24,9 @@ const running = (now: Date): Prisma.ModCaseWhereInput => ({ endedAt: null, OR: [
 
 /**
  * The cases a new one ends: a ban ends the bans before it, so a temporary one isn't lifted under a new one, a timeout the timeouts
- * before it, as Discord replaces them, and an unban the bans.
+ * before it, as Discord replaces them, a timeout taken away the timeouts, and an unban the bans.
  */
-const endedBy: Partial<Record<ModCaseType, ModCaseType>> = { ban: 'ban', timeout: 'timeout', unban: 'ban' };
+const endedBy: Partial<Record<ModCaseType, ModCaseType>> = { ban: 'ban', timeout: 'timeout', untimeout: 'timeout', unban: 'ban' };
 
 /**
  * Add a case with the server's next number, making sure the server is stored first. Ends the cases it replaces, see {@link endedBy}.
@@ -55,10 +55,6 @@ export const undoCase = (modCase: ModCase) =>
     prisma.modCase.deleteMany({ where: { id: modCase.id } }),
     prisma.modCase.updateMany({ where: { guildId: modCase.guildId, userId: modCase.userId, endedAt: modCase.createdAt }, data: { endedAt: null } }),
   ]);
-
-/** End someone's running timeouts or bans, like when a timeout is taken away or a ban lifted without a case of its own. */
-export const endRunningCases = (guildId: string, userId: string, type: ModCaseType, now = new Date()) =>
-  prisma.modCase.updateMany({ where: { guildId, userId, type, ...running(now) }, data: { endedAt: now } });
 
 /** A case of a server, or null if it was deleted meanwhile. */
 export const getCase = (guildId: string, id: string) => prisma.modCase.findFirst({ where: { id, guildId } });

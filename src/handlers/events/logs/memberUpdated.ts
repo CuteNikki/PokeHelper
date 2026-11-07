@@ -93,10 +93,10 @@ export default new Event({
     const timedOut = isUntil > Date.now();
     // A timeout running out on its own isn't a change anyone made
     if (wasUntil !== isUntil && (timedOut || wasUntil > Date.now()) && (await shouldLog(guild, 'memberTimedOut'))) {
-      // Taking a timeout away early only ends its case, so only new ones have a case
+      // A timeout given and one taken away early each have a case
       const [audit, modCase] = await Promise.all([
         whoDid(guild.id, AuditLogEvent.MemberUpdate, after.id),
-        timedOut ? findLoggedCase(guild.id, after.id, 'timeout') : null,
+        findLoggedCase(guild.id, after.id, timedOut ? 'timeout' : 'untimeout'),
       ]);
       const doer = caseDoer(audit, modCase);
       await sendLog(guild, 'memberTimedOut', (t) => ({

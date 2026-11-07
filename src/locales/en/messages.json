@@ -1624,6 +1624,7 @@
     "dm": {
       "warn": "### {{icon}} You were warned on {{server}}",
       "timeout": "### {{icon}} You were timed out on {{server}}",
+      "untimeout": "### {{icon}} Your timeout on {{server}} was removed",
       "kick": "### {{icon}} You were kicked from {{server}}",
       "ban": "### {{icon}} You were banned from {{server}}",
       "unban": "### {{icon}} You were unbanned on {{server}}",
@@ -1633,6 +1634,7 @@
     "done": {
       "warn": "Warned {{user}}.",
       "timeout": "Timed out {{user}} until {{until}}.",
+      "untimeout": "Removed the timeout of {{user}}.",
       "kick": "Kicked {{user}}.",
       "ban": "Banned {{user}}.",
       "banUntil": "Banned {{user}} until {{until}}.",
@@ -1645,6 +1647,7 @@
     "types": {
       "warn": "Warn",
       "timeout": "Timeout",
+      "untimeout": "Timeout removed",
       "kick": "Kick",
       "ban": "Ban",
       "unban": "Unban"
@@ -1657,6 +1660,8 @@
         "warn_other": "{{count, number}} warns",
         "timeout_one": "{{count, number}} timeout",
         "timeout_other": "{{count, number}} timeouts",
+        "untimeout_one": "{{count, number}} timeout removed",
+        "untimeout_other": "{{count, number}} timeouts removed",
         "kick_one": "{{count, number}} kick",
         "kick_other": "{{count, number}} kicks",
         "ban_one": "{{count, number}} ban",

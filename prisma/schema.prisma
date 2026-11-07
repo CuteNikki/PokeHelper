@@ -652,6 +652,8 @@ model ModCase {
 enum ModCaseType {
   warn
   timeout
+  // A timeout taken away before it ran out
+  untimeout
   kick
   ban
   unban

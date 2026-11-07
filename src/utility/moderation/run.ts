@@ -41,6 +41,7 @@ const MAX_AUDIT_REASON = 512;
 export const CASE_ICONS: Record<ModCaseType, IconName> = {
   warn: 'triangle-alert',
   timeout: 'hourglass',
+  untimeout: 'timer-off',
   kick: 'door-open',
   ban: 'ban',
   unban: 'rotate-ccw',
@@ -79,6 +80,7 @@ interface ActionRules {
 export const ACTION_RULES: Record<ModCaseType, ActionRules> = {
   warn: { permission: null },
   timeout: { permission: 'ModerateMembers', canAct: (member) => member.moderatable },
+  untimeout: { permission: 'ModerateMembers', canAct: (member) => member.moderatable },
   kick: { permission: 'KickMembers', canAct: (member) => member.kickable },
   ban: { permission: 'BanMembers', canAct: (member) => member.bannable },
   unban: { permission: 'BanMembers' },
