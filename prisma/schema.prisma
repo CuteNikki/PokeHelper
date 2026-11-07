@@ -116,6 +116,9 @@ model Guild {
   tempVoiceEnabled Boolean @default(true)
   stickiesEnabled  Boolean @default(true)
 
+  // How many moderation cases the server has had, which numbers the next one. Never goes down, so deleted numbers aren't used again
+  caseCount Int @default(0)
+
   // Configuration
   counting          GuildCounting?      @relation("GuildCounting")
   birthday          GuildBirthday?      @relation("GuildBirthday")
@@ -128,6 +131,7 @@ model Guild {
   tempVoiceChannels TempVoiceChannel[]
   tempVoiceSettings TempVoiceSettings[]
   stickyMessages    StickyMessage[]
+  modCases          ModCase[]
   birthdayRoles     BirthdayRole[]
   levels            Level[]
   levelsWeekly      WeeklyLevel[]
@@ -615,6 +619,42 @@ model StickyMessage {
   updatedAt DateTime @updatedAt
 
   @@index([guildId])
+}
+
+// Something a moderator did to someone, like a warn or a ban, which together are their history on the server
+model ModCase {
+  id      String @id @default(cuid())
+  guildId String
+  guild   Guild  @relation(fields: [guildId], references: [guildId], onDelete: Cascade)
+  // Counted per server, so people can talk about case 12
+  number  Int
+
+  type        ModCaseType
+  // Who it's about, and who did it. Null when Discord's audit log didn't say
+  userId      String
+  moderatorId String?
+  reason      String?
+
+  // When a timeout or temporary ban runs out. Null for ones that don't
+  expiresAt DateTime?
+  // When a timeout or ban was ended before it ran out, like by an unban, a new ban, or a temporary ban being lifted
+  endedAt   DateTime?
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([guildId, number])
+  @@index([guildId, userId])
+  @@index([expiresAt])
+}
+
+enum ModCaseType {
+  warn
+  timeout
+  kick
+  ban
+  unban
 }
 
 // The bot's own profile: which theme its avatar and banner wear, so they're only uploaded again when the theme changes.
