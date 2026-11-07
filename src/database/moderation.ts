@@ -1,6 +1,6 @@
 import { prisma } from 'database/index';
 
-import type { ModCaseType, Prisma } from 'generated/prisma/client';
+import type { ModCase, ModCaseType, Prisma } from 'generated/prisma/client';
 
 /** How a member's cases are listed: the newest or the oldest first, or by type, the newest first within each. */
 export type CaseSort = 'newest' | 'oldest' | 'type';
@@ -45,8 +45,16 @@ export const createCase = (data: NewCase) =>
     if (ends) {
       await tx.modCase.updateMany({ where: { guildId: data.guildId, userId: data.userId, type: ends, ...running(now) }, data: { endedAt: now } });
     }
-    return tx.modCase.create({ data: { ...data, expiresAt: data.expiresAt ?? null, number: caseCount } });
+    // Made at the same time as the ones it ends, so undoing it can tell them apart
+    return tx.modCase.create({ data: { ...data, expiresAt: data.expiresAt ?? null, number: caseCount, createdAt: now } });
   });
+
+/** Take a case back, like when Discord didn't let the bot do what it's about, and run the ones it ended again. */
+export const undoCase = (modCase: ModCase) =>
+  prisma.$transaction([
+    prisma.modCase.deleteMany({ where: { id: modCase.id } }),
+    prisma.modCase.updateMany({ where: { guildId: modCase.guildId, userId: modCase.userId, endedAt: modCase.createdAt }, data: { endedAt: null } }),
+  ]);
 
 /** End someone's running timeouts or bans, like when a timeout is taken away or a ban lifted without a case of its own. */
 export const endRunningCases = (guildId: string, userId: string, type: ModCaseType, now = new Date()) =>

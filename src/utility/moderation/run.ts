@@ -13,7 +13,7 @@ import {
   type User,
 } from 'discord.js';
 
-import { createCase, deleteCase } from 'database/moderation';
+import { createCase, undoCase } from 'database/moderation';
 
 import type { ModCase, ModCaseType } from 'generated/prisma/client';
 import { DAY, formatNumber } from 'utility/duration';
@@ -158,7 +158,7 @@ export async function runModeration(interaction: ChatInputCommandInteraction<'ca
     await action.act(auditReason(interaction.user, action.reason));
   } catch (error) {
     logger.warn(error, `Failed to ${action.type} ${action.user.id} in ${guild.id}`);
-    await Promise.all([deleteCase(guild.id, modCase.id), dm?.delete().catch(() => null)]);
+    await Promise.all([undoCase(modCase), dm?.delete().catch(() => null)]);
     return sendResponse(interaction, createResponse(t('moderation.failed'), 'error'));
   }
 
