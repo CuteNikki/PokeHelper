@@ -6,6 +6,7 @@ import {
   type Client,
   ContainerBuilder,
   type Guild,
+  type GuildMember,
   hyperlink,
   MessageFlags,
   messageLink,
@@ -31,7 +32,7 @@ import {
 } from 'database/giveaways';
 import { getLevelFromXP } from 'database/leveling';
 
-import { MINUTE } from 'utility/duration';
+import { MINUTE, SECOND } from 'utility/duration';
 import { buttonIcon } from 'utility/emojis';
 import { type Candidate, drawWinners } from 'utility/giveaways/draw';
 import { logGiveaway, winnersDetail } from 'utility/giveaways/logs';
@@ -46,6 +47,42 @@ import { ThemeColors } from 'utility/theme';
 
 /** How many members are fetched from Discord at once, the most it sends back for one request. */
 const FETCH_CHUNK = 100;
+/** How often a chunk of members is asked for when Discord says to wait, before giving up until the next try. */
+const FETCH_TRIES = 5;
+
+/** How long Discord said to wait before asking for members again, or null if the error isn't that. */
+function retryAfter(error: unknown): number | null {
+  const seconds = (error as { data?: { retry_after?: unknown } } | null)?.data?.retry_after;
+  return typeof seconds === 'number' ? seconds * SECOND : null;
+}
+
+/**
+ * Members of a server, from the cache, which Discord keeps up to date, or else asked of Discord a chunk at a time. When Discord says to
+ * slow down, that chunk is asked for again after waiting, so a big giveaway isn't started over. Those who left aren't in it.
+ */
+async function fetchMembers(guild: Guild, userIds: string[]): Promise<Map<string, GuildMember>> {
+  const members = new Map<string, GuildMember>();
+  const missing: string[] = [];
+  for (const userId of userIds) {
+    const cached = guild.members.cache.get(userId);
+    if (cached) members.set(userId, cached);
+    else missing.push(userId);
+  }
+  for (let start = 0; start < missing.length; start += FETCH_CHUNK) {
+    const chunk = missing.slice(start, start + FETCH_CHUNK);
+    for (let tried = 1; ; tried++) {
+      try {
+        for (const [userId, member] of await guild.members.fetch({ user: chunk })) members.set(userId, member);
+        break;
+      } catch (error) {
+        const wait = retryAfter(error);
+        if (wait === null || tried >= FETCH_TRIES) throw error;
+        await Bun.sleep(wait);
+      }
+    }
+  }
+  return members;
+}
 
 /**
  * Work out everyone's entries in a running giveaway again, like after its bonus roles changed, which keeps the participants list right.
@@ -56,7 +93,10 @@ async function refreshAllEntries(guild: Guild, giveaway: Giveaway) {
   const bonusRoles = bonusRolesOf(giveaway);
   for (let start = 0; start < entries.length; start += FETCH_CHUNK) {
     const chunk = entries.slice(start, start + FETCH_CHUNK);
-    const members = await guild.members.fetch({ user: chunk.map((entry) => entry.userId) });
+    const members = await fetchMembers(
+      guild,
+      chunk.map((entry) => entry.userId),
+    );
     const changed = new Map<number, string[]>();
     for (const entry of chunk) {
       const member = members.get(entry.userId);
@@ -105,7 +145,7 @@ export async function findCandidates(guild: Guild, giveaway: Giveaway, exclude: 
     const userIds = chunk.map((entry) => entry.userId);
     // Members who left aren't sent back. XP a chunk at a time too, so the query stays small however many entered
     const [members, xp] = await Promise.all([
-      guild.members.fetch({ user: userIds }),
+      fetchMembers(guild, userIds),
       rules.minLevel ? getXpOf(guild.id, userIds) : Promise.resolve(new Map<string, number>()),
     ]);
     for (const entry of chunk) {
