@@ -2181,7 +2181,10 @@
       "rerollPlaceholder": "Wähl die Gewinner aus, die ersetzt werden",
       "rerolled_one": "Hab {{count, number}} neuen Gewinner gezogen.",
       "rerolled_other": "Hab {{count, number}} neue Gewinner gezogen.",
-      "nobodyLeft": "Hab sie ersetzt, aber sonst konnte niemand gezogen werden."
+      "nobodyLeft": "Hab sie ersetzt, aber sonst konnte niemand gezogen werden.",
+      "removePlaceholder": "Jemanden aus dem Giveaway nehmen",
+      "removed": "Hab {{user}} aus dem Giveaway genommen. Sie können wieder mitmachen, außer eine Regel hält sie ab.",
+      "notEntered": "Diese Person macht bei dem Giveaway nicht mit."
     },
     "edit": {
       "header": "Es läuft, also siehst du Änderungen sofort auf seinem Post. Der Kanal lässt sich nicht mehr ändern, und der Ping wurde schon gesendet."

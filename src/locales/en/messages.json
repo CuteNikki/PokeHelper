@@ -2237,7 +2237,10 @@
       "rerollPlaceholder": "Pick the winners to replace",
       "rerolled_one": "Drew {{count, number}} new winner.",
       "rerolled_other": "Drew {{count, number}} new winners.",
-      "nobodyLeft": "Replaced them, but nobody else could be drawn."
+      "nobodyLeft": "Replaced them, but nobody else could be drawn.",
+      "removePlaceholder": "Remove someone's entry",
+      "removed": "Took {{user}} out of the giveaway. They can join again, unless a rule keeps them out.",
+      "notEntered": "They're not in this giveaway."
     },
     "edit": {
       "header": "It's running, so changes show on its post right away. Its channel can't change anymore, and its ping was already sent."

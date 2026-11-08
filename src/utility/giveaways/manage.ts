@@ -20,6 +20,7 @@ import {
   time,
   TimestampStyles,
   userMention,
+  UserSelectMenuBuilder,
 } from 'discord.js';
 
 import {
@@ -29,6 +30,7 @@ import {
   deleteGiveaway,
   getAllWinners,
   getGiveaway,
+  leaveGiveaway,
   type Giveaway,
   type GiveawayTab,
   listGiveaways,
@@ -43,7 +45,8 @@ import { formatNumber } from 'utility/duration';
 import { buttonIcon } from 'utility/emojis';
 import { endGiveaway, rerollWinners } from 'utility/giveaways/end';
 import { MANAGE_ACTIONS, MANAGE_PREFIX, type ManageAction, manageId } from 'utility/giveaways/ids';
-import { syncPost } from 'utility/giveaways/sync';
+import { openParticipantsId } from 'utility/giveaways/participants';
+import { markPostChanged, syncPost } from 'utility/giveaways/sync';
 import { getTranslate, type Translate } from 'utility/i18next';
 import { logger } from 'utility/logger';
 import { type ResponsePayload, sendError, withNotice } from 'utility/response';
@@ -198,6 +201,12 @@ export async function renderGiveawayPanel(guild: Guild, giveaway: Giveaway, t: T
           .setStyle(ButtonStyle.Danger),
       ];
   buttons.push(
+    // Opens the list everyone can see, in a reply of its own, so this panel stays
+    new ButtonBuilder()
+      .setCustomId(openParticipantsId(giveaway.id))
+      .setLabel(t('giveaway.post.participantsButton'))
+      .setEmoji(buttonIcon('users'))
+      .setStyle(ButtonStyle.Secondary),
     new ButtonBuilder()
       .setCustomId(`${MANAGE_PREFIX}list:${running ? 'active' : 'ended'}`)
       .setLabel(t('giveaway.manage.back'))
@@ -207,8 +216,16 @@ export async function renderGiveawayPanel(guild: Guild, giveaway: Giveaway, t: T
   const container = new ContainerBuilder()
     .setAccentColor(ThemeColors.info)
     .addTextDisplayComponents(new TextDisplayBuilder().setContent(lines.join('\n')))
-    .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large))
-    .addActionRowComponents(new ActionRowBuilder<ButtonBuilder>().addComponents(buttons));
+    .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large));
+  if (running && participants > 0) {
+    // Like for alts, or someone who broke the rules. They can join again, unless a rule keeps them out
+    container.addActionRowComponents(
+      new ActionRowBuilder<UserSelectMenuBuilder>().addComponents(
+        new UserSelectMenuBuilder().setCustomId(manageId('remove', giveaway.id)).setPlaceholder(t('giveaway.manage.removePlaceholder')),
+      ),
+    );
+  }
+  container.addActionRowComponents(new ActionRowBuilder<ButtonBuilder>().addComponents(buttons));
   return { components: [container], flags: [MessageFlags.IsComponentsV2], allowedMentions: { parse: [] } };
 }
 
@@ -306,6 +323,14 @@ export async function handleManageSelect(interaction: AnySelectMenuInteraction<'
   const giveaway = giveawayId ? await getGiveaway(interaction.guildId, giveawayId) : null;
   if (!giveaway || giveaway.status === 'draft') {
     return interaction.editReply(withNotice(t('giveaway.manage.gone'), 'info', await renderGiveawayList(interaction.guild, 'active', t)));
+  }
+
+  if (action === 'remove') {
+    const userId = interaction.values[0];
+    const removed = !!userId && giveaway.status === 'active' && (await leaveGiveaway(giveaway.id, userId));
+    if (removed) markPostChanged(interaction.guildId, giveaway.id);
+    const notice = removed ? t('giveaway.manage.removed', { user: userMention(userId) }) : t('giveaway.manage.notEntered');
+    return interaction.editReply(withNotice(notice, removed ? 'success' : 'info', await renderGiveawayPanel(interaction.guild, giveaway, t)));
   }
 
   if (action === 'rerollPick') {
