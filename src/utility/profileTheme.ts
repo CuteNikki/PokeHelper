@@ -10,12 +10,9 @@ import { logger } from 'utility/logger';
 import { setThemeStatus } from 'utility/profileStatus';
 
 /**
- * The bot wears a theme on its avatar, banner and custom status by the calendar, like Halloween in October, and changes them itself
- * when a new one starts. The pictures are only uploaded when their theme changes, as Discord allows only a couple of changes an hour,
- * and one Discord turns down as too soon is tried again on the next run.
- *
- * Only on with `PROFILE_THEMES=on`, so a second copy of the bot, like one run while developing with the same token, doesn't fight
- * the first over the profile.
+ * Seasonal themes on the bot's avatar, banner and custom status. Pictures are only uploaded when the theme changes, as Discord allows
+ * only a couple of changes an hour; one turned down as too soon is tried again on the next run.
+ * Only on with `PROFILE_THEMES=on`, so a dev copy with the same token doesn't fight the real one over the profile.
  */
 
 export const profileThemesEnabled = () => process.env.PROFILE_THEMES === 'on';
@@ -42,11 +39,7 @@ export interface ProfileSync {
   status: string;
 }
 
-/**
- * Put the wanted theme on the avatar and banner, those not wearing it yet, and its custom status. The pictures are drawn only when
- * one has to change, which takes a second or two.
- * @param force Upload them again even when they wear it already, like after the artwork changed.
- */
+/** Put the wanted theme on the avatar, banner and custom status. `force` uploads them even when unchanged, like after new artwork. */
 export async function syncProfileTheme(client: Client<true>, force = false): Promise<ProfileSync> {
   const profile = await getBotProfile();
   const theme = wantedTheme(client, profile?.override ?? null);
@@ -77,10 +70,7 @@ export async function runProfileThemeJob(client: Client<true>) {
 
 let overview: Promise<Uint8Array> | null = null;
 
-/**
- * Every theme in one GIF, like `art/themes.gif`. Drawn in a thread of its own the first time, which takes a few seconds, and
- * kept after that, as the themes only change with a new version of the bot.
- */
+/** Every theme in one GIF, like `art/themes.gif`. Drawn in a thread the first time, then kept, as themes only change with a new version. */
 export function themeOverview(): Promise<Uint8Array> {
   overview ??= drawGif({ kind: 'overview', themes: Object.keys(THEMES) as ThemeName[] }).catch((error: unknown) => {
     // Tried again next time

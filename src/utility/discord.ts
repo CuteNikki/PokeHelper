@@ -12,10 +12,7 @@ export const isMessageGone = (error: unknown) => isDiscordError(error, RESTJSONE
 /** Whether Discord answered no, unlike when it didn't answer in time or had a problem itself, after which a request may have worked anyway. */
 export const isRefused = (error: unknown) => error instanceof DiscordAPIError && error.status < 500;
 
-/**
- * Someone as a member of a server, asked of Discord even when cached, for when it has to be right, like before moderating them.
- * @returns The member, null if they're not on it, or undefined if Discord couldn't be asked.
- */
+/** A member fetched from Discord even when cached, for when it has to be right. Null if not on the server, undefined if Discord couldn't be asked. */
 export async function fetchMember(guild: Guild, userId: string): Promise<GuildMember | null | undefined> {
   try {
     return await guild.members.fetch({ user: userId, force: true });
@@ -27,10 +24,7 @@ export async function fetchMember(guild: Guild, userId: string): Promise<GuildMe
 /** Someone as a member of a server, from the cache or else Discord, or null if they're not on it or Discord couldn't be asked. */
 export const findMember = (guild: Guild, userId: string): Promise<GuildMember | null> => guild.members.fetch(userId).catch(() => null);
 
-/**
- * A channel, from the cache or else Discord, as threads aren't always cached, like after a restart.
- * @returns The channel, null if it's gone, or undefined if Discord couldn't be asked, or wouldn't let the bot see it.
- */
+/** A channel from the cache or else Discord, as threads aren't always cached. Null if gone, undefined if Discord couldn't be asked or refused. */
 export async function fetchChannel(client: Client, channelId: string): Promise<Channel | null | undefined> {
   const cached = client.channels.cache.get(channelId);
   if (cached) return cached;

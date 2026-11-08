@@ -33,11 +33,7 @@ const EDIT_ID = `${FRIEND_CODES_PREFIX}edit`;
 /** The popup with the codes to copy. Nothing is saved from it, closing it is all there is to do. */
 export const FRIEND_CODES_COPY_MODAL_ID = 'friendcodes-copy';
 
-/**
- * Someone's friend codes, with a button to copy them, as text in a message can't be selected on phones, and one for whoever sees
- * them to add their own.
- * @param self Whether it's the codes of who asked, who then gets told how to add them instead of that there are none.
- */
+/** Someone's friend codes, with a copy button (text in messages can't be selected on phones) and one to add your own. */
 export async function buildFriendCodes(user: User, member: GuildMember | null, self: boolean, t: Translate): Promise<ResponsePayload> {
   const codes = savedFriendCodes(await getFriendCodes(user.id));
   const name = escapeMarkdown(member?.displayName ?? user.displayName);
@@ -77,7 +73,6 @@ export async function buildFriendCodes(user: User, member: GuildMember | null, s
 const editButton = (t: Translate) =>
   new ButtonBuilder().setCustomId(EDIT_ID).setLabel(t('friendCodes.view.yours')).setEmoji(buttonIcon('pencil')).setStyle(ButtonStyle.Secondary);
 
-/** Handle the buttons under someone's codes, in the language of whoever pressed them. */
 export async function handleFriendCodesButton(interaction: ButtonInteraction): Promise<unknown> {
   const t = getTranslate(interaction.locale);
 

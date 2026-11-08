@@ -4,10 +4,7 @@ import { Locale, type LocalizationMap } from 'discord.js';
 
 import { FALLBACK_LANGUAGE, LOCALES_PATH, supportedLanguages } from 'utility/i18next';
 
-/**
- * The texts of one command, subcommand or option in another language, nested like the command's JSON:
- * the name and description, the subcommands and options by their English name, and the choices by value.
- */
+/** One command's texts in another language, nested like its JSON: subcommands and options by English name, choices by value. */
 export interface CommandTranslation {
   name?: string;
   description?: string;
@@ -28,10 +25,7 @@ interface CommandNode {
 /** Command translations by language, then by command name. */
 export type CommandTranslations = Record<string, Record<string, CommandTranslation>>;
 
-/**
- * The command translations of every language besides English, which is written in the commands themselves.
- * Read from disk each time, so registering again picks up changes without restarting.
- */
+/** The command translations of every language besides English, read from disk each time so registering picks up changes. */
 export function loadCommandTranslations(): CommandTranslations {
   const translations: CommandTranslations = {};
   for (const language of supportedLanguages) {
@@ -45,12 +39,7 @@ export function loadCommandTranslations(): CommandTranslations {
 /** The Discord locales a language covers, like `de` for German and `pt-BR` for Portuguese. */
 const discordLocalesOf = (language: string) => Object.values(Locale).filter((locale) => locale.split('-')[0] === language);
 
-/**
- * Add the translated names, descriptions and choice names to a command's JSON.
- * Interactions still use the English option names, so the code reading them doesn't change.
- * @param command The command's JSON, which is changed in place.
- * @param translations The translations from {@link loadCommandTranslations}.
- */
+/** Add the translations to a command's JSON, in place. Interactions still use the English option names. */
 export function localizeCommand<T extends CommandNode>(command: T, translations: CommandTranslations): T {
   const apply = (node: CommandNode, byLanguage: Record<string, CommandTranslation | undefined>) => {
     for (const [language, translation] of Object.entries(byLanguage)) {

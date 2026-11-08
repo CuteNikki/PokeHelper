@@ -16,11 +16,7 @@ const PAGE_INPUT_ID = 'page_input';
 /** Enough for any page number, which is checked against the pages there are once submitted. */
 const MAX_PAGE_LENGTH = 6;
 
-/**
- * The popup asking which page to go to, for any list with pages.
- * @param customId Says which list and view it's for, so it's handled however long it was open.
- * @param current The page shown now, counted from 1, to start from.
- */
+/** The popup asking which page to go to. `current` counts from 1. */
 export function buildPageModal(customId: string, current: number, t: Translate) {
   return buildTextModal({
     customId,
@@ -46,10 +42,7 @@ export const pageOfPosition = (position: number, pageSize: number) => Math.max(1
 export const findMeButton = (customId: string, t: Translate) =>
   new ButtonBuilder().setCustomId(customId).setStyle(ButtonStyle.Secondary).setEmoji(buttonIcon('user')).setLabel(t('pagination.findMe'));
 
-/**
- * The page to show, counted from 0, and how many pages there are. Kept within the pages there are, as a list can change between presses,
- * and always at least one page, also for an empty list.
- */
+/** The page to show, counted from 0 and kept in range as a list can change between presses, and how many pages there are (at least one). */
 export function clampPage(requested: number, total: number, pageSize: number): { page: number; pages: number } {
   const pages = Math.max(1, Math.ceil(total / pageSize));
   return { page: Math.min(Math.max(0, Math.floor(requested) || 0), pages - 1), pages };
@@ -59,11 +52,8 @@ export function clampPage(requested: number, total: number, pageSize: number): {
 export type PageButton = 'first' | 'prev' | 'goto' | 'next' | 'last';
 
 /**
- * The page buttons under a list: first, previous, the page, next and last. Buttons that would go nowhere are disabled.
- * @param page The page shown, counted from 0.
- * @param customId The custom ID of a button, by what it does and the page it goes to, counted from 0.
- * @param options.goto Whether pressing the page asks which page to go to. Without it, the page only shows where you are.
- * @param options.short Only previous, the page and next, for short lists.
+ * The page buttons under a list, pages counted from 0. Buttons that would go nowhere are disabled.
+ * `goto` makes the page button ask which page to go to, `short` leaves out first and last.
  */
 export function buildPageRow(
   page: number,

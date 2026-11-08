@@ -43,10 +43,7 @@ import { ThemeColors } from 'utility/theme';
 export const SETTINGS_CUSTOM_ID_PREFIX = 'settings:';
 /** The page of panels without categories. */
 const SINGLE_PAGE = '_';
-/**
- * The channels messages are sent in, which includes voice channels' chats, and categories, which cover the channels in them.
- * For settings that pick channels to leave out or to only use.
- */
+/** Channels messages are sent in (voice chats included) plus categories, for settings that leave out or only use channels. */
 export const MESSAGE_CHANNEL_TYPES = [
   ChannelType.GuildText,
   ChannelType.GuildAnnouncement,
@@ -64,10 +61,7 @@ const MODAL_MARK = 'modal';
 /** How much of a text setting is shown in the panel. */
 const TEXT_PREVIEW_LENGTH = 300;
 
-/**
- * The tips of a page: the list, or the category's list of a panel with categories. Anything else, like a translation that's missing,
- * is no tips.
- */
+/** The tips of a page: the list, or the category's list for panels with categories. Anything else is no tips. */
 export function tipsFor(tips: unknown, page: string): string[] {
   const list = Array.isArray(tips) ? tips : tips && typeof tips === 'object' ? (tips as Record<string, unknown>)[page] : null;
   return Array.isArray(list) ? list.filter((tip): tip is string => typeof tip === 'string') : [];
@@ -92,13 +86,8 @@ interface BaseSetting<C, V> {
   description: (t: Translate) => string;
   /** The value a new configuration starts with, shown under the description. */
   defaultValue?: V;
-  /** Read the current value from the configuration. */
   get: (config: C) => V;
-  /**
-   * Save a new value.
-   * @param scopeId The server's ID for server settings, the user's for personal ones.
-   * @param context For settings that change more than the database, like moving a posted message.
-   */
+  /** Save a new value. scopeId is the server's ID, or the user's for personal settings. */
   set: (scopeId: string, value: V, context: SettingsContext) => Promise<unknown>;
   /** Whether the setting is hidden right now, like one that only matters once another is turned on. */
   hidden?: (config: C) => boolean;
@@ -113,10 +102,7 @@ export type ChannelSetting<C> = BaseSetting<C, string | null> & {
   type: 'channel';
   channelTypes: ChannelType[];
   required?: boolean;
-  /**
-   * Permissions the bot needs in the channel. The select shows the channels the user can see, not the bot,
-   * so channels where the bot is missing any of these are refused, and a saved one that lost them gets a warning.
-   */
+  /** Permissions the bot needs in the channel. The select shows what the user can see, not the bot, so channels missing them are refused. */
   botPermissions?: PermissionsString[];
   /** Why a channel can't be picked, like one that's already used for something else, or null if it can. */
   refusal?: (channelId: string, t: Translate) => Promise<string | null>;
@@ -165,12 +151,9 @@ export interface Entry<V extends number | string = number> {
 }
 
 /**
- * A list of channels or roles that each have a value. Entries are added and removed with selects.
- *
- * With presets, every entry gets a row with a button that cycles through them, and after the last preset asks for a custom value.
- * Without presets, the entries are listed compactly, and adding an entry asks for its value, which also changes the value of an existing entry.
- *
- * The functions are written as methods, which TypeScript checks loosely enough that settings with number and text values fit in one list.
+ * A list of channels or roles that each have a value, added and removed with selects.
+ * With presets, each entry gets a button cycling through them, then asking for a custom value. Without, adding (or re-adding) asks for the value.
+ * The functions are methods because TypeScript checks those loosely enough that number and text settings fit in one list.
  */
 interface EntriesSettingBase<C, V extends number | string> {
   type: 'entries' | 'textEntries';
@@ -248,19 +231,13 @@ export interface SettingsPanelDefinition<C> {
   categories?: SettingsCategory[];
   /** Whose settings these are: a server's, which is the default, or the user's own, which can also be used in DMs. */
   scope?: 'guild' | 'user';
-  /**
-   * Load the configuration, or null if the feature isn't set up.
-   * @param scopeId The server's ID for server settings, the user's for personal ones.
-   */
+  /** Load the configuration, or null if the feature isn't set up. scopeId is the server's ID, or the user's for personal settings. */
   load: (scopeId: string, context: SettingsContext) => Promise<C | null>;
   /** Shown instead of the settings when the feature isn't set up. */
   notConfigured: (t: Translate) => string;
   /** Text shown under the title, like where a role menu is posted. */
   header?: (config: C, context: SettingsContext, t: Translate) => string | null;
-  /**
-   * Things good to know that the settings themselves don't say, like that a starboard post deleted by hand isn't posted again,
-   * shown under the settings. From the translations: a list, or for panels with categories, a list for each category.
-   */
+  /** Tips shown under the settings, from the translations: a list, or a list per category for panels with categories. */
   tips?: (t: Translate) => unknown;
   /** Buttons shown under the settings, for actions that aren't settings, like deleting a role menu. */
   footer?: (config: C, t: Translate) => ButtonBuilder[];
@@ -314,10 +291,7 @@ export interface SettingsPanel {
   scope: 'guild' | 'user';
   /** Needed to change server settings. Personal ones need none. */
   permissions: PermissionsString[];
-  /**
-   * Render the panel with the current settings. For server settings, the server is needed to check that saved channels and roles still exist.
-   * @param page The category to show. Defaults to the first.
-   */
+  /** Render the panel on the given category page, the first by default. */
   render: (context: SettingsContext, t: Translate, page?: string) => Promise<ResponsePayload>;
   /**
    * Whether a button or select of the panel may open a popup, which has to be the first answer. Known without loading anything,
@@ -361,10 +335,7 @@ export interface ParsedSettingsCustomId {
 const customId = (panelId: string, page: string, key: string, argument?: string, shown?: string) =>
   `${SETTINGS_CUSTOM_ID_PREFIX}${panelId}:${page}:${key}:${argument ?? NONE}:${shown ?? NONE}`;
 
-/**
- * Parse the custom ID of a settings component.
- * @returns The panel, page and setting it belongs to, or null if it isn't a settings custom ID.
- */
+/** Parse the custom ID of a settings component, or null if it isn't one. */
 export function parseSettingsCustomId(id: string): ParsedSettingsCustomId | null {
   if (!id.startsWith(SETTINGS_CUSTOM_ID_PREFIX)) return null;
   const [panelId, page, key, argument, shown] = id.slice(SETTINGS_CUSTOM_ID_PREFIX.length).split(':');
@@ -391,19 +362,13 @@ export function missingBotPermissions(guild: Guild, channelId: string, permissio
   return permissions.filter((permission) => !granted.has(permission));
 }
 
-/**
- * Why the bot can't give a role to members, or null if it can.
- * Unknown when the bot's member or the role isn't cached, in which case null is returned.
- */
+/** Why the bot can't give a role to members, or null if it can (or it's not cached). */
 function unassignableReason(guild: Guild, roleId: string, t: Translate): string | null {
   const problem = getRoleProblem(guild, roleId);
   return problem ? t(`settings.role.${problem}`) : null;
 }
 
-/**
- * Why a role can't be picked for a setting that gives it to members, or null if it can.
- * @param member Who picks it, who can only pick roles below their own highest role.
- */
+/** Why a role can't be picked for a setting that gives it out. Members can only pick roles below their own highest. */
 function roleRefusal(guild: Guild, roleId: string, member: GuildMember | undefined, t: Translate): string | null {
   if (member && isRoleAboveMember(member, roleId)) return t('settings.role.aboveYou', { role: roleMention(roleId) });
   if (getRoleProblem(guild, roleId) === 'dangerous') return t('settings.role.dangerousRefused', { role: roleMention(roleId) });
@@ -448,7 +413,6 @@ function targetName(guild: Guild, target: 'channel' | 'role', id: string, t: Tra
   return name ? `${target === 'channel' ? '#' : '@'}${name}` : t('settings.unknown', { id });
 }
 
-/** Add one setting to the panel. */
 function addSetting<C>(container: ContainerBuilder, context: SettingsContext, panelId: string, page: string, setting: Setting<C>, config: C, t: Translate) {
   switch (setting.type) {
     case 'boolean': {
@@ -507,7 +471,6 @@ function addSetting<C>(container: ContainerBuilder, context: SettingsContext, pa
     case 'roles': {
       const guild = requireGuild(context);
       const saved = setting.type === 'role' ? [setting.get(config)].filter((value) => value !== null) : setting.get(config);
-      // Only preselect roles that still exist, like with channels
       const existing = saved.filter((value) => guild.roles.cache.has(value));
       const select = new RoleSelectMenuBuilder()
         .setCustomId(customId(panelId, page, setting.key))
@@ -557,7 +520,6 @@ function addSetting<C>(container: ContainerBuilder, context: SettingsContext, pa
           new StringSelectMenuBuilder()
             .setCustomId(customId(panelId, page, setting.key))
             .setPlaceholder(setting.placeholder(t))
-            // Nothing picked clears it
             .setMinValues(0)
             .setMaxValues(options.length)
             .addOptions(
@@ -592,8 +554,7 @@ function addEntries<C>(container: ContainerBuilder, guild: Guild, panelId: strin
 
   if (setting.presets) {
     container.addTextDisplayComponents(new TextDisplayBuilder().setContent(describe(setting, t, [subtext(count)])));
-    // Each has a button, so a list that went over the limit, like with two added at once, would be more than a message can have.
-    // The ones over it can still be removed with the select
+    // Capped so a list over its limit can't exceed the message's component limit. The extras can still be removed with the select
     for (const entry of entries.slice(0, setting.max)) {
       container.addSectionComponents(
         new SectionBuilder()
@@ -652,13 +613,11 @@ function addEntries<C>(container: ContainerBuilder, guild: Guild, panelId: strin
   }
 }
 
-/** Save an entry and run its follow-up work. */
 async function saveEntry<C>(guild: Guild, setting: AnyEntriesSetting<C>, targetId: string, value: number | string | null) {
   await setting.set(guild.id, targetId, value);
   setting.onSaved?.(guild, targetId, value);
 }
 
-/** The popup asking for the value of an entry. */
 function entryModal<C>(
   guild: Guild,
   setting: AnyEntriesSetting<C>,
@@ -682,7 +641,6 @@ function entryModal<C>(
   };
 }
 
-/** The popup asking for a text. */
 function textModal<C>(
   context: SettingsContext,
   scopeId: string,
@@ -710,10 +668,7 @@ function textModal<C>(
   };
 }
 
-/**
- * An On/Off row that looks like a boolean setting, for messages that aren't settings panels, like the list of role menus.
- * @param customId What the button does, which its handler toggles.
- */
+/** An On/Off row that looks like a boolean setting, for messages that aren't settings panels. */
 export function buildSwitchSection(label: string, description: string, on: boolean, customId: string, t: Translate): SectionBuilder {
   return new SectionBuilder().addTextDisplayComponents(new TextDisplayBuilder().setContent(`${bold(label)}\n${subtext(description)}`)).setButtonAccessory(
     new ButtonBuilder()
@@ -725,11 +680,8 @@ export function buildSwitchSection(label: string, description: string, on: boole
 }
 
 /**
- * Create a settings panel: an interactive message where each setting can be changed in place,
- * with buttons that toggle booleans or cycle choices, selects for channels and roles, and lists of entries with values.
- *
- * The panel's buttons and selects are handled by `buttons/settings` and `selects/settings`,
- * which find the panel through `settings/index`, so new panels must be added there.
+ * Create a settings panel: a message where each setting can be changed in place.
+ * Its components are handled by `buttons/settings` and `selects/settings`, which find panels through `settings/index`, so add new ones there.
  */
 export function createSettingsPanel<C>(definition: SettingsPanelDefinition<C>): SettingsPanel {
   const findSetting = (key: string) => definition.settings.find((setting) => setting.key === key);
@@ -739,7 +691,6 @@ export function createSettingsPanel<C>(definition: SettingsPanelDefinition<C>): 
   };
 
   const scope = definition.scope ?? 'guild';
-  // Whose settings are loaded and saved: the server's, or the user's own
   const scopeIdOf = (context: SettingsContext) => (scope === 'user' ? context.userId : requireGuild(context).id);
   const isShown = (setting: Setting<C>, config: C) => !setting.hidden?.(config);
 
@@ -912,7 +863,6 @@ export function createSettingsPanel<C>(definition: SettingsPanelDefinition<C>): 
   };
 }
 
-/** Work out what a button or select of an entries setting should do. */
 function handleEntries<C>(
   guild: Guild,
   setting: AnyEntriesSetting<C>,

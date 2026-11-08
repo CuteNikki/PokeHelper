@@ -23,10 +23,7 @@ export function stickyChannelProblem(guild: Guild, channelId: string, isThread: 
   return t('settings.channel.botPermissionsRefused', { channel: channelMention(channelId), permissions: formatPermissions(missing, t) });
 }
 
-/**
- * The popup a channel's sticky message is written in, with its text if it has one, to change it.
- * One it has can be emptied to remove it, the quickest way from the list.
- */
+/** The popup a channel's sticky message is written in. Emptying it removes the sticky. */
 export const buildStickyModal = (channelId: string, text: string | undefined, t: Translate) =>
   buildTextModal({
     // A new ID each time, as Discord fills a popup with what was last typed in one with the same ID, like an emptied text
@@ -57,7 +54,6 @@ export async function handleStickyModal(interaction: ModalSubmitInteraction): Pr
     fromList
       ? interaction.editReply(withNotice(content, kind, await renderStickyList(interaction.guild, t)))
       : sendResponse(interaction, createResponse(content, kind));
-  // Removing or posting it can take a moment
   const defer = () => (fromList ? interaction.deferUpdate() : interaction.deferReply({ flags: [MessageFlags.Ephemeral] }));
 
   if (!text) {

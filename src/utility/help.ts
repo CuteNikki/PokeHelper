@@ -56,10 +56,7 @@ const CATEGORY_ICONS: Record<string, IconName> = {
 
 let registered: Collection<string, ApplicationCommand> | null = null;
 
-/**
- * The commands as registered with Discord, for their IDs, which mentions need, and their translations.
- * Asked for again when a loaded command isn't there, like after registering a new one.
- */
+/** The commands as registered with Discord, for their IDs (which mentions need) and translations. Refetched when one is missing. */
 async function getRegisteredCommands(interaction: Interaction): Promise<Collection<string, ApplicationCommand>> {
   const loaded = (interaction.client as ExtendedClient).commands.filter((command) => !command.options.devOnly).map((command) => command.options.data.name);
   const known = registered;
@@ -99,10 +96,7 @@ function isUsableHere(command: ApplicationCommand, interaction: Interaction): bo
   return true;
 }
 
-/**
- * The categories whose commands for everyone are left out, as their feature is turned off in this server.
- * Their settings commands are still listed, to turn them back on.
- */
+/** Categories whose feature is turned off here. Only their settings commands are listed, to turn them back on. */
 async function turnedOffCategories(guildId: string | null): Promise<Set<string>> {
   if (!guildId) return new Set();
   const [switches, leveling, counting] = await Promise.all([getFeatureSwitches(guildId), getGuildLevelingConfiguration(guildId), getCounting(guildId)]);
@@ -139,10 +133,8 @@ async function getCategories(interaction: Interaction): Promise<[string, string[
 }
 
 /**
- * Build /help: the categories of commands usable here with what they're for, or the commands of one category,
- * with a select to pick another. One category at a time, so it stays short however many commands there are.
- * @param category The category to show, or {@link HELP_OVERVIEW} for the list of them. One that isn't usable here shows the list.
- * @throws When the registered commands can't be fetched.
+ * Build /help for a category, or {@link HELP_OVERVIEW} (also shown for a category that isn't usable here), with a select to pick another.
+ * Throws when the registered commands can't be fetched.
  */
 export async function buildHelp(interaction: Interaction, category: string, t: Translate): Promise<ResponsePayload> {
   const categories = await getCategories(interaction);

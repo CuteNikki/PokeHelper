@@ -25,10 +25,7 @@ const FORMATS: Record<FriendCodeGame, GameFormat> = {
 /** The most characters typed for a code: the digits with a separator between every one, and the prefix. */
 export const MAX_FRIEND_CODE_INPUT = 40;
 
-/**
- * The digits of a typed code, or null if it isn't one for the game. Spaces, dashes and the game's prefix are fine, as codes are
- * often copied the way they're shown.
- */
+/** The digits of a typed code, or null if it isn't one for the game. Spaces, dashes and the prefix are fine. */
 export function parseFriendCode(game: FriendCodeGame, text: string): string | null {
   const { digits, prefix } = FORMATS[game];
   let rest = text.trim();

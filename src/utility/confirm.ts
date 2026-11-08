@@ -3,16 +3,10 @@ import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ContainerBuilder, Message
 import type { ResponsePayload } from 'utility/response';
 import { ThemeColors } from 'utility/theme';
 
-/**
- * Custom IDs of confirmation buttons are `confirm:<action>:yes` or `confirm:<action>:no`.
- * What happens on confirm is looked up by the action in `utility/confirmations`, so the buttons work however late they're clicked.
- */
+/** Custom IDs are `confirm:<action>:yes|no`. The action is looked up in `utility/confirmations`, so the buttons work however late they're clicked. */
 export const CONFIRM_CUSTOM_ID_PREFIX = 'confirm:';
 
-/**
- * A question with a confirm and a cancel button, for something that can't be undone, whose buttons have the custom IDs given.
- * For a question whose buttons carry what they're about, like the role menu they delete.
- */
+/** A confirm/cancel question with custom IDs given, for buttons that carry what they're about, like the role menu they delete. */
 export function buildQuestion(text: { question: string; confirm: string; cancel: string }, ids: { confirm: string; cancel: string }): ResponsePayload {
   return {
     components: [
@@ -30,10 +24,7 @@ export function buildQuestion(text: { question: string; confirm: string; cancel:
   };
 }
 
-/**
- * A question with a confirm and a cancel button, for something that can't be undone.
- * @param action What happens when confirmed, one of the actions in `utility/confirmations`.
- */
+/** A confirm/cancel question for something that can't be undone. `action` is one of `utility/confirmations`. */
 export const buildConfirmation = (action: string, text: { question: string; confirm: string; cancel: string }) =>
   buildQuestion(text, { confirm: `${CONFIRM_CUSTOM_ID_PREFIX}${action}:yes`, cancel: `${CONFIRM_CUSTOM_ID_PREFIX}${action}:no` });
 

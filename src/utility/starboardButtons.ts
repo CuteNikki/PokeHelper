@@ -10,13 +10,9 @@ import { ThemeColors } from 'utility/theme';
 
 /** People named on a page of who starred, which stays readable and well within a message. */
 const STARRED_BY_PAGE_SIZE = 50;
-/**
- * The pages of who starred are `starpost:page:<post>:<page>`. They're on the reply only the presser sees, not on the post, so they
- * carry which post they're for, and work however old the reply is.
- */
+/** Pages of who starred are `starpost:page:<post>:<page>`. They're on an ephemeral reply, not the post, so they carry the post's ID. */
 const PAGE_PREFIX = `${STARBOARD_BUTTON_PREFIX}page:`;
 
-/** A page of who starred a post, with buttons to the other pages when there's more than one. */
 function buildStarredBy(entry: StarboardEntry, postId: string, requested: number, t: Translate): ResponsePayload {
   const { page, pages } = clampPage(requested, entry.starredBy.length, STARRED_BY_PAGE_SIZE);
   const names = entry.starredBy.slice(page * STARRED_BY_PAGE_SIZE, (page + 1) * STARRED_BY_PAGE_SIZE).map((userId) => userMention(userId));
@@ -33,11 +29,10 @@ function buildStarredBy(entry: StarboardEntry, postId: string, requested: number
   return quietMessageOf(container);
 }
 
-/** Star or unstar the post's message, or show who starred it, a page at a time, only to whoever pressed. In their language. */
+/** Star or unstar the post's message, or show who starred it, only to whoever pressed. */
 export async function handleStarboardButton(interaction: ButtonInteraction): Promise<unknown> {
   const t = getTranslate(interaction.locale);
-  // Each is answered before the post is looked up, which can take a moment, as Discord gives up after 3 seconds.
-  // Errors still only go to whoever pressed
+  // Each is answered before the post is looked up, as Discord gives up after 3 seconds
 
   if (interaction.customId.startsWith(PAGE_PREFIX)) {
     const [postId, page] = interaction.customId.slice(PAGE_PREFIX.length).split(':');

@@ -50,17 +50,13 @@ export const MAX_THRESHOLD = 100;
 /** What the bot needs on the starboard: posting with pictures, and finding its posts again to update them. */
 export const STARBOARD_CHANNEL_PERMISSIONS: PermissionsString[] = ['ViewChannel', 'SendMessages', 'AttachFiles', 'ReadMessageHistory'];
 
-/**
- * The buttons on a post: `starpost:star` stars or unstars, `starpost:who` shows who starred. The post is found by the message they're on,
- * so they work however old it is.
- */
+/** Buttons on a post. The post is found by the message they're on, so they work however old it is. */
 export const STARBOARD_BUTTON_PREFIX = 'starpost:';
 export const STAR_BUTTON_ID = `${STARBOARD_BUTTON_PREFIX}star`;
 export const STARRED_BY_BUTTON_ID = `${STARBOARD_BUTTON_PREFIX}who`;
 /** Reactions are read 100 at a time. This many pages is far more than a starboard ever sees. */
 const MAX_REACTION_PAGES = 10;
 
-/** The gold of a star. */
 const STAR_COLOR = 0xffac33;
 /** Pictures are uploaded again, as links to the original's would stop working after a day. Bots can upload 10 MB, so larger ones are left out. */
 const MAX_IMAGE_SIZE = 8 * 1024 * 1024;
@@ -88,10 +84,7 @@ export function isIgnoredChannel(config: Pick<GuildStarboard, 'ignoredChannelIds
 const emojiOf = (config: Pick<GuildStarboard, 'emoji'>) => config.emoji ?? DEFAULT_STAR_EMOJI;
 const thresholdOf = (config: Pick<GuildStarboard, 'threshold'>) => config.threshold ?? DEFAULT_THRESHOLD;
 
-/**
- * The names a picture can be uploaded with, which the post refers to it by. By the picture's ID, so taking one picture off the message
- * doesn't rename the others, and by its place, which posts from before were uploaded with.
- */
+/** Names a picture can be uploaded with: by its ID, so removing one doesn't rename the others, and by its place, as older posts used. */
 const imageNames = (id: string, index: number, name: string) => {
   const safe = name.replace(/[^\w.-]/g, '_');
   return [`star-${id}-${safe}`, `star-${index}-${safe}`];
@@ -104,15 +97,11 @@ const imagesOf = (message: Message) =>
     .slice(0, MAX_IMAGES)
     .map((file, index) => ({ file, names: imageNames(file.id, index, file.name) }));
 
-/**
- * A starboard post: who wrote it, where and when, the text and pictures, and buttons to star, see who starred, and go to the message.
- * @param uploaded The names of the pictures on the post, as one whose upload failed can't be shown.
- */
+/** A starboard post. `uploaded` names the pictures on it, as one whose upload failed can't be shown. */
 function buildStarboardPost(message: Message, stars: number, emoji: string, uploaded: string[], t: Translate): ResponsePayload {
   const text = shorten(message.content, MAX_TEXT);
 
-  // Who wrote it on one line with where and when, like an embed's author, as a thumbnail would take a large square beside the text.
-  // A mention, which shows their name and profile when clicked, and never pings them, see allowedMentions below
+  // Author on one line with where and when, as a thumbnail would take a large square beside the text. The mention never pings
   const container = new ContainerBuilder()
     .setAccentColor(STAR_COLOR)
     .addTextDisplayComponents(
@@ -151,7 +140,6 @@ function buildStarboardPost(message: Message, stars: number, emoji: string, uplo
 
   container.addActionRowComponents(
     new ActionRowBuilder<ButtonBuilder>().addComponents(
-      // The count on the star button, like a reaction, which pressing adds to
       new ButtonBuilder().setCustomId(STAR_BUTTON_ID).setStyle(ButtonStyle.Secondary).setEmoji(emoji).setLabel(formatNumber(stars, t)),
       new ButtonBuilder().setCustomId(STARRED_BY_BUTTON_ID).setStyle(ButtonStyle.Secondary).setLabel(t('starboard.post.who')),
       new ButtonBuilder().setStyle(ButtonStyle.Link).setURL(message.url).setLabel(t('starboard.post.jump')),
@@ -161,7 +149,6 @@ function buildStarboardPost(message: Message, stars: number, emoji: string, uplo
   return quietMessageOf(container);
 }
 
-/** The pictures to upload with a new post. */
 async function uploadsOf(message: Message): Promise<AttachmentBuilder[]> {
   const files = await Promise.all(
     imagesOf(message).map(async ({ file, names }) => {
@@ -182,7 +169,6 @@ const isAgeRestricted = (channel: Message['channel']) => (channel.isThread() ? B
 /** One message at a time, so quick stars don't post it twice or lose one. */
 const queue = new KeyedQueue();
 
-/** A starboard channel, if it's set and there. */
 function boardChannel(guild: Guild, channelId: string | null) {
   const channel = channelId ? guild.channels.cache.get(channelId) : null;
   return channel?.isSendable() && channel.isTextBased() && !channel.isThread() ? channel : null;
@@ -237,11 +223,8 @@ export function applyStarChange(starredBy: string[], change: StarChange, authorI
 }
 
 /**
- * Change who starred a message, then bring its post up to date: post it once it has enough stars, update the count and what it says,
- * and take it off again when it falls below. The first time, who starred starts from who already reacted, so stars from while the bot
- * was offline count. Messages on the starboard itself, in ignored channels, and age-restricted ones when the starboard isn't, are left out.
- * @param change Null to only update the post, like after an edit.
- * @returns Who starred it now, or null if it doesn't count.
+ * Change who starred a message (null to only update, like after an edit), then post, update or remove its post. The first time, it
+ * starts from the existing reactions so stars from while the bot was offline count. Returns who starred it, or null if it doesn't count.
  */
 export function changeStars(guild: Guild, message: Message | PartialMessage, change: StarChange): Promise<string[] | null> {
   return queue.run(message.id, async () => {
@@ -304,10 +287,7 @@ export function changeStars(guild: Guild, message: Message | PartialMessage, cha
   });
 }
 
-/**
- * Star or unstar a message with the button on its post.
- * @returns `gone` if the message is gone, `closed` if its stars don't count right now, like with the starboard turned off.
- */
+/** Star or unstar a message with the button on its post. `closed` means its stars don't count right now, like with the starboard off. */
 export async function toggleStar(guild: Guild, entry: StarboardEntry, userId: string): Promise<'changed' | 'gone' | 'closed'> {
   let message: Message | null = null;
   try {
@@ -315,7 +295,6 @@ export async function toggleStar(guild: Guild, entry: StarboardEntry, userId: st
     const channel = guild.channels.cache.get(entry.channelId) ?? (await guild.client.channels.fetch(entry.channelId));
     if (channel?.isTextBased()) message = await channel.messages.fetch(entry.messageId);
   } catch (error) {
-    // Only a message that's really gone is forgotten. Any other failure leaves it as it is
     if (!isMessageGone(error)) throw error;
   }
   if (!message) {

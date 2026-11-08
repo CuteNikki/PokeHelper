@@ -3,13 +3,9 @@ import { readFile } from 'node:fs/promises';
 import { createCanvas, loadImage } from '@napi-rs/canvas';
 
 /**
- * The bot's interface icons, like the arrows of page buttons or the search button: Lucide's line symbols (ISC licensed, see the
- * comment in each file), kept as SVG in `assets/icons`, named like on lucide.dev. Adding one is adding its file there and its name
- * to {@link ICONS}, which a test checks.
- *
- * Each is made in two looks, a white symbol on a rounded square: dark grey for buttons, which stands out on Discord's buttons in the
- * dark and the light theme, where a symbol on its own would vanish in the light one, and the bot's blue for text. On and Off
- * switches get a check on green and an X on grey, as their color says which they are.
+ * The bot's interface icons: Lucide's line symbols (ISC licensed, see each file) as SVG in `assets/icons`, named like on lucide.dev.
+ * Adding one is adding its file there and its name to {@link ICONS}, which a test checks.
+ * Drawn white on a rounded square: dark grey for buttons, as a bare symbol would vanish in Discord's light theme, and the bot's blue for text.
  */
 export const ICONS_PATH = 'assets/icons';
 
@@ -100,13 +96,9 @@ export const ICONS = {
 /** The name of an icon, like `search`. */
 export type IconName = keyof typeof ICONS;
 
-/** Every icon's name. */
 export const ICON_NAMES = Object.keys(ICONS) as IconName[];
 
-/**
- * Each icon as it's written in text, for `{{icon.trophy}}` in the translations: its normal emoji, until the bot's own emojis
- * are there and take its place. Changed in place, so the translations see the change without being set up again.
- */
+/** Each icon for `{{icon.trophy}}` in the translations. Changed in place once the bot's emojis are there, so translations see it without a reload. */
 export const textIcons: Record<IconName, string> = { ...ICONS };
 
 /** Where an icon goes: on a button, in text, as a switch that's on or off, or as a stat that goes up or down. */
@@ -134,7 +126,6 @@ export async function iconPng(name: IconName, look: IconLook, size: number): Pro
   const svg = await readFile(`${ICONS_PATH}/${name}.svg`, 'utf8').catch(() => null);
   if (svg === null) return null;
   const { scale, weight, background } = LOOKS[look];
-  // Always white, on its square
   const symbol = await loadImage(Buffer.from(svg.replace('stroke="currentColor"', 'stroke="#ffffff"').replace('stroke-width="2"', `stroke-width="${weight}"`)));
 
   const canvas = createCanvas(size, size);

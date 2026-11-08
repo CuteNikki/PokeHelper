@@ -25,16 +25,14 @@ const TEXTS = {
 } as const;
 
 /**
- * Run a button's or select's handler, after checking it may be used: by whoever the message is for when it's only theirs, with the
- * permissions it needs, and not too often. Errors are logged and answered, so nobody is left with "This interaction failed".
- * @param handler The handler for its custom ID, or undefined when there is none, like for a component from an older version of the bot.
+ * Run a button's or select's handler (undefined for unknown ones, like from an older version) after checking who may use it,
+ * permissions and rate limits. Errors are logged and answered, so nobody is left with "This interaction failed".
  */
 export async function handleComponent<I extends ButtonInteraction | AnySelectMenuInteraction>(
   interaction: I,
   handler: ComponentHandler<I> | undefined,
   kind: keyof typeof TEXTS,
 ): Promise<unknown> {
-  // Replies are in the user's language, while logs stay in English for developers
   const translate = getTranslate(interaction.locale);
   const texts = TEXTS[kind];
   if (!handler) return sendError(interaction, translate('system.outdated'));
@@ -68,7 +66,6 @@ export async function handleComponent<I extends ButtonInteraction | AnySelectMen
     await options.execute(interaction);
   } catch (error) {
     logger.error(error, t(texts.error));
-    // Picks reply, editReply or followUp depending on how far it got, and never throws itself
     await sendError(interaction, translate(texts.error));
   }
 }

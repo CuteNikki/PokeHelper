@@ -11,11 +11,7 @@ export interface RegistrationResult {
   dev: number | null;
 }
 
-/**
- * Register commands with Discord, replacing the ones registered before.
- * Developer commands only go to the developer server, so nobody else sees them, and are skipped without one.
- * @param devGuildId The developer server's ID, from DEV_GUILD_ID.
- */
+/** Register commands with Discord, replacing the old ones. Developer commands only go to the developer server, and are skipped without one. */
 export async function registerCommands(
   rest: REST,
   applicationId: string,

@@ -75,10 +75,8 @@ async function deletePost(channel: GuildTextBasedChannel, messageId: string) {
 }
 
 /**
- * Put a channel's sticky message at the bottom: posts it again and deletes the post before, unless it's still the last message.
- * Runs in the channel's queue.
- * @param changed Whether its text changed, which updates its post if that's still the last message.
- * @returns Whether it's at the bottom now, or false if it couldn't be posted, like without permission or with sticky messages turned off.
+ * Put a channel's sticky message at the bottom by reposting it, unless it's still the last message (then `changed` only edits its text).
+ * Runs in the channel's queue. Returns false if it couldn't be posted, like without permission or with sticky messages turned off.
  */
 async function postSticky(client: Client, channelId: string, changed: boolean): Promise<boolean> {
   const sticky = await getSticky(channelId);
@@ -120,8 +118,8 @@ async function postSticky(client: Client, channelId: string, changed: boolean): 
 export const postStickyNow = (client: Client, channelId: string, changed: boolean) => runStickyTask(channelId, () => postSticky(client, channelId, changed));
 
 /**
- * A message came in a channel with a sticky message: post it again once the channel is quiet for a moment, or at the latest after a while.
- * The sticky message's own post comes in here too, and is left where it is once it's time, as it's still the last message.
+ * A message came in a channel with a sticky message: repost it once the channel is quiet, or after MAX_DELAY at the latest.
+ * The sticky's own post comes in here too, and is left alone as it's still the last message.
  */
 export function scheduleRepost(client: Client, channelId: string) {
   const now = Date.now();
@@ -141,10 +139,7 @@ export function scheduleRepost(client: Client, channelId: string) {
   pending.set(channelId, { timer, since });
 }
 
-/**
- * Remove a channel's sticky message and delete its post.
- * @returns Whether there was one.
- */
+/** Remove a channel's sticky message and delete its post. Returns whether there was one. */
 export async function removeSticky(channelId: string, channel?: GuildTextBasedChannel): Promise<boolean> {
   forgetStickyChannel(channelId);
   const sticky = await deleteSticky(channelId);
@@ -161,10 +156,7 @@ async function takeDownSticky(client: Client, channelId: string) {
   await setStickyMessageId(channelId, null);
 }
 
-/**
- * Turn all of a server's sticky messages on or off. Turned off, their posts are taken out of their channels, but they're kept,
- * and turned on again, they're all posted again.
- */
+/** Turn all of a server's sticky messages on or off. Turned off, their posts are taken down but the stickies are kept. */
 export async function setStickiesEnabled(client: Client, guildId: string, enabled: boolean) {
   await setFeatureSwitch(guildId, 'stickiesEnabled', enabled);
   const stickies = await getGuildStickies(guildId);

@@ -76,11 +76,8 @@ export function drawPokeball(ctx: SKRSContext2D, x: number, y: number, radius: n
 }
 
 /**
- * The largest font size, at most `maxSize`, at which all the texts fit the width together, for text on one line that must not overlap.
- * @param font Turns a size into a font, like `(size) => \`${size}px "Roboto"\``.
- * @param texts The texts that share the line.
- * @param maxWidth The width they have, including the gaps between them.
- * @param minSize The smallest size to go down to, even if it still doesn't fit.
+ * The largest font size, at most `maxSize`, at which all the texts fit `maxWidth` together on one line.
+ * Never goes below `minSize`, even if it still doesn't fit.
  */
 export function fitFontSize(ctx: SKRSContext2D, font: (size: number) => string, texts: string[], maxWidth: number, maxSize: number, minSize: number): number {
   for (let size = maxSize; size > minSize; size--) {
@@ -119,10 +116,8 @@ const BADGE_PADDING = 14;
 const BADGE_MIN_PADDING = 8;
 
 /**
- * A Pokémon type's badge: its symbol and its name on a pill in its color, in dark text on light colors, together in the middle.
- * The symbol is drawn as given, so it should be in {@link colorOn} the type's color, without a background.
- * As wide as given, with a name too long for it shortened, or as wide as its name needs.
- * @returns How wide it is.
+ * A Pokémon type's badge: symbol and name on a pill in its color. Returns its width. The symbol is drawn as given, so it should
+ * already be in {@link colorOn} the type's color. Without a width, it's as wide as its name needs.
  */
 export function drawTypeBadge(
   ctx: SKRSContext2D,

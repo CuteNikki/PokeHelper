@@ -18,10 +18,8 @@ const CUSTOM_EMOJI = /^<a?:\w{2,32}:(\d{17,20})>$/;
 export const customEmojiId = (text: string) => CUSTOM_EMOJI.exec(text)?.[1] ?? null;
 
 /**
- * Turn what was typed into an emoji, like the emoji of a role: a normal emoji like 🔴, or one of the server's emoji by name, like `:valor:` or `valor`.
- * Emoji from other servers can't be typed in a popup, and the bot may not be able to use them, so they aren't accepted.
- * @param emojis The server's custom emoji.
- * @returns The emoji as it's sent to Discord, or null if it isn't one.
+ * Turn what was typed into an emoji: a normal one like 🔴, or one of the server's by name, like `:valor:` or `valor`, or null.
+ * Emoji from other servers aren't accepted, as they can't be typed in a popup and the bot may not be able to use them.
  */
 export function parseEmoji(input: string, emojis: Iterable<CustomEmoji>): string | null {
   const text = input.trim();

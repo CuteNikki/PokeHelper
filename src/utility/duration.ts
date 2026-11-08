@@ -9,11 +9,7 @@ export const DAY = 24 * HOUR;
 /** The most characters a duration can be typed in, like `2 weeks 3 days`, in commands and popups. */
 export const DURATION_INPUT_LENGTH = 50;
 
-/**
- * Format a duration with its two largest units, like `3d 4h`, `2h 15m` or `45m`.
- * @param ms The duration in milliseconds.
- * @param t The translation for the units.
- */
+/** Format a duration in milliseconds with its two largest units, like `3d 4h`, `2h 15m` or `45m`. */
 export function formatDuration(ms: number, t: Translate): string {
   const days = Math.floor(ms / DAY);
   const hours = Math.floor((ms % DAY) / HOUR);
@@ -33,11 +29,7 @@ export const formatNumber = (number: number, t: Translate, options?: Intl.Number
 /** Numbers from here on are shortened, like 1.2k, as exact ones get hard to read in images. */
 const COMPACT_FROM = 1_000;
 
-/**
- * Format a number for images: exact below 1,000, like `999`, and shortened from there, like `1.2k`, `152k` or `1.2M`.
- * The decimal separator follows the language, and the suffixes are translatable.
- * @param t The translation for the locale and the suffixes.
- */
+/** Format a number for images: exact below 1,000, shortened from there, like `1.2k`, `152k` or `1.2M`, in the user's language. */
 export function formatCompactNumber(value: number, t: Translate): string {
   const locale = t('locale');
   if (Math.abs(value) < COMPACT_FROM) return value.toLocaleString(locale);

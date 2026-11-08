@@ -9,10 +9,7 @@ export interface WallTime {
   minute: number;
 }
 
-/**
- * The date and time on the clock in a timezone at a moment, falling back to UTC for unknown or missing ones.
- * @param timezone An IANA timezone, like `Europe/Berlin`.
- */
+/** The date and time on the clock in an IANA timezone at a moment, falling back to UTC for unknown or missing ones. */
 export function getWallTime(date: Date, timezone: string | null): WallTime {
   const format = (timeZone: string) =>
     new Intl.DateTimeFormat('en-US', {
@@ -60,9 +57,8 @@ export function fromWallTime(wall: WallTime, timezone: string): Date {
 }
 
 /**
- * The timezone with the case it's known by, like `Europe/Berlin` for `europe/berlin`, or null if there's no such timezone.
- * Spaces work like underscores, so `new york` finds `America/New_York` as the suggestions do, and older names Intl still knows,
- * like `Asia/Calcutta` or `Etc/UTC`, count too, although they aren't in its list.
+ * The timezone in its proper case, like `Europe/Berlin` for `europe/berlin`, or null. Spaces work like underscores, and older names
+ * Intl still knows, like `Asia/Calcutta`, count too although they aren't in its list.
  */
 export function resolveTimezone(input: string): string | null {
   const wanted = input.trim().replace(/\s+/g, '_');

@@ -3,10 +3,7 @@ import { time, TimestampStyles } from 'discord.js';
 import { SECOND } from 'utility/duration';
 import type { Translate } from 'utility/i18next';
 
-/**
- * A limit on how often someone can use the same button or select: a few times in a row is always fine, like paging through the
- * Pokédex or changing settings one after another, and only clicking faster than anyone reads is stopped.
- */
+/** A limit on using the same button or select: a few in a row is fine, only clicking faster than anyone reads is stopped. */
 export interface BurstLimit {
   /** How many uses fit in the window. */
   uses: number;
@@ -21,10 +18,7 @@ const recent = new Map<string, number[]>();
 /** Past this many keys, the ones whose uses are all over are forgotten, so the map doesn't grow with everyone who ever clicked. */
 const SWEEP_AT = 1_000;
 
-/**
- * Count a use, unless the limit is reached.
- * @returns Null if it may go ahead, or the time in milliseconds when it can be used again.
- */
+/** Count a use, unless the limit is reached. Returns null if it may go ahead, or when it can be used again. */
 export function takeBurst(key: string, limit: BurstLimit = DEFAULT_BURST, now = Date.now()): number | null {
   if (recent.size > SWEEP_AT) {
     for (const [other, uses] of recent) if (uses.every((usedAt) => now - usedAt >= limit.window)) recent.delete(other);
@@ -47,11 +41,7 @@ export const resetBursts = () => recent.clear();
 /** When each user last used each command, button or select with a cooldown of its own, by its name or custom ID. */
 const cooldowns = new Map<string, Map<string, number>>();
 
-/**
- * Start someone's wait after using something with a cooldown of its own, unless they're still waiting.
- * @param key The command's name or the button's or select's custom ID.
- * @returns Null if it may go ahead, or the time in milliseconds when it can be used again.
- */
+/** Start someone's cooldown for a command name or custom ID, unless they're still waiting. Returns null or when it can be used again. */
 export function takeCooldown(key: string, userId: string, seconds: number, now = Date.now()): number | null {
   const used = cooldowns.get(key) ?? new Map<string, number>();
   cooldowns.set(key, used);

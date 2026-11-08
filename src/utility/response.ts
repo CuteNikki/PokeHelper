@@ -14,10 +14,7 @@ import { DiscordLimits } from 'utility/discordLimits';
 import { logger } from 'utility/logger';
 import { ThemeColors, type ResponseKind } from 'utility/theme';
 
-/**
- * A Components V2 message payload. Can be passed to `channel.send`, `interaction.update` and the like,
- * or to {@link sendResponse} for interactions.
- */
+/** A Components V2 message payload, for `channel.send`, `interaction.update` and the like, or {@link sendResponse}. */
 export type ResponsePayload = Pick<BaseMessageOptions, 'components' | 'files' | 'allowedMentions'> & {
   flags: [MessageFlags.IsComponentsV2];
 };
@@ -34,10 +31,7 @@ export const createResponse = (content: string, kind: ResponseKind = 'info'): Re
   flags: [MessageFlags.IsComponentsV2],
 });
 
-/**
- * A picture for a message, with what's on it as its description, which screen readers read out, as the picture is only pixels.
- * @returns The gallery to put in the message, and the file to send with it.
- */
+/** A picture with a description for screen readers. Returns the gallery to put in the message and the file to send with it. */
 export function imageWithDescription(name: string, image: Buffer, description: string) {
   const gallery = new MediaGalleryBuilder().addItems((item) =>
     item.setURL(`attachment://${name}`).setDescription(description.slice(0, DiscordLimits.mediaDescriptionLength)),
@@ -52,9 +46,7 @@ export const withNotice = (content: string, kind: ResponseKind, payload: Respons
 });
 
 /**
- * Send a response to an interaction, picking `reply`, `editReply` or `followUp` based on its state.
- * Never throws: failures are logged and `null` is returned.
- *
+ * Send a response to an interaction, picking `reply`, `editReply` or `followUp` based on its state. Never throws, returns null on failure.
  * Ephemeral only applies to `reply` and `followUp`. After `deferReply`, the visibility chosen there is kept.
  */
 export async function sendResponse(
@@ -88,12 +80,7 @@ export async function sendResponse(
 export const sendError = (interaction: RepliableInteraction, content: string) =>
   sendResponse(interaction, createResponse(content, 'error'), { ephemeral: true });
 
-/**
- * Returns a catch handler that logs the error with a message, for promises whose failure shouldn't stop the caller.
- * Use this instead of `.catch(() => null)` when the failure is unexpected and worth knowing about.
- * @example
- * await message.delete().catch(logFailure('Failed to delete counting message'));
- */
+/** A catch handler that logs the error, instead of `.catch(() => null)` when the failure is unexpected and worth knowing about. */
 export const logFailure =
   (message: string) =>
   (error: unknown): null => {

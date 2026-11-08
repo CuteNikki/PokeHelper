@@ -16,10 +16,7 @@ export async function showSettingsPanel(interaction: ChatInputCommandInteraction
   return sendResponse(interaction, await panel.render(settingsContext(interaction), t));
 }
 
-/**
- * The reset subcommand of a config command: asks whether to reset the feature, whose confirm button does it whenever it's pressed.
- * @param exists Whether there's anything to reset.
- */
+/** The reset subcommand of a config command: asks whether to reset the feature. */
 export async function askToReset(interaction: ChatInputCommandInteraction<'cached'>, feature: ConfigFeature, exists: () => Promise<boolean>): Promise<unknown> {
   const t = getTranslate(interaction.locale);
   await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });

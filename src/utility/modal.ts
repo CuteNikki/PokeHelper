@@ -33,10 +33,7 @@ export function buildTextModal(options: {
     .addLabelComponents(new LabelBuilder().setLabel(options.label.slice(0, DiscordLimits.modalLabelLength)).setTextInputComponent(input));
 }
 
-/**
- * A popup with texts to copy, each in a field of its own, as text in messages can't be selected on phones.
- * Its fields can be emptied, as nothing that's sent is used.
- */
+/** A popup with texts to copy, as text in messages can't be selected on phones. Nothing sent from it is used. */
 export const buildCopyModal = (customId: string, title: string, fields: { id: string; label: string; value: string }[]) =>
   new ModalBuilder()
     .setCustomId(customId)

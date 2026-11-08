@@ -148,10 +148,7 @@ export async function deleteOwnData(context: SettingsContext, t: Translate): Pro
   return createResponse(t('privacy.user.deleted'), 'warning');
 }
 
-/**
- * Lift a server's temporary bans, as once their cases are deleted, nothing would lift them, which would make them bans for good.
- * @returns How many couldn't be lifted, like when the bot can't ban anymore.
- */
+/** Lift a server's temporary bans, as nothing would once their cases are deleted. Returns how many couldn't be lifted. */
 async function liftTempBans(guild: Guild): Promise<number> {
   const t = getTranslate(guild.preferredLocale);
   let failed = 0;

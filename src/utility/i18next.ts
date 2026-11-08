@@ -45,11 +45,7 @@ export async function initI18Next() {
   });
 }
 
-/**
- * The supported language closest to a Discord locale: `de` for `de`, `en` for `en-US` and `en-GB`, `pt` for `pt-BR`,
- * and English for languages the bot doesn't have.
- * @param locale A Discord locale, like an interaction's or the server's preferred one.
- */
+/** The supported language closest to a Discord locale, like `pt` for `pt-BR`, or English for languages the bot doesn't have. */
 export function resolveLanguage(locale: string | null | undefined): string {
   if (!locale) return FALLBACK_LANGUAGE;
   if (supportedLanguages.includes(locale)) return locale;
@@ -58,11 +54,8 @@ export function resolveLanguage(locale: string | null | undefined): string {
 }
 
 /**
- * A translation function for a Discord locale.
- *
- * Use the interaction's locale for replies to interactions, so people get the bot in their own language,
- * and the server's preferred locale for messages that aren't replies, like counting warnings or announcements.
- * Logs are for developers and stay in English, through the global `t`.
+ * A translation function for a Discord locale. Use the interaction's locale for replies, and the server's for messages that aren't
+ * replies. Developer logs stay in English through the global `t`.
  */
 export const getTranslate = (locale: string | null | undefined): Translate => i18next.getFixedT(resolveLanguage(locale));
 

@@ -31,9 +31,8 @@ const customLevelsStr = Object.entries(customLevels)
 const ERROR_DEPTH = 3;
 
 /**
- * Anything thrown, as something that can always be written to the log. Errors keep their type, message, stack and the details
- * Discord and the database add, and their cause. Anything else, like a connection's error event that points back at the connection,
- * is described instead of written out field by field, which fails on references back to itself and hides what went wrong.
+ * Anything thrown, in a form that can always be logged. Errors keep their details and cause. Anything else is described rather than
+ * written out field by field, which fails on circular references (like a connection's error event) and hides what went wrong.
  */
 function serializeError(value: unknown, depth = 0): Record<string, unknown> {
   if (!(value instanceof Error)) {
@@ -86,10 +85,7 @@ export const logger = pino(
 /** How long the last lines get to be written before the process exits. */
 const LOG_WRITE_TIME = 500;
 
-/**
- * Exit the process once the last lines are logged. They're written in the background, so exiting right away would lose them.
- * @param code The exit code, 1 for a crash.
- */
+/** Exit the process once the last lines are logged. They're written in the background, so exiting right away would lose them. */
 export function exitAfterLogging(code: number) {
   logger.flush();
   setTimeout(() => process.exit(code), LOG_WRITE_TIME);
@@ -134,10 +130,7 @@ export function table<T extends Record<string, unknown>>(data: T[]): string {
   return [topSeparator, ...contentLines, bottomBorder].join('\n');
 }
 
-/**
- * Warnings about things a job tries again on every run, like a ban it can't lift yet, so each is logged once, not every minute, until it
- * works again.
- */
+/** Logs a warning about something a job retries every run once, not every minute, until it works again. */
 export class WarnOnce {
   private warned = new Set<string>();
 

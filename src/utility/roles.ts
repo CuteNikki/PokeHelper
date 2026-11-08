@@ -4,8 +4,8 @@ import type { Guild, GuildMember, PermissionsString } from 'discord.js';
 export type RoleProblem = 'everyone' | 'managed' | 'dangerous' | 'noManageRoles' | 'tooHigh';
 
 /**
- * Permissions too powerful to hand out by a button, a level or a birthday, as anyone can end up with the role that way.
- * Otherwise someone who can change the settings could give themselves, or everyone, more power than they have.
+ * Permissions too powerful to hand out by a button, level or birthday, as anyone can end up with the role that way, so someone
+ * who can change the settings could give themselves, or everyone, more power than they have.
  */
 const DANGEROUS_PERMISSIONS: PermissionsString[] = [
   'Administrator',
@@ -20,10 +20,7 @@ const DANGEROUS_PERMISSIONS: PermissionsString[] = [
   'MentionEveryone',
 ];
 
-/**
- * Why the bot can't give a role to members, or null if it can.
- * Unknown when the bot's member or the role isn't cached, in which case null is returned.
- */
+/** Why the bot can't give a role to members, or null if it can (or it's not cached). */
 export function getRoleProblem(guild: Guild, roleId: string): RoleProblem | null {
   const role = guild.roles.cache.get(roleId);
   const me = guild.members?.me;
@@ -40,10 +37,7 @@ export function getRoleProblem(guild: Guild, roleId: string): RoleProblem | null
 /** Whether the bot can give a role to members right now: it exists and has no problem. */
 export const canGiveRole = (guild: Guild, roleId: string) => guild.roles.cache.has(roleId) && getRoleProblem(guild, roleId) === null;
 
-/**
- * Whether a role is too high for a member to have the bot hand it out: like Discord's own rule for giving roles,
- * it has to be below their highest role, unless they own the server.
- */
+/** Whether a role is too high for a member to have the bot hand out: like Discord's rule, it must be below their highest, unless they're the owner. */
 export function isRoleAboveMember(member: GuildMember, roleId: string): boolean {
   const role = member.guild.roles.cache.get(roleId);
   if (!role || member.id === member.guild.ownerId) return false;

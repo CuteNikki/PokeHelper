@@ -44,10 +44,7 @@ export const ROLE_BUTTON_PREFIX = 'rr_sel_';
 /** Changes to a menu's message run one after another per menu, so two quick changes can't post it twice. */
 const queue = new KeyedQueue();
 
-/**
- * Build the message members pick their roles from: the title and description, the roles with their emoji, and a button for each.
- * It's posted in a channel for everyone, so use the server's language.
- */
+/** Build the message members pick their roles from. It's public, so pass the server's language. */
 export function buildRoleMenuMessage(menu: RoleMenu, t: Translate): ResponsePayload {
   const lines = [heading(menu.title ?? t('roleMenu.message.title'), HeadingLevel.Three), menu.description ?? t('roleMenu.message.description'), ''];
   // Mentions always show the role's current name, so the list never goes out of date
@@ -95,9 +92,8 @@ async function deleteMenuMessage(guild: Guild, channelId: string, messageId: str
 }
 
 /**
- * Make the posted message of a menu match its settings: edit it, post it again if it was deleted, or take it down when the menu has no roles.
- * Problems are logged rather than thrown, as the menu's settings are saved either way, and its panel says when it isn't posted.
- * @param force Post a new message even if the old one is still there, which moves the menu to the bottom of its channel.
+ * Make a menu's posted message match its settings: edit, repost or take it down. Problems are logged rather than thrown, as the
+ * settings are saved either way and the panel says when it isn't posted. `force` reposts it, moving it to the bottom of its channel.
  */
 export async function syncRoleMenuMessage(guild: Guild, menuId: string, force = false) {
   return queue.run(menuId, () => syncNow(guild, menuId, force));
@@ -142,7 +138,6 @@ export async function moveRoleMenu(guild: Guild, menuId: string, channelId: stri
   });
 }
 
-/** Delete a menu along with its posted message. */
 export async function deleteRoleMenu(guild: Guild, menu: RoleMenu) {
   return queue.run(menu.id, async () => {
     await deleteMenuMessage(guild, menu.channelId, menu.messageId);

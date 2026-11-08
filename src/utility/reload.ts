@@ -23,11 +23,8 @@ export interface ReloadResult {
 }
 
 /**
- * Reload parts of the bot without restarting or disconnecting from the gateway.
- *
- * The files in src/handlers are imported again, but what they import
- * (utility, database, settings and so on) stays as it was loaded at startup, so changes there still need a restart.
- * The locales are read again from disk, which updates all the bot's text.
+ * Reload parts of the bot without restarting. Files in src/handlers are imported again, but what they import (utility, database,
+ * settings...) stays as loaded at startup, so changes there still need a restart. Locales are read again from disk.
  */
 export async function reload(client: ExtendedClient, targets: readonly ReloadTarget[]): Promise<ReloadResult[]> {
   const results: ReloadResult[] = [];
@@ -71,11 +68,8 @@ export async function reload(client: ExtendedClient, targets: readonly ReloadTar
 /** The folders whose files are imported again when reloading. Text is reloaded too, so locales count as well. */
 const RELOADABLE_FOLDERS = ['src/handlers/', 'src/locales/'];
 
-/**
- * The source files changed since the bot started that a reload doesn't pick up, like in utility or settings, so a restart is needed.
- */
+/** Source files changed since start that a reload doesn't pick up, so a restart is needed. */
 export async function changedSinceStart(): Promise<string[]> {
-  // When the process started, so no start time has to be kept
   const startedAt = performance.timeOrigin;
   const changed: string[] = [];
   for await (const path of new Glob('src/**/*.ts').scan('.')) {

@@ -9,12 +9,8 @@ import { typeIconPng } from 'utility/pokedex/typeIcons';
 import { TYPE_COLORS } from 'utility/pokedex/types';
 
 /**
- * The bot's own emojis: the pieces stat bars are made of, in every type's color, the type icons, and the interface icons for
- * buttons and text. They're uploaded to the bot's application when they're missing, so they work in every server without being
- * added to one.
- *
- * Each name ends in a fingerprint of its picture, like `txt_trophy_3fa9c`, so a picture that changed gets a new name and replaces
- * the old one on the next start, while unchanged ones are left as they are.
+ * The bot's own emojis (stat bar pieces, type icons, interface icons), uploaded to the application so they work in every server.
+ * Each name ends in a fingerprint of its picture, like `txt_trophy_3fa9c`, so a changed picture replaces the old one on the next start.
  */
 
 /** The longest name Discord takes for an emoji. */
@@ -85,10 +81,8 @@ export function wantedEmojis(): Map<string, () => Promise<Buffer | null>> {
 export const emojiName = (key: string, picture: Buffer) => `${key}_${createHash('sha256').update(picture).digest('hex').slice(0, FINGERPRINT_LENGTH)}`;
 
 /**
- * Upload the emojis the bot doesn't have yet, or whose picture changed, and delete the ones it doesn't use anymore.
- * The pictures are drawn here to tell whether they changed, which takes a moment but asks nothing of Discord.
- * Until this is done, or if it fails, {@link statBarEmoji} and {@link typeEmoji} have nothing, and the text does without them, while
- * {@link buttonIcon} and {@link textIcon} give the icon's normal emoji.
+ * Upload the emojis that are missing or changed, and delete unused ones. Until this is done, or if it fails, {@link statBarEmoji}
+ * and {@link typeEmoji} return null and {@link buttonIcon} and {@link textIcon} fall back to the normal emoji.
  */
 export async function syncBotEmojis(client: Client<true>): Promise<void> {
   const pictures = new Map<string, { key: string; picture: Buffer }>();

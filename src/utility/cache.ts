@@ -1,14 +1,7 @@
-/**
- * A cache that keeps the most recently used, up to a limit, and for a while if given. Waiting loads are kept too, so asking twice at once
- * loads once. Failures aren't kept, so the next try loads again.
- */
+/** An LRU cache, optionally with expiry. Pending loads are shared, so asking twice at once loads once. Failures aren't kept. */
 export class RecentCache<T> {
   private readonly entries = new Map<string, { value: Promise<T>; expiresAt: number }>();
 
-  /**
-   * @param limit The most kept, so the cache can't grow forever.
-   * @param keepFor How long each is kept, in milliseconds, for things that change, like avatars.
-   */
   constructor(
     private readonly limit: number,
     private readonly keepFor = Infinity,
@@ -39,7 +32,6 @@ export class RecentCache<T> {
     this.entries.delete(key);
   }
 
-  /** Forget all of them. */
   clear() {
     this.entries.clear();
   }
