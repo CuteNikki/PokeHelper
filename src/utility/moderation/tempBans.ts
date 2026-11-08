@@ -4,7 +4,7 @@ import { endCase, getExpiredBans, reopenCase } from 'database/moderation';
 
 import { isDiscordError } from 'utility/discord';
 import { getTranslate } from 'utility/i18next';
-import { logger } from 'utility/logger';
+import { WarnOnce } from 'utility/logger';
 import type { ModCase } from 'generated/prisma/client';
 import { caseNumber, oneAtATime } from 'utility/moderation/run';
 
@@ -22,8 +22,8 @@ export async function bannedAgain(guild: Guild, modCase: ModCase): Promise<boole
   return !!latest && latest.executorId !== guild.client.user.id && latest.createdTimestamp > modCase.createdAt.getTime();
 }
 
-/** Temporary bans that couldn't be lifted, so the logs say so once and not on every run. */
-const warned = new Set<string>();
+/** Temporary bans that couldn't be lifted. */
+const warnings = new WarnOnce();
 
 /**
  * Lift the temporary bans that ran out. Runs regularly, so bans that ran out while the bot was offline are lifted once it's back.
@@ -48,15 +48,12 @@ async function liftTempBan(guild: Guild, modCase: ModCase) {
   try {
     const t = getTranslate(guild.preferredLocale);
     await guild.members.unban(modCase.userId, t('moderation.tempBanEnded', { number: caseNumber(modCase, t) }));
-    warned.delete(modCase.id);
+    warnings.worked(modCase.id);
   } catch (error) {
     // Lifted meanwhile, or their account was deleted, so there's nothing to lift and it stays ended
     if (isDiscordError(error, RESTJSONErrorCodes.UnknownBan, RESTJSONErrorCodes.UnknownUser)) return;
     await reopenCase(modCase.id, endedAt);
-    if (!warned.has(modCase.id)) {
-      // Like when the bot can't ban anymore. Tried again on every run, so it's lifted once it can
-      warned.add(modCase.id);
-      logger.warn(error, `Failed to lift the temporary ban of ${modCase.userId} in ${modCase.guildId}`);
-    }
+    // Like when the bot can't ban anymore. Tried again on every run, so it's lifted once it can
+    warnings.warn(modCase.id, error, `Failed to lift the temporary ban of ${modCase.userId} in ${modCase.guildId}`);
   }
 }

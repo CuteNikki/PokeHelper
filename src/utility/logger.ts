@@ -133,3 +133,23 @@ export function table<T extends Record<string, unknown>>(data: T[]): string {
 
   return [topSeparator, ...contentLines, bottomBorder].join('\n');
 }
+
+/**
+ * Warnings about things a job tries again on every run, like a ban it can't lift yet, so each is logged once, not every minute, until it
+ * works again.
+ */
+export class WarnOnce {
+  private warned = new Set<string>();
+
+  /** Log a warning about something, unless it was logged already and hasn't worked since. */
+  warn(key: string, error: unknown, message: string) {
+    if (this.warned.has(key)) return;
+    this.warned.add(key);
+    logger.warn(error, message);
+  }
+
+  /** It worked, so the next time it fails is logged again. */
+  worked(key: string) {
+    this.warned.delete(key);
+  }
+}

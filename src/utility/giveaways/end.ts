@@ -41,7 +41,7 @@ import { GIVEAWAY_CUSTOM_ID } from 'utility/giveaways/post';
 import { bonusRolesOf, checkRules, countEntries, rulesOf } from 'utility/giveaways/rules';
 import { giveawayChannel, syncPost } from 'utility/giveaways/sync';
 import { getTranslate, type Translate } from 'utility/i18next';
-import { logger } from 'utility/logger';
+import { logger, WarnOnce } from 'utility/logger';
 import { canGiveRole } from 'utility/roles';
 import { KeyedQueue } from 'utility/queue';
 import { ThemeColors } from 'utility/theme';
@@ -365,8 +365,8 @@ function switchCheck() {
   };
 }
 
-/** Winners who didn't claim in time and couldn't be replaced, so the logs say so once and not on every run. */
-const warnedClaims = new Set<string>();
+/** Winners who didn't claim in time and couldn't be replaced. */
+const claimWarnings = new WarnOnce();
 
 /** Give the prizes of winners who didn't claim them in time to someone else. Giveaways in servers the bot isn't in wait for it. */
 export async function runClaimJob(client: Client) {
@@ -383,18 +383,15 @@ export async function runClaimJob(client: Client) {
           giveaway,
           winners.map((winner) => winner.id),
         );
-      warnedClaims.delete(giveawayId);
+      claimWarnings.worked(giveawayId);
     } catch (error) {
-      if (!warnedClaims.has(giveawayId)) {
-        warnedClaims.add(giveawayId);
-        logger.warn(error, `Failed to replace the winners of giveaway ${giveawayId} who didn't claim in time`);
-      }
+      claimWarnings.warn(giveawayId, error, `Failed to replace the winners of giveaway ${giveawayId} who didn't claim in time`);
     }
   }
 }
 
-/** Giveaways that couldn't be ended, so the logs say so once and not on every run. */
-const warned = new Set<string>();
+/** Giveaways that couldn't be ended. */
+const endWarnings = new WarnOnce();
 
 /**
  * End the giveaways whose time is up. Runs regularly, so ones that ended while the bot was offline are drawn once it's back.
@@ -407,13 +404,10 @@ export async function runGiveawayJob(client: Client) {
     if (!guild || !(await isOn(guild.id))) continue;
     try {
       await endGiveaway(guild, giveaway);
-      warned.delete(giveaway.id);
+      endWarnings.worked(giveaway.id);
     } catch (error) {
       // Like when Discord didn't send the members in time. Tried again on the next run
-      if (!warned.has(giveaway.id)) {
-        warned.add(giveaway.id);
-        logger.warn(error, `Failed to end giveaway ${giveaway.id} in guild ${guild.id}`);
-      }
+      endWarnings.warn(giveaway.id, error, `Failed to end giveaway ${giveaway.id} in guild ${guild.id}`);
     }
   }
 }
