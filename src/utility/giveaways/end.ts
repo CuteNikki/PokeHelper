@@ -273,10 +273,23 @@ async function welcomeWinners(guild: Guild, giveaway: Giveaway, winnerIds: strin
 }
 
 /**
+ * Draws of the same giveaway one at a time, its end and its rerolls, so two at once, like a moderator's reroll while the claim job replaces
+ * someone, can't both draw the same person, and each draws from the winners the one before it left.
+ */
+const draws = new KeyedQueue();
+
+/**
  * End a giveaway: draw its winners, show them on the post, and let them know.
  * @param byId Who ended it early, for the logs. Null when its time ran out.
  */
-export async function endGiveaway(guild: Guild, giveaway: Giveaway, byId: string | null = null) {
+export const endGiveaway = (guild: Guild, giveaway: Giveaway, byId: string | null = null) =>
+  draws.run(giveaway.id, async () => {
+    // As it is by now, as it may have been ended or changed while waiting
+    const current = await getGiveaway(guild.id, giveaway.id);
+    if (current?.status === 'active') await drawAndEnd(guild, current, byId);
+  });
+
+async function drawAndEnd(guild: Guild, giveaway: Giveaway, byId: string | null) {
   const winnerIds = drawWinners(await findCandidates(guild, giveaway), giveaway.winnerCount);
   const now = new Date();
   const claimBy = claimDeadline(giveaway, now);
@@ -294,7 +307,10 @@ export async function endGiveaway(guild: Guild, giveaway: Giveaway, byId: string
  * @param byId Who rerolled them, for the logs. Null when they're replaced for not claiming in time.
  * @returns The new winners' user IDs. Fewer than replaced when there's nobody left to draw, and then those places stay empty.
  */
-export async function rerollWinners(guild: Guild, giveaway: Giveaway, winnerIds: string[], byId: string | null = null): Promise<string[]> {
+export const rerollWinners = (guild: Guild, giveaway: Giveaway, winnerIds: string[], byId: string | null = null): Promise<string[]> =>
+  draws.run(giveaway.id, () => reroll(guild, giveaway, winnerIds, byId));
+
+async function reroll(guild: Guild, giveaway: Giveaway, winnerIds: string[], byId: string | null): Promise<string[]> {
   const winners = await getAllWinners(giveaway.id);
   const everyWinner = new Set(winners.flatMap((winner) => winner.userId ?? []));
   const replacedUsers = winners.filter((winner) => winnerIds.includes(winner.id) && !winner.replacedAt).flatMap((winner) => winner.userId ?? []);
