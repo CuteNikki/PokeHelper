@@ -11,7 +11,6 @@ import {
   ContainerBuilder,
   type Guild,
   type GuildMember,
-  MessageFlags,
   type PermissionsString,
   roleMention,
   RoleSelectMenuBuilder,
@@ -29,7 +28,7 @@ import { buttonIcon, switchIcon } from 'utility/emojis';
 import type { Translate } from 'utility/i18next';
 
 import { formatNumber } from 'utility/duration';
-import type { ResponsePayload } from 'utility/response';
+import { messageOf, type ResponsePayload } from 'utility/response';
 import { DiscordLimits } from 'utility/discordLimits';
 import { createResponse } from 'utility/response';
 import { getRoleProblem, isRoleAboveMember } from 'utility/roles';
@@ -799,7 +798,7 @@ export function createSettingsPanel<C>(definition: SettingsPanelDefinition<C>): 
           .addActionRowComponents(new ActionRowBuilder<ButtonBuilder>().addComponents(footer));
       }
 
-      return { components: [container], flags: [MessageFlags.IsComponentsV2] };
+      return messageOf(container);
     },
 
     mayShowModal(id) {

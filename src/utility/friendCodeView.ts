@@ -22,7 +22,7 @@ import { buttonIcon } from 'utility/emojis';
 import { formatFriendCode, savedFriendCodes } from 'utility/friendCodes';
 import { getTranslate, type Translate } from 'utility/i18next';
 import { buildCopyModal } from 'utility/modal';
-import { createResponse, sendError, sendResponse, type ResponsePayload } from 'utility/response';
+import { createResponse, messageOf, quietMessageOf, type ResponsePayload, sendError, sendResponse } from 'utility/response';
 import { settingsContext } from 'utility/settings';
 import { ThemeColors } from 'utility/theme';
 
@@ -48,7 +48,7 @@ export async function buildFriendCodes(user: User, member: GuildMember | null, s
       .setAccentColor(ThemeColors.info)
       .addTextDisplayComponents(new TextDisplayBuilder().setContent(t('friendCodes.view.noneSelf')))
       .addActionRowComponents(new ActionRowBuilder<ButtonBuilder>().addComponents(editButton(t)));
-    return { components: [container], flags: [MessageFlags.IsComponentsV2] };
+    return messageOf(container);
   }
 
   const lines = codes.map(({ game, code }) => `${bold(t(`friendCodes.games.${game}`))} · \`${formatFriendCode(game, code)}\``);
@@ -70,7 +70,7 @@ export async function buildFriendCodes(user: User, member: GuildMember | null, s
         editButton(t),
       ),
     );
-  return { components: [container], flags: [MessageFlags.IsComponentsV2], allowedMentions: { parse: [] } };
+  return quietMessageOf(container);
 }
 
 /** Opens the codes of whoever presses it, to add or change them, also under someone else's. */

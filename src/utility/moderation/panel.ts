@@ -8,7 +8,6 @@ import {
   type Guild,
   type GuildMember,
   LabelBuilder,
-  MessageFlags,
   ModalBuilder,
   type ModalSubmitInteraction,
   RadioGroupBuilder,
@@ -43,7 +42,7 @@ import {
   MODERATOR_PERMISSIONS,
   permissionProblem,
 } from 'utility/moderation/run';
-import { sendError, withNotice, type ResponsePayload } from 'utility/response';
+import { quietMessageOf, type ResponsePayload, sendError, withNotice } from 'utility/response';
 import { ThemeColors } from 'utility/theme';
 
 /**
@@ -126,7 +125,7 @@ export async function renderModerationPanel(guild: Guild, userId: string, modera
         cases,
       ),
     );
-  return { components: [container], flags: [MessageFlags.IsComponentsV2], allowedMentions: { parse: [] } };
+  return quietMessageOf(container);
 }
 
 /** The popup asking the details of what to do to someone: why, and depending on what, how long, which messages to delete, and the DM. */

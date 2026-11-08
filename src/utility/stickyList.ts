@@ -4,7 +4,6 @@ import {
   ContainerBuilder,
   type Guild,
   messageLink,
-  MessageFlags,
   SeparatorBuilder,
   SeparatorSpacingSize,
   StringSelectMenuBuilder,
@@ -19,7 +18,7 @@ import { getGuildStickies, MAX_STICKIES } from 'database/sticky';
 import { DiscordLimits } from 'utility/discordLimits';
 import { formatNumber, SECOND } from 'utility/duration';
 import type { Translate } from 'utility/i18next';
-import type { ResponsePayload } from 'utility/response';
+import { messageOf, type ResponsePayload } from 'utility/response';
 import { buildSwitchSection } from 'utility/settings';
 import { MAX_DELAY, QUIET_DELAY } from 'utility/sticky';
 import { shorten } from 'utility/text';
@@ -65,7 +64,7 @@ export async function renderStickyList(guild: Guild, t: Translate): Promise<Resp
       .addTextDisplayComponents(new TextDisplayBuilder().setContent(t('sticky.list.none')))
       .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large))
       .addTextDisplayComponents(new TextDisplayBuilder().setContent(tipsText()));
-    return { components: [container], flags: [MessageFlags.IsComponentsV2] };
+    return messageOf(container);
   }
 
   const entries = stickies.map((sticky, index) => {
@@ -104,5 +103,5 @@ export async function renderStickyList(guild: Guild, t: Translate): Promise<Resp
           ),
       ),
     );
-  return { components: [container], flags: [MessageFlags.IsComponentsV2] };
+  return messageOf(container);
 }

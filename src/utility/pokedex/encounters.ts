@@ -1,4 +1,4 @@
-import { ActionRowBuilder, bold, ContainerBuilder, MessageFlags, SeparatorBuilder, StringSelectMenuBuilder, subtext, TextDisplayBuilder } from 'discord.js';
+import { ActionRowBuilder, bold, ContainerBuilder, SeparatorBuilder, StringSelectMenuBuilder, subtext, TextDisplayBuilder } from 'discord.js';
 
 import { DiscordLimits } from 'utility/discordLimits';
 import { formatNumber } from 'utility/duration';
@@ -8,7 +8,7 @@ import { type ApiEncounter, getEncounters, getPokemon, idFromUrl } from 'utility
 import { findBySlug, fromSlug, getPokedexData, matchName, nameOf } from 'utility/pokedex/names';
 import { gameSelectId, linkSelect, type PageContext } from 'utility/pokedex/pages';
 import { pokemonHeader } from 'utility/pokedex/pokemonHeader';
-import type { ResponsePayload } from 'utility/response';
+import { messageOf, type ResponsePayload } from 'utility/response';
 import { ThemeColors } from 'utility/theme';
 
 /** The most places listed for a game, so the answer stays well within what a message can hold. Those with the best chances first. */
@@ -223,7 +223,7 @@ export async function buildWhereToFind(slug: string, language: string, t: Transl
 
   if (!game) {
     container.addTextDisplayComponents(new TextDisplayBuilder().setContent(t('pokedex.where.none', { name })));
-    return { components: [container], flags: [MessageFlags.IsComponentsV2] };
+    return messageOf(container);
   }
 
   const lines = sightingLines(game.sightings, MAX_PLACES, (shown) => shown.map((place) => nameOf('areas', place.name, language)), t);
@@ -248,5 +248,5 @@ export async function buildWhereToFind(slug: string, language: string, t: Transl
       ),
     );
   if (links) container.addActionRowComponents(links);
-  return { components: [container], flags: [MessageFlags.IsComponentsV2] };
+  return messageOf(container);
 }

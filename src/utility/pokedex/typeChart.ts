@@ -19,7 +19,7 @@ import { linkSelect, type PageContext, pageButton, viewButton } from 'utility/po
 import { renderTypeChartCard } from 'utility/pokedex/typeChartCard';
 import { typeIcon } from 'utility/pokedex/typeIcons';
 import { TYPE_COLORS } from 'utility/pokedex/types';
-import { imageWithDescription, type ResponsePayload } from 'utility/response';
+import { imageWithDescription, messageOf, type ResponsePayload } from 'utility/response';
 import { ThemeColors } from 'utility/theme';
 
 /** The types of the games, in their order, without the ones PokéAPI has besides, like Shadow. */
@@ -99,7 +99,7 @@ export async function buildTypePage(slug: string, language: string, t: Translate
   if (links) container.addActionRowComponents(links);
   const chart = chartButton(context, t);
   if (chart) container.addActionRowComponents(new ActionRowBuilder<ButtonBuilder>().addComponents(chart));
-  return { components: [container], flags: [MessageFlags.IsComponentsV2] };
+  return messageOf(container);
 }
 
 /**

@@ -1,4 +1,4 @@
-import { bold, ContainerBuilder, MessageFlags, SeparatorBuilder, subtext, TextDisplayBuilder } from 'discord.js';
+import { bold, ContainerBuilder, SeparatorBuilder, subtext, TextDisplayBuilder } from 'discord.js';
 
 import { formatNumber } from 'utility/duration';
 import { withTypeEmoji } from 'utility/emojis';
@@ -9,7 +9,7 @@ import { apiName, newestText, textIn } from 'utility/pokedex/lookup';
 import { nameOf } from 'utility/pokedex/names';
 import { linkSelect, type PageContext, pokemonLinks } from 'utility/pokedex/pages';
 import { TYPE_COLORS } from 'utility/pokedex/types';
-import type { ResponsePayload } from 'utility/response';
+import { messageOf, type ResponsePayload } from 'utility/response';
 import { quote } from 'utility/text';
 import { ThemeColors } from 'utility/theme';
 
@@ -103,5 +103,5 @@ export async function buildMove(slug: string, language: string, t: Translate, co
     t('pages.links.move'),
   );
   if (links) container.addActionRowComponents(links);
-  return { components: [container], flags: [MessageFlags.IsComponentsV2] };
+  return messageOf(container);
 }

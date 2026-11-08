@@ -3,7 +3,6 @@ import {
   ButtonBuilder,
   ButtonStyle,
   ContainerBuilder,
-  MessageFlags,
   roleMention,
   SeparatorBuilder,
   SeparatorSpacingSize,
@@ -21,7 +20,7 @@ import { openParticipantsId } from 'utility/giveaways/participants';
 import { bonusRolesOf, type GiveawayRules } from 'utility/giveaways/rules';
 import { formatDuration, formatNumber, MINUTE } from 'utility/duration';
 import type { Translate } from 'utility/i18next';
-import type { ResponsePayload } from 'utility/response';
+import { quietMessageOf, type ResponsePayload } from 'utility/response';
 import { ThemeColors } from 'utility/theme';
 
 /** Custom IDs of the buttons on a giveaway's post, with the giveaway's ID after them. */
@@ -139,5 +138,5 @@ export function buildGiveawayPost(giveaway: Giveaway, rules: GiveawayRules, stat
   );
   container.addActionRowComponents(new ActionRowBuilder<ButtonBuilder>().addComponents(buttons));
 
-  return { components: [container], flags: [MessageFlags.IsComponentsV2], allowedMentions: { parse: [] } };
+  return quietMessageOf(container);
 }

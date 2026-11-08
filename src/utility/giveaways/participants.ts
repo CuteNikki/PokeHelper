@@ -31,7 +31,7 @@ import { buttonIcon } from 'utility/emojis';
 import type { IconName } from 'utility/icons';
 import { getTranslate, type Translate } from 'utility/i18next';
 import { buildPageModal, buildPageRow, clampPage, findMeButton, pageOfPosition, type PageButton, readPageInput } from 'utility/pagination';
-import { createResponse, type ResponsePayload, sendError } from 'utility/response';
+import { createResponse, quietMessageOf, type ResponsePayload, sendError } from 'utility/response';
 import { shorten } from 'utility/text';
 import { ThemeColors } from 'utility/theme';
 
@@ -124,7 +124,7 @@ export async function renderParticipants(giveaway: Giveaway, requested: ListStat
 
   if (total === 0) {
     container.addTextDisplayComponents(new TextDisplayBuilder().setContent(t('giveaway.participants.none')));
-    return { components: [container], flags: [MessageFlags.IsComponentsV2], allowedMentions: { parse: [] } };
+    return quietMessageOf(container);
   }
 
   const lines = participants.map((participant, index) =>
@@ -157,7 +157,7 @@ export async function renderParticipants(giveaway: Giveaway, requested: ListStat
   container.addActionRowComponents(
     new ActionRowBuilder<ReturnType<typeof findMeButton>>().addComponents(findMeButton(`${PARTICIPANTS_PREFIX}me:${giveaway.id}:${state.sort}`, t)),
   );
-  return { components: [container], flags: [MessageFlags.IsComponentsV2], allowedMentions: { parse: [] } };
+  return quietMessageOf(container);
 }
 
 type ListInteraction = ButtonInteraction<'cached'> | AnySelectMenuInteraction<'cached'> | ModalSubmitInteraction<'cached'>;

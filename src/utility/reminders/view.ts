@@ -19,7 +19,7 @@ import { MAX_REMINDERS } from 'database/reminders';
 import type { Reminder } from 'generated/prisma/client';
 import { buttonIcon } from 'utility/emojis';
 import type { Translate } from 'utility/i18next';
-import type { ResponsePayload } from 'utility/response';
+import { messageOf, type ResponsePayload } from 'utility/response';
 import { DiscordLimits } from 'utility/discordLimits';
 import { formatNumber, MINUTE } from 'utility/duration';
 import { shorten } from 'utility/text';
@@ -88,7 +88,7 @@ export function buildReminderList(reminders: Reminder[], t: Translate): Response
 
   if (reminders.length === 0) {
     container.addTextDisplayComponents(new TextDisplayBuilder().setContent(t('reminders.list.none')));
-    return { components: [container], flags: [MessageFlags.IsComponentsV2] };
+    return messageOf(container);
   }
 
   const line = (reminder: Reminder, index: number, text: string) =>
@@ -128,5 +128,5 @@ export function buildReminderList(reminders: Reminder[], t: Translate): Response
       ),
     );
   container.addActionRowComponents(new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select));
-  return { components: [container], flags: [MessageFlags.IsComponentsV2] };
+  return messageOf(container);
 }

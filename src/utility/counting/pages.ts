@@ -2,7 +2,6 @@ import {
   ActionRowBuilder,
   ButtonBuilder,
   ContainerBuilder,
-  MessageFlags,
   TextDisplayBuilder,
   time,
   TimestampStyles,
@@ -17,7 +16,7 @@ import { accuracy } from 'utility/counting/rules';
 import { formatDuration, formatNumber } from 'utility/duration';
 import { getTranslate, type Translate } from 'utility/i18next';
 import { buildPageRow, clampPage, findMeButton, type PageButton, readPageInput } from 'utility/pagination';
-import { sendError, type ResponsePayload } from 'utility/response';
+import { quietMessageOf, type ResponsePayload, sendError } from 'utility/response';
 import { ThemeColors } from 'utility/theme';
 
 /** How many members or runs a page shows. */
@@ -67,7 +66,7 @@ function buildPage(list: CountingList, lines: string[], page: number, pages: num
       container.addActionRowComponents(new ActionRowBuilder<ButtonBuilder>().addComponents(findMeButton(`${COUNTING_PAGE_PREFIX}${list}:${page}:me`, t)));
     }
   }
-  return { components: [container], flags: [MessageFlags.IsComponentsV2], allowedMentions: { parse: [] } };
+  return quietMessageOf(container);
 }
 
 /** Go to the page typed into the popup. A page past the end shows the last one. */

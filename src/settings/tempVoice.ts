@@ -6,7 +6,6 @@ import {
   ChannelType,
   ContainerBuilder,
   type Guild,
-  MessageFlags,
   SeparatorBuilder,
   SeparatorSpacingSize,
   StringSelectMenuBuilder,
@@ -29,7 +28,7 @@ import { formatPermissions } from 'utility/discord';
 import { buttonIcon } from 'utility/emojis';
 import type { Translate } from 'utility/i18next';
 import { formatNumber } from 'utility/duration';
-import type { ResponsePayload } from 'utility/response';
+import { messageOf, quietMessageOf, type ResponsePayload } from 'utility/response';
 import { DiscordLimits } from 'utility/discordLimits';
 import { buildSwitchSection, createSettingsPanel, type SettingsPanel } from 'utility/settings';
 import { creatorCategory, missingCreatorPermissions, TEMP_VOICE_PERMISSIONS } from 'utility/tempVoice/channel';
@@ -172,7 +171,7 @@ export async function renderTempVoiceList(guild: Guild, t: Translate): Promise<R
 
   if (creators.length === 0) {
     container.addTextDisplayComponents(new TextDisplayBuilder().setContent(t('tempVoice.config.list.none')));
-    return { components: [container], flags: [MessageFlags.IsComponentsV2] };
+    return messageOf(container);
   }
 
   const lines = creators.map((creator, index) => {
@@ -206,5 +205,5 @@ export async function renderTempVoiceList(guild: Guild, t: Translate): Promise<R
       ),
     );
 
-  return { components: [container], flags: [MessageFlags.IsComponentsV2], allowedMentions: { parse: [] } };
+  return quietMessageOf(container);
 }

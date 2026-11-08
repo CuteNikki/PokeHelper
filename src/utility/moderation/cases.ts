@@ -8,7 +8,6 @@ import {
   ContainerBuilder,
   type Guild,
   LabelBuilder,
-  MessageFlags,
   ModalBuilder,
   type ModalSubmitInteraction,
   SeparatorBuilder,
@@ -63,7 +62,7 @@ import {
   permissionProblem,
 } from 'utility/moderation/run';
 import { buildPageModal, buildPageRow, clampPage, type PageButton, readPageInput } from 'utility/pagination';
-import { sendError, withNotice, type ResponsePayload } from 'utility/response';
+import { messageOf, quietMessageOf, type ResponsePayload, sendError, withNotice } from 'utility/response';
 import { quote, shorten } from 'utility/text';
 import { ThemeColors } from 'utility/theme';
 
@@ -183,7 +182,7 @@ export async function renderCaseList(guild: Guild, requested: CasesState, t: Tra
     .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large));
   if (total === 0) {
     container.addTextDisplayComponents(new TextDisplayBuilder().setContent(t('moderation.cases.none')));
-    return { components: [container], flags: [MessageFlags.IsComponentsV2], allowedMentions: { parse: [] } };
+    return quietMessageOf(container);
   }
 
   // The case and its type, then small under it, each on a line of its own: why, by whom, when, and until when
@@ -232,7 +231,7 @@ export async function renderCaseList(guild: Guild, requested: CasesState, t: Tra
       listId({ ...state, page: target }, button === 'first' || button === 'last' || button === 'goto' ? button : undefined);
     container.addActionRowComponents(buildPageRow(page, pages, customId, t));
   }
-  return { components: [container], flags: [MessageFlags.IsComponentsV2], allowedMentions: { parse: [] } };
+  return quietMessageOf(container);
 }
 
 /** How a related case is related to one: whether it ended that one, or that one ended it. */
@@ -291,7 +290,7 @@ export function renderCase(guild: Guild, modCase: ModCase, related: ModCase[], s
       button(caseId('delete', modCase.id, state), t('moderation.cases.view.delete'), 'trash-2', ButtonStyle.Danger),
     ),
   );
-  return { components: [container], flags: [MessageFlags.IsComponentsV2], allowedMentions: { parse: [] } };
+  return quietMessageOf(container);
 }
 
 /** One case with the cases related to it, which are looked up for it. */
@@ -321,7 +320,7 @@ function renderDeleteQuestion(modCase: ModCase, state: CasesState, t: Translate)
           .setStyle(ButtonStyle.Secondary),
       ),
     );
-  return { components: [container], flags: [MessageFlags.IsComponentsV2] };
+  return messageOf(container);
 }
 
 /** The list again with a note above it, for a case that was deleted, meanwhile or just now. */

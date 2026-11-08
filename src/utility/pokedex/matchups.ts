@@ -22,7 +22,7 @@ import { findBySlug, getPokedexData, matchName, nameIn, type PokedexMatch } from
 import { pokemonHeader } from 'utility/pokedex/pokemonHeader';
 import { type DexPage, linkSelect, type PageContext, pageButton, pokemonPage, viewButton } from 'utility/pokedex/pages';
 import { TYPE_COLORS } from 'utility/pokedex/types';
-import { imageWithDescription, type ResponsePayload } from 'utility/response';
+import { imageWithDescription, messageOf, type ResponsePayload } from 'utility/response';
 import { ThemeColors } from 'utility/theme';
 
 /** The types attacks can have, in the order the games list them. */
@@ -276,7 +276,7 @@ async function buildText(matchups: Matchups, slug: string, language: string, t: 
     .addSeparatorComponents(new SeparatorBuilder())
     .addTextDisplayComponents(new TextDisplayBuilder().setContent(subtext(t('pokedex.matchups.note'))))
     .addActionRowComponents(new ActionRowBuilder<ButtonBuilder>().addComponents(switchButton(slug, true, t)));
-  return { components: [container], flags: [MessageFlags.IsComponentsV2] };
+  return messageOf(container);
 }
 
 /**

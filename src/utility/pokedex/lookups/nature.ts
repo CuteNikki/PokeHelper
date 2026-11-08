@@ -1,4 +1,4 @@
-import { ActionRowBuilder, bold, type ButtonBuilder, ContainerBuilder, MessageFlags, SeparatorBuilder, subtext, TextDisplayBuilder } from 'discord.js';
+import { ActionRowBuilder, bold, type ButtonBuilder, ContainerBuilder, SeparatorBuilder, subtext, TextDisplayBuilder } from 'discord.js';
 
 import { formatNumber } from 'utility/duration';
 import { buttonIcon, statChangeIcon } from 'utility/emojis';
@@ -8,7 +8,7 @@ import { apiName } from 'utility/pokedex/lookup';
 import { flavorName } from 'utility/pokedex/lookups/berry';
 import { getPokedexData, nameOf } from 'utility/pokedex/names';
 import { linkSelect, type PageContext, pageButton } from 'utility/pokedex/pages';
-import type { ResponsePayload } from 'utility/response';
+import { messageOf, type ResponsePayload } from 'utility/response';
 import { ThemeColors } from 'utility/theme';
 
 const STATS = ['attack', 'defense', 'special-attack', 'special-defense', 'speed'] as const;
@@ -67,7 +67,7 @@ export async function buildNature(slug: string, language: string, t: Translate, 
       ),
     );
   }
-  return { components: [container], flags: [MessageFlags.IsComponentsV2] };
+  return messageOf(container);
 }
 
 /**
@@ -100,5 +100,5 @@ export async function buildNatureList(language: string, t: Translate, context: P
     t('pages.links.natures'),
   );
   if (links) container.addActionRowComponents(links);
-  return { components: [container], flags: [MessageFlags.IsComponentsV2] };
+  return messageOf(container);
 }

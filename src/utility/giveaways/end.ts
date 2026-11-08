@@ -42,6 +42,7 @@ import { bonusRolesOf, checkRules, countEntries, rulesOf } from 'utility/giveawa
 import { giveawayChannel, syncPost } from 'utility/giveaways/sync';
 import { getTranslate, type Translate } from 'utility/i18next';
 import { logger, WarnOnce } from 'utility/logger';
+import { quietMessageOf } from 'utility/response';
 import { canGiveRole } from 'utility/roles';
 import { KeyedQueue } from 'utility/queue';
 import { ThemeColors } from 'utility/theme';
@@ -235,7 +236,7 @@ async function dmWinners(guild: Guild, giveaway: Giveaway, winnerIds: string[], 
   const container = new ContainerBuilder().setAccentColor(ThemeColors.success).addTextDisplayComponents(new TextDisplayBuilder().setContent(text));
   if (claimBy) container.addActionRowComponents(claimRow(giveaway, t));
   for (const userId of winnerIds) {
-    await guild.client.users.send(userId, { components: [container], flags: [MessageFlags.IsComponentsV2], allowedMentions: { parse: [] } }).catch(() => null);
+    await guild.client.users.send(userId, quietMessageOf(container)).catch(() => null);
   }
 }
 

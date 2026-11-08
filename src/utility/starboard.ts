@@ -8,7 +8,6 @@ import {
   type Guild,
   MediaGalleryBuilder,
   type Message,
-  MessageFlags,
   type MessageReaction,
   type PartialMessage,
   type PartialMessageReaction,
@@ -41,7 +40,7 @@ import { customEmojiId } from 'utility/emoji';
 import { guildTranslate, type Translate } from 'utility/i18next';
 import { logger } from 'utility/logger';
 import { KeyedQueue } from 'utility/queue';
-import type { ResponsePayload } from 'utility/response';
+import { quietMessageOf, type ResponsePayload } from 'utility/response';
 import { shorten } from 'utility/text';
 
 export const DEFAULT_STAR_EMOJI = '⭐';
@@ -158,7 +157,7 @@ function buildStarboardPost(message: Message, stars: number, emoji: string, uplo
     ),
   );
   // Nobody is pinged by a message being starred
-  return { components: [container], flags: [MessageFlags.IsComponentsV2], allowedMentions: { parse: [] } };
+  return quietMessageOf(container);
 }
 
 /** The pictures to upload with a new post. */

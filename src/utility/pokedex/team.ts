@@ -1,4 +1,4 @@
-import { ContainerBuilder, MessageFlags, subtext, TextDisplayBuilder } from 'discord.js';
+import { ContainerBuilder, subtext, TextDisplayBuilder } from 'discord.js';
 
 import { withTypeEmoji } from 'utility/emojis';
 import type { Translate } from 'utility/i18next';
@@ -8,7 +8,7 @@ import { damageTaken } from 'utility/pokedex/matchups';
 import { findBySlug, matchName, nameOf } from 'utility/pokedex/names';
 import { linkSelect, type PageContext, pokemonLinks } from 'utility/pokedex/pages';
 import { allTypeRelations, TYPES } from 'utility/pokedex/typeChart';
-import type { ResponsePayload } from 'utility/response';
+import { quietMessageOf, type ResponsePayload } from 'utility/response';
 import { ThemeColors } from 'utility/theme';
 
 /** The most Pokémon in a team, like in the games. */
@@ -96,5 +96,5 @@ export async function buildTeam(slug: string, language: string, t: Translate, co
     t('pages.links.pokemon'),
   );
   if (links) container.addActionRowComponents(links);
-  return { components: [container], flags: [MessageFlags.IsComponentsV2], allowedMentions: { parse: [] } };
+  return quietMessageOf(container);
 }

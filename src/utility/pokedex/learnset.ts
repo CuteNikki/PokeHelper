@@ -1,4 +1,4 @@
-import { bold, ContainerBuilder, MessageFlags, SeparatorBuilder, subtext, TextDisplayBuilder } from 'discord.js';
+import { bold, ContainerBuilder, SeparatorBuilder, subtext, TextDisplayBuilder } from 'discord.js';
 
 import { DiscordLimits } from 'utility/discordLimits';
 import { formatNumber } from 'utility/duration';
@@ -8,7 +8,7 @@ import { gameName, gameSelect } from 'utility/pokedex/encounters';
 import { findBySlug, fromSlug, getPokedexData, matchName, nameOf } from 'utility/pokedex/names';
 import { gameSelectId, linkSelect, type PageContext } from 'utility/pokedex/pages';
 import { pokemonHeader } from 'utility/pokedex/pokemonHeader';
-import type { ResponsePayload } from 'utility/response';
+import { messageOf, type ResponsePayload } from 'utility/response';
 import { ThemeColors } from 'utility/theme';
 
 /** The ways of learning moves, in the order they're listed. The rest come after them, named like their slug. */
@@ -89,7 +89,7 @@ export async function buildLearnset(slug: string, language: string, t: Translate
     .addSeparatorComponents(new SeparatorBuilder());
   if (!game) {
     container.addTextDisplayComponents(new TextDisplayBuilder().setContent(t('pokedex.moves.none', { name })));
-    return { components: [container], flags: [MessageFlags.IsComponentsV2] };
+    return messageOf(container);
   }
 
   const moveName = (move: string) => nameOf('moves', move, language);
@@ -139,5 +139,5 @@ export async function buildLearnset(slug: string, language: string, t: Translate
       ),
     );
   if (links) container.addActionRowComponents(links);
-  return { components: [container], flags: [MessageFlags.IsComponentsV2] };
+  return messageOf(container);
 }

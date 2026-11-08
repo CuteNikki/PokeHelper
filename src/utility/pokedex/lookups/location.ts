@@ -1,4 +1,4 @@
-import { ContainerBuilder, MessageFlags, SeparatorBuilder, subtext, TextDisplayBuilder } from 'discord.js';
+import { ContainerBuilder, SeparatorBuilder, subtext, TextDisplayBuilder } from 'discord.js';
 
 import type { Translate } from 'utility/i18next';
 import { getLocation, getLocationArea } from 'utility/pokedex/api';
@@ -7,7 +7,7 @@ import { apiName } from 'utility/pokedex/lookup';
 import { pokemonNames } from 'utility/pokedex/lookups/item';
 import { nameOf } from 'utility/pokedex/names';
 import { gameSelectId, linkSelect, type PageContext, pokemonLinks } from 'utility/pokedex/pages';
-import type { ResponsePayload } from 'utility/response';
+import { messageOf, quietMessageOf, type ResponsePayload } from 'utility/response';
 import { ThemeColors } from 'utility/theme';
 
 /** The most Pokémon listed for a game, so the answer stays well within what a message can hold. Those with the best chances first. */
@@ -42,7 +42,7 @@ export async function buildLocation(slug: string, language: string, t: Translate
     .addSeparatorComponents(new SeparatorBuilder());
   if (!game) {
     container.addTextDisplayComponents(new TextDisplayBuilder().setContent(t('locations.none')));
-    return { components: [container], flags: [MessageFlags.IsComponentsV2] };
+    return messageOf(container);
   }
 
   const lines = sightingLines(
@@ -77,5 +77,5 @@ export async function buildLocation(slug: string, language: string, t: Translate
       ),
     );
   if (links) container.addActionRowComponents(links);
-  return { components: [container], flags: [MessageFlags.IsComponentsV2], allowedMentions: { parse: [] } };
+  return quietMessageOf(container);
 }

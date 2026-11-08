@@ -1,4 +1,4 @@
-import { ContainerBuilder, MessageFlags, subtext, TextDisplayBuilder } from 'discord.js';
+import { ContainerBuilder, subtext, TextDisplayBuilder } from 'discord.js';
 
 import { formatNumber } from 'utility/duration';
 import type { Translate } from 'utility/i18next';
@@ -7,7 +7,7 @@ import { addBlocks, apiName, labeled, newestText, textIn } from 'utility/pokedex
 import { listWithMore, pokemonNames } from 'utility/pokedex/lookups/item';
 import { nameOf } from 'utility/pokedex/names';
 import { linkSelect, type PageContext, pokemonLinks } from 'utility/pokedex/pages';
-import type { ResponsePayload } from 'utility/response';
+import { messageOf, type ResponsePayload } from 'utility/response';
 import { quote } from 'utility/text';
 import { ThemeColors } from 'utility/theme';
 
@@ -60,5 +60,5 @@ export async function buildAbility(slug: string, language: string, t: Translate,
     t('pages.links.pokemon'),
   );
   if (links) container.addActionRowComponents(links);
-  return { components: [container], flags: [MessageFlags.IsComponentsV2] };
+  return messageOf(container);
 }

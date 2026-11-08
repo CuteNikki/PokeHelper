@@ -1,4 +1,4 @@
-import { bold, ContainerBuilder, MessageFlags, SectionBuilder, SeparatorBuilder, TextDisplayBuilder, ThumbnailBuilder } from 'discord.js';
+import { bold, ContainerBuilder, SectionBuilder, SeparatorBuilder, TextDisplayBuilder, ThumbnailBuilder } from 'discord.js';
 
 import { formatNumber } from 'utility/duration';
 import { withTypeEmoji } from 'utility/emojis';
@@ -9,7 +9,7 @@ import { apiName, newestText } from 'utility/pokedex/lookup';
 import { getPokedexData, nameOf } from 'utility/pokedex/names';
 import { linkSelect, type PageContext } from 'utility/pokedex/pages';
 import { TYPE_COLORS } from 'utility/pokedex/types';
-import type { ResponsePayload } from 'utility/response';
+import { messageOf, type ResponsePayload } from 'utility/response';
 import { quote } from 'utility/text';
 import { ThemeColors } from 'utility/theme';
 
@@ -92,5 +92,5 @@ export async function buildBerry(itemSlug: string, language: string, t: Translat
     t('pages.links.berry'),
   );
   if (links) container.addActionRowComponents(links);
-  return { components: [container], flags: [MessageFlags.IsComponentsV2] };
+  return messageOf(container);
 }

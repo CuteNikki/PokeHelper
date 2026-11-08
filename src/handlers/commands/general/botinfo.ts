@@ -5,7 +5,6 @@ import {
   ContainerBuilder,
   heading,
   HeadingLevel,
-  MessageFlags,
   SeparatorBuilder,
   SeparatorSpacingSize,
   SlashCommandBuilder,
@@ -23,6 +22,7 @@ import { getDatabaseLatency } from 'database/index';
 
 import { formatNumber } from 'utility/duration';
 import { getTranslate } from 'utility/i18next';
+import { quietMessageOf } from 'utility/response';
 import { ThemeColors } from 'utility/theme';
 
 const formatDuration = (seconds: number) => {
@@ -130,6 +130,6 @@ export default new Command({
     }
 
     // The developer is mentioned, but shouldn't be pinged whenever someone checks the bot's status
-    await interaction.editReply({ components: [container], flags: [MessageFlags.IsComponentsV2], allowedMentions: { parse: [] } });
+    await interaction.editReply(quietMessageOf(container));
   },
 });

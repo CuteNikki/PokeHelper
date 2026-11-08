@@ -7,7 +7,6 @@ import {
   heading,
   HeadingLevel,
   type Message,
-  MessageFlags,
   type PermissionsString,
   roleMention,
   subtext,
@@ -30,7 +29,7 @@ import { customEmojiId } from 'utility/emoji';
 import { guildTranslate, type Translate } from 'utility/i18next';
 import { logger } from 'utility/logger';
 import { KeyedQueue } from 'utility/queue';
-import type { ResponsePayload } from 'utility/response';
+import { quietMessageOf, type ResponsePayload } from 'utility/response';
 import { ThemeColors } from 'utility/theme';
 
 /** The most role menus a server can have. */
@@ -73,7 +72,7 @@ export function buildRoleMenuMessage(menu: RoleMenu, t: Translate): ResponsePayl
   }
 
   // Listing the roles mustn't ping everyone who has them
-  return { components: [container], flags: [MessageFlags.IsComponentsV2], allowedMentions: { parse: [] } };
+  return quietMessageOf(container);
 }
 
 /** The posted message of a menu, or null if it was deleted. Other problems, like Discord being down, are thrown, so a working menu isn't posted twice. */

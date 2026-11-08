@@ -9,7 +9,6 @@ import {
   type Guild,
   hyperlink,
   italic,
-  MessageFlags,
   messageLink,
   SeparatorBuilder,
   SeparatorSpacingSize,
@@ -51,7 +50,7 @@ import { openParticipantsId } from 'utility/giveaways/participants';
 import { markPostChanged, syncPost } from 'utility/giveaways/sync';
 import { getTranslate, type Translate } from 'utility/i18next';
 import { logger } from 'utility/logger';
-import { type ResponsePayload, sendError, withNotice } from 'utility/response';
+import { quietMessageOf, type ResponsePayload, sendError, withNotice } from 'utility/response';
 import { buildSwitchSection, settingsContext } from 'utility/settings';
 import { shorten } from 'utility/text';
 import { ThemeColors } from 'utility/theme';
@@ -88,7 +87,7 @@ export async function renderGiveawayList(guild: Guild, tab: GiveawayTab, t: Tran
 
   if (giveaways.length === 0) {
     container.addTextDisplayComponents(new TextDisplayBuilder().setContent(t(`giveaway.manage.none.${tab}`)));
-    return { components: [container], flags: [MessageFlags.IsComponentsV2], allowedMentions: { parse: [] } };
+    return quietMessageOf(container);
   }
 
   const count =
@@ -130,7 +129,7 @@ export async function renderGiveawayList(guild: Guild, tab: GiveawayTab, t: Tran
       ),
     );
   // Giveaways are listed with their channel, which mustn't ping anyone
-  return { components: [container], flags: [MessageFlags.IsComponentsV2], allowedMentions: { parse: [] } };
+  return quietMessageOf(container);
 }
 
 /**
@@ -258,7 +257,7 @@ export async function renderGiveawayPanel(guild: Guild, giveaway: Giveaway, t: T
     );
   }
   container.addActionRowComponents(new ActionRowBuilder<ButtonBuilder>().addComponents(buttons));
-  return { components: [container], flags: [MessageFlags.IsComponentsV2], allowedMentions: { parse: [] } };
+  return quietMessageOf(container);
 }
 
 /** Delete a giveaway's post, if it still has one. */
@@ -435,5 +434,5 @@ async function renderRerollPicker(guild: Guild, giveaway: Giveaway, t: Translate
       new ButtonBuilder().setCustomId(manageId('view', giveaway.id)).setLabel(t('giveaway.manage.back')).setStyle(ButtonStyle.Secondary),
     ),
   );
-  return { components: [container], flags: [MessageFlags.IsComponentsV2], allowedMentions: { parse: [] } };
+  return quietMessageOf(container);
 }

@@ -6,7 +6,6 @@ import {
   ChannelType,
   ContainerBuilder,
   type Guild,
-  MessageFlags,
   messageLink,
   SeparatorBuilder,
   SeparatorSpacingSize,
@@ -23,7 +22,7 @@ import { formatPermissions } from 'utility/discord';
 import { buttonIcon } from 'utility/emojis';
 import type { Translate } from 'utility/i18next';
 import { formatNumber } from 'utility/duration';
-import type { ResponsePayload } from 'utility/response';
+import { messageOf, quietMessageOf, type ResponsePayload } from 'utility/response';
 import { DiscordLimits } from 'utility/discordLimits';
 import { MAX_EMOJI_LENGTH, parseEmoji } from 'utility/emoji';
 import { MAX_MENU_ROLES, MAX_ROLE_MENUS, moveRoleMenu, ROLE_MENU_CHANNEL_PERMISSIONS, syncRoleMenuMessage } from 'utility/roleMenu';
@@ -236,7 +235,7 @@ export async function renderRoleMenuList(guild: Guild, t: Translate): Promise<Re
 
   if (menus.length === 0) {
     container.addTextDisplayComponents(new TextDisplayBuilder().setContent(t('roleMenu.list.none')));
-    return { components: [container], flags: [MessageFlags.IsComponentsV2] };
+    return messageOf(container);
   }
 
   const lines = menus.map((menu, index) =>
@@ -277,5 +276,5 @@ export async function renderRoleMenuList(guild: Guild, t: Translate): Promise<Re
     );
 
   // Menus are listed with their channel, which mustn't ping anyone
-  return { components: [container], flags: [MessageFlags.IsComponentsV2], allowedMentions: { parse: [] } };
+  return quietMessageOf(container);
 }

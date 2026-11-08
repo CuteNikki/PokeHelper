@@ -33,7 +33,7 @@ import { logger } from 'utility/logger';
 import { forgetLogConfig } from 'utility/logs/send';
 import { caseNumber } from 'utility/moderation/run';
 import { bannedAgain } from 'utility/moderation/tempBans';
-import { createResponse, sendError, type ResponsePayload } from 'utility/response';
+import { createResponse, messageOf, type ResponsePayload, sendError } from 'utility/response';
 import type { SettingsContext } from 'utility/settings';
 import { ThemeColors } from 'utility/theme';
 
@@ -82,7 +82,7 @@ export function buildPrivacyPanel(context: SettingsContext, t: Translate): Respo
       .addActionRowComponents(buttons('guild'));
   }
 
-  return { components: [container], flags: [MessageFlags.IsComponentsV2] };
+  return messageOf(container);
 }
 
 /** Data as a JSON file, readable by people and programs. */

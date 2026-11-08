@@ -11,7 +11,6 @@ import {
   ContainerBuilder,
   type Interaction,
   type LocalizationMap,
-  MessageFlags,
   SeparatorBuilder,
   SeparatorSpacingSize,
   StringSelectMenuBuilder,
@@ -27,7 +26,7 @@ import { getGuildLevelingConfiguration } from 'database/leveling';
 import { buttonIcon } from 'utility/emojis';
 import type { Translate } from 'utility/i18next';
 import type { IconName } from 'utility/icons';
-import type { ResponsePayload } from 'utility/response';
+import { quietMessageOf, type ResponsePayload } from 'utility/response';
 import { DiscordLimits } from 'utility/discordLimits';
 import { ThemeColors } from 'utility/theme';
 
@@ -176,5 +175,5 @@ export async function buildHelp(interaction: Interaction, category: string, t: T
     .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large))
     .addActionRowComponents(new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select));
 
-  return { components: [container], flags: [MessageFlags.IsComponentsV2], allowedMentions: { parse: [] } };
+  return quietMessageOf(container);
 }

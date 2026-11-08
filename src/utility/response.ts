@@ -22,6 +22,12 @@ export type ResponsePayload = Pick<BaseMessageOptions, 'components' | 'files' | 
   flags: [MessageFlags.IsComponentsV2];
 };
 
+/** A Components V2 message of a container. */
+export const messageOf = (container: ContainerBuilder): ResponsePayload => ({ components: [container], flags: [MessageFlags.IsComponentsV2] });
+
+/** A Components V2 message of a container whose mentions don't ping anyone, like a list of members, so editing it never notifies them. */
+export const quietMessageOf = (container: ContainerBuilder): ResponsePayload => ({ ...messageOf(container), allowedMentions: { parse: [] } });
+
 /** A Components V2 message with one text container, in the accent color of its kind. */
 export const createResponse = (content: string, kind: ResponseKind = 'info'): ResponsePayload => ({
   components: [new ContainerBuilder().setAccentColor(ThemeColors[kind]).addTextDisplayComponents(new TextDisplayBuilder().setContent(content))],

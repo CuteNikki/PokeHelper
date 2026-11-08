@@ -4,7 +4,7 @@ import { getStarboardEntryByPost, type StarboardEntry } from 'database/starboard
 
 import { getTranslate, type Translate } from 'utility/i18next';
 import { buildPageRow, clampPage, type PageButton } from 'utility/pagination';
-import { sendError, sendResponse, type ResponsePayload } from 'utility/response';
+import { quietMessageOf, type ResponsePayload, sendError, sendResponse } from 'utility/response';
 import { STAR_BUTTON_ID, STARBOARD_BUTTON_PREFIX, STARRED_BY_BUTTON_ID, toggleStar } from 'utility/starboard';
 import { ThemeColors } from 'utility/theme';
 
@@ -30,7 +30,7 @@ function buildStarredBy(entry: StarboardEntry, postId: string, requested: number
     container.addActionRowComponents(buildPageRow(page, pages, customId, t, { goto: false, short: true }));
   }
   // The names are mentions to see who they are, which never ping anyone
-  return { components: [container], flags: [MessageFlags.IsComponentsV2], allowedMentions: { parse: [] } };
+  return quietMessageOf(container);
 }
 
 /** Star or unstar the post's message, or show who starred it, a page at a time, only to whoever pressed. In their language. */
