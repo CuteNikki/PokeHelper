@@ -1,4 +1,4 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ContainerBuilder, MessageFlags, TextDisplayBuilder } from 'discord.js';
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, MessageFlags } from 'discord.js';
 
 import { Button } from 'classes/base/button';
 
@@ -11,15 +11,15 @@ import { GIVEAWAY_CUSTOM_ID } from 'utility/giveaways/post';
 import { bonusRolesOf, checkRules, countEntries, rulesOf } from 'utility/giveaways/rules';
 import { markPostChanged } from 'utility/giveaways/sync';
 import { getTranslate, type Translate } from 'utility/i18next';
-import { createResponse, messageOf, type ResponsePayload } from 'utility/response';
-import { ThemeColors } from 'utility/theme';
+import { createResponse, type ResponsePayload } from 'utility/response';
 
 /** That someone is in, with their entries, and a button to leave again. */
 function inResponse(giveawayId: string, entries: number, key: 'giveaway.join.entered' | 'giveaway.join.already', t: Translate): ResponsePayload {
-  const container = new ContainerBuilder()
-    .setAccentColor(ThemeColors.success)
-    .addTextDisplayComponents(new TextDisplayBuilder().setContent(t(key, { count: entries })))
-    .addActionRowComponents(
+  const response = createResponse(t(key, { count: entries }), 'success');
+  return {
+    ...response,
+    components: [
+      ...(response.components ?? []),
       new ActionRowBuilder<ButtonBuilder>().addComponents(
         new ButtonBuilder()
           .setCustomId(`${GIVEAWAY_CUSTOM_ID.leave}${giveawayId}`)
@@ -27,8 +27,8 @@ function inResponse(giveawayId: string, entries: number, key: 'giveaway.join.ent
           .setEmoji(buttonIcon('user-minus'))
           .setStyle(ButtonStyle.Danger),
       ),
-    );
-  return messageOf(container);
+    ],
+  };
 }
 
 /** The Join button on a giveaway's post. Enters whoever pressed it, or tells them privately which rules they don't meet. */
