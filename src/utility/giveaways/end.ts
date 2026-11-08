@@ -9,6 +9,7 @@ import { syncPost } from 'utility/giveaways/sync';
 import { getTranslate } from 'utility/i18next';
 import { logger } from 'utility/logger';
 import { createResponse } from 'utility/response';
+import { canGiveRole } from 'utility/roles';
 
 /** How many members are fetched from Discord at once, the most it sends back for one request. */
 const FETCH_CHUNK = 100;
@@ -88,7 +89,22 @@ export async function dmWinners(guild: Guild, giveaway: Giveaway, winnerIds: str
   }
 }
 
-/** End a giveaway: draw its winners, show them on the post, say who won and tell them. */
+/**
+ * Give winners the giveaway's winner role, if it has one the bot can give. It stays with them, like a reward role.
+ * A winner who left meanwhile is skipped.
+ */
+export async function giveWinnerRole(guild: Guild, giveaway: Giveaway, winnerIds: string[]) {
+  const roleId = giveaway.winnerRoleId;
+  if (!roleId || !canGiveRole(guild, roleId)) return;
+  const t = getTranslate(giveaway.locale);
+  for (const userId of winnerIds) {
+    await guild.members
+      .addRole({ user: userId, role: roleId, reason: t('giveaway.end.roleReason', { prize: giveaway.prize }) })
+      .catch((error: unknown) => logger.warn(error, `Failed to give the winner role of giveaway ${giveaway.id} to ${userId}`));
+  }
+}
+
+/** End a giveaway: draw its winners, show them on the post, say who won, give them the winner role and tell them. */
 export async function endGiveaway(guild: Guild, giveaway: Giveaway) {
   const winnerIds = drawWinners(await findCandidates(guild, giveaway), giveaway.winnerCount);
   // Someone may have ended it meanwhile, who then drew the winners already
@@ -96,6 +112,7 @@ export async function endGiveaway(guild: Guild, giveaway: Giveaway) {
   const ended: Giveaway = { ...giveaway, status: 'ended', endedAt: new Date() };
   await syncPost(guild, giveaway.id);
   await announceWinners(guild, ended, winnerIds, 'giveaway.end.announce');
+  await giveWinnerRole(guild, ended, winnerIds);
   await dmWinners(guild, ended, winnerIds);
 }
 

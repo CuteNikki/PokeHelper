@@ -2046,6 +2046,10 @@
         "input": "Extra-Lose, von 1 bis {{max}}",
         "invalid": "Gib eine ganze Zahl von 1 bis {{max}} ein."
       },
+      "winnerRole": {
+        "label": "Gewinner-Rolle",
+        "description": "Eine Rolle, die Gewinner bekommen. Sie bleibt, also nimm sie selbst wieder weg, wenn sie nicht mehr gebraucht wird"
+      },
       "dm": {
         "label": "Gewinnern schreiben",
         "description": "Ob Gewinner eine DM bekommen, dass sie gewonnen haben. Unter dem Giveaway werden sie so oder so gepingt"
@@ -2095,7 +2099,8 @@
       "reroll_other": "{{icon.trophy}} Neue Gewinner: {{winners}}! Ihr habt jeweils **{{prize}}** gewonnen!",
       "none": "Für **{{prize}}** konnte niemand gezogen werden, also gibt es diesmal keine Gewinner.",
       "dm": "{{icon.gift}} Du hast **{{prize}}** auf {{server}} gewonnen! Es ist von {{host}}.",
-      "dmLink": "Zum Giveaway"
+      "dmLink": "Zum Giveaway",
+      "roleReason": "Hat das Giveaway für {{prize}} gewonnen"
     }
   }
 }

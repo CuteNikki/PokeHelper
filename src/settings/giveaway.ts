@@ -295,6 +295,16 @@ export function getGiveawaySettings(giveawayId: string): SettingsPanel {
         set: (_guildId, roleId, bonus) => setBonusRole(giveawayId, roleId, bonus),
       },
       {
+        type: 'role',
+        key: 'winnerRole',
+        category: 'winners',
+        assignable: true,
+        label: (t) => t('giveaway.settings.winnerRole.label'),
+        description: (t) => t('giveaway.settings.winnerRole.description'),
+        get: (giveaway) => giveaway.winnerRoleId,
+        set: (_guildId, winnerRoleId) => updateGiveaway(giveawayId, { winnerRoleId }),
+      },
+      {
         type: 'boolean',
         key: 'dm',
         category: 'winners',
