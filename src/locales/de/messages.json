@@ -2051,7 +2051,7 @@
       "invalidDuration": "Mit dieser Dauer kann ich nichts anfangen. Probier sowas wie 12h, 3T oder 2 Wochen.",
       "prize": {
         "label": "Preis",
-        "description": "Was die Gewinner bekommen"
+        "description": "Was die Gewinner bekommen. Mit Preisen nach Platz, was die Gewinner nach diesen Plätzen bekommen"
       },
       "description": {
         "label": "Beschreibung",
@@ -2133,7 +2133,7 @@
       },
       "prizes": {
         "label": "Preise nach Platz",
-        "description": "Andere Preise für die ersten gezogenen Gewinner, einer pro Zeile, wie 1x Shiny Glurak. Alle danach gewinnen den Preis oben",
+        "description": "Andere Preise für die ersten gezogenen Gewinner, einer pro Zeile, wie 1x Shiny Glurak. Die anderen Gewinner bekommen den Preis oben",
         "placeholder": "1x Shiny Glurak\n2x Sonderbonbon",
         "invalid": "Schreib einen Preis pro Zeile, mit der Anzahl der Gewinner davor, wie 2x Sonderbonbon. Höchstens {{max}} Gewinner pro Preis.",
         "tooMany": "Das sind mehr als {{max}} Preise.",

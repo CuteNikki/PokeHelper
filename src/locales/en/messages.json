@@ -2107,7 +2107,7 @@
       "invalidDuration": "That's not a duration I understand. Try something like 12h, 3d or 2 weeks.",
       "prize": {
         "label": "Prize",
-        "description": "What the winners get"
+        "description": "What the winners get. With prizes by place, what the winners after those places get"
       },
       "description": {
         "label": "Description",
@@ -2189,7 +2189,7 @@
       },
       "prizes": {
         "label": "Prizes by place",
-        "description": "Other prizes for the first winners drawn, one per line, like 1x Shiny Charizard. Everyone after them wins the prize above",
+        "description": "Other prizes for the first winners drawn, one per line, like 1x Shiny Charizard. The other winners get the prize above",
         "placeholder": "1x Shiny Charizard\n2x Rare Candy",
         "invalid": "Write one prize per line, with how many winners get it in front, like 2x Rare Candy. At most {{max}} winners each.",
         "tooMany": "That's more than {{max}} prizes.",
