@@ -7,7 +7,6 @@ const split = (text: string) => text.split(/(\s+)/).filter((part) => part !== ''
 /**
  * Mark what changed between two versions of a text, word by word, like Dyno does: what was taken out is crossed out in the old text,
  * and what was added is underlined in the new one. Words next to each other that changed are marked together.
- * @returns Both texts with their changes marked in markdown.
  */
 export function markChanges(before: string, after: string): { before: string; after: string } {
   const old = split(before);

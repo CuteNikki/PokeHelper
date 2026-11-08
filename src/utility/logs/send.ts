@@ -48,7 +48,6 @@ const MAX_ENTRY_TEXT = 3_800;
 
 const cache = new Map<string, { config: GuildLogs | null; at: number }>();
 
-/** A server's log settings, or null if it never set them up. */
 async function getLogConfig(guildId: string): Promise<GuildLogs | null> {
   const cached = cache.get(guildId);
   if (cached && Date.now() - cached.at < CACHE_TTL) return cached.config;
@@ -104,10 +103,7 @@ export function quoteText(text: string) {
   return quote((lines.length > MAX_QUOTE_LINES ? [...lines.slice(0, MAX_QUOTE_LINES), '…'] : lines).join('\n'));
 }
 
-/**
- * An entry as a card: a title like the bot's other messages, who or what it's about, where and by whom, with their picture next to it,
- * and when it happened, then the details and the buttons, each with some room above.
- */
+/** An entry as a card: the title, who or what it's about with their picture, where and by whom, when, then the details and buttons. */
 function buildLogEntry(entry: LogEntry, t: Translate, doer?: User | null) {
   const header = new TextDisplayBuilder().setContent(
     [
@@ -122,7 +118,6 @@ function buildLogEntry(entry: LogEntry, t: Translate, doer?: User | null) {
       .filter(Boolean)
       .join('\n'),
   );
-  // Room between the parts, without lines
   const space = () => new SeparatorBuilder().setDivider(false).setSpacing(SeparatorSpacingSize.Small);
 
   const container = new ContainerBuilder().setAccentColor(KIND_COLORS[entry.kind]);
@@ -140,7 +135,6 @@ function buildLogEntry(entry: LogEntry, t: Translate, doer?: User | null) {
 
   const buttons = [
     entry.link ? new ButtonBuilder().setStyle(ButtonStyle.Link).setLabel(entry.link.label).setURL(entry.link.url) : null,
-    // Who did it can be copied too, for every entry that says who
     copyIdsButton(entry.by ? { ...entry.ids, by: entry.by.id } : entry.ids, t),
   ].filter((button): button is ButtonBuilder => button !== null);
   if (buttons.length > 0) {
@@ -199,10 +193,7 @@ export function isIgnoredChannel(config: GuildLogs, guild: Guild, channelId: str
 export const isIgnoredMember = (config: GuildLogs, member: GuildMember | null) =>
   member !== null && config.ignoredRoleIds.some((roleId) => member.roles.cache.has(roleId));
 
-/**
- * Whether an event is logged in a server, before the work of describing it is done.
- * @returns The server's settings if it's logged, or null.
- */
+/** A server's log settings if an event is logged there, or null, to check before the work of describing it. */
 export async function shouldLog(guild: Guild, event: LogEvent): Promise<GuildLogs | null> {
   const config = await getLogConfig(guild.id);
   return config && logChannelOf(config, event) ? config : null;
@@ -224,7 +215,6 @@ export async function sendLog(guild: Guild, event: LogEvent, entry: LogEntry | (
     const t = guildTranslate(guild);
     const built = typeof entry === 'function' ? await entry(t) : entry;
     if (!built) return;
-    // Who did it, for their name next to the mention
     const doer = built.by ? await guild.client.users.fetch(built.by.id).catch(() => null) : null;
     await postLogEntry(channel, built, t, doer);
   } catch (error) {

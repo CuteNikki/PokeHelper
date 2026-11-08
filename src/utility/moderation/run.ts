@@ -40,7 +40,7 @@ export const MAX_REASON_LENGTH = 400;
 /** The longest reason Discord's audit log takes. */
 const MAX_AUDIT_REASON = 512;
 
-/** The icon of each type of case, in front of it wherever it's shown. */
+/** The icon of each type of case. */
 export const CASE_ICONS: Record<ModCaseType, IconName> = {
   warn: 'triangle-alert',
   timeout: 'hourglass',
@@ -56,17 +56,11 @@ export const caseNumber = (modCase: Pick<ModCase, 'number'>, t: Translate) => `#
 /** A date, and how long until then or since, like `7 November 2026 21:14 (in 3 days)`. */
 export const formatUntil = (date: Date) => `${time(date, TimestampStyles.LongDateShortTime)} (${time(date, TimestampStyles.RelativeTime)})`;
 
-/**
- * The reason for Discord's audit log, with who gave it in front, as the audit log names the bot as who did it. Just who, without a reason.
- */
+/** The reason for Discord's audit log, with who gave it in front, as the audit log names the bot as who did it. */
 export const auditReason = (moderator: User, reason: string | null) =>
   (reason ? `${moderator.username}: ${reason}` : moderator.username).slice(0, MAX_AUDIT_REASON);
 
-/**
- * When a timeout or temporary ban that lasts as long as typed ends, like for `10m`, `2h 30m` or `3d`, in the units of any language.
- * @param maxDays The longest it can be.
- * @returns When it ends, or why it can't: it isn't a duration, or it's longer than allowed.
- */
+/** When a timeout or temporary ban of the typed length, like `2h 30m`, ends, or why it can't: it isn't a duration, or it's longer than maxDays. */
 export function parseModerationDuration(input: string, maxDays: number, now = new Date()): Date | 'invalid' | 'tooLong' {
   const end = parseDuration(input, now);
   if (!end || end.getTime() <= now.getTime()) return 'invalid';
@@ -208,7 +202,6 @@ export interface ModerationResult {
   content: string;
 }
 
-/** The moderator, the server and the language, which is all moderating needs of where it was asked for. */
 type ModerationContext = Pick<ChatInputCommandInteraction<'cached'>, 'guild' | 'member' | 'user' | 'locale'>;
 
 /** The checks a request needs before it can be done, and how it's done on Discord, or why it can't be done. */
@@ -255,7 +248,6 @@ async function prepareModeration(
   return { expiresAt, act: actions[type] };
 }
 
-/** Actions on the same person, one at a time. */
 const queue = new KeyedQueue();
 
 /**
@@ -265,10 +257,8 @@ const queue = new KeyedQueue();
 export const oneAtATime = <T>(guildId: string, userId: string, task: () => Promise<T>) => queue.run(`${guildId}:${userId}`, task);
 
 /**
- * Do what a moderator asked for, after its checks: make its case, tell them by DM if wanted, do it on Discord, and say how it went.
- * The case is made first, so the logs find it when Discord tells them about it. If the action fails, the case and the DM are taken back.
- * Someone unbanned is never told by DM, as they rarely share a server with the bot to get one.
- * Only call it once the interaction is answered, as the checks ask Discord, and Discord gives up after 3 seconds.
+ * Do what a moderator asked for: make its case, DM them if wanted, do it on Discord, and say how it went. The case is made first, so the
+ * logs find it, and it's taken back with the DM if the action fails. Only call it once the interaction is answered, as the checks ask Discord.
  */
 export const moderate = (context: ModerationContext, request: ModerationRequest) =>
   oneAtATime(context.guild.id, request.user.id, () => moderateNow(context, request));
@@ -304,7 +294,6 @@ async function moderateNow(context: ModerationContext, request: ModerationReques
     }
   }
 
-  // Bans say until when only if they end, timeouts always do
   const key = type === 'ban' && modCase.expiresAt ? 'banUntil' : type;
   const done = t(`moderation.done.${key}`, { user: userSubject(user), until: modCase.expiresAt ? formatUntil(modCase.expiresAt) : '' });
   const notes = [t('moderation.done.case', { number: caseNumber(modCase, t) })];
@@ -312,10 +301,7 @@ async function moderateNow(context: ModerationContext, request: ModerationReques
   return { ok: true, content: `${textIcon(CASE_ICONS[type])} ${done}\n${subtext(notes.join(' · '))}` };
 }
 
-/**
- * Run a moderation command. Answered first, as Discord gives up after 3 seconds, and only who used it sees the answer, as the logs are
- * where others see it.
- */
+/** Run a moderation command. Only who used it sees the answer, the logs are where others see it. */
 export async function runModeration(interaction: ChatInputCommandInteraction<'cached'>, request: ModerationRequest): Promise<unknown> {
   await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
   const result = await moderate(interaction, request);

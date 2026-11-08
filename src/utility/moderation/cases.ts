@@ -106,7 +106,7 @@ const isId = (value: string | undefined): value is string => /^\d{15,25}$/.test(
 const isSort = (value: string | undefined): value is CaseSort => CASE_SORTS.includes(value as CaseSort);
 const isPage = (value: string | undefined) => /^\d{1,6}$/.test(value ?? '');
 
-/** Where a custom ID of a case history leads, or null if it isn't one, like one from an older version of the bot. */
+/** Where a custom ID of a case history leads, or null if it isn't one. */
 export function parseCasesId(customId: string): CasesAction | null {
   if (!customId.startsWith(CASES_PREFIX)) return null;
   const [action, ...parts] = customId.slice(CASES_PREFIX.length).split(':');
@@ -145,7 +145,6 @@ export function parseCasesId(customId: string): CasesAction | null {
   }
 }
 
-/** A case's type with its icon, like `Ban`. */
 const typeLabel = (modCase: ModCase, t: Translate) => `${textIcon(CASE_ICONS[modCase.type])} ${t(`moderation.types.${modCase.type}`)}`;
 
 /** Whether a timeout or ban is still on, was ended early, or ran out, with when. Null for cases that don't last, and bans for good that are still on. */
@@ -169,7 +168,6 @@ export async function renderCaseList(guild: Guild, requested: CasesState, t: Tra
     page === requested.page ? first : await getUserCases(guild.id, requested.userId, requested.sort, page * CASES_PAGE_SIZE, CASES_PAGE_SIZE);
   const state: CasesState = { ...requested, page };
 
-  // How many there are, and of which types, under the title, where they don't run into the first case
   const count = [
     t('moderation.cases.count', { count: total }),
     ...CASE_TYPES.filter((type) => counts[type] > 0).map((type) => t(`moderation.cases.counts.${type}`, { count: counts[type] })),
@@ -178,14 +176,12 @@ export async function renderCaseList(guild: Guild, requested: CasesState, t: Tra
   const container = new ContainerBuilder()
     .setAccentColor(ThemeColors.info)
     .addTextDisplayComponents(new TextDisplayBuilder().setContent(total > 0 ? `${title}\n${subtext(count)}` : title))
-    // Large, so the title, the list and the selects stand apart, like in the settings panels
     .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large));
   if (total === 0) {
     container.addTextDisplayComponents(new TextDisplayBuilder().setContent(t('moderation.cases.none')));
     return quietMessageOf(container);
   }
 
-  // The case and its type, then small under it, each on a line of its own: why, by whom, when, and until when
   const entries = cases.map((modCase) => {
     const details = [
       t('moderation.cases.entryReason', { reason: shorten((modCase.reason ?? t('moderation.noReason')).replace(/\s+/g, ' '), LIST_REASON_LENGTH) }),
@@ -237,10 +233,7 @@ export async function renderCaseList(guild: Guild, requested: CasesState, t: Tra
 /** How a related case is related to one: whether it ended that one, or that one ended it. */
 const endedThis = (related: ModCase, modCase: ModCase) => modCase.endedAt !== null && related.createdAt.getTime() === modCase.endedAt.getTime();
 
-/**
- * One case with everything about it and the cases related to it, like the timeout a removed timeout ended, with buttons to go back to the
- * list, change its reason or when it ends, or delete it, and to open the related ones.
- */
+/** One case with everything about it, buttons to change or delete it, and buttons to open its related cases. */
 export function renderCase(guild: Guild, modCase: ModCase, related: ModCase[], state: CasesState, t: Translate): ResponsePayload {
   const field = (label: string, value: string) => `${bold(label)}\n${value}`;
   const fields = [
@@ -260,7 +253,6 @@ export function renderCase(guild: Guild, modCase: ModCase, related: ModCase[], s
     .addTextDisplayComponents(new TextDisplayBuilder().setContent(fields.join('\n')))
     .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large));
 
-  // The related cases in a part of their own, each like in the list, with how it's related, and a button to open each under them
   if (related.length > 0) {
     const entries = related.map((other) =>
       [
@@ -293,14 +285,12 @@ export function renderCase(guild: Guild, modCase: ModCase, related: ModCase[], s
   return quietMessageOf(container);
 }
 
-/** One case with the cases related to it, which are looked up for it. */
 const renderCaseView = async (guild: Guild, modCase: ModCase, state: CasesState, t: Translate) =>
   renderCase(guild, modCase, await getRelatedCases(modCase), state, t);
 
 /** Whether a case is a temporary ban that's still on, which the bot lifts once it runs out, as long as its case is there. */
 const isRunningTempBan = (modCase: ModCase) => modCase.type === 'ban' && !modCase.endedAt && modCase.expiresAt !== null;
 
-/** The question whether to delete a case, as it can't be undone. */
 function renderDeleteQuestion(modCase: ModCase, state: CasesState, t: Translate): ResponsePayload {
   const question = t('moderation.cases.delete.question', { number: caseNumber(modCase, t) });
   const container = new ContainerBuilder()
@@ -323,7 +313,6 @@ function renderDeleteQuestion(modCase: ModCase, state: CasesState, t: Translate)
   return messageOf(container);
 }
 
-/** The list again with a note above it, for a case that was deleted, meanwhile or just now. */
 const listWithNotice = async (guild: Guild, state: CasesState, notice: string, kind: 'success' | 'info', t: Translate) =>
   withNotice(notice, kind, await renderCaseList(guild, state, t));
 
@@ -356,10 +345,7 @@ async function caseOrGone(interaction: ButtonInteraction<'cached'> | ModalSubmit
 /** How long looking up a case for a popup may take, as Discord gives up on a popup after 3 seconds. This leaves time to say so instead. */
 const POPUP_LOOKUP_LIMIT = 2 * SECOND;
 
-/**
- * The case a popup is about, which has to be looked up before the popup can be shown, as it shows what the case says now.
- * @returns The case, null if it's gone, or 'slow' if looking it up took too long to still show a popup.
- */
+/** The case a popup is about, null if it's gone, or 'slow' if looking it up took too long to still show a popup. */
 async function caseForPopup(interaction: ButtonInteraction<'cached'>, id: string): Promise<ModCase | null | 'slow'> {
   const left = POPUP_LOOKUP_LIMIT - (Date.now() - interaction.createdTimestamp);
   return Promise.race([getCase(interaction.guildId, id), Bun.sleep(Math.max(left, 0)).then(() => 'slow' as const)]);
@@ -515,10 +501,7 @@ function buildEndModal(modCase: ModCase, state: CasesState, t: Translate): Modal
     );
 }
 
-/**
- * End a running timeout or ban right away, from the popup: take the timeout away or lift the ban on Discord, as a case of its own with the
- * reason given, like `/untimeout` and `/unban` do. The case is made first, so the logs find it, and taken back if Discord says no.
- */
+/** End a running timeout or ban right away, as a case of its own. The case is made first, so the logs find it, and taken back if Discord says no. */
 async function endNow(interaction: ModalSubmitInteraction<'cached'>, modCase: ModCase, state: CasesState, t: Translate): Promise<unknown> {
   const { guild } = interaction;
   const reason = interaction.fields.getTextInputValue(END_REASON_INPUT_ID).trim() || null;
@@ -569,7 +552,6 @@ async function endNow(interaction: ModalSubmitInteraction<'cached'>, modCase: Mo
   return interaction.editReply(withNotice(notice, 'success', await renderCaseView(guild, ended, state, t)));
 }
 
-/** Why a new end can't be used, for the one who typed it. */
 function endProblem(error: EndError, type: 'timeout' | 'ban', t: Translate): string {
   if (error === 'tooLong') {
     return type === 'timeout' ? t('moderation.problems.timeoutTooLong', { max: MAX_TIMEOUT_DAYS }) : t('moderation.problems.banTooLong');

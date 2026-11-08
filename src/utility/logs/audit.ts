@@ -25,7 +25,6 @@ const deleteCounts = new Map<string, { count: number; createdAt: number }>();
 /** The latest read of each server's message deletions in the audit log, while it's fresh. */
 const reads = new Map<string, { at: number; entries: Promise<GuildAuditLogsEntry[]> }>();
 
-/** How many deletions a message deletion entry stands for. */
 const countOf = (entry: GuildAuditLogsEntry) => (entry.extra as { count?: number } | null)?.count ?? 1;
 
 /** Keep an audit log entry for a minute, and wake whatever's waiting for one. */
@@ -42,12 +41,10 @@ export interface Doer {
   reason: string | null;
 }
 
-/** The channel an entry is about, for deleted messages. */
 const channelOf = (entry: GuildAuditLogsEntry) => (entry.extra as { channel?: { id: string } } | null)?.channel?.id;
 
 /**
- * Who made a change, from its audit log entry: one of `actions`, about `targetId`, made in the last few seconds.
- * Waits a little for it to arrive.
+ * Who made a change, from its audit log entry: one of `actions`, about `targetId`, made in the last few seconds. Waits a little for it.
  * @param options.channelId Only an entry about this channel, like for a deleted message.
  * @param options.once Each entry only counts for one change, like a deleted message, so someone deleting their own message right after
  * a moderator deleted one of theirs isn't taken for the moderator.

@@ -32,14 +32,11 @@ function changed(label: string, before: Value, after: Value, t: Translate, menti
   return oldNew(label, format(before), format(after), t);
 }
 
-/** Permissions under a bold heading, one on each line in the server's language, like the roles someone was given. */
+/** Permissions under a bold heading, one on each line. */
 const permissionList = (heading: string, permissions: PermissionsString[], t: Translate) =>
   [bold(heading), ...permissions.map((permission) => t(`permission.${permission}`))].join('\n');
 
-/**
- * The permissions given and taken between two sets, as a block for each way they changed, like `**Permissions added**` and the
- * permissions under it, or none if they're the same.
- */
+/** The permissions given and taken between two sets, as a block for each way they changed, or none if they're the same. */
 function permissionChanges(before: bigint, after: bigint, t: Translate, headings: { added: string; removed: string }) {
   const added = new PermissionsBitField(after & ~before).toArray();
   const removed = new PermissionsBitField(before & ~after).toArray();

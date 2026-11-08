@@ -46,8 +46,7 @@ import { quietMessageOf, type ResponsePayload, sendError, withNotice } from 'uti
 import { ThemeColors } from 'utility/theme';
 
 /**
- * The moderation panel, from the Moderation menu on someone's name: how they're doing, and a button for each thing to do to them,
- * which asks the details in a popup. One menu for all of it, as Discord only allows an app 5 menus on names.
+ * The moderation panel, from the Moderation menu on someone's name: how they're doing, and a button for each thing to do to them.
  * Its buttons are `modpanel:<action>:<user>`, and the popups they open are named the same, so they work however old the panel is.
  */
 export const MOD_PANEL_PREFIX = 'modpanel:';
@@ -65,10 +64,8 @@ const isCaseType = (value: string): value is ModCaseType => (CASE_TYPES as reado
 const panelId = (action: ModCaseType | 'cases', userId: string) => `${MOD_PANEL_PREFIX}${action}:${userId}`;
 
 /**
- * The panel for someone: whether they're timed out, banned or gone, how many cases they have, and the buttons. Removing a timeout and
- * unbanning take the place of their counterparts when they apply. A button is off when the moderator isn't allowed to do it, or it
- * can't be done to them, like kicking someone who isn't on the server. Problems that apply to everything, like it being the moderator
- * themselves, are said right away.
+ * The panel for someone: how they're doing, how many cases they have, and the buttons. A button is off when the moderator isn't allowed
+ * to do it or it can't be done to them. Problems that apply to everything, like it being the moderator themselves, are said right away.
  */
 export async function renderModerationPanel(guild: Guild, userId: string, moderator: GuildMember, t: Translate): Promise<ResponsePayload> {
   const [user, member, { counts, total }] = await Promise.all([
