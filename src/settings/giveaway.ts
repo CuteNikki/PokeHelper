@@ -3,6 +3,7 @@ import {
   ButtonStyle,
   channelMention,
   ChannelType,
+  type Guild,
   type PermissionsString,
   SeparatorBuilder,
   SeparatorSpacingSize,
@@ -85,6 +86,21 @@ function ageSetting(key: 'memberAge' | 'accountAge', field: 'minMemberMinutes' |
     validate: (text: string, t: Translate) => (parseMinutes(text, 1, MAX_AGE_MINUTES) === null ? t('giveaway.settings.invalidDuration') : null),
     set: (_guildId: string, text: string | null) => updateGiveaway(giveawayId, { [field]: text ? parseMinutes(text, 1, MAX_AGE_MINUTES) : null }),
   };
+}
+
+/**
+ * Set the required or blocked roles. A role can only be of one kind, so a bonus role picked here stops giving bonus entries, and then
+ * everyone's entries in a running giveaway are worked out again.
+ */
+async function setRuleRoles(guildId: string, giveawayId: string, kind: 'required' | 'blocked', roleIds: string[], guild: Guild | null) {
+  const before = await getGiveaway(guildId, giveawayId);
+  await setGiveawayRoles(
+    giveawayId,
+    kind,
+    roleIds.map((roleId) => ({ roleId })),
+  );
+  const tookBonus = before?.roles.some((role) => role.kind === 'bonus' && roleIds.includes(role.roleId));
+  if (guild && tookBonus) refreshEntriesSoon(guild, giveawayId);
 }
 
 /** Start and Throw away, under a draft. */
@@ -273,12 +289,7 @@ export function getGiveawaySettings(giveawayId: string): SettingsPanel {
         label: (t) => t('giveaway.settings.required.label'),
         description: (t) => t('giveaway.settings.required.description'),
         get: (giveaway) => roleIdsOf(giveaway, 'required'),
-        set: (_guildId, roleIds) =>
-          setGiveawayRoles(
-            giveawayId,
-            'required',
-            roleIds.map((roleId) => ({ roleId })),
-          ),
+        set: (guildId, roleIds, { guild }) => setRuleRoles(guildId, giveawayId, 'required', roleIds, guild),
       },
       {
         type: 'choice',
@@ -304,12 +315,7 @@ export function getGiveawaySettings(giveawayId: string): SettingsPanel {
         label: (t) => t('giveaway.settings.blocked.label'),
         description: (t) => t('giveaway.settings.blocked.description'),
         get: (giveaway) => roleIdsOf(giveaway, 'blocked'),
-        set: (_guildId, roleIds) =>
-          setGiveawayRoles(
-            giveawayId,
-            'blocked',
-            roleIds.map((roleId) => ({ roleId })),
-          ),
+        set: (guildId, roleIds, { guild }) => setRuleRoles(guildId, giveawayId, 'blocked', roleIds, guild),
       },
       {
         type: 'text',
