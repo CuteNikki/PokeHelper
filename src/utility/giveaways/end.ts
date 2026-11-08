@@ -37,7 +37,7 @@ import { type Candidate, drawWinners } from 'utility/giveaways/draw';
 import { logGiveaway, winnersDetail } from 'utility/giveaways/logs';
 import { GIVEAWAY_CUSTOM_ID } from 'utility/giveaways/post';
 import { bonusRolesOf, checkRules, countEntries, rulesOf } from 'utility/giveaways/rules';
-import { syncPost } from 'utility/giveaways/sync';
+import { giveawayChannel, syncPost } from 'utility/giveaways/sync';
 import { getTranslate, type Translate } from 'utility/i18next';
 import { logger } from 'utility/logger';
 import { canGiveRole } from 'utility/roles';
@@ -128,8 +128,8 @@ const claimRow = (giveaway: Giveaway, t: Translate) =>
  * @returns Whether it was posted.
  */
 async function announceWinners(guild: Guild, giveaway: Giveaway, winnerIds: string[], claimBy: Date | null, key: WinnersKey): Promise<boolean> {
-  const channel = guild.channels.cache.get(giveaway.channelId);
-  if (!channel?.isTextBased()) return false;
+  const channel = await giveawayChannel(guild, giveaway.channelId);
+  if (!channel) return false;
   const t = getTranslate(giveaway.locale);
   const lines =
     winnerIds.length > 0

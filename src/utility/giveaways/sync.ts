@@ -1,4 +1,4 @@
-import { type Client, DiscordAPIError, type Guild, RESTJSONErrorCodes } from 'discord.js';
+import { type Client, DiscordAPIError, type Guild, type GuildTextBasedChannel, RESTJSONErrorCodes } from 'discord.js';
 
 import { countParticipants, getGiveaway, getWinners, setGiveawayMessage } from 'database/giveaways';
 
@@ -15,6 +15,21 @@ const isGone = (error: unknown) =>
   error instanceof DiscordAPIError && (error.code === RESTJSONErrorCodes.UnknownMessage || error.code === RESTJSONErrorCodes.UnknownChannel);
 
 /**
+ * The channel a giveaway is in, from the cache, or else asked from Discord, as a channel can be missing from the cache without being gone.
+ * @returns The channel, null if it's gone or one a giveaway can't be in, or undefined if it couldn't be asked, like when Discord is down.
+ */
+export async function giveawayChannel(guild: Guild, channelId: string): Promise<GuildTextBasedChannel | null | undefined> {
+  try {
+    const channel = guild.channels.cache.get(channelId) ?? (await guild.channels.fetch(channelId));
+    return channel?.isTextBased() ? channel : null;
+  } catch (error) {
+    if (isGone(error)) return null;
+    logger.warn(error, `Failed to fetch channel ${channelId} of guild ${guild.id}`);
+    return undefined;
+  }
+}
+
+/**
  * Bring a giveaway's post up to date, like its number of participants or its winners.
  * A post that's gone is forgotten, and the giveaway goes on without it.
  */
@@ -22,9 +37,10 @@ export const syncPost = (guild: Guild, giveawayId: string) =>
   queue.run(giveawayId, async () => {
     const giveaway = await getGiveaway(guild.id, giveawayId);
     if (!giveaway?.messageId) return;
-    const channel = guild.channels.cache.get(giveaway.channelId);
-    // The channel was deleted, and the post with it
-    if (!channel?.isTextBased()) return setGiveawayMessage(giveaway.id, null);
+    const channel = await giveawayChannel(guild, giveaway.channelId);
+    // The channel was deleted, and the post with it. When it isn't known, the post is kept, to be updated next time
+    if (channel === null) return setGiveawayMessage(giveaway.id, null);
+    if (!channel) return;
     const [participants, winners] = await Promise.all([countParticipants(giveaway.id), getWinners(giveaway.id)]);
     try {
       await channel.messages.edit(giveaway.messageId, renderPost(guild, giveaway, { participants, winnerIds: winners.map((winner) => winner.userId) }));
