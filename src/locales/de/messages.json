@@ -1633,7 +1633,8 @@
       "alreadyBanned": "{{user}} ist schon gebannt.",
       "notBanned": "{{user}} ist nicht gebannt.",
       "banTooLong": "Ein Bann auf Zeit geht höchstens 5 Jahre. Lass die Dauer weg, um die Person für immer zu bannen.",
-      "notTimedOut": "{{user}} hat gerade keinen Timeout."
+      "notTimedOut": "{{user}} hat gerade keinen Timeout.",
+      "memberUnknown": "Ich konnte Discord nicht fragen, ob die Person auf dem Server ist, darum ist nichts passiert. Versuch es gleich nochmal."
     },
     "dm": {
       "warn": "### {{icon}} Du wurdest auf {{server}} verwarnt",

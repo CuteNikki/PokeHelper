@@ -22,7 +22,6 @@ export default new Command({
     return runModeration(interaction, {
       type: 'unban',
       user: interaction.options.getUser('user', true),
-      member: null,
       reason: interaction.options.getString('reason'),
       dm: false,
     });

@@ -219,10 +219,7 @@ export async function handleModerationPanelModal(interaction: ModalSubmitInterac
   // Answered before anything is asked of Discord, as it gives up after 3 seconds
   await interaction.deferUpdate();
   const { guild } = interaction;
-  const [user, member] = await Promise.all([
-    interaction.client.users.fetch(parsed.userId).catch(() => null),
-    guild.members.fetch(parsed.userId).catch(() => null),
-  ]);
+  const user = await interaction.client.users.fetch(parsed.userId).catch(() => null);
   if (!user) return sendError(interaction, t('system.outdated'));
 
   const { fields } = interaction;
@@ -231,7 +228,6 @@ export async function handleModerationPanelModal(interaction: ModalSubmitInterac
   const result = await moderate(interaction, {
     type,
     user,
-    member,
     reason: text(REASON_INPUT_ID),
     duration: text(DURATION_INPUT_ID),
     deleteMessageSeconds: deleteKey && deleteKey in DELETE_MESSAGES ? DELETE_MESSAGES[deleteKey as keyof typeof DELETE_MESSAGES] : 0,

@@ -21,7 +21,6 @@ export default new Command({
     return runModeration(interaction, {
       type: 'untimeout',
       user: interaction.options.getUser('member', true),
-      member: interaction.options.getMember('member'),
       reason: interaction.options.getString('reason'),
       dm: interaction.options.getBoolean('dm') ?? true,
     });

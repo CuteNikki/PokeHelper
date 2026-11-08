@@ -187,8 +187,6 @@ export function buildCaseDm(guild: Guild, modCase: ModCase, t: Translate): Respo
 export interface ModerationRequest {
   type: ModCaseType;
   user: User;
-  /** Who it's about as a member of the server, or null if they're not on it. */
-  member: GuildMember | null;
   reason: string | null;
   /** How long, as typed, which a timeout needs and a ban can have, for a temporary one. */
   duration?: string | null;
@@ -213,7 +211,11 @@ async function prepareModeration(
   request: ModerationRequest,
   t: Translate,
 ): Promise<string | { expiresAt: Date | null; act: (auditReason: string) => Promise<unknown> }> {
-  const { type, user, member } = request;
+  const { type, user } = request;
+  // Asked of Discord each time, as who's on the server and their roles may have changed since. If that can't be asked, nothing is done,
+  // as it would skip the checks of their roles
+  const member = await fetchMember(guild, user.id);
+  if (member === undefined) return t('moderation.problems.memberUnknown');
   if (!member && type !== 'ban' && type !== 'unban') return t('moderation.problems.notMember');
   if (type === 'untimeout' && !member?.isCommunicationDisabled()) return t('moderation.problems.notTimedOut', { user: userSubject(user) });
   const problem = moderationProblem(guild, moderator, user, member, type, t);

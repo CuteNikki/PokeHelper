@@ -36,7 +36,6 @@ export default new Command({
     return runModeration(interaction, {
       type: 'ban',
       user: interaction.options.getUser('user', true),
-      member: interaction.options.getMember('user'),
       reason: interaction.options.getString('reason'),
       duration: interaction.options.getString('duration'),
       deleteMessageSeconds: interaction.options.getInteger('delete-messages') ?? 0,

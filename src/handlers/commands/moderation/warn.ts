@@ -21,7 +21,6 @@ export default new Command({
     return runModeration(interaction, {
       type: 'warn',
       user: interaction.options.getUser('member', true),
-      member: interaction.options.getMember('member'),
       reason: interaction.options.getString('reason', true),
       dm: interaction.options.getBoolean('dm') ?? true,
     });
