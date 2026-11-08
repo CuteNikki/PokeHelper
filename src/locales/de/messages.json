@@ -2133,7 +2133,7 @@
       },
       "prizes": {
         "label": "Preise nach Platz",
-        "description": "Andere Preise für die ersten gezogenen Gewinner, einer pro Zeile, wie 1x Shiny Glurak. Die anderen Gewinner bekommen den Preis oben",
+        "description": "Andere Preise für die ersten gezogenen Gewinner, einer pro Zeile, wie 1x Shiny Glurak. Die anderen Gewinner bekommen den Preis aus Grundlegendes",
         "placeholder": "1x Shiny Glurak\n2x Sonderbonbon",
         "invalid": "Schreib einen Preis pro Zeile, mit der Anzahl der Gewinner davor, wie 2x Sonderbonbon. Höchstens {{max}} Gewinner pro Preis.",
         "tooMany": "Das sind mehr als {{max}} Preise.",

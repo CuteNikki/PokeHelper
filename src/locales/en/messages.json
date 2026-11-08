@@ -2189,7 +2189,7 @@
       },
       "prizes": {
         "label": "Prizes by place",
-        "description": "Other prizes for the first winners drawn, one per line, like 1x Shiny Charizard. The other winners get the prize above",
+        "description": "Other prizes for the first winners drawn, one per line, like 1x Shiny Charizard. The other winners get the Prize from Basics",
         "placeholder": "1x Shiny Charizard\n2x Rare Candy",
         "invalid": "Write one prize per line, with how many winners get it in front, like 2x Rare Candy. At most {{max}} winners each.",
         "tooMany": "That's more than {{max}} prizes.",
