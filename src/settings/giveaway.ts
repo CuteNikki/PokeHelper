@@ -65,6 +65,14 @@ type GiveawayConfig = Giveaway & { levelingEnabled: boolean };
 
 const roleIdsOf = (giveaway: Giveaway, kind: 'required' | 'blocked') => giveaway.roles.filter((role) => role.kind === kind).map((role) => role.roleId);
 
+/** A warning when the prizes by place are for more winners than there are, as the last ones are then never given. */
+function placesWarning(giveaway: Giveaway, t: Translate): string[] {
+  const places = giveaway.prizes.reduce((sum, prize) => sum + prize.count, 0);
+  if (places <= giveaway.winnerCount) return [];
+  const warning = t('giveaway.draft.tooManyPlaces', { places: formatNumber(places, t), winners: formatNumber(giveaway.winnerCount, t) });
+  return [t('settings.warning', { warning })];
+}
+
 /** What a draft says above its settings: where it goes, and what's missing for it to be posted there. */
 function draftHeader(giveaway: Giveaway, guild: { channels: { cache: { has: (id: string) => boolean } } } | null, missing: PermissionsString[], t: Translate) {
   const lines = [t('giveaway.draft.header', { channel: channelMention(giveaway.channelId) })];
@@ -72,6 +80,7 @@ function draftHeader(giveaway: Giveaway, guild: { channels: { cache: { has: (id:
   else if (missing.length > 0) {
     lines.push(t('settings.warning', { warning: t('giveaway.draft.missingPermissions', { permissions: formatPermissions(missing, t) }) }));
   }
+  lines.push(...placesWarning(giveaway, t));
   return lines.join('\n');
 }
 
@@ -149,7 +158,7 @@ export function getGiveawaySettings(giveawayId: string): SettingsPanel {
     header: (giveaway, { guild }, t) =>
       isDraft(giveaway)
         ? draftHeader(giveaway, guild, guild ? missingBotPermissions(guild, giveaway.channelId, GIVEAWAY_CHANNEL_PERMISSIONS) : [], t)
-        : t('giveaway.edit.header'),
+        : [t('giveaway.edit.header'), ...placesWarning(giveaway, t)].join('\n'),
     footer: (giveaway, t) =>
       isDraft(giveaway)
         ? draftButtons(giveaway, t)

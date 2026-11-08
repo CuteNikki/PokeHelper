@@ -2027,7 +2027,8 @@
       "discarded": "Hab den Entwurf weggeworfen.",
       "tooMany": "Dieser Server hat schon {{max}} Entwürfe. Starte oder wirf erst einen weg, oder warte einen Tag, dann werden nicht gestartete Entwürfe gelöscht.",
       "off": "Giveaways sind auf diesem Server gerade ausgeschaltet. Schalte sie erst in `/giveaway liste` an, dann starte es.",
-      "pickChannel": "Giveaways lassen sich nur in Text- und Ankündigungskanälen posten, nicht hier. Such dir mit der Kanal-Option einen aus."
+      "pickChannel": "Giveaways lassen sich nur in Text- und Ankündigungskanälen posten, nicht hier. Such dir mit der Kanal-Option einen aus.",
+      "tooManyPlaces": "Die Preise nach Platz sind für {{places}} Gewinner, es gibt aber nur {{winners}}, also werden die letzten nicht vergeben."
     },
     "settings": {
       "categories": {
