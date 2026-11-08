@@ -153,7 +153,7 @@ export function buildPanel({ channel, record }: TempChannel, t: Translate): Resp
       row(t('tempVoice.panel.name'), t('tempVoice.panel.nameDescription'), edit('rename'), quote(channelLabel(record.namePrefix, channel.name))),
       row(t('tempVoice.panel.limit'), t('tempVoice.panel.limitDescription'), edit('limit'), quote(limit)),
     )
-    .addSeparatorComponents(new SeparatorBuilder())
+    .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large))
     .addTextDisplayComponents(heading(t('tempVoice.panel.allowed'), withHidden(t('tempVoice.panel.allowedDescription'), record.allowed.length)))
     .addActionRowComponents(new ActionRowBuilder<UserSelectMenuBuilder>().addComponents(allowed))
     .addTextDisplayComponents(heading(t('tempVoice.panel.blocked'), withHidden(t('tempVoice.panel.blockedDescription'), record.blocked.length)))
