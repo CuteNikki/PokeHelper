@@ -1,17 +1,9 @@
-import {
-  type Client,
-  ContainerBuilder,
-  DiscordAPIError,
-  type GuildTextBasedChannel,
-  type Message,
-  MessageFlags,
-  RESTJSONErrorCodes,
-  TextDisplayBuilder,
-} from 'discord.js';
+import { type Client, ContainerBuilder, type GuildTextBasedChannel, type Message, MessageFlags, RESTJSONErrorCodes, TextDisplayBuilder } from 'discord.js';
 
 import { getFeatureSwitches, setFeatureSwitch } from 'database/features';
 import { deleteSticky, getGuildStickies, getSticky, getStickyChannelIds, setStickyMessageId } from 'database/sticky';
 
+import { isDiscordError } from 'utility/discord';
 import { SECOND } from 'utility/duration';
 import { guildTranslate } from 'utility/i18next';
 import { logger } from 'utility/logger';
@@ -62,14 +54,12 @@ export const buildStickyMessage = (text: string, label: string): ResponsePayload
   allowedMentions: { parse: [] },
 });
 
-const isApiError = (error: unknown, code: RESTJSONErrorCodes) => error instanceof DiscordAPIError && error.code === code;
-
 /** The channel of a sticky message, or null if it can't be posted in or is gone, in which case its sticky message is removed. */
 async function stickyChannel(client: Client, channelId: string): Promise<GuildTextBasedChannel | null> {
   // Threads aren't always cached, like after a restart
   const channel =
     client.channels.cache.get(channelId) ??
-    (await client.channels.fetch(channelId).catch((error: unknown) => (isApiError(error, RESTJSONErrorCodes.UnknownChannel) ? null : undefined)));
+    (await client.channels.fetch(channelId).catch((error: unknown) => (isDiscordError(error, RESTJSONErrorCodes.UnknownChannel) ? null : undefined)));
   if (channel === null) {
     await removeSticky(channelId);
     return null;
@@ -82,7 +72,7 @@ async function stickyChannel(client: Client, channelId: string): Promise<GuildTe
 async function deletePost(channel: GuildTextBasedChannel, messageId: string) {
   markBotDelete(messageId);
   await channel.messages.delete(messageId).catch((error: unknown) => {
-    if (!isApiError(error, RESTJSONErrorCodes.UnknownMessage))
+    if (!isDiscordError(error, RESTJSONErrorCodes.UnknownMessage))
       logger.warn(error, `Failed to delete the old sticky message ${messageId} in channel ${channel.id}`);
   });
 }
@@ -115,7 +105,7 @@ async function postSticky(client: Client, channelId: string, changed: boolean): 
   try {
     post = await channel.send(payload);
   } catch (error) {
-    if (isApiError(error, RESTJSONErrorCodes.UnknownChannel)) await removeSticky(channelId);
+    if (isDiscordError(error, RESTJSONErrorCodes.UnknownChannel)) await removeSticky(channelId);
     else logger.warn(error, `Failed to post the sticky message in channel ${channelId} of guild ${sticky.guildId}`);
     return false;
   }

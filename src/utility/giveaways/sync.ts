@@ -1,7 +1,8 @@
-import { type Client, DiscordAPIError, type Guild, type GuildTextBasedChannel, RESTJSONErrorCodes } from 'discord.js';
+import { type Client, type Guild, type GuildTextBasedChannel } from 'discord.js';
 
 import { countParticipants, getGiveaway, getWinners, setGiveawayMessage } from 'database/giveaways';
 
+import { isMessageGone } from 'utility/discord';
 import { renderPost } from 'utility/giveaways/publish';
 import { logger } from 'utility/logger';
 import { KeyedQueue } from 'utility/queue';
@@ -10,9 +11,6 @@ import { KeyedQueue } from 'utility/queue';
 const queue = new KeyedQueue();
 /** Giveaways whose post is out of date, by server, to be updated on the next flush. */
 const changed = new Map<string, string>();
-
-const isGone = (error: unknown) =>
-  error instanceof DiscordAPIError && (error.code === RESTJSONErrorCodes.UnknownMessage || error.code === RESTJSONErrorCodes.UnknownChannel);
 
 /**
  * The channel a giveaway is in, from the cache, or else asked from Discord, as a channel can be missing from the cache without being gone.
@@ -23,7 +21,7 @@ export async function giveawayChannel(guild: Guild, channelId: string): Promise<
     const channel = guild.channels.cache.get(channelId) ?? (await guild.channels.fetch(channelId));
     return channel?.isTextBased() ? channel : null;
   } catch (error) {
-    if (isGone(error)) return null;
+    if (isMessageGone(error)) return null;
     logger.warn(error, `Failed to fetch channel ${channelId} of guild ${guild.id}`);
     return undefined;
   }
@@ -45,7 +43,7 @@ export const syncPost = (guild: Guild, giveawayId: string) =>
     try {
       await channel.messages.edit(giveaway.messageId, renderPost(guild, giveaway, { participants, winnerIds: winners.map((winner) => winner.userId) }));
     } catch (error) {
-      if (isGone(error)) await setGiveawayMessage(giveaway.id, null);
+      if (isMessageGone(error)) await setGiveawayMessage(giveaway.id, null);
       else logger.warn(error, `Failed to update the post of giveaway ${giveaway.id} in guild ${guild.id}`);
     }
   });

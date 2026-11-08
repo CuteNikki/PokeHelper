@@ -2,7 +2,6 @@ import {
   bold,
   type ChatInputCommandInteraction,
   ContainerBuilder,
-  DiscordAPIError,
   type Guild,
   type GuildMember,
   MessageFlags,
@@ -18,6 +17,7 @@ import {
 import { createCase, undoCase } from 'database/moderation';
 
 import type { ModCase, ModCaseType } from 'generated/prisma/client';
+import { isDiscordError, isRefused } from 'utility/discord';
 import { DAY, formatNumber, MINUTE } from 'utility/duration';
 import { textIcon } from 'utility/emojis';
 import type { IconName } from 'utility/icons';
@@ -138,15 +138,13 @@ export function moderationProblem(
   return null;
 }
 
-const isApiError = (error: unknown, ...codes: RESTJSONErrorCodes[]) => error instanceof DiscordAPIError && codes.includes(error.code as RESTJSONErrorCodes);
-
 /** Whether someone is banned from a server, asked of Discord, or undefined if it couldn't be asked. */
 export async function fetchBanned(guild: Guild, userId: string): Promise<boolean | undefined> {
   try {
     await guild.bans.fetch({ user: userId, force: true });
     return true;
   } catch (error) {
-    return isApiError(error, RESTJSONErrorCodes.UnknownBan) ? false : undefined;
+    return isDiscordError(error, RESTJSONErrorCodes.UnknownBan) ? false : undefined;
   }
 }
 
@@ -155,7 +153,7 @@ export async function fetchMember(guild: Guild, userId: string): Promise<GuildMe
   try {
     return await guild.members.fetch({ user: userId, force: true });
   } catch (error) {
-    return isApiError(error, RESTJSONErrorCodes.UnknownMember, RESTJSONErrorCodes.UnknownUser) ? null : undefined;
+    return isDiscordError(error, RESTJSONErrorCodes.UnknownMember, RESTJSONErrorCodes.UnknownUser) ? null : undefined;
   }
 }
 
@@ -165,7 +163,7 @@ export async function fetchMember(guild: Guild, userId: string): Promise<GuildMe
  * @param expiresAt When a timeout ends, to tell it apart from one that was there before.
  */
 export async function happenedAnyway(error: unknown, guild: Guild, userId: string, type: ModCaseType, expiresAt: Date | null): Promise<boolean> {
-  if (error instanceof DiscordAPIError && error.status < 500) return false;
+  if (isRefused(error)) return false;
   switch (type) {
     case 'warn':
       return false;

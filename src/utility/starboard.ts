@@ -5,7 +5,6 @@ import {
   ButtonStyle,
   channelMention,
   ContainerBuilder,
-  DiscordAPIError,
   type Guild,
   MediaGalleryBuilder,
   type Message,
@@ -36,6 +35,7 @@ import {
   type StarboardEntry,
 } from 'database/starboard';
 
+import { isDiscordError, isMessageGone } from 'utility/discord';
 import { DAY, formatNumber, SECOND } from 'utility/duration';
 import { customEmojiId } from 'utility/emoji';
 import { guildTranslate, type Translate } from 'utility/i18next';
@@ -174,10 +174,7 @@ async function uploadsOf(message: Message): Promise<AttachmentBuilder[]> {
   return files.filter((file): file is AttachmentBuilder => file !== null);
 }
 
-const isUnknownMessage = (error: unknown) => error instanceof DiscordAPIError && error.code === RESTJSONErrorCodes.UnknownMessage;
-/** Whether a fetch failed because the message or its channel is gone, and not for a moment, like Discord having trouble. */
-const isGone = (error: unknown) =>
-  error instanceof DiscordAPIError && (error.code === RESTJSONErrorCodes.UnknownMessage || error.code === RESTJSONErrorCodes.UnknownChannel);
+const isUnknownMessage = (error: unknown) => isDiscordError(error, RESTJSONErrorCodes.UnknownMessage);
 
 /** Whether a channel is age-restricted. Threads are as their channel is, as they have no setting of their own. */
 const isAgeRestricted = (channel: Message['channel']) => (channel.isThread() ? Boolean(channel.parent?.nsfw) : 'nsfw' in channel && channel.nsfw);
@@ -258,7 +255,7 @@ export function changeStars(guild: Guild, message: Message | PartialMessage, cha
       full = message.partial ? await message.fetch() : message;
     } catch (error) {
       // Only a message that's really gone is forgotten. Any other failure, like Discord having trouble, leaves it as it is
-      if (!isGone(error)) throw error;
+      if (!isMessageGone(error)) throw error;
       if (entry) await forget(guild, config, entry);
       return null;
     }
@@ -319,7 +316,7 @@ export async function toggleStar(guild: Guild, entry: StarboardEntry, userId: st
     if (channel?.isTextBased()) message = await channel.messages.fetch(entry.messageId);
   } catch (error) {
     // Only a message that's really gone is forgotten. Any other failure leaves it as it is
-    if (!isGone(error)) throw error;
+    if (!isMessageGone(error)) throw error;
   }
   if (!message) {
     const config = await getGuildStarboard(guild.id);

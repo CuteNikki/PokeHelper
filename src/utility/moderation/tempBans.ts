@@ -1,7 +1,8 @@
-import { AuditLogEvent, type Client, DiscordAPIError, type Guild, RESTJSONErrorCodes } from 'discord.js';
+import { AuditLogEvent, type Client, type Guild, RESTJSONErrorCodes } from 'discord.js';
 
 import { endCase, getExpiredBans, reopenCase } from 'database/moderation';
 
+import { isDiscordError } from 'utility/discord';
 import { getTranslate } from 'utility/i18next';
 import { logger } from 'utility/logger';
 import type { ModCase } from 'generated/prisma/client';
@@ -50,7 +51,7 @@ async function liftTempBan(guild: Guild, modCase: ModCase) {
     warned.delete(modCase.id);
   } catch (error) {
     // Lifted meanwhile, or their account was deleted, so there's nothing to lift and it stays ended
-    if (error instanceof DiscordAPIError && (error.code === RESTJSONErrorCodes.UnknownBan || error.code === RESTJSONErrorCodes.UnknownUser)) return;
+    if (isDiscordError(error, RESTJSONErrorCodes.UnknownBan, RESTJSONErrorCodes.UnknownUser)) return;
     await reopenCase(modCase.id, endedAt);
     if (!warned.has(modCase.id)) {
       // Like when the bot can't ban anymore. Tried again on every run, so it's lifted once it can

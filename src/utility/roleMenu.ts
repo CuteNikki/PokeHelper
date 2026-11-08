@@ -3,14 +3,12 @@ import {
   ButtonBuilder,
   ButtonStyle,
   ContainerBuilder,
-  DiscordAPIError,
   type Guild,
   heading,
   HeadingLevel,
   type Message,
   MessageFlags,
   type PermissionsString,
-  RESTJSONErrorCodes,
   roleMention,
   subtext,
   TextDisplayBuilder,
@@ -26,6 +24,7 @@ import {
   type RoleMenu,
 } from 'database/roleMenu';
 
+import { isMessageGone } from 'utility/discord';
 import { DiscordLimits } from 'utility/discordLimits';
 import { customEmojiId } from 'utility/emoji';
 import { guildTranslate, type Translate } from 'utility/i18next';
@@ -84,7 +83,7 @@ async function fetchMenuMessage(guild: Guild, channelId: string, messageId: stri
   try {
     return await channel.messages.fetch(messageId);
   } catch (error) {
-    if (error instanceof DiscordAPIError && (error.code === RESTJSONErrorCodes.UnknownMessage || error.code === RESTJSONErrorCodes.UnknownChannel)) return null;
+    if (isMessageGone(error)) return null;
     throw error;
   }
 }

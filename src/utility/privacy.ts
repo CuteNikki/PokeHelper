@@ -7,7 +7,6 @@ import {
   ButtonStyle,
   type Client,
   ContainerBuilder,
-  DiscordAPIError,
   FileBuilder,
   type Guild,
   MessageFlags,
@@ -24,6 +23,7 @@ import { ensureGuild } from 'database/guild';
 import { getTempBans } from 'database/moderation';
 import { deleteGuildData, deleteUserData, getGivenRoles, getGuildData, getUserData, type GivenRole } from 'database/privacy';
 
+import { isDiscordError } from 'utility/discord';
 import { buttonIcon } from 'utility/emojis';
 import { runCountingTask } from 'utility/counting/game';
 import { buildConfirmation } from 'utility/confirm';
@@ -162,7 +162,7 @@ async function liftTempBans(guild: Guild): Promise<number> {
     if (await bannedAgain(guild, modCase)) continue;
     await guild.members.unban(modCase.userId, t('moderation.tempBanDataDeleted', { number: caseNumber(modCase, t) })).catch((error: unknown) => {
       // Lifted meanwhile
-      if (error instanceof DiscordAPIError && error.code === RESTJSONErrorCodes.UnknownBan) return;
+      if (isDiscordError(error, RESTJSONErrorCodes.UnknownBan)) return;
       failed++;
       logger.warn(error, `Failed to lift the temporary ban of ${modCase.userId} in guild ${guild.id}`);
     });

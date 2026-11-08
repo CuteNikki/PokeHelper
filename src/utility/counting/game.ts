@@ -1,5 +1,4 @@
 import {
-  DiscordAPIError,
   MessageType,
   RESTJSONErrorCodes,
   SnowflakeUtil,
@@ -25,6 +24,7 @@ import {
   type CountMessage,
 } from 'utility/counting/rules';
 import { parseCount } from 'utility/counting/parse';
+import { isDiscordError } from 'utility/discord';
 import { formatNumber, SECOND } from 'utility/duration';
 import { guildTranslate } from 'utility/i18next';
 import { logger } from 'utility/logger';
@@ -70,7 +70,7 @@ const toCountMessage = (message: Message): CountMessage => ({
 const deleteMessage = (message: Message) => {
   markBotDelete(message.id);
   return message.delete().catch((error: unknown) => {
-    if (error instanceof DiscordAPIError && error.code === RESTJSONErrorCodes.UnknownMessage) return;
+    if (isDiscordError(error, RESTJSONErrorCodes.UnknownMessage)) return;
     logger.error(error, `Failed to delete counting message ${message.id}`);
   });
 };
