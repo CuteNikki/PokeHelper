@@ -64,17 +64,29 @@ export async function publishDraft(
   if (started === 'notDraft') return { error: t('giveaway.draft.gone') };
   if (started === 'full') return { error: t('giveaway.draft.full', { max: formatNumber(MAX_ACTIVE_GIVEAWAYS, t) }) };
 
+  let message;
   try {
-    const message = await channel.send(renderPost(guild, started, { participants: 0, winnerIds: [] }));
-    await setGiveawayMessage(started.id, message.id);
-    await logGiveaway(guild, 'giveawayStarted', { ...started, messageId: message.id }, byId, (logT) => [
-      started.endsAt ? logT('logs.giveaways.ends', { time: time(started.endsAt, TimestampStyles.LongDateShortTime) }) : null,
-    ]);
-    return { link: messageLink(channel.id, message.id, guild.id), channelId: channel.id };
+    message = await channel.send(renderPost(guild, started, { participants: 0, winnerIds: [] }));
   } catch (error) {
     // Like when the permissions changed meanwhile. Back to a draft, so it can be started again once it can be posted
     logger.warn(error, `Failed to post giveaway ${started.id} in channel ${channel.id} of guild ${guild.id}`);
     await unstartGiveaway(started.id);
     return { error: t('giveaway.draft.postFailed') };
   }
+
+  try {
+    await setGiveawayMessage(started.id, message.id);
+  } catch (error) {
+    // Without the post saved, it would never be updated or show its winners, and going back to a draft would leave it up saying it
+    // ended. So it's taken down again, and starting the draft again posts it anew
+    logger.error(error, `Failed to save the post of giveaway ${started.id}`);
+    await message.delete().catch(() => null);
+    await unstartGiveaway(started.id).catch(() => null);
+    return { error: t('giveaway.draft.postFailed') };
+  }
+
+  await logGiveaway(guild, 'giveawayStarted', { ...started, messageId: message.id }, byId, (logT) => [
+    started.endsAt ? logT('logs.giveaways.ends', { time: time(started.endsAt, TimestampStyles.LongDateShortTime) }) : null,
+  ]);
+  return { link: messageLink(channel.id, message.id, guild.id), channelId: channel.id };
 }
