@@ -27,6 +27,7 @@ import {
   type CaseSort,
   createCase,
   deleteCase,
+  endCase,
   getCase,
   getRelatedCases,
   getUserCases,
@@ -48,6 +49,8 @@ import {
   buildCaseDm,
   CASE_ICONS,
   caseNumber,
+  fetchBanned,
+  fetchMember,
   formatUntil,
   happenedAnyway,
   MAX_BAN_DAYS,
@@ -473,16 +476,29 @@ async function endNow(interaction: ModalSubmitInteraction<'cached'>, modCase: Mo
   const reason = interaction.fields.getTextInputValue(END_REASON_INPUT_ID).trim() || null;
   const type = modCase.type === 'ban' ? 'unban' : 'untimeout';
 
+  // Asked of Discord first, as it may be over already, like when it was lifted while the bot was offline. Then its case only ends
   let act: (auditReason: string) => Promise<unknown>;
+  let stillOn: boolean;
   if (type === 'unban') {
     if (!interaction.member.permissions.has('BanMembers')) return sendError(interaction, t('moderation.cases.endModal.noBanPermission'));
+    const banned = await fetchBanned(guild, modCase.userId);
+    if (banned === undefined) return sendError(interaction, t('moderation.problems.banUnknown'));
+    stillOn = banned;
     act = (audit) => guild.members.unban(modCase.userId, audit);
   } else {
-    const member = await guild.members.fetch(modCase.userId).catch(() => null);
+    const member = await fetchMember(guild, modCase.userId);
+    if (member === undefined) return sendError(interaction, t('moderation.problems.memberUnknown'));
     if (!member) return sendError(interaction, t('moderation.problems.notMember'));
     const problem = moderationProblem(guild, interaction.member, member.user, member, 'untimeout', t);
     if (problem) return sendError(interaction, problem);
+    stillOn = member.isCommunicationDisabled();
     act = (audit) => member.timeout(null, audit);
+  }
+  if (!stillOn) {
+    await endCase(modCase.id);
+    const ended = (await getCase(guild.id, modCase.id)) ?? { ...modCase, endedAt: new Date() };
+    const notice = t('moderation.cases.endModal.alreadyOver', { number: caseNumber(modCase, t) });
+    return interaction.editReply(withNotice(notice, 'info', await renderCaseView(guild, ended, state, t)));
   }
 
   const lifted = await createCase({ guildId: guild.id, type, userId: modCase.userId, moderatorId: interaction.user.id, reason });

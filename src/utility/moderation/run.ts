@@ -142,7 +142,7 @@ export const isBanned = async (guild: Guild, userId: string) => (await guild.ban
 const isApiError = (error: unknown, ...codes: RESTJSONErrorCodes[]) => error instanceof DiscordAPIError && codes.includes(error.code as RESTJSONErrorCodes);
 
 /** Whether someone is banned from a server, asked of Discord, or undefined if it couldn't be asked. */
-async function fetchBanned(guild: Guild, userId: string): Promise<boolean | undefined> {
+export async function fetchBanned(guild: Guild, userId: string): Promise<boolean | undefined> {
   try {
     await guild.bans.fetch({ user: userId, force: true });
     return true;

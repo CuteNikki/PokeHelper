@@ -1634,7 +1634,8 @@
       "notBanned": "{{user}} ist nicht gebannt.",
       "banTooLong": "Ein Bann auf Zeit geht höchstens 5 Jahre. Lass die Dauer weg, um die Person für immer zu bannen.",
       "notTimedOut": "{{user}} hat gerade keinen Timeout.",
-      "memberUnknown": "Ich konnte Discord nicht fragen, ob die Person auf dem Server ist, darum ist nichts passiert. Versuch es gleich nochmal."
+      "memberUnknown": "Ich konnte Discord nicht fragen, ob die Person auf dem Server ist, darum ist nichts passiert. Versuch es gleich nochmal.",
+      "banUnknown": "Ich konnte Discord nicht fragen, ob die Person gebannt ist, darum ist nichts passiert. Versuch es gleich nochmal."
     },
     "dm": {
       "warn": "### {{icon}} Du wurdest auf {{server}} verwarnt",
@@ -1787,7 +1788,8 @@
         "doneNever": "Fall {{number}} ist jetzt ein Bann für immer.",
         "reasonLabel": "Grund, wenn du es jetzt beendest",
         "reasonDescription": "Nur bei 0, für den Fall, der es beendet",
-        "doneNow": "Beendet, das ist Fall {{number}}."
+        "doneNow": "Beendet, das ist Fall {{number}}.",
+        "alreadyOver": "Das war auf Discord schon vorbei, darum ist Fall {{number}} jetzt nur als beendet markiert."
       }
     },
     "purge": {

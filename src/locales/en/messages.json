@@ -1690,7 +1690,8 @@
       "notBanned": "{{user}} isn't banned.",
       "banTooLong": "A temporary ban can be at most 5 years long. Leave the duration out to ban them for good.",
       "notTimedOut": "{{user}} isn't timed out.",
-      "memberUnknown": "I couldn't ask Discord whether they're on the server, so nothing was done. Try again in a moment."
+      "memberUnknown": "I couldn't ask Discord whether they're on the server, so nothing was done. Try again in a moment.",
+      "banUnknown": "I couldn't ask Discord whether they're banned, so nothing was done. Try again in a moment."
     },
     "dm": {
       "warn": "### {{icon}} You were warned on {{server}}",
@@ -1843,7 +1844,8 @@
         "doneNever": "Case {{number}} is a ban for good now.",
         "reasonLabel": "Reason, when ending it now",
         "reasonDescription": "Only used with 0, for the case that ends it",
-        "doneNow": "Ended it, that's case {{number}}."
+        "doneNow": "Ended it, that's case {{number}}.",
+        "alreadyOver": "That was already over on Discord, so case {{number}} is only marked as ended now."
       }
     },
     "purge": {
