@@ -42,7 +42,7 @@ import { DiscordLimits } from 'utility/discordLimits';
 import { SECOND } from 'utility/duration';
 import { buttonIcon, textIcon } from 'utility/emojis';
 import { getTranslate, type Translate } from 'utility/i18next';
-import { userRef, when } from 'utility/logs/format';
+import { userRef, userSubject, when } from 'utility/logs/format';
 import { buildTextModal } from 'utility/modal';
 import { canChangeEnd, END_NOW, type EndError, parseNewEnd } from 'utility/moderation/end';
 import {
@@ -58,7 +58,9 @@ import {
   MAX_REASON_LENGTH,
   MAX_TIMEOUT_DAYS,
   moderationProblem,
+  MODERATOR_PERMISSIONS,
   oneAtATime,
+  permissionProblem,
 } from 'utility/moderation/run';
 import { buildPageModal, buildPageRow, clampPage, type PageButton, readPageInput } from 'utility/pagination';
 import { sendError, withNotice, type ResponsePayload } from 'utility/response';
@@ -326,6 +328,25 @@ function renderDeleteQuestion(modCase: ModCase, state: CasesState, t: Translate)
 const listWithNotice = async (guild: Guild, state: CasesState, notice: string, kind: 'success' | 'info', t: Translate) =>
   withNotice(notice, kind, await renderCaseList(guild, state, t));
 
+/**
+ * Why a moderator can't change or delete a case, or null if they can: not cases about themselves, or about members whose highest role
+ * isn't below theirs, like for moderating them, and only with the permission its type needs, like Ban Members for a ban. The server's
+ * owner can change any.
+ */
+async function changeProblem(interaction: ButtonInteraction<'cached'> | ModalSubmitInteraction<'cached'>, modCase: ModCase, t: Translate) {
+  const { guild, member: moderator } = interaction;
+  if (moderator.id === guild.ownerId) return null;
+  if (modCase.userId === moderator.id) return t('moderation.cases.ownCase');
+  const notAllowed = permissionProblem(moderator, MODERATOR_PERMISSIONS[modCase.type], t);
+  if (notAllowed) return notAllowed;
+  const member = await fetchMember(guild, modCase.userId);
+  if (member === undefined) return t('moderation.problems.memberUnknown');
+  if (member && member.roles.highest.comparePositionTo(moderator.roles.highest) >= 0) {
+    return t('moderation.problems.aboveYou', { user: userSubject(member.user) });
+  }
+  return null;
+}
+
 /** The case a button is about, or the list again saying it's gone, as someone may have deleted it meanwhile. */
 async function caseOrGone(interaction: ButtonInteraction<'cached'> | ModalSubmitInteraction<'cached'>, id: string, state: CasesState, t: Translate) {
   const modCase = await getCase(interaction.guildId, id);
@@ -395,11 +416,16 @@ export async function handleCasesButton(interaction: ButtonInteraction<'cached'>
     }
     case 'delete': {
       const modCase = await caseOrGone(interaction, parsed.caseId, state, t);
-      return modCase && interaction.editReply(renderDeleteQuestion(modCase, state, t));
+      if (!modCase) return;
+      const problem = await changeProblem(interaction, modCase, t);
+      if (problem) return sendError(interaction, problem);
+      return interaction.editReply(renderDeleteQuestion(modCase, state, t));
     }
     case 'deleteYes': {
       const modCase = await caseOrGone(interaction, parsed.caseId, state, t);
       if (!modCase) return;
+      const problem = await changeProblem(interaction, modCase, t);
+      if (problem) return sendError(interaction, problem);
       // Deleting it makes it a ban for good, which only those who can ban may do, like changing its end
       if (isRunningTempBan(modCase) && !interaction.member.permissions.has('BanMembers')) {
         return sendError(interaction, t('moderation.cases.delete.noBanPermission'));
@@ -451,6 +477,10 @@ export async function handleCasesModal(interaction: ModalSubmitInteraction): Pro
 
   await interaction.deferUpdate();
   const reason = interaction.fields.getTextInputValue(REASON_INPUT_ID).trim() || null;
+  const before = await caseOrGone(interaction, parsed.caseId, parsed.state, t);
+  if (!before) return;
+  const problem = await changeProblem(interaction, before, t);
+  if (problem) return sendError(interaction, problem);
   if (!(await setCaseReason(interaction.guildId, parsed.caseId, reason))) {
     return interaction.editReply(await listWithNotice(interaction.guild, parsed.state, t('moderation.cases.gone'), 'info', t));
   }
@@ -554,6 +584,8 @@ async function changeEnd(interaction: ModalSubmitInteraction<'cached'>, id: stri
   if (!modCase) return;
   if (!canChangeEnd(modCase) || (modCase.type !== 'timeout' && modCase.type !== 'ban'))
     return sendError(interaction, t('moderation.cases.endModal.notRunning'));
+  const problem = await changeProblem(interaction, modCase, t);
+  if (problem) return sendError(interaction, problem);
   const type = modCase.type;
 
   // Dates are in the timezone the moderator picked for their reminders, or UTC. Discord shows the result in everyone's own time

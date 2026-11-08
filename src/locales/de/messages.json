@@ -1791,7 +1791,8 @@
         "doneNow": "Beendet, das ist Fall {{number}}.",
         "alreadyOver": "Das war auf Discord schon vorbei, darum ist Fall {{number}} jetzt nur als beendet markiert."
       },
-      "slow": "Den Fall nachzuschlagen hat zu lange gedauert. Drück einfach nochmal."
+      "slow": "Den Fall nachzuschlagen hat zu lange gedauert. Drück einfach nochmal.",
+      "ownCase": "Fälle über dich selbst kannst du nicht ändern oder löschen."
     },
     "purge": {
       "missing": "Dafür brauche ich in diesem Kanal diese Berechtigungen: {{permissions}}",

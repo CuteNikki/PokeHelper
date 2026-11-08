@@ -1847,7 +1847,8 @@
         "doneNow": "Ended it, that's case {{number}}.",
         "alreadyOver": "That was already over on Discord, so case {{number}} is only marked as ended now."
       },
-      "slow": "Looking up the case took too long. Press it again."
+      "slow": "Looking up the case took too long. Press it again.",
+      "ownCase": "You can't change or delete cases about yourself."
     },
     "purge": {
       "missing": "I need these permissions in this channel for that: {{permissions}}",
