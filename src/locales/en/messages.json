@@ -1846,7 +1846,8 @@
         "reasonDescription": "Only used with 0, for the case that ends it",
         "doneNow": "Ended it, that's case {{number}}.",
         "alreadyOver": "That was already over on Discord, so case {{number}} is only marked as ended now."
-      }
+      },
+      "slow": "Looking up the case took too long. Press it again."
     },
     "purge": {
       "missing": "I need these permissions in this channel for that: {{permissions}}",

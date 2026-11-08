@@ -1790,7 +1790,8 @@
         "reasonDescription": "Nur bei 0, für den Fall, der es beendet",
         "doneNow": "Beendet, das ist Fall {{number}}.",
         "alreadyOver": "Das war auf Discord schon vorbei, darum ist Fall {{number}} jetzt nur als beendet markiert."
-      }
+      },
+      "slow": "Den Fall nachzuschlagen hat zu lange gedauert. Drück einfach nochmal."
     },
     "purge": {
       "missing": "Dafür brauche ich in diesem Kanal diese Berechtigungen: {{permissions}}",

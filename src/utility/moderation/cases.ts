@@ -39,6 +39,7 @@ import { getReminderTimezone } from 'database/reminders';
 
 import type { ModCase } from 'generated/prisma/client';
 import { DiscordLimits } from 'utility/discordLimits';
+import { SECOND } from 'utility/duration';
 import { buttonIcon, textIcon } from 'utility/emojis';
 import { getTranslate, type Translate } from 'utility/i18next';
 import { userRef, when } from 'utility/logs/format';
@@ -332,6 +333,18 @@ async function caseOrGone(interaction: ButtonInteraction<'cached'> | ModalSubmit
   return modCase;
 }
 
+/** How long looking up a case for a popup may take, as Discord gives up on a popup after 3 seconds. This leaves time to say so instead. */
+const POPUP_LOOKUP_LIMIT = 2 * SECOND;
+
+/**
+ * The case a popup is about, which has to be looked up before the popup can be shown, as it shows what the case says now.
+ * @returns The case, null if it's gone, or 'slow' if looking it up took too long to still show a popup.
+ */
+async function caseForPopup(interaction: ButtonInteraction<'cached'>, id: string): Promise<ModCase | null | 'slow'> {
+  const left = POPUP_LOOKUP_LIMIT - (Date.now() - interaction.createdTimestamp);
+  return Promise.race([getCase(interaction.guildId, id), Bun.sleep(Math.max(left, 0)).then(() => 'slow' as const)]);
+}
+
 /** The buttons of a case history: pages, a case's view, and changing or deleting it. */
 export async function handleCasesButton(interaction: ButtonInteraction<'cached'>): Promise<unknown> {
   const t = getTranslate(interaction.locale);
@@ -344,7 +357,8 @@ export async function handleCasesButton(interaction: ButtonInteraction<'cached'>
     return interaction.showModal(buildPageModal(`${CASES_PREFIX}goto:${state.userId}:${state.sort}`, state.page + 1, t));
   }
   if (parsed.action === 'reason') {
-    const modCase = await getCase(interaction.guildId, parsed.caseId);
+    const modCase = await caseForPopup(interaction, parsed.caseId);
+    if (modCase === 'slow') return sendError(interaction, t('moderation.cases.slow'));
     if (!modCase) return sendError(interaction, t('moderation.cases.gone'));
     return interaction.showModal(
       buildTextModal({
@@ -363,7 +377,8 @@ export async function handleCasesButton(interaction: ButtonInteraction<'cached'>
   }
 
   if (parsed.action === 'end') {
-    const modCase = await getCase(interaction.guildId, parsed.caseId);
+    const modCase = await caseForPopup(interaction, parsed.caseId);
+    if (modCase === 'slow') return sendError(interaction, t('moderation.cases.slow'));
     if (!modCase) return sendError(interaction, t('moderation.cases.gone'));
     if (!canChangeEnd(modCase)) return sendError(interaction, t('moderation.cases.endModal.notRunning'));
     return interaction.showModal(buildEndModal(modCase, state, t));
