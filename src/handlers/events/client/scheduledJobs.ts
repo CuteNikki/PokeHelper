@@ -4,6 +4,7 @@ import { Event } from 'classes/base/event';
 
 import { runBirthdayJob } from 'utility/birthday/job';
 import { runResetJob } from 'utility/leveling/reset';
+import { runVoiceXpJob } from 'utility/leveling/voice';
 import { runTempBanJob } from 'utility/moderation/tempBans';
 import { runReminderJob } from 'utility/reminders/job';
 import { runProfileThemeJob } from 'utility/profileTheme';
@@ -17,6 +18,8 @@ const JOB_INTERVAL = 15 * MINUTE;
 const REMINDER_INTERVAL = 15 * SECOND;
 /** How often temporary bans are checked, so they're lifted at most this late. */
 const TEMP_BAN_INTERVAL = MINUTE;
+/** How often voice XP is given, each time for a minute in voice. */
+const VOICE_XP_INTERVAL = MINUTE;
 
 /** Started once the bot is ready, as the jobs need the guilds, and running right away catches up on what was missed while offline. */
 export default new Event({
@@ -29,6 +32,7 @@ export default new Event({
       await runResetJob(client, 'weekly');
       await runResetJob(client, 'monthly');
     });
+    scheduleJob('voice XP', VOICE_XP_INTERVAL, () => runVoiceXpJob(client));
     scheduleJob('profile theme', JOB_INTERVAL, () => runProfileThemeJob(client));
     // Often, as reminders are often only minutes away
     scheduleJob('reminders', REMINDER_INTERVAL, () => runReminderJob(client));

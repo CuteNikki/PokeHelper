@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 
-import { applyMultiplier, earnsXp, getEarnedRewardRoles, getMultiplier, isResetDue, startOfMonth, startOfWeek } from 'utility/leveling/rules';
+import { applyMultiplier, earnsXp, getEarnedRewardRoles, getMultiplier, getVoiceEarners, isResetDue, startOfMonth, startOfWeek } from 'utility/leveling/rules';
 
 const noFilters = { ignoredChannels: [], enabledChannels: [], ignoredRoles: [], enabledRoles: [] };
 // A thread in #general, which is in the Chat category
@@ -111,5 +111,24 @@ describe('the monthly reset', () => {
     const now = new Date('2026-11-04T15:00:00Z');
     expect(isResetDue('monthly', null, new Date('2026-11-03T10:00:00Z'), now)).toBe(false);
     expect(isResetDue('monthly', null, new Date('2026-10-20T10:00:00Z'), now)).toBe(true);
+  });
+});
+
+describe('getVoiceEarners', () => {
+  const listener = (id: string, extra: { bot?: boolean; deafened?: boolean } = {}) => ({ id, bot: false, deafened: false, ...extra });
+
+  test('everyone who can hear earns XP when two or more can', () => {
+    expect(getVoiceEarners([listener('a'), listener('b'), listener('c')])).toEqual(['a', 'b', 'c']);
+  });
+
+  test('nobody earns XP alone', () => {
+    expect(getVoiceEarners([listener('a')])).toEqual([]);
+    expect(getVoiceEarners([])).toEqual([]);
+  });
+
+  test("bots and deafened members don't earn XP or count as company", () => {
+    expect(getVoiceEarners([listener('a'), listener('bot', { bot: true })])).toEqual([]);
+    expect(getVoiceEarners([listener('a'), listener('b', { deafened: true })])).toEqual([]);
+    expect(getVoiceEarners([listener('a'), listener('b'), listener('c', { deafened: true })])).toEqual(['a', 'b']);
   });
 });

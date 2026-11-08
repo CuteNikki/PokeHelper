@@ -96,6 +96,14 @@ export const getActiveLevelingConfigs = () =>
       enabled: true,
     },
   });
+
+/** The configurations of every guild where leveling is on, with what giving XP needs, for voice XP. */
+export const getVoiceLevelingConfigs = () =>
+  prisma.guildLeveling.findMany({
+    where: { enabled: true },
+    include: { rewards: true, multipliers: true },
+  });
+
 /** Get a guild's leveling configuration, creating the default one, which has leveling turned off, if there's none yet. */
 export const getOrCreateGuildLevelingConfiguration = async (guildId: string) =>
   prisma.guildLeveling.upsert({

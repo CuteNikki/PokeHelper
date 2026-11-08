@@ -66,3 +66,20 @@ export const startOfMonth = (now: Date) => new Date(Date.UTC(now.getUTCFullYear(
  */
 export const isResetDue = (period: ResetPeriod, lastResetAt: Date | null, createdAt: Date, now: Date) =>
   (lastResetAt ?? createdAt) < (period === 'weekly' ? startOfWeek(now) : startOfMonth(now));
+
+/** Someone in a voice channel, for whether they earn XP there. */
+export interface VoiceListener {
+  id: string;
+  bot: boolean;
+  /** Deafened by themselves or the server. */
+  deafened: boolean;
+}
+
+/**
+ * Who in a voice channel earns XP for the minute: everyone who can hear, as long as someone else who can hear is there too.
+ * So nobody earns XP alone, deafened or only with bots. Being muted is fine, as plenty of people just listen.
+ */
+export function getVoiceEarners(listeners: VoiceListener[]): string[] {
+  const hearing = listeners.filter((listener) => !listener.bot && !listener.deafened);
+  return hearing.length >= 2 ? hearing.map((listener) => listener.id) : [];
+}
