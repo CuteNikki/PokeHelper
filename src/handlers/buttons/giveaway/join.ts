@@ -64,8 +64,10 @@ export default new Button({
 
     const entries = countEntries(participant.roleIds, bonusRolesOf(giveaway));
     // A double click enters them once, and the second says they're in already
-    const added = await enterGiveaway(giveaway.id, interaction.user.id, entries);
-    if (added) markPostChanged(interaction.guildId, giveaway.id);
-    return reply(inResponse(giveaway.id, entries, added ? 'giveaway.join.entered' : 'giveaway.join.already', t));
+    const result = await enterGiveaway(giveaway.id, interaction.user.id, entries);
+    // Ended while the rules were checked, like with End now
+    if (result === 'ended') return reply(createResponse(t('giveaway.join.ended'), 'error'));
+    if (result === 'added') markPostChanged(interaction.guildId, giveaway.id);
+    return reply(inResponse(giveaway.id, entries, result === 'added' ? 'giveaway.join.entered' : 'giveaway.join.already', t));
   },
 });

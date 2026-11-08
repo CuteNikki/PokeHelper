@@ -147,10 +147,17 @@ export const getEntry = (giveawayId: string, userId: string) => prisma.giveawayE
 /**
  * Enter someone into a running giveaway.
  * @param entries Their chances, see `countEntries`.
- * @returns Whether they're new, as they may have entered meanwhile, like with a double click.
+ * @returns Whether they were added, were in it already, like with a double click, or it ended meanwhile.
  */
-export const enterGiveaway = async (giveawayId: string, userId: string, entries: number) =>
-  (await prisma.giveawayEntry.createMany({ data: [{ giveawayId, userId, entries }], skipDuplicates: true })).count > 0;
+export const enterGiveaway = (giveawayId: string, userId: string, entries: number, now = new Date()) =>
+  prisma.$transaction(async (tx) => {
+    // Locked until the entry is saved, so ending it waits for it, and nobody can enter one that ended in the meantime
+    const [giveaway] = await tx.$queryRaw<{ status: string; endsAt: Date | null }[]>`
+      SELECT status::text AS status, "endsAt" FROM "Giveaway" WHERE id = ${giveawayId} FOR SHARE`;
+    if (giveaway?.status !== 'active' || !giveaway.endsAt || giveaway.endsAt <= now) return 'ended';
+    const { count } = await tx.giveawayEntry.createMany({ data: [{ giveawayId, userId, entries }], skipDuplicates: true });
+    return count > 0 ? 'added' : 'already';
+  });
 
 /** Take someone out of a giveaway. Returns whether they were in it. */
 export const leaveGiveaway = async (giveawayId: string, userId: string) => (await prisma.giveawayEntry.deleteMany({ where: { giveawayId, userId } })).count > 0;
