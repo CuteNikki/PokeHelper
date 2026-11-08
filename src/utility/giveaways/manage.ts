@@ -279,6 +279,16 @@ export async function handleManageButton(interaction: ButtonInteraction<'cached'
       if (giveaway.status !== 'ended') return panelWith(t('giveaway.manage.notEnded'), 'info');
       return interaction.editReply(await renderRerollPicker(interaction.guild, giveaway, t));
 
+    case 'rerollAll': {
+      if (giveaway.status !== 'ended') return panelWith(t('giveaway.manage.notEnded'), 'info');
+      const current = (await getAllWinners(giveaway.id)).filter((winner) => !winner.replacedAt).map((winner) => winner.id);
+      const drawn = await rerollWinners(interaction.guild, giveaway, current, interaction.user.id);
+      return panelWith(
+        drawn.length > 0 ? t('giveaway.manage.rerolled', { count: drawn.length }) : t('giveaway.manage.nobodyLeft'),
+        drawn.length > 0 ? 'success' : 'info',
+      );
+    }
+
     case 'edit':
       if (giveaway.status !== 'active') return panelWith(t('giveaway.manage.notRunning'), 'info');
       return interaction.editReply(await getGiveawaySettings(giveaway.id).render(settingsContext(interaction), t));
@@ -360,19 +370,21 @@ export async function handleManageSelect(interaction: AnySelectMenuInteraction<'
 /** Pick which winners of a giveaway to replace with new ones. */
 async function renderRerollPicker(guild: Guild, giveaway: Giveaway, t: Translate): Promise<ResponsePayload> {
   const winners = (await getAllWinners(giveaway.id)).filter((winner) => !winner.replacedAt);
-  const container = new ContainerBuilder()
-    .setAccentColor(ThemeColors.info)
-    .addTextDisplayComponents(new TextDisplayBuilder().setContent(t('giveaway.manage.rerollQuestion', { prize: giveaway.prize })));
-  if (winners.length > 0) {
+  // A select fits 25, and a giveaway can have more winners, who Replace all still covers
+  const listed = winners.slice(0, DiscordLimits.selectOptions);
+  const question = [t('giveaway.manage.rerollQuestion', { prize: giveaway.prize })];
+  if (listed.length < winners.length) question.push(subtext(t('giveaway.manage.rerollNotListed', { count: winners.length - listed.length })));
+  const container = new ContainerBuilder().setAccentColor(ThemeColors.info).addTextDisplayComponents(new TextDisplayBuilder().setContent(question.join('\n')));
+  if (listed.length > 0) {
     container.addActionRowComponents(
       new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
         new StringSelectMenuBuilder()
           .setCustomId(`${MANAGE_PREFIX}rerollPick:${giveaway.id}`)
           .setPlaceholder(t('giveaway.manage.rerollPlaceholder'))
           .setMinValues(1)
-          .setMaxValues(winners.length)
+          .setMaxValues(listed.length)
           .addOptions(
-            winners.map((winner) =>
+            listed.map((winner) =>
               new StringSelectMenuOptionBuilder()
                 .setValue(winner.id)
                 .setLabel(
@@ -388,6 +400,12 @@ async function renderRerollPicker(guild: Guild, giveaway: Giveaway, t: Translate
   }
   container.addActionRowComponents(
     new ActionRowBuilder<ButtonBuilder>().addComponents(
+      new ButtonBuilder()
+        .setCustomId(manageId('rerollAll', giveaway.id))
+        .setLabel(t('giveaway.manage.rerollAll'))
+        .setEmoji(buttonIcon('refresh-cw'))
+        .setStyle(ButtonStyle.Primary)
+        .setDisabled(winners.length === 0),
       new ButtonBuilder().setCustomId(manageId('view', giveaway.id)).setLabel(t('giveaway.manage.back')).setStyle(ButtonStyle.Secondary),
     ),
   );

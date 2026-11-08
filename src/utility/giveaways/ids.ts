@@ -9,8 +9,8 @@ import type { PermissionsString } from 'discord.js';
  */
 export const MANAGE_PREFIX = 'gwm:';
 
-export type ManageAction = 'view' | 'edit' | 'end' | 'cancel' | 'cancelYes' | 'delete' | 'deleteYes' | 'reroll' | 'remove';
-export const MANAGE_ACTIONS: ManageAction[] = ['view', 'edit', 'end', 'cancel', 'cancelYes', 'delete', 'deleteYes', 'reroll', 'remove'];
+export type ManageAction = 'view' | 'edit' | 'end' | 'cancel' | 'cancelYes' | 'delete' | 'deleteYes' | 'reroll' | 'rerollAll' | 'remove';
+export const MANAGE_ACTIONS: ManageAction[] = ['view', 'edit', 'end', 'cancel', 'cancelYes', 'delete', 'deleteYes', 'reroll', 'rerollAll', 'remove'];
 export const manageId = (action: ManageAction, giveawayId: string) => `${MANAGE_PREFIX}${action}:${giveawayId}`;
 
 /** What the bot needs in the channel a giveaway is posted in. Reading the history too, as the winners are announced in a reply to the post. */

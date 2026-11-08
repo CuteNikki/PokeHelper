@@ -2296,7 +2296,10 @@
       "enabled": {
         "label": "Joining and drawing",
         "description": "Whether giveaways run. While off, nobody can join or start one, and giveaways whose time is up are drawn once it's on again"
-      }
+      },
+      "rerollAll": "Replace all",
+      "rerollNotListed_one": "The list fits 25, so {{count, number}} more winner isn't in it. Replace all replaces them too.",
+      "rerollNotListed_other": "The list fits 25, so {{count, number}} more winners aren't in it. Replace all replaces them too."
     },
     "edit": {
       "header": "It's running, so changes show on its post right away. Its channel can't change anymore, and its ping was already sent."
