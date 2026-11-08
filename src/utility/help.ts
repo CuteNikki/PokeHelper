@@ -37,7 +37,7 @@ export const HELP_CATEGORY_SELECT_ID = 'help:category';
 export const HELP_OVERVIEW = 'overview';
 
 /** The order of the categories, by the folder their commands are in. Others come after them. */
-const CATEGORY_ORDER = ['pokemon', 'leveling', 'birthday', 'counting', 'role-menu', 'temp-voice', 'starboard', 'sticky', 'logs', 'moderation', 'reminders', 'general'];
+const CATEGORY_ORDER = ['pokemon', 'leveling', 'birthday', 'counting', 'role-menu', 'temp-voice', 'starboard', 'sticky', 'giveaway', 'logs', 'moderation', 'reminders', 'general'];
 /** The icon of each category in the select, like the one the features' own messages have. */
 const CATEGORY_ICONS: Record<string, IconName> = {
   pokemon: 'paw-print',
@@ -48,6 +48,7 @@ const CATEGORY_ICONS: Record<string, IconName> = {
   'temp-voice': 'volume-2',
   starboard: 'star',
   sticky: 'pin',
+  giveaway: 'gift',
   logs: 'scroll-text',
   moderation: 'gavel',
   reminders: 'alarm-clock',
