@@ -603,7 +603,8 @@
       "moreHidden": "{{count, number}} weitere werden in der Auswahl nicht angezeigt und bleiben auf der Liste."
     },
     "announce": {
-      "changed": "{{user}} hat den Kanal geändert:",
+      "title": "### {{icon.refresh-cw}} Kanal geändert",
+      "changed": "{{user}} hat das geändert:",
       "renamed": "umbenannt in **{{name}}**",
       "limit_one": "Limit auf {{count, number}} Person gesetzt",
       "limit_other": "Limit auf {{count, number}} Leute gesetzt",

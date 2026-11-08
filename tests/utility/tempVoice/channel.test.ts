@@ -85,23 +85,28 @@ describe('isRenameLimit', () => {
 });
 
 describe('announceChanges', () => {
-  const base = { name: 'Nikki', userLimit: 0, namePrefix: '', locked: false, hidden: false, allowed: [], blocked: [], moderators: [] };
+  type Channel = Parameters<typeof announceChanges>[0];
+  const base: Channel = { name: 'Nikki', userLimit: 0, namePrefix: '', locked: false, hidden: false, allowed: [], blocked: [], moderators: [] };
   const t = () => getTranslate('en');
+  const title = () => String(t()('tempVoice.announce.title'));
 
   test('says nothing when nothing changed', () => {
     expect(announceChanges(base, base, '<@9>', t())).toBeNull();
   });
 
-  test('one change is a sentence of its own', () => {
-    expect(announceChanges(base, { ...base, locked: true }, '<@9>', t())).toBe('<@9> locked the channel.');
-    expect(announceChanges({ ...base, hidden: true }, base, '<@9>', t())).toBe('<@9> made the channel visible again.');
-    expect(announceChanges(base, { ...base, userLimit: 99 }, '<@9>', t())).toBe('<@9> set the limit to 99 people.');
-    expect(announceChanges(base, { ...base, name: 'meowy' }, '<@9>', t())).toBe('<@9> renamed the channel to **meowy**.');
-    expect(announceChanges(base, { ...base, moderators: ['3', '4'] }, '<@9>', t())).toBe('<@9> made <@3>, <@4> moderators.');
+  test('one change is a sentence of its own, under the title', () => {
+    const said = (after: Channel, before = base) => announceChanges(before, after, '<@9>', t());
+    expect(said({ ...base, locked: true })).toBe(`${title()}\n<@9> locked the channel.`);
+    expect(said(base, { ...base, hidden: true })).toBe(`${title()}\n<@9> made the channel visible again.`);
+    expect(said({ ...base, userLimit: 99 })).toBe(`${title()}\n<@9> set the limit to 99 people.`);
+    expect(said({ ...base, name: 'meowy' })).toBe(`${title()}\n<@9> renamed the channel to **meowy**.`);
+    expect(said({ ...base, moderators: ['3', '4'] })).toBe(`${title()}\n<@9> made <@3>, <@4> moderators.`);
   });
 
-  test('several changes at once are a list under who made them', () => {
-    expect(announceChanges(base, { ...base, allowed: ['1'], blocked: ['2'] }, '<@9>', t())).toBe('<@9> changed this channel:\n- let in <@1>\n- kept out <@2>');
+  test('several changes at once are a list under the title and who made them', () => {
+    expect(announceChanges(base, { ...base, allowed: ['1'], blocked: ['2'] }, '<@9>', t())).toBe(
+      `${title()}\n<@9> made these changes:\n- let in <@1>\n- kept out <@2>`,
+    );
   });
 
   test('every change has a sentence in every language', () => {
@@ -111,7 +116,7 @@ describe('announceChanges', () => {
       for (const line of [...describeChanges(base, changed, translate), ...describeChanges(changed, base, translate)]) expect(line).not.toContain('tempVoice.');
       const singles = [{ name: 'x' }, { userLimit: 2 }, { locked: true }, { hidden: true }, { allowed: ['1'] }, { blocked: ['2'] }, { moderators: ['3'] }];
       for (const change of singles) {
-        expect(announceChanges(base, { ...base, ...change }, '<@9>', translate)).toStartWith('<@9>');
+        expect(announceChanges(base, { ...base, ...change }, '<@9>', translate)).toStartWith(`${String(translate('tempVoice.announce.title'))}\n<@9>`);
         expect(announceChanges({ ...base, ...change }, base, '<@9>', translate)).not.toContain('tempVoice.');
       }
     }

@@ -1048,7 +1048,8 @@
       "moreHidden": "{{count, number}} more aren't shown in the picker, and stay on the list."
     },
     "announce": {
-      "changed": "{{user}} changed this channel:",
+      "title": "### {{icon.refresh-cw}} Channel updated",
+      "changed": "{{user}} made these changes:",
       "renamed": "renamed it to **{{name}}**",
       "limit_one": "set the limit to {{count, number}} person",
       "limit_other": "set the limit to {{count, number}} people",

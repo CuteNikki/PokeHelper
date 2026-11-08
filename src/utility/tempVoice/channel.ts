@@ -526,17 +526,20 @@ export const describeChanges = (before: Described, after: Described, t: Translat
 
 /**
  * What everyone in a channel is told about a change to it, or null when nothing changed. One change, like most clicks on the panel,
- * is a sentence of its own, like "@Nikki locked the channel.", and several at once are a list under who made them.
+ * is a sentence of its own, like "@Nikki locked the channel.", and several at once are a list under who made them. Both under a title,
+ * like the bot's other messages.
  * @param user The mention of who made the change.
  */
 export function announceChanges(before: Described, after: Described, user: string, t: Translate): string | null {
   const changes = listChanges(before, after);
   if (changes.length === 0) return null;
+  const title = t('tempVoice.announce.title');
   if (changes.length === 1) {
     const [key, params] = changes[0]!;
-    return t(`tempVoice.announce.single.${key}`, { ...params, user });
+    return `${title}\n${t(`tempVoice.announce.single.${key}`, { ...params, user })}`;
   }
-  return [t('tempVoice.announce.changed', { user }), ...changes.map(([key, params]) => `- ${t(`tempVoice.announce.${key}`, params)}`)].join('\n');
+  const lines = changes.map(([key, params]) => `- ${t(`tempVoice.announce.${key}`, params)}`);
+  return [title, t('tempVoice.announce.changed', { user }), ...lines].join('\n');
 }
 
 /**
