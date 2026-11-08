@@ -50,7 +50,6 @@ const FOOTER_HEIGHT = 44;
 const BADGE_WIDTH = 120;
 const BADGE_HEIGHT = 30;
 const EXAMPLE_SIZE = 40;
-/** The width of the labels in front of the Pokémon and the moves. */
 const EXAMPLE_LABEL_WIDTH = 84;
 const CHIP_HEIGHT = 26;
 const CHIP_GAP = 8;
@@ -63,7 +62,6 @@ const COLORS = {
   divider: 'rgba(255, 255, 255, 0.08)',
 };
 
-/** The multiplier next to a badge, like `×2`. */
 function drawMultiplier(ctx: SKRSContext2D, multiplier: string, x: number, centerY: number) {
   ctx.font = 'bold 20px "Roboto", "EmojiFallback"';
   ctx.textAlign = 'left';
@@ -82,7 +80,6 @@ function drawSectionLabel(ctx: SKRSContext2D, label: string, y: number) {
   ctx.fillText(label.toUpperCase(), PADDING, y + 30);
 }
 
-/** A small label in front of a line of examples, like POKÉMON. */
 function drawExampleLabel(ctx: SKRSContext2D, label: string, x: number, centerY: number) {
   ctx.font = 'bold 12px "Roboto"';
   ctx.textAlign = 'left';
@@ -153,7 +150,6 @@ function drawWeakness(ctx: SKRSContext2D, weakness: MatchupCardWeakness, labels:
   }
 }
 
-/** Types with their multiplier, a few to a row. */
 function drawEntries(ctx: SKRSContext2D, entries: MatchupCardEntry[], y: number) {
   const columnWidth = (WIDTH - PADDING * 2) / ENTRY_COLUMNS;
   entries.forEach((entry, index) => {
@@ -167,9 +163,8 @@ function drawEntries(ctx: SKRSContext2D, entries: MatchupCardEntry[], y: number)
 const entriesHeight = (count: number) => Math.ceil(count / ENTRY_COLUMNS) * ENTRY_ROW_HEIGHT;
 
 /**
- * Draw what a Pokémon is weak to, with Pokémon and moves to use against it, and what it resists and can't be hurt by.
+ * Draw what a Pokémon is weak to as a PNG, with Pokémon and moves to use against it, and what it resists and can't be hurt by.
  * The labels are passed in already translated.
- * @returns The card as a PNG.
  */
 export function renderMatchupCard(data: MatchupCardData): Buffer {
   const sections = [

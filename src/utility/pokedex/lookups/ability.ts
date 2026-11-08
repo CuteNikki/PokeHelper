@@ -16,9 +16,8 @@ const MAX_POKEMON = 30;
 
 /**
  * An ability: its description from the games and its effect, and the Pokémon that can have it, with the ones that only have it as
- * their hidden ability marked.
+ * their hidden ability marked. Null when PokéAPI doesn't know it.
  * @throws {PokeApiError} When PokéAPI can't be reached.
- * @returns The answer, or null when PokéAPI doesn't know the ability.
  */
 export async function buildAbility(slug: string, language: string, t: Translate, context: PageContext): Promise<ResponsePayload | null> {
   const ability = await getAbility(slug);

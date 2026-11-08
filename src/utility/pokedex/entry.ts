@@ -188,7 +188,6 @@ function buildControls(match: PokedexMatch, view: PokedexView, hasShiny: boolean
     pageButton({ kind: 'where', slug }, pokemonPage(slug, view)).setEmoji(buttonIcon('map-pin')).setLabel(t('pokedex.where.button')),
     pageButton({ kind: 'learnset', slug }, pokemonPage(slug, view)).setEmoji(buttonIcon('scroll-text')).setLabel(t('pokedex.moves.button')),
   ];
-  // Switches between the card and text, like for screen readers, keeping the Pokémon and whether it's shiny
   const mode = new ButtonBuilder()
     .setCustomId(pokedexCustomId('mode', slug, { ...view, text: !view.text }))
     .setStyle(ButtonStyle.Secondary)
@@ -239,13 +238,8 @@ function buildEvolutionButtons(
 }
 
 /**
- * Build a Pokédex entry: a card with everything on it, or the same as text, then the buttons to the previous and next Pokémon
- * and to its evolutions, and its forms.
- * @param match The species or form to show.
- * @param view Whether to show the shiny pictures, and whether to show text instead of the card.
- * @param language The language of the names and texts, like `de`.
+ * Build a Pokédex entry: a card with everything on it, or the same as text, then its buttons and forms. Null when PokéAPI doesn't know it.
  * @throws {PokeApiError} When PokéAPI can't be reached.
- * @returns The entry, or null when PokéAPI doesn't know the Pokémon.
  */
 export async function buildPokedexEntry(match: PokedexMatch, view: PokedexView, language: string, t: Translate): Promise<ResponsePayload | null> {
   const [pokemon, species] = await Promise.all([getPokemon(matchSlug(match)), getSpecies(match.species.id)]);
@@ -351,7 +345,6 @@ export async function buildPokedexEntry(match: PokedexMatch, view: PokedexView, 
         .addActionRowComponents(buildEvolutionButtons(stages.flat(), match, shownView, speciesName));
     }
   } else {
-    // All pictures are loaded at the same time, from the cache when they were shown before
     const [artwork, evolution] = await Promise.all([
       picture ? getImage(picture) : null,
       Promise.all(

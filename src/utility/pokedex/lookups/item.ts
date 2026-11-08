@@ -30,9 +30,9 @@ export const pokemonNames = (slugs: string[], language: string) =>
   });
 
 /**
- * An item: its picture, its kind, its description from the games and its effect, and which wild Pokémon hold it.
+ * An item: its picture, its kind, its description from the games and its effect, and which wild Pokémon hold it. Null when PokéAPI
+ * doesn't know it.
  * @throws {PokeApiError} When PokéAPI can't be reached.
- * @returns The answer, or null when PokéAPI doesn't know the item.
  */
 export async function buildItem(slug: string, language: string, t: Translate, context: PageContext): Promise<ResponsePayload | null> {
   const item = await getItem(slug);

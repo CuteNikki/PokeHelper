@@ -24,9 +24,8 @@ const CONTEST_MAX = 8;
 
 /**
  * A move: its type, class and description from the games, its numbers as bars, its effect, how it does in contests, and how many
- * Pokémon learn it.
+ * Pokémon learn it. Null when PokéAPI doesn't know it.
  * @throws {PokeApiError} When PokéAPI can't be reached.
- * @returns The answer, or null when PokéAPI doesn't know the move.
  */
 export async function buildMove(slug: string, language: string, t: Translate, context: PageContext): Promise<ResponsePayload | null> {
   const move = await getMove(slug);

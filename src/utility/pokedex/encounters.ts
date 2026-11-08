@@ -67,20 +67,14 @@ export interface Sighting {
   chance: number;
 }
 
-/** What PokéAPI says about meeting a Pokémon in an area, in each game, with what it's about. */
 type Sightings = { name: string; group?: string; version_details: ApiEncounter['version_details'] }[];
 
-/** The levels a Pokémon is met at in some of its encounters. */
 const levelRange = (encounters: ApiEncounter['version_details'][number]['encounter_details']) => {
   const levels = encounters.flatMap((encounter) => [encounter.min_level, encounter.max_level]);
   return { minLevel: Math.min(...levels), maxLevel: Math.max(...levels) };
 };
 
-/**
- * The sightings by game, newest first, and in each game the ones with the best chances first.
- * @param options.byMethod One sighting for each way it's met, with that way's levels and chance, like grass and surfing apart.
- * @returns Each game's slug with its sightings.
- */
+/** The sightings by game, newest first, each game's best chances first. With `byMethod`, one for each way it's met, like grass and surfing apart. */
 export function sightingsByGame(entries: Sightings, { byMethod = false } = {}): { version: string; sightings: Sighting[] }[] {
   const order = getPokedexData().versionOrder;
   const games = new Map<string, { order: number; sightings: Sighting[] }>();
@@ -118,15 +112,12 @@ export const placesByGame = (encounters: ApiEncounter[]) =>
     { byMethod: true },
   );
 
-/** The way of meeting Pokémon of a sighting by way, like `surf`. */
 const methodOf = (sighting: Sighting) => sighting.methods[0] ?? '';
 
 /**
  * Sightings by way as lines under a bold heading of how they're met, like `**Old Rod**`, the way the games list them: by group in
- * its order, with its name in the heading when there are several, like `**Pokémon Tower (2F) · Wandering around**`, then by way in
- * the games' order, grass before water and the rods, then by chance. What doesn't fit is cut from the end.
- * @param name What a sighting is about, already named, like the place or the Pokémon.
- * @param groups The groups in their order, like the areas of a place, with their names.
+ * its order, with its name in the heading when there are several, then by way in the games' order, then by chance. What doesn't
+ * fit is cut from the end. `name` names what each sighting is about, like the place or the Pokémon.
  */
 export function sightingLines(
   sightings: Sighting[],
@@ -148,7 +139,6 @@ export function sightingLines(
     const previous = shown[index - 1];
     if (!previous || sighting.group !== previous.group || methodOf(sighting) !== methodOf(previous)) {
       const group = severalGroups ? (groups.find((entry) => entry.slug === sighting.group)?.name ?? sighting.group) : null;
-      // A blank line between the headings' lists, so they stand apart
       if (previous) lines.push('');
       lines.push(bold([group, methodNames(sighting, t)].filter(Boolean).join(' · ')));
     }
@@ -203,10 +193,9 @@ export function gameSelect(
 }
 
 /**
- * Where a Pokémon or form is found in the wild in one game, with links to the places and a select for the other games.
- * @param context The page, with the game, or none for the newest it's found in.
+ * Where a Pokémon or form is found in the wild in one game, the newest by default, with links to the places and a select for the
+ * other games. Null when the Pokémon isn't known.
  * @throws {PokeApiError} When PokéAPI can't be reached.
- * @returns The answer, or null when the Pokémon isn't known.
  */
 export async function buildWhereToFind(slug: string, language: string, t: Translate, context: PageContext): Promise<ResponsePayload | null> {
   const match = findBySlug(slug);

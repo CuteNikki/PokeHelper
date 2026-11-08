@@ -12,10 +12,7 @@ export const cleanGameText = (text: string) =>
 /** Texts in several languages, as PokéAPI has them, like Pokédex entries or an item's descriptions. */
 type InLanguages<K extends string> = ({ language: { name: string } } & Record<K, string>)[];
 
-/**
- * The newest of the texts in the language, or English, as the newest games' texts come last.
- * @param key Where the text is, like `flavor_text`.
- */
+/** The newest of the texts in the language, or English, as the newest games' texts come last. */
 export function newestText<K extends string>(entries: InLanguages<K>, key: K, language: string): string | null {
   const newest = (lang: string) => entries.findLast((entry) => entry.language.name === lang)?.[key];
   const text = newest(language) ?? newest(FALLBACK_LANGUAGE);

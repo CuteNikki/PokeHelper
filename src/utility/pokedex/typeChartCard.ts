@@ -37,9 +37,8 @@ const COLORS = {
 };
 
 /**
- * Draw the chart of all types, a row each: its icon and name, the icons of the types it's strong against, and of those it's weak to.
+ * Draw the chart of all types as a PNG, a row each: its icon and name, the icons of the types it's strong against, and of those it's weak to.
  * The labels are passed in already translated.
- * @returns The chart as a PNG.
  */
 export function renderTypeChartCard(data: TypeChartData): Buffer {
   const height = HEADER_HEIGHT + data.rows.length * ROW_HEIGHT + PADDING / 2;

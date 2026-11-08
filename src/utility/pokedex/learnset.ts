@@ -27,10 +27,7 @@ export interface LearnedMove {
   level: number;
 }
 
-/**
- * The moves a Pokémon learns in each version group, newest first, each by how it's learned, the level-up ones by level.
- * @returns Each version group's slug with its moves.
- */
+/** The moves a Pokémon learns in each version group, newest first, each by how it's learned, the level-up ones by level. */
 export function movesByGame(moves: ApiPokemon['moves']): { group: string; moves: LearnedMove[] }[] {
   const { versionGroups } = getPokedexData();
   const groups = new Map<string, LearnedMove[]>();
@@ -67,11 +64,9 @@ function listUpTo(names: string[], t: Translate, separator = ', '): string {
 }
 
 /**
- * The moves a Pokémon or form learns in one game: by leveling up with their levels, then by machine, as egg moves and from tutors,
- * with links to the moves and a select for the other games.
- * @param context The page, with the version group, or none for the newest.
+ * The moves a Pokémon or form learns in one game, the newest by default: by leveling up with their levels, then by machine, as egg
+ * moves and from tutors, with links to the moves and a select for the other games. Null when the Pokémon isn't known.
  * @throws {PokeApiError} When PokéAPI can't be reached.
- * @returns The answer, or null when the Pokémon isn't known.
  */
 export async function buildLearnset(slug: string, language: string, t: Translate, context: PageContext): Promise<ResponsePayload | null> {
   const match = findBySlug(slug);

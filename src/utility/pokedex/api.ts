@@ -167,7 +167,6 @@ export interface ApiBerry {
   name: string;
   item: Named;
   firmness: Named;
-  /** How strong each of its flavors is. */
   flavors: { potency: number; flavor: Named }[];
   /** Hours for each of the stages it takes to grow. */
   growth_time: number;
@@ -225,14 +224,11 @@ export class PokeApiError extends Error {}
 
 interface FetchOptions {
   init?: RequestInit;
-  /** How long to wait for an answer, in milliseconds. */
   timeout?: number;
 }
 
 /**
- * A PokéAPI answer, as JSON.
- * @param what What was asked for, for the error.
- * @param options.allowMissing Null when it doesn't exist, instead of an error.
+ * A PokéAPI answer, as JSON. `what` names it for the error, and with `allowMissing` it's null when it doesn't exist.
  * @throws {PokeApiError} When PokéAPI can't be reached or answers with an error.
  */
 export async function fetchJson<T>(url: string, what: string, options: FetchOptions & { allowMissing: true }): Promise<T | null>;
@@ -261,10 +257,7 @@ const answers = new RecentCache<unknown>(500);
 /** Pictures take about 1 MB each once loaded, so fewer are kept. Enough for Eevee and all its evolutions a few times over. */
 const images = new RecentCache<Image>(60);
 
-/**
- * An answer from PokéAPI, cached so each Pokémon is only fetched once.
- * @returns The answer, or null if it doesn't exist.
- */
+/** An answer from PokéAPI, cached, or null if it doesn't exist. */
 function get<T>(path: string): Promise<T | null> {
   return answers.get(path, () => fetchJson<T>(`${API_URL}/${path}`, path, { allowMissing: true })) as Promise<T | null>;
 }

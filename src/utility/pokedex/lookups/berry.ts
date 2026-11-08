@@ -29,10 +29,9 @@ export async function naturesLiking(flavor: string): Promise<ApiNature[]> {
 export const flavorName = (slug: string, t: Translate) => (isOneOf(FLAVORS, slug) ? t(`berries.flavors.${slug}`) : slug);
 
 /**
- * A berry, by its item: its picture and description, its flavors, how it grows, and what Natural Gift does with it.
- * @param itemSlug The berry's item, like `cheri-berry`.
+ * A berry, by its item, like `cheri-berry`: its picture and description, its flavors, how it grows, and what Natural Gift does with it.
+ * Null when PokéAPI doesn't know it.
  * @throws {PokeApiError} When PokéAPI can't be reached.
- * @returns The answer, or null when PokéAPI doesn't know the berry.
  */
 export async function buildBerry(itemSlug: string, language: string, t: Translate, context: PageContext): Promise<ResponsePayload | null> {
   const berrySlug = Object.entries(getPokedexData().berries).find(([, item]) => item === itemSlug)?.[0];

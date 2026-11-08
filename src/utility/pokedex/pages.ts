@@ -134,8 +134,7 @@ export interface PageLink {
 
 /**
  * A select of the pages a page links to, like the Pokémon that have an ability, each with its kind's icon. Opening one keeps the
- * way back to this page. Past what a select holds, the rest are left out.
- * @returns The select's row, or null when there's nothing to link to.
+ * way back to this page. Past what a select holds, the rest are left out. Null when there's nothing to link to.
  */
 export function linkSelect(from: DexPage, links: PageLink[], placeholder: string): ActionRowBuilder<StringSelectMenuBuilder> | null {
   // Pages can be linked twice, like a Pokémon met in two ways, and a select can't have the same value twice
@@ -158,10 +157,7 @@ export function linkSelect(from: DexPage, links: PageLink[], placeholder: string
   );
 }
 
-/**
- * Links to Pokémon by their slugs, in Pokédex order, each with its number, like `#0025`.
- * @param note Something about one to go after its number, like that it's their hidden ability.
- */
+/** Links to Pokémon by their slugs, in Pokédex order, each with its number, like `#0025`, and a `note` after it, like a hidden ability. */
 export function pokemonLinks(slugs: string[], language: string, note?: (slug: string) => string | null): PageLink[] {
   return slugs
     .flatMap((slug) => {

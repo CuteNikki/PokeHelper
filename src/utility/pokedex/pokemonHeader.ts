@@ -20,7 +20,6 @@ export const kindOf = (species: ApiSpecies, language: string, t: Translate) =>
 /**
  * The top of a page about a Pokémon, like where it's found or the moves it learns, the same as its Pokédex entry's: the page's
  * title, its number, kind and types in a line, its Pokédex text, and its picture beside them.
- * @param pokemon Its data, for its types.
  * @throws {PokeApiError} When PokéAPI can't be reached.
  */
 export async function pokemonHeader(title: string, match: PokedexMatch, pokemon: ApiPokemon, language: string, t: Translate): Promise<SectionBuilder> {

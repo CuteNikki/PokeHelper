@@ -30,10 +30,7 @@ export interface PokedexSpecies {
   forms: PokedexForm[];
 }
 
-/**
- * The other things with names, besides Pokémon, by what they're called in the data, with their table in PokéAPI's GraphQL and
- * their list in its REST API.
- */
+/** The other things with names, with their table in PokéAPI's GraphQL and their list in its REST API. */
 const NAME_TABLES = {
   abilities: { table: 'ability', list: 'ability' },
   types: { table: 'type', list: 'type' },
@@ -131,7 +128,6 @@ function toNames(names: Names, slug: string, languages: string[]): TranslatedNam
   return Object.fromEntries(languages.map((language) => [language, byLanguage[language] ?? byLanguage.en ?? fromSlug(slug)]));
 }
 
-/** Turn PokéAPI's answer into the names by species and everything else. */
 function parseNames(result: NamesQuery, languages: string[]): PokedexData {
   const byName = (rows: NamedRows) => Object.fromEntries(rows.map((row) => [row.name, toNames(row.names, row.name, languages)]));
   const tables = Object.fromEntries(NAME_TABLE_KEYS.map((key) => [key, byName(result[key])])) as Record<NameTable, NamesBySlug>;
@@ -211,7 +207,6 @@ export function namesFromLists(lists: Pick<PokedexLists, 'species' | 'pokemon'> 
   );
 }
 
-/** No names, with every table there. */
 const emptyData = (): PokedexData => ({
   ...(Object.fromEntries(NAME_TABLE_KEYS.map((key) => [key, {}])) as Record<NameTable, NamesBySlug>),
   species: [],
@@ -270,11 +265,8 @@ async function loadListedNames(): Promise<PokedexData> {
 }
 
 /**
- * Load the names from PokéAPI the first time they're needed, and keep them while the bot runs. Asking again while they're on their way
- * waits for the same answer.
- *
- * The real names come from PokéAPI's GraphQL, which is sometimes slow or down. Names made from its lists are loaded at the same time,
- * and used if they're there first, while the real ones are asked for again every minute.
+ * Load the names the first time they're needed and keep them. The real ones come from PokéAPI's GraphQL, which is sometimes slow
+ * or down, so names made from its lists load at the same time and are used if they're first, while the real ones are retried every minute.
  * @throws {PokeApiError} When PokéAPI can't be reached at all, or couldn't be a minute ago.
  */
 export function loadPokedexData(): Promise<PokedexData> {
@@ -350,7 +342,6 @@ export function findBySlug(slug: string): PokedexMatch | null {
   return null;
 }
 
-/** Every species and form, with all its names normalized for searching. */
 function* everyMatch(): Generator<PokedexMatch & { keys: string[] }> {
   for (const species of getPokedexData().species) {
     yield { species, form: null, keys: [species.slug, ...Object.values(species.names)].map(normalize) };
@@ -358,10 +349,7 @@ function* everyMatch(): Generator<PokedexMatch & { keys: string[] }> {
   }
 }
 
-/**
- * Find a species or form by what's typed: its slug, its Pokédex number, or its name in any language.
- * @returns The match, or null when nothing has exactly that name.
- */
+/** Find a species or form by its slug, Pokédex number or name in any language, or null when nothing has exactly that name. */
 export function findPokemon(input: string): PokedexMatch | null {
   const text = input.trim().replace(/^#/, '');
   if (/^\d+$/.test(text)) {
@@ -379,7 +367,6 @@ export function findPokemon(input: string): PokedexMatch | null {
 /**
  * The species and forms matching what's typed so far, for autocomplete: names starting with it first, then names containing it.
  * A number finds the species with that number and those whose numbers start with it.
- * @param limit The most to return.
  */
 export function searchPokemon(input: string, limit: number): PokedexMatch[] {
   const text = input.trim().replace(/^#/, '');
@@ -408,11 +395,7 @@ export function searchPokemon(input: string, limit: number): PokedexMatch[] {
 /** The name of an item, move, location or anything else in the language, or one made from its slug if PokéAPI has none. */
 export const nameOf = (table: NameTable, slug: string, language: string) => nameIn(getPokedexData()[table][slug], language) || fromSlug(slug);
 
-/**
- * Find an item, move or anything else by what's typed: its slug, or its name in any language.
- * @param only Which of them can be found, like only the items that are berries.
- * @returns Its slug, or null when nothing has exactly that name.
- */
+/** Find an item, move or anything else by its slug or name in any language, or null. `only` limits it, like to the items that are berries. */
 export function findNamed(table: NameTable, input: string, only?: (slug: string) => boolean): string | null {
   const key = normalize(input);
   if (!key) return null;
@@ -424,10 +407,8 @@ export function findNamed(table: NameTable, input: string, only?: (slug: string)
 }
 
 /**
- * The items, moves or anything else matching what's typed so far, for autocomplete: names starting with it first, then names
- * containing it. With nothing typed, the first ones.
- * @param only Which of them can be suggested, like only the items that are berries.
- * @returns Their slugs, at most `limit`.
+ * The slugs of the items, moves or anything else matching what's typed so far, for autocomplete: names starting with it first,
+ * then names containing it. `only` limits them, like to the items that are berries.
  */
 export function searchNamed(table: NameTable, input: string, limit: number, only?: (slug: string) => boolean): string[] {
   const key = normalize(input);

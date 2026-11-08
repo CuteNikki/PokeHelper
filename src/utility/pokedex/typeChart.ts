@@ -46,9 +46,9 @@ const chartButton = (context: PageContext, t: Translate) =>
     : pageButton({ kind: 'types', slug: 'all' }, context.page).setEmoji(buttonIcon('chart-column')).setLabel(t('types.chart.button'));
 
 /**
- * A type: what its moves are strong and weak against, and what it's weak to and resists, with links to those types.
+ * A type: what its moves are strong and weak against, and what it's weak to and resists, with links to those types. Null when it
+ * isn't one of the games' types.
  * @throws {PokeApiError} When PokéAPI can't be reached.
- * @returns The page, or null when it isn't one of the games' types.
  */
 export async function buildTypePage(slug: string, language: string, t: Translate, context: PageContext): Promise<ResponsePayload | null> {
   if (!isType(slug)) return null;
@@ -82,7 +82,6 @@ export async function buildTypePage(slug: string, language: string, t: Translate
     ]),
   ]);
 
-  // Every type it has to do with, once each
   const related = inOrder([
     ...relations.double_damage_to,
     ...relations.half_damage_to,
@@ -103,9 +102,8 @@ export async function buildTypePage(slug: string, language: string, t: Translate
 }
 
 /**
- * The chart of all types: what each is strong against and weak to, as a card like the Pokédex's, or as text, like for screen readers.
- * @param context The page, with `text` as its slug for the text, `image` for the card, and anything else, like `all`, for how someone last
- * looked at entries when it's opened by them.
+ * The chart of all types: what each is strong against and weak to, as text when the page's slug is `text`, or else as a card like
+ * the Pokédex's.
  * @throws {PokeApiError} When PokéAPI can't be reached.
  */
 export async function buildTypeChart(language: string, t: Translate, context: PageContext): Promise<ResponsePayload> {

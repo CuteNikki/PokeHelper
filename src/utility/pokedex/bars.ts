@@ -26,9 +26,8 @@ const TYPE_SQUARES: Record<string, string> = {
 export const BAR_PIECES = 10;
 
 /**
- * A value as a bar in a type's color, made of the bot's bar emojis, or of squares like 🟩🟩🟩⬛⬛ if they aren't there.
- * @param max The value the bar is full at. Higher ones are full too.
- * @param options.atLeastOne Fill one piece even for the smallest values, like for base stats, so none looks empty.
+ * A value as a bar in a type's color, full at `max`, made of the bot's bar emojis, or of squares like 🟩🟩🟩⬛⬛ if they aren't there.
+ * `atLeastOne` fills one piece even for the smallest values, like for base stats, so none looks empty.
  */
 export function emojiBar(value: number, max: number, type: string, { atLeastOne = false } = {}): string {
   const filled = Math.max(atLeastOne ? 1 : 0, Math.min(BAR_PIECES, Math.round((value / max) * BAR_PIECES)));

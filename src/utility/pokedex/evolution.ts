@@ -30,10 +30,8 @@ const STAT_COMPARISONS = { '1': 'higher', '0': 'same', '-1': 'lower' } as const;
 export const newestEvolution = (details: ApiEvolutionDetail[]) => details.find((detail) => detail.is_default) ?? details.at(-1) ?? null;
 
 /**
- * How a Pokémon evolves, in a few words, like `Level 16`, `Thunder Stone` or `High friendship, during the day`. The names of items,
- * moves, places and Pokémon are PokéAPI's in the language.
- * @param details How it evolves in each game, from its evolution chain.
- * @returns The newest games' way, or null for the first of a chain.
+ * How a Pokémon evolves in the newest games, in a few words, like `Level 16`, `Thunder Stone` or `High friendship, during the day`.
+ * Null for the first of a chain.
  */
 export function evolutionCondition(details: ApiEvolutionDetail[], language: string, t: Translate): string | null {
   const detail = newestEvolution(details);

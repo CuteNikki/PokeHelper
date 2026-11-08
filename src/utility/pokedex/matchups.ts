@@ -117,9 +117,8 @@ interface Matchups {
 }
 
 /**
- * Everything about a Pokémon's matchups, in a language.
+ * Everything about a Pokémon's matchups, in a language, or null when PokéAPI doesn't know it.
  * @throws {PokeApiError} When PokéAPI can't be reached.
- * @returns The matchups, or null when PokéAPI doesn't know the Pokémon.
  */
 async function getMatchups(slug: string, language: string): Promise<Matchups | null> {
   const match = findBySlug(slug);
@@ -243,7 +242,6 @@ async function buildText(matchups: Matchups, slug: string, language: string, t: 
     for (const entry of matchups.weak) {
       const lines = [
         `${withTypeEmoji(entry.type.slug, bold(entry.type.name))} ${entry.label}`,
-        // Labeled like the card
         entry.pokemon.length > 0 ? `${t('pokedex.matchups.pokemon')}: ${entry.pokemon.map((example) => example.name).join(' · ')}` : null,
         entry.moves.length > 0 ? `${t('pokedex.matchups.moves')}: ${entry.moves.join(' · ')}` : null,
       ];
@@ -280,10 +278,9 @@ async function buildText(matchups: Matchups, slug: string, language: string, t: 
 }
 
 /**
- * The matchups of a Pokémon as a page, as a card or text, with links to the types it's weak to, resists and can't be hurt by.
- * @param context The page, with `t` as its game for text.
+ * The matchups of a Pokémon as a page, as a card or text (`t` as the page's game), with links to the types it's weak to, resists
+ * and can't be hurt by. Null when PokéAPI doesn't know the Pokémon.
  * @throws {PokeApiError} When PokéAPI can't be reached.
- * @returns The page, or null when PokéAPI doesn't know the Pokémon.
  */
 export async function buildMatchupsPage(slug: string, language: string, t: Translate, context: PageContext): Promise<ResponsePayload | null> {
   const matchups = await getMatchups(slug, language);

@@ -14,11 +14,9 @@ import { ThemeColors } from 'utility/theme';
 const MAX_POKEMON = 25;
 
 /**
- * A place: its region, and the wild Pokémon met there in one game, by area when it has several, with links to them and a select for
- * the other games.
- * @param context The page, with the game, or none for the newest anything is met there in.
+ * A place: its region, and the wild Pokémon met there in one game, the newest by default, by area when it has several, with links
+ * to them and a select for the other games. Null when PokéAPI doesn't know the place.
  * @throws {PokeApiError} When PokéAPI can't be reached.
- * @returns The answer, or null when PokéAPI doesn't know the place.
  */
 export async function buildLocation(slug: string, language: string, t: Translate, context: PageContext): Promise<ResponsePayload | null> {
   const location = await getLocation(slug);

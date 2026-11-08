@@ -35,9 +35,8 @@ export interface SearchResult {
 }
 
 /**
- * Everything matching what's typed so far, for /dex's suggestions: names starting with it first, Pokémon before moves, abilities,
- * items, natures and places, then names containing it.
- * @returns At most `limit`.
+ * At most `limit` things matching what's typed so far, for /dex's suggestions: names starting with it first, Pokémon before moves,
+ * abilities, items, natures and places, then names containing it.
  */
 export function searchEverything(input: string, language: string, limit: number): SearchResult[] {
   const key = normalize(input);

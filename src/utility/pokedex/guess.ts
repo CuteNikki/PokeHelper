@@ -189,7 +189,6 @@ async function hintLines(game: GuessGame, species: PokedexSpecies, language: str
 /**
  * A game as a message: the picture, the hints and the last wrong guess, with buttons to guess, get a hint or give up.
  * Once it's over, the Pokémon itself, with buttons to play again and to see its Pokédex entry.
- * @param lastGuess The name of the last wrong guess, to say it wasn't that.
  * @throws {PokeApiError} When PokéAPI can't be reached for a hint.
  */
 export async function buildGuessGame(game: GuessGame, outcome: Outcome, language: string, t: Translate, lastGuess?: string): Promise<ResponsePayload | null> {
@@ -270,7 +269,6 @@ export async function buildGuessGame(game: GuessGame, outcome: Outcome, language
   return { components: [container], files: [picture], flags: [MessageFlags.IsComponentsV2], allowedMentions: { parse: [] } };
 }
 
-/** The popup to type a guess in. */
 function buildGuessModal(game: GuessGame, t: Translate) {
   return buildTextModal({
     customId: `${GUESS_MODAL_PREFIX}${encodeGame(game)}`,
@@ -352,7 +350,6 @@ export async function handleGuessModal(interaction: ModalSubmitInteraction): Pro
   const game = decodeGame(interaction.customId.slice(GUESS_MODAL_PREFIX.length).split(':'));
   if (!game || !interaction.isFromMessage()) return sendError(interaction, t('system.outdated'));
 
-  // Answered before the names are loaded, which takes a while after a restart
   await interaction.deferUpdate();
   try {
     await loadPokedexData();

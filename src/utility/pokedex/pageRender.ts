@@ -66,9 +66,8 @@ export function pageName(page: DexPage, language: string, t: Translate): string 
 }
 
 /**
- * A page of the Pokédex, with a button back to the one it was opened from.
+ * A page of the Pokédex, with a button back to the one it was opened from. Null when PokéAPI doesn't know what it's about.
  * @throws {PokeApiError} When PokéAPI can't be reached.
- * @returns The page, or null when PokéAPI doesn't know what it's about.
  */
 export async function renderPage(context: PageContext, language: string, t: Translate): Promise<ResponsePayload | null> {
   const { page, back } = context;

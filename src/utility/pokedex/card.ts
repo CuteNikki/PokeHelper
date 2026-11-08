@@ -28,12 +28,8 @@ export interface PokedexCardData {
   types: PokedexCardType[];
   stats: { label: string; value: number }[];
   totalLabel: string;
-  /** The Pokédex text. */
   entry: string | null;
-  /**
-   * Rows of labeled values below the entry, like height, weight and abilities, then breeding. The last of a row gets the space
-   * that's left.
-   */
+  /** Rows of labeled values below the entry, like height, weight and abilities, then breeding. The last of a row gets the space left. */
   details: { label: string; value: string }[][];
   /** The evolution chain by stage, branches side by side. Empty when it doesn't evolve. */
   evolution: PokedexCardEvolution[][];
@@ -56,7 +52,6 @@ const ENTRY_LINE_HEIGHT = 25;
 /** The most lines of Pokédex text, which is plenty for any of them. */
 const ENTRY_MAX_LINES = 4;
 const DETAILS_HEIGHT = 50;
-/** The space between rows of details, so they don't run together. */
 const DETAILS_ROW_GAP = 18;
 const ARTWORK_SIZE = 260;
 /** Bars are full at this value. A few Pokémon go higher, up to 255, but scaling to that makes nearly every bar look short. */
@@ -70,7 +65,6 @@ const COLORS = {
   divider: 'rgba(255, 255, 255, 0.08)',
 };
 
-/** The base stats as bars in the type's color, with the total below. */
 function drawStats(ctx: SKRSContext2D, data: PokedexCardData, color: string, x: number, y: number, width: number) {
   const rowHeight = 28;
   const labelWidth = 92;
@@ -126,7 +120,6 @@ function howLines(ctx: SKRSContext2D, how: string, size: number): string[] {
   return wrapText(ctx, how, size + EVOLUTION_GAP, EVOLUTION_HOW_MAX_LINES);
 }
 
-/** The most lines any of the evolution chain needs for how it evolves. */
 function mostHowLines(ctx: SKRSContext2D, data: PokedexCardData): number {
   const size = evolutionSize(data);
   return Math.max(0, ...data.evolution.flat().map((pokemon) => (pokemon.how ? howLines(ctx, pokemon.how, size).length : 0)));
@@ -211,7 +204,6 @@ function wrapText(ctx: SKRSContext2D, text: string, maxWidth: number, maxLines: 
   return [...lines.slice(0, maxLines - 1), truncateText(ctx, `${lines[maxLines - 1]} ${lines[maxLines]}`, maxWidth - 30)];
 }
 
-/** The height of the section with the Pokédex text and the details. */
 const aboutHeight = (entryLines: number, detailRows: number) =>
   28 + entryLines * ENTRY_LINE_HEIGHT + (entryLines > 0 ? 16 : 0) + detailRows * DETAILS_HEIGHT + Math.max(0, detailRows - 1) * DETAILS_ROW_GAP + 20;
 
@@ -248,9 +240,8 @@ function drawDetailRow(ctx: SKRSContext2D, row: { label: string; value: string }
 }
 
 /**
- * Draw a Pokédex card: the artwork, name, number, kind and types, the base stats, the Pokédex text and details,
+ * Draw a Pokédex card as a PNG: the artwork, name, number, kind and types, the base stats, the Pokédex text and details,
  * and the evolution chain with pictures. The labels are passed in already translated.
- * @returns The card as a PNG.
  */
 export function renderPokedexCard(data: PokedexCardData): Buffer {
   const hasEvolution = data.evolution.length > 1;
@@ -267,7 +258,6 @@ export function renderPokedexCard(data: PokedexCardData): Buffer {
   const ctx = canvas.getContext('2d');
   const color = data.types[0]?.color ?? '#a8a77a';
 
-  // Card
   ctx.fillStyle = COLORS.cardBg;
   ctx.beginPath();
   ctx.roundRect(0, 0, WIDTH, height, 16);
@@ -282,7 +272,6 @@ export function renderPokedexCard(data: PokedexCardData): Buffer {
   ctx.fill();
   if (data.artwork) drawContained(ctx, data.artwork, artworkX + 10, artworkY + 10, ARTWORK_SIZE - 20);
 
-  // Name and number
   const contentX = artworkX + ARTWORK_SIZE + 40;
   const contentWidth = WIDTH - PADDING - contentX;
   ctx.textBaseline = 'alphabetic';

@@ -23,10 +23,7 @@ export interface TeamMatchup {
   resists: number[];
 }
 
-/**
- * How each attacking type does against a team, from the damage each of them takes, the ones most of them are weak to first.
- * @param taken What each Pokémon of the team takes from each type, like 2 for super effective.
- */
+/** How each attacking type does against a team, from what each member takes from each type, the ones most of them are weak to first. */
 export function teamMatchups(taken: Record<string, number>[]): TeamMatchup[] {
   const members = (keep: (multiplier: number) => boolean, type: string) => taken.flatMap((member, index) => (keep(member[type] ?? 1) ? [index] : []));
   return TYPES.map((type) => ({ type, weak: members((multiplier) => multiplier > 1, type), resists: members((multiplier) => multiplier < 1, type) })).sort(
@@ -34,7 +31,7 @@ export function teamMatchups(taken: Record<string, number>[]): TeamMatchup[] {
   );
 }
 
-/** How a type does against a team: a danger, when more than one of them is weak to it and fewer resist it, a weak spot, when more are weak to it than resist it, covered, when as many or more resist it, or nothing. */
+/** A danger when two or more are weak to a type and fewer resist it, a weak spot when more are weak than resist, covered when as many or more resist. */
 export function teamRisk(matchup: TeamMatchup): 'danger' | 'weakSpot' | 'covered' | null {
   const weak = matchup.weak.length;
   const resists = matchup.resists.length;
@@ -45,10 +42,9 @@ export function teamRisk(matchup: TeamMatchup): 'danger' | 'weakSpot' | 'covered
 
 /**
  * A team's weak spots, the way the type pages show a type: the types to watch out for, which more than one of them is weak to and fewer
- * resist, with who's weak, then the types only one is weak to, then the ones the team covers, with links to them.
- * @param slug The team's Pokémon, joined by {@link TEAM_SEPARATOR}.
+ * resist, with who's weak, then the types only one is weak to, then the ones the team covers, with links to them. The `slug` is
+ * the team's Pokémon joined by {@link TEAM_SEPARATOR}. Null when none of them are known.
  * @throws {PokeApiError} When PokéAPI can't be reached.
- * @returns The page, or null when none of them are known.
  */
 export async function buildTeam(slug: string, language: string, t: Translate, context: PageContext): Promise<ResponsePayload | null> {
   const slugs = slug.split(TEAM_SEPARATOR).slice(0, MAX_TEAM);

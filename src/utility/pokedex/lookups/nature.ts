@@ -30,9 +30,9 @@ const statChange = (stat: string, up: boolean, t: Translate) =>
   `${statChangeIcon(up)} ${bold(statName(stat, t))} ${formatNumber(up ? NATURE_CHANGE : -NATURE_CHANGE, t, { style: 'percent', signDisplay: 'always' }).replace('-', '−')}`;
 
 /**
- * A nature: the stat it raises and the one it lowers, each on its own line, then the flavors the Pokémon likes and dislikes.
+ * A nature: the stat it raises and the one it lowers, each on its own line, then the flavors the Pokémon likes and dislikes. Null
+ * when PokéAPI doesn't know it.
  * @throws {PokeApiError} When PokéAPI can't be reached.
- * @returns The answer, or null when PokéAPI doesn't know the nature.
  */
 export async function buildNature(slug: string, language: string, t: Translate, context: PageContext): Promise<ResponsePayload | null> {
   const nature = await getNature(slug);
