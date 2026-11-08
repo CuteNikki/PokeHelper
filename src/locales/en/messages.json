@@ -2007,7 +2007,7 @@
       "accountAge": "An account at least {{duration}} old"
     },
     "draft": {
-      "title": "### {{icon.gift}} New giveaway",
+      "title": "### {{icon.gift}} Giveaway settings",
       "header": "This is a draft. **Start** posts it in {{channel}}, and until then only you can see it. Drafts that aren't started are deleted after a day.",
       "missingChannel": "I can't find the channel it goes in anymore. Pick another one under Basics.",
       "missingPermissions": "I can't post it there, as I'm missing these permissions: {{permissions}}.",
@@ -2059,6 +2059,10 @@
         "label": "Duration",
         "description": "How long it runs once started",
         "invalid": "That's not a duration I can use. Try something like 30m, 12h or 3d, from 1 minute up to {{max}}."
+      },
+      "endsIn": {
+        "label": "Ends in",
+        "description": "How long from now it runs, which moves its end"
       },
       "channel": {
         "label": "Channel",
@@ -2225,7 +2229,11 @@
       "deleteQuestion": "Delete the giveaway for **{{prize}}**? Its post, participants and winners are deleted too, and can't be brought back.",
       "deleteConfirm": "Delete it",
       "deleted": "Deleted it.",
-      "gone": "That giveaway is gone. It may have been deleted meanwhile."
+      "gone": "That giveaway is gone. It may have been deleted meanwhile.",
+      "edit": "Edit"
+    },
+    "edit": {
+      "header": "It's running, so changes show on its post right away. Its channel can't change anymore, and its ping was already sent."
     }
   }
 }

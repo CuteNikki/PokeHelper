@@ -1951,7 +1951,7 @@
       "accountAge": "Ein Account, der mindestens {{duration}} alt ist"
     },
     "draft": {
-      "title": "### {{icon.gift}} Neues Giveaway",
+      "title": "### {{icon.gift}} Giveaway-Einstellungen",
       "header": "Das ist ein Entwurf. **Starten** postet es in {{channel}}, bis dahin siehst nur du es. Entwürfe, die nicht gestartet werden, werden nach einem Tag gelöscht.",
       "missingChannel": "Ich finde den Kanal nicht mehr, in den es soll. Such dir unter Grundlegendes einen anderen aus.",
       "missingPermissions": "Ich kann es da nicht posten, mir fehlen diese Berechtigungen: {{permissions}}.",
@@ -2003,6 +2003,10 @@
         "label": "Dauer",
         "description": "Wie lange es läuft, sobald es gestartet ist",
         "invalid": "Mit dieser Dauer kann ich nichts anfangen. Probier sowas wie 30min, 12h oder 3T, von 1 Minute bis {{max}}."
+      },
+      "endsIn": {
+        "label": "Endet in",
+        "description": "Wie lange es ab jetzt noch läuft, womit sich sein Ende verschiebt"
       },
       "channel": {
         "label": "Kanal",
@@ -2169,7 +2173,11 @@
       "deleteQuestion": "Das Giveaway für **{{prize}}** löschen? Sein Post, die Teilnehmer und Gewinner werden mitgelöscht und lassen sich nicht zurückholen.",
       "deleteConfirm": "Löschen",
       "deleted": "Hab es gelöscht.",
-      "gone": "Dieses Giveaway gibt es nicht mehr. Vielleicht wurde es inzwischen gelöscht."
+      "gone": "Dieses Giveaway gibt es nicht mehr. Vielleicht wurde es inzwischen gelöscht.",
+      "edit": "Bearbeiten"
+    },
+    "edit": {
+      "header": "Es läuft, also siehst du Änderungen sofort auf seinem Post. Der Kanal lässt sich nicht mehr ändern, und der Ping wurde schon gesendet."
     }
   }
 }

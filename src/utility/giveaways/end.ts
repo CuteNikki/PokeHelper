@@ -25,6 +25,7 @@ import {
   getXpOf,
   type Giveaway,
   replaceWinners,
+  setEntries,
 } from 'database/giveaways';
 import { getLevelFromXP } from 'database/leveling';
 
@@ -42,6 +43,24 @@ import { ThemeColors } from 'utility/theme';
 
 /** How many members are fetched from Discord at once, the most it sends back for one request. */
 const FETCH_CHUNK = 100;
+
+/**
+ * Work out everyone's entries in a running giveaway again, like after its bonus roles changed, which keeps the participants list right.
+ * Members who left keep theirs, as they can't win anyway.
+ */
+export async function refreshAllEntries(guild: Guild, giveaway: Giveaway) {
+  const entries = await getAllEntries(giveaway.id);
+  const bonusRoles = bonusRolesOf(giveaway);
+  for (let start = 0; start < entries.length; start += FETCH_CHUNK) {
+    const chunk = entries.slice(start, start + FETCH_CHUNK);
+    const members = await guild.members.fetch({ user: chunk.map((entry) => entry.userId) });
+    for (const entry of chunk) {
+      const member = members.get(entry.userId);
+      const count = member ? countEntries([...member.roles.cache.keys()], bonusRoles) : entry.entries;
+      if (count !== entry.entries) await setEntries(giveaway.id, entry.userId, count);
+    }
+  }
+}
 
 /**
  * Who can win a giveaway: everyone who entered, is still on the server and still meets the rules, with their entries worked out again

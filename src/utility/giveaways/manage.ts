@@ -35,29 +35,24 @@ import {
   MAX_ACTIVE_GIVEAWAYS,
 } from 'database/giveaways';
 
+import { getGiveawaySettings } from 'settings/giveaway';
+
 import { buildQuestion } from 'utility/confirm';
+import { DiscordLimits } from 'utility/discordLimits';
 import { formatNumber } from 'utility/duration';
 import { buttonIcon } from 'utility/emojis';
 import { endGiveaway } from 'utility/giveaways/end';
+import { MANAGE_ACTIONS, MANAGE_PREFIX, type ManageAction, manageId } from 'utility/giveaways/ids';
 import { syncPost } from 'utility/giveaways/sync';
 import { getTranslate, type Translate } from 'utility/i18next';
 import { logger } from 'utility/logger';
 import { type ResponsePayload, sendError, withNotice } from 'utility/response';
+import { settingsContext } from 'utility/settings';
 import { shorten } from 'utility/text';
 import { ThemeColors } from 'utility/theme';
-import { DiscordLimits } from 'utility/discordLimits';
 
-/**
- * Custom IDs of the giveaway list and the panel of a giveaway, after this:
- * - `list:<tab>` and the select `open`, which opens a giveaway
- * - `view`, `end`, `cancel`, `cancelYes`, `delete` and `deleteYes`, each `:<giveaway>`
- */
-export const MANAGE_PREFIX = 'gwm:';
+export { MANAGE_PREFIX };
 const TABS: GiveawayTab[] = ['active', 'ended'];
-
-type ManageAction = 'view' | 'end' | 'cancel' | 'cancelYes' | 'delete' | 'deleteYes';
-const ACTIONS: ManageAction[] = ['view', 'end', 'cancel', 'cancelYes', 'delete', 'deleteYes'];
-export const manageId = (action: ManageAction, giveawayId: string) => `${MANAGE_PREFIX}${action}:${giveawayId}`;
 
 /** A giveaway's number, like `#4`. */
 const numberOf = (giveaway: Giveaway, t: Translate) => (giveaway.number ? t('giveaway.manage.number', { number: formatNumber(giveaway.number, t) }) : '');
@@ -174,6 +169,11 @@ export async function renderGiveawayPanel(guild: Guild, giveaway: Giveaway, t: T
           .setEmoji(buttonIcon('trophy'))
           .setStyle(ButtonStyle.Primary),
         new ButtonBuilder()
+          .setCustomId(manageId('edit', giveaway.id))
+          .setLabel(t('giveaway.manage.edit'))
+          .setEmoji(buttonIcon('pencil'))
+          .setStyle(ButtonStyle.Secondary),
+        new ButtonBuilder()
           .setCustomId(manageId('cancel', giveaway.id))
           .setLabel(t('giveaway.manage.cancel'))
           .setEmoji(buttonIcon('x'))
@@ -219,7 +219,7 @@ export async function handleManageButton(interaction: ButtonInteraction<'cached'
   await interaction.deferUpdate();
   if (action === 'list')
     return isTab(argument) ? interaction.editReply(await renderGiveawayList(interaction.guild, argument, t)) : sendError(interaction, t('system.outdated'));
-  if (!ACTIONS.includes(action as ManageAction) || !argument) return sendError(interaction, t('system.outdated'));
+  if (!MANAGE_ACTIONS.includes(action as ManageAction) || !argument) return sendError(interaction, t('system.outdated'));
 
   const giveaway = await getGiveaway(interaction.guildId, argument);
   if (!giveaway || giveaway.status === 'draft') {
@@ -233,6 +233,10 @@ export async function handleManageButton(interaction: ButtonInteraction<'cached'
   switch (action as ManageAction) {
     case 'view':
       return interaction.editReply(await renderGiveawayPanel(interaction.guild, giveaway, t));
+
+    case 'edit':
+      if (giveaway.status !== 'active') return panelWith(t('giveaway.manage.notRunning'), 'info');
+      return interaction.editReply(await getGiveawaySettings(giveaway.id).render(settingsContext(interaction), t));
 
     case 'end':
       if (giveaway.status !== 'active') return panelWith(t('giveaway.manage.notRunning'), 'info');

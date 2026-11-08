@@ -2,9 +2,8 @@ import { type Guild, type GuildTextBasedChannel, messageLink, roleMention, TextD
 
 import { getGiveaway, type Giveaway, MAX_ACTIVE_GIVEAWAYS, setGiveawayMessage, startGiveaway, unstartGiveaway } from 'database/giveaways';
 
-import { GIVEAWAY_CHANNEL_PERMISSIONS } from 'settings/giveaway';
-
 import { formatNumber } from 'utility/duration';
+import { GIVEAWAY_CHANNEL_PERMISSIONS } from 'utility/giveaways/ids';
 import { buildGiveawayPost, type PostState } from 'utility/giveaways/post';
 import { rulesOf } from 'utility/giveaways/rules';
 import { getTranslate, type Translate } from 'utility/i18next';

@@ -30,11 +30,15 @@ import {
 import { getGuildLevelingConfiguration } from 'database/leveling';
 
 import { buttonIcon } from 'utility/emojis';
-import { formatNumber } from 'utility/duration';
+import { formatNumber, MINUTE } from 'utility/duration';
+import { refreshAllEntries } from 'utility/giveaways/end';
+import { GIVEAWAY_CHANNEL_PERMISSIONS, manageId } from 'utility/giveaways/ids';
 import { formatMinutes, minutesText, parseMinutes, parseWhole } from 'utility/giveaways/input';
 import { buildGiveawayPost } from 'utility/giveaways/post';
 import { rulesOf } from 'utility/giveaways/rules';
+import { syncPost } from 'utility/giveaways/sync';
 import type { Translate } from 'utility/i18next';
+import { logger } from 'utility/logger';
 import { createSettingsPanel, formatPermissions, missingBotPermissions, type SettingsPanel } from 'utility/settings';
 
 /** Each giveaway has its own panel, with the giveaway's ID after this. */
@@ -45,8 +49,6 @@ export const GIVEAWAY_DRAFT_CUSTOM_ID = {
   discard: 'gwdraft:discard:',
 } as const;
 
-/** What the bot needs in the channel a giveaway is posted in. */
-export const GIVEAWAY_CHANNEL_PERMISSIONS: PermissionsString[] = ['ViewChannel', 'SendMessages'];
 /** The longest someone can have to be on the server, or their account be old, which is as long as Discord has been around. */
 const MAX_AGE_MINUTES = 20 * 365 * 24 * 60;
 const MAX_LEVEL = 1000;
@@ -84,9 +86,28 @@ function ageSetting(key: 'memberAge' | 'accountAge', field: 'minMemberMinutes' |
   };
 }
 
+/** Start and Throw away, under a draft. */
+const draftButtons = (giveaway: Giveaway, t: Translate) => [
+  new ButtonBuilder()
+    .setCustomId(`${GIVEAWAY_DRAFT_CUSTOM_ID.start}${giveaway.id}`)
+    .setLabel(t('giveaway.draft.start'))
+    .setEmoji(buttonIcon('send'))
+    .setStyle(ButtonStyle.Success),
+  new ButtonBuilder()
+    .setCustomId(`${GIVEAWAY_DRAFT_CUSTOM_ID.discard}${giveaway.id}`)
+    .setLabel(t('giveaway.draft.discard'))
+    .setEmoji(buttonIcon('trash-2'))
+    .setStyle(ButtonStyle.Danger),
+];
+
+const isDraft = (giveaway: Giveaway) => giveaway.status === 'draft';
+/** Minutes left until a running giveaway ends, at least 1. */
+const minutesLeft = (giveaway: Giveaway) => Math.max(1, Math.ceil(((giveaway.endsAt?.getTime() ?? Date.now()) - Date.now()) / MINUTE));
+
 /**
- * The settings of a giveaway: a draft before it starts, with a preview of its post under them.
- * Every setting is saved right away, so a draft can be left and picked up again until it's started or deleted.
+ * The settings of a giveaway: a draft before it starts, with a preview of its post under them, and once it runs, what can still
+ * change, which shows on its post right away. Every setting is saved right away, so a draft can be left and picked up again until
+ * it's started or deleted.
  */
 export function getGiveawaySettings(giveawayId: string): SettingsPanel {
   const panel = createSettingsPanel<GiveawayConfig>({
@@ -98,26 +119,25 @@ export function getGiveawaySettings(giveawayId: string): SettingsPanel {
       { id: 'rules', label: (t) => t('giveaway.settings.categories.rules'), icon: 'shield' },
       { id: 'winners', label: (t) => t('giveaway.settings.categories.winners'), icon: 'trophy' },
     ],
-    // The panel's custom IDs carry the giveaway's ID, so make sure it's a draft of this server
+    // The panel's custom IDs carry the giveaway's ID, so make sure it's one of this server that can still change
     load: async (guildId) => {
       const [giveaway, leveling] = await Promise.all([getGiveaway(guildId, giveawayId), getGuildLevelingConfiguration(guildId)]);
-      return giveaway?.status === 'draft' ? { ...giveaway, levelingEnabled: leveling?.enabled ?? false } : null;
+      if (giveaway?.status !== 'draft' && giveaway?.status !== 'active') return null;
+      return { ...giveaway, levelingEnabled: leveling?.enabled ?? false };
     },
     notConfigured: (t) => t('giveaway.draft.gone'),
     header: (giveaway, { guild }, t) =>
-      draftHeader(giveaway, guild, guild ? missingBotPermissions(guild, giveaway.channelId, GIVEAWAY_CHANNEL_PERMISSIONS) : [], t),
-    footer: (giveaway, t) => [
-      new ButtonBuilder()
-        .setCustomId(`${GIVEAWAY_DRAFT_CUSTOM_ID.start}${giveaway.id}`)
-        .setLabel(t('giveaway.draft.start'))
-        .setEmoji(buttonIcon('send'))
-        .setStyle(ButtonStyle.Success),
-      new ButtonBuilder()
-        .setCustomId(`${GIVEAWAY_DRAFT_CUSTOM_ID.discard}${giveaway.id}`)
-        .setLabel(t('giveaway.draft.discard'))
-        .setEmoji(buttonIcon('trash-2'))
-        .setStyle(ButtonStyle.Danger),
-    ],
+      isDraft(giveaway)
+        ? draftHeader(giveaway, guild, guild ? missingBotPermissions(guild, giveaway.channelId, GIVEAWAY_CHANNEL_PERMISSIONS) : [], t)
+        : t('giveaway.edit.header'),
+    footer: (giveaway, t) =>
+      isDraft(giveaway)
+        ? draftButtons(giveaway, t)
+        : [new ButtonBuilder().setCustomId(manageId('view', giveaway.id)).setLabel(t('giveaway.manage.back')).setStyle(ButtonStyle.Secondary)],
+    // A running giveaway's post shows the change right away. A draft has no post yet, which this then leaves alone
+    onSaved: async ({ guild }) => {
+      if (guild) await syncPost(guild, giveawayId);
+    },
     tips: (t) => t('giveaway.settings.tips', { returnObjects: true }),
     settings: [
       {
@@ -180,6 +200,8 @@ export function getGiveawaySettings(giveawayId: string): SettingsPanel {
         label: (t) => t('giveaway.settings.duration.label'),
         description: (t) => t('giveaway.settings.duration.description'),
         placeholder: (t) => t('giveaway.settings.durationPlaceholder'),
+        // Once it runs, it's when it ends that can change, see below
+        hidden: (giveaway) => !isDraft(giveaway),
         get: (giveaway) => minutesText(giveaway.durationMinutes),
         formatValue: (value, t) => formatMinutes(parseMinutes(value, 0, Infinity) ?? 0, t),
         validate: (text, t) =>
@@ -192,12 +214,36 @@ export function getGiveawaySettings(giveawayId: string): SettingsPanel {
         },
       },
       {
+        type: 'text',
+        key: 'endsIn',
+        category: 'basics',
+        maxLength: 50,
+        required: true,
+        label: (t) => t('giveaway.settings.endsIn.label'),
+        description: (t) => t('giveaway.settings.endsIn.description'),
+        placeholder: (t) => t('giveaway.settings.durationPlaceholder'),
+        hidden: isDraft,
+        get: (giveaway) => minutesText(minutesLeft(giveaway)),
+        formatValue: (value, t) => formatMinutes(parseMinutes(value, 0, Infinity) ?? 0, t),
+        validate: (text, t) =>
+          parseMinutes(text, MIN_DURATION_MINUTES, MAX_DURATION_MINUTES) === null
+            ? t('giveaway.settings.duration.invalid', { max: formatMinutes(MAX_DURATION_MINUTES, t) })
+            : null,
+        // Counted from now, like the duration of a draft is counted from its start
+        set: async (_guildId, text) => {
+          const minutes = text ? parseMinutes(text, MIN_DURATION_MINUTES, MAX_DURATION_MINUTES) : null;
+          if (minutes) await updateGiveaway(giveawayId, { endsAt: new Date(Date.now() + minutes * MINUTE) });
+        },
+      },
+      {
         type: 'channel',
         key: 'channel',
         category: 'basics',
         channelTypes: [ChannelType.GuildText, ChannelType.GuildAnnouncement],
         required: true,
         botPermissions: GIVEAWAY_CHANNEL_PERMISSIONS,
+        // Its post can't move once it's posted
+        hidden: (giveaway) => !isDraft(giveaway),
         label: (t) => t('giveaway.settings.channel.label'),
         description: (t) => t('giveaway.settings.channel.description'),
         get: (giveaway) => giveaway.channelId,
@@ -211,6 +257,8 @@ export function getGiveawaySettings(giveawayId: string): SettingsPanel {
         category: 'basics',
         label: (t) => t('giveaway.settings.ping.label'),
         description: (t) => t('giveaway.settings.ping.description'),
+        // Only pinged when it starts
+        hidden: (giveaway) => !isDraft(giveaway),
         get: (giveaway) => giveaway.pingRoleId,
         set: (_guildId, pingRoleId) => updateGiveaway(giveawayId, { pingRoleId }),
       },
@@ -295,6 +343,12 @@ export function getGiveawaySettings(giveawayId: string): SettingsPanel {
         },
         get: (giveaway) => giveaway.roles.filter((role) => role.kind === 'bonus').map((role) => ({ targetId: role.roleId, value: role.bonus })),
         set: (_guildId, roleId, bonus) => setBonusRole(giveawayId, roleId, bonus),
+        // Everyone in a running giveaway gets their entries worked out again. In the background, as it can take a while
+        onSaved: (guild) => {
+          void getGiveaway(guild.id, giveawayId)
+            .then((giveaway) => (giveaway?.status === 'active' ? refreshAllEntries(guild, giveaway) : undefined))
+            .catch((error: unknown) => logger.error(error, `Failed to update the entries of giveaway ${giveawayId}`));
+        },
       },
       {
         type: 'text',
