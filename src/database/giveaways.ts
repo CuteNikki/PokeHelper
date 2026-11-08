@@ -1,6 +1,6 @@
 import { prisma } from 'database/index';
 
-import type { GiveawayRoleKind, Prisma } from 'generated/prisma/client';
+import type { GiveawayRoleKind, GiveawayStatus, Prisma } from 'generated/prisma/client';
 import { DAY, MINUTE } from 'utility/duration';
 
 /** The most giveaways a server can have running at once. */
@@ -302,3 +302,20 @@ export async function countGiveaways(guildId: string): Promise<Record<GiveawayTa
 /** Cancel a running giveaway, so it ends without winners. Returns whether it was still running. */
 export const cancelGiveaway = async (id: string, now = new Date()) =>
   (await prisma.giveaway.updateMany({ where: { id, status: 'active' }, data: { status: 'cancelled', endedAt: now } })).count > 0;
+
+/**
+ * Take a deleted role out of a server's giveaways that can still change: out of their rules and bonus roles, and as their ping or winner role.
+ * @returns The running giveaways it was in, and which of them it gave bonus entries in, whose entries then change.
+ */
+export const forgetDeletedGiveawayRole = (guildId: string, roleId: string) =>
+  prisma.$transaction(async (tx) => {
+    const changing = { guildId, status: { in: ['draft', 'active'] as const satisfies GiveawayStatus[] } };
+    const roles = await tx.giveawayRole.findMany({ where: { roleId, giveaway: changing }, select: { giveawayId: true, kind: true } });
+    await tx.giveawayRole.deleteMany({ where: { roleId, giveaway: changing } });
+    const ping = await tx.giveaway.updateManyAndReturn({ where: { ...changing, pingRoleId: roleId }, data: { pingRoleId: null }, select: { id: true } });
+    const winner = await tx.giveaway.updateManyAndReturn({ where: { ...changing, winnerRoleId: roleId }, data: { winnerRoleId: null }, select: { id: true } });
+    const touched = new Set([...roles.map((role) => role.giveawayId), ...ping.map((g) => g.id), ...winner.map((g) => g.id)]);
+    const active = await tx.giveaway.findMany({ where: { id: { in: [...touched] }, status: 'active' }, select: { id: true } });
+    const bonus = new Set(roles.filter((role) => role.kind === 'bonus').map((role) => role.giveawayId));
+    return active.map((giveaway) => ({ id: giveaway.id, hadBonus: bonus.has(giveaway.id) }));
+  });
