@@ -3,6 +3,7 @@ import { Events } from 'discord.js';
 import { Event } from 'classes/base/event';
 
 import { runBirthdayJob } from 'utility/birthday/job';
+import { deleteOldDrafts } from 'database/giveaways';
 
 import { runGiveawayJob } from 'utility/giveaways/end';
 import { flushPosts } from 'utility/giveaways/sync';
@@ -47,5 +48,6 @@ export default new Event({
     scheduleJob('starboard cleanup', DAY, forgetOldUnposted);
     scheduleJob('giveaway posts', GIVEAWAY_POST_INTERVAL, () => flushPosts(client));
     scheduleJob('giveaways', GIVEAWAY_INTERVAL, () => runGiveawayJob(client));
+    scheduleJob('giveaway drafts', JOB_INTERVAL, () => deleteOldDrafts());
   },
 });
