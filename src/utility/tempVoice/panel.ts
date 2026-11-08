@@ -20,12 +20,12 @@ import {
 
 import { getTempVoiceChannel, updateTempVoiceChannel } from 'database/tempVoice';
 
+import { DiscordLimits } from 'utility/discordLimits';
+import { SECOND } from 'utility/duration';
 import { buttonIcon, switchIcon } from 'utility/emojis';
 import { guildTranslate, type Translate } from 'utility/i18next';
 import { logger } from 'utility/logger';
 import type { ResponsePayload } from 'utility/response';
-import { DiscordLimits } from 'utility/discordLimits';
-import { SECOND } from 'utility/duration';
 import { channelLabel, MAX_MODERATORS, type TempChannel } from 'utility/tempVoice/channel';
 import { ThemeColors } from 'utility/theme';
 
@@ -151,7 +151,7 @@ export function buildPanel({ channel, record }: TempChannel, t: Translate): Resp
       row(t('tempVoice.panel.name'), t('tempVoice.panel.nameDescription'), edit('rename'), quote(channelLabel(record.namePrefix, channel.name))),
       row(t('tempVoice.panel.limit'), t('tempVoice.panel.limitDescription'), edit('limit'), quote(limit)),
     )
-    .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large))
+    .addSeparatorComponents(new SeparatorBuilder().setDivider(false).setSpacing(SeparatorSpacingSize.Small))
     .addSectionComponents(
       row(t('tempVoice.panel.locked'), t('tempVoice.panel.lockedDescription'), toggle('lock', record.locked)),
       row(t('tempVoice.panel.hidden'), t('tempVoice.panel.hiddenDescription'), toggle('hide', record.hidden)),
