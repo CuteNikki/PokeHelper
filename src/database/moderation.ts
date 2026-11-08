@@ -85,11 +85,12 @@ const ORDER: Record<CaseSort, Prisma.ModCaseOrderByWithRelationInput[]> = {
 /**
  * A page of someone's cases on a server, how many they have, and how many of each type.
  * @param skip How many cases come before the page.
+ * @param take How many cases the page has. With 0, only the counts are looked up.
  */
 export async function getUserCases(guildId: string, userId: string, sort: CaseSort, skip: number, take: number) {
   const where = { guildId, userId };
   const [cases, groups] = await Promise.all([
-    prisma.modCase.findMany({ where, orderBy: ORDER[sort], skip, take }),
+    take > 0 ? prisma.modCase.findMany({ where, orderBy: ORDER[sort], skip, take }) : [],
     prisma.modCase.groupBy({ by: ['type'], where, _count: { _all: true } }),
   ]);
   const counts = Object.fromEntries(CASE_TYPES.map((type) => [type, groups.find((group) => group.type === type)?._count._all ?? 0])) as Record<
