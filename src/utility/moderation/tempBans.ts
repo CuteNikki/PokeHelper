@@ -14,7 +14,8 @@ const warned = new Set<string>();
  * Bans in servers the bot isn't in right now wait for it to come back, and ones lifted meanwhile only end.
  */
 export async function runTempBanJob(client: Client) {
-  for (const modCase of await getExpiredBans(new Date())) {
+  // Only those of servers the bot is in, so the ones of servers it left aren't looked at on every run
+  for (const modCase of await getExpiredBans(new Date(), [...client.guilds.cache.keys()])) {
     const guild = client.guilds.cache.get(modCase.guildId);
     if (!guild) continue;
     // Ended before it's lifted, so a new ban made meanwhile, which ends this one, is never lifted in its place
@@ -25,8 +26,8 @@ export async function runTempBanJob(client: Client) {
       await guild.members.unban(modCase.userId, t('moderation.tempBanEnded', { number: caseNumber(modCase, t) }));
       warned.delete(modCase.id);
     } catch (error) {
-      // Lifted meanwhile, so it stays ended
-      if (error instanceof DiscordAPIError && error.code === RESTJSONErrorCodes.UnknownBan) continue;
+      // Lifted meanwhile, or their account was deleted, so there's nothing to lift and it stays ended
+      if (error instanceof DiscordAPIError && (error.code === RESTJSONErrorCodes.UnknownBan || error.code === RESTJSONErrorCodes.UnknownUser)) continue;
       await reopenCase(modCase.id, endedAt);
       if (!warned.has(modCase.id)) {
         // Like when the bot can't ban anymore. Tried again on every run, so it's lifted once it can

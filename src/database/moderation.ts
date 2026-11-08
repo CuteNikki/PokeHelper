@@ -96,9 +96,9 @@ export async function getUserCases(guildId: string, userId: string, sort: CaseSo
   return { cases, counts, total };
 }
 
-/** Temporary bans that ran out and haven't been lifted yet, the oldest first. */
-export const getExpiredBans = (now: Date) =>
-  prisma.modCase.findMany({ where: { type: 'ban', endedAt: null, expiresAt: { lte: now } }, orderBy: { expiresAt: 'asc' } });
+/** Temporary bans in some servers that ran out and haven't been lifted yet, the oldest first. */
+export const getExpiredBans = (now: Date, guildIds: string[]) =>
+  prisma.modCase.findMany({ where: { guildId: { in: guildIds }, type: 'ban', endedAt: null, expiresAt: { lte: now } }, orderBy: { expiresAt: 'asc' } });
 
 /** A server's temporary bans that haven't been lifted yet, whether they ran out or not. */
 export const getTempBans = (guildId: string) => prisma.modCase.findMany({ where: { guildId, type: 'ban', endedAt: null, expiresAt: { not: null } } });
