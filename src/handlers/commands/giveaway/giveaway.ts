@@ -30,6 +30,9 @@ import { getTranslate } from 'utility/i18next';
 import { createResponse } from 'utility/response';
 import { settingsContext } from 'utility/settings';
 
+/** The channels a giveaway can be posted in. */
+const GIVEAWAY_CHANNEL_TYPES = [ChannelType.GuildText, ChannelType.GuildAnnouncement] as const;
+
 export default new Command({
   data: new SlashCommandBuilder()
     .setContexts(InteractionContextType.Guild)
@@ -48,7 +51,7 @@ export default new Command({
           option
             .setName('channel')
             .setDescription('Where it is posted. Defaults to this channel')
-            .addChannelTypes(ChannelType.GuildText, ChannelType.GuildAnnouncement),
+            .addChannelTypes(...GIVEAWAY_CHANNEL_TYPES),
         )
         .addStringOption((option) =>
           option.setName('host').setDescription('Who it is from, like you, a team or a company. Defaults to you').setMaxLength(MAX_HOST_LENGTH),
@@ -79,9 +82,15 @@ async function handleStart(interaction: ChatInputCommandInteraction<'cached'>) {
     return interaction.editReply(createResponse(t('giveaway.settings.duration.invalid', { max: formatMinutes(MAX_DURATION_MINUTES, t) }), 'error'));
   }
 
+  // The channel picked, or this one, if it's one a giveaway can be posted in, unlike a thread or a voice channel's chat
+  const channel = interaction.options.getChannel('channel', false, GIVEAWAY_CHANNEL_TYPES) ?? interaction.channel;
+  if (!channel || !(GIVEAWAY_CHANNEL_TYPES as readonly ChannelType[]).includes(channel.type)) {
+    return interaction.editReply(createResponse(t('giveaway.draft.pickChannel'), 'error'));
+  }
+
   const draft = await createDraft({
     guildId: interaction.guildId,
-    channelId: interaction.options.getChannel('channel')?.id ?? interaction.channelId,
+    channelId: channel.id,
     hostId: interaction.user.id,
     host: interaction.options.getString('host')?.trim() || null,
     locale: interaction.guild.preferredLocale,

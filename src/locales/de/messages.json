@@ -2009,7 +2009,8 @@
       "started": "Es ist online in {{channel}}! [Zum Giveaway]({{link}})",
       "discarded": "Hab den Entwurf weggeworfen.",
       "tooMany": "Dieser Server hat schon {{max}} Entwürfe. Starte oder wirf erst einen weg, oder warte einen Tag, dann werden nicht gestartete Entwürfe gelöscht.",
-      "off": "Giveaways sind auf diesem Server gerade ausgeschaltet. Schalte sie erst in `/giveaway liste` an, dann starte es."
+      "off": "Giveaways sind auf diesem Server gerade ausgeschaltet. Schalte sie erst in `/giveaway liste` an, dann starte es.",
+      "pickChannel": "Giveaways lassen sich nur in Text- und Ankündigungskanälen posten, nicht hier. Such dir mit der Kanal-Option einen aus."
     },
     "settings": {
       "categories": {

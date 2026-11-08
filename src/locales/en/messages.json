@@ -2065,7 +2065,8 @@
       "started": "It's up in {{channel}}! [Jump to it]({{link}})",
       "discarded": "Threw the draft away.",
       "tooMany": "This server already has {{max}} drafts. Start or throw away one first, or wait a day, as drafts that aren't started are deleted then.",
-      "off": "Giveaways are turned off on this server right now. Turn them on in `/giveaway list` first, then start it."
+      "off": "Giveaways are turned off on this server right now. Turn them on in `/giveaway list` first, then start it.",
+      "pickChannel": "Giveaways can only be posted in text and announcement channels, not here. Pick one with the channel option."
     },
     "settings": {
       "categories": {
