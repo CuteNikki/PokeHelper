@@ -33,6 +33,7 @@ import { userRef } from 'utility/logs/format';
 import { renderCasesFor } from 'utility/moderation/cases';
 import {
   CASE_ICONS,
+  fetchMember,
   formatUntil,
   isBanned,
   MAX_REASON_LENGTH,
@@ -73,7 +74,8 @@ const panelId = (action: ModCaseType | 'cases', userId: string) => `${MOD_PANEL_
 export async function renderModerationPanel(guild: Guild, userId: string, moderator: GuildMember, t: Translate): Promise<ResponsePayload> {
   const [user, member, { counts, total }] = await Promise.all([
     guild.client.users.fetch(userId).catch(() => null),
-    guild.members.fetch(userId).catch(() => null),
+    // Asked of Discord, as right after a kick or ban the cache may still have them
+    fetchMember(guild, userId).then((fetched) => fetched ?? null),
     getUserCases(guild.id, userId, 'newest', 0, 0),
   ]);
   const banned = !member && (await isBanned(guild, userId));
