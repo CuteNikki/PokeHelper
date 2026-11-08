@@ -49,6 +49,8 @@ export const GIVEAWAY_DRAFT_CUSTOM_ID = {
   discard: 'gwdraft:discard:',
 } as const;
 
+/** The page the preview of a draft's post is shown on, the first, whose few settings leave room for it. */
+const PREVIEW_PAGE = 'basics';
 /** The longest someone can have to be on the server, or their account be old, which is as long as Discord has been around. */
 const MAX_AGE_MINUTES = 20 * 365 * 24 * 60;
 const MAX_LEVEL = 1000;
@@ -116,7 +118,9 @@ export function getGiveawaySettings(giveawayId: string): SettingsPanel {
     permissions: ['ManageGuild'],
     categories: [
       { id: 'basics', label: (t) => t('giveaway.settings.categories.basics'), icon: 'gift' },
+      { id: 'when', label: (t) => t('giveaway.settings.categories.when'), icon: 'clock' },
       { id: 'rules', label: (t) => t('giveaway.settings.categories.rules'), icon: 'shield' },
+      { id: 'bonus', label: (t) => t('giveaway.settings.categories.bonus'), icon: 'sparkles' },
       { id: 'winners', label: (t) => t('giveaway.settings.categories.winners'), icon: 'trophy' },
     ],
     // The panel's custom IDs carry the giveaway's ID, so make sure it's one of this server that can still change
@@ -194,7 +198,7 @@ export function getGiveawaySettings(giveawayId: string): SettingsPanel {
       {
         type: 'text',
         key: 'duration',
-        category: 'basics',
+        category: 'when',
         maxLength: 50,
         required: true,
         label: (t) => t('giveaway.settings.duration.label'),
@@ -216,7 +220,7 @@ export function getGiveawaySettings(giveawayId: string): SettingsPanel {
       {
         type: 'text',
         key: 'endsIn',
-        category: 'basics',
+        category: 'when',
         maxLength: 50,
         required: true,
         label: (t) => t('giveaway.settings.endsIn.label'),
@@ -238,7 +242,7 @@ export function getGiveawaySettings(giveawayId: string): SettingsPanel {
       {
         type: 'channel',
         key: 'channel',
-        category: 'basics',
+        category: 'when',
         channelTypes: [ChannelType.GuildText, ChannelType.GuildAnnouncement],
         required: true,
         botPermissions: GIVEAWAY_CHANNEL_PERMISSIONS,
@@ -254,7 +258,7 @@ export function getGiveawaySettings(giveawayId: string): SettingsPanel {
       {
         type: 'role',
         key: 'ping',
-        category: 'basics',
+        category: 'when',
         label: (t) => t('giveaway.settings.ping.label'),
         description: (t) => t('giveaway.settings.ping.description'),
         // Only pinged when it starts
@@ -327,7 +331,7 @@ export function getGiveawaySettings(giveawayId: string): SettingsPanel {
       {
         type: 'entries',
         key: 'bonus',
-        category: 'winners',
+        category: 'bonus',
         target: 'role',
         max: MAX_RULE_ROLES,
         presets: [1, 2, 3, 5],
@@ -392,9 +396,11 @@ export function getGiveawaySettings(giveawayId: string): SettingsPanel {
   return {
     ...panel,
     // A preview of the post under the settings, so it's clear what starting it posts
+    // Only on the first page, as a message can have 40 components at most, which the other pages and the preview together would go over
     async render(context, t, page) {
       const payload = await panel.render(context, t, page);
       const guild = context.guild;
+      if (page && page !== PREVIEW_PAGE) return payload;
       const giveaway = guild ? await getGiveaway(guild.id, giveawayId) : null;
       if (!guild || giveaway?.status !== 'draft') return payload;
       const post = buildGiveawayPost(

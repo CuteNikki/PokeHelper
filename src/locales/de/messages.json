@@ -2014,16 +2014,19 @@
     "settings": {
       "categories": {
         "basics": "Grundlegendes",
+        "when": "Wann und wo",
         "rules": "Wer mitmachen kann",
+        "bonus": "Extra-Lose",
         "winners": "Gewinner"
       },
       "tips": {
-        "basics": ["Das Giveaway startet mit **Starten** und endet, wenn seine Zeit ab dann um ist."],
+        "basics": ["Die Vorschau unten zeigt, was Starten postet."],
+        "when": ["Wie lange es läuft, zählt ab dem Start, und bei einem, das schon läuft, ab jetzt."],
         "rules": [
           "Die Regeln werden geprüft, wenn jemand mitmacht, und nochmal, wenn die Gewinner gezogen werden. So gewinnt niemand, der sie nicht mehr erfüllt.",
           "Eine Rolle kann nur eins sein: benötigt, ausgeschlossen oder Extra-Lose. Wählst du sie woanders aus, wandert sie dahin."
         ],
-        "winners": ["Extra-Lose zählen zusammen: Wer zwei Rollen mit Extra-Losen hat, bekommt beide, zusätzlich zu seinem einen Los."]
+        "bonus": ["Extra-Lose zählen zusammen: Wer zwei Rollen mit Extra-Losen hat, bekommt beide, zusätzlich zu seinem einen Los."]
       },
       "durationPlaceholder": "Z. B. 30min, 12h, 3T oder 2 Wochen",
       "invalidDuration": "Mit dieser Dauer kann ich nichts anfangen. Probier sowas wie 12h, 3T oder 2 Wochen.",

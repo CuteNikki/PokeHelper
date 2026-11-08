@@ -2070,16 +2070,19 @@
     "settings": {
       "categories": {
         "basics": "Basics",
+        "when": "When and where",
         "rules": "Who can enter",
+        "bonus": "Bonus entries",
         "winners": "Winners"
       },
       "tips": {
-        "basics": ["The giveaway starts with **Start**, and ends once its time is up, counted from then."],
+        "basics": ["The preview below shows what Start posts."],
+        "when": ["How long it runs counts from when it starts, and for one that's running already, from now."],
         "rules": [
           "The rules are checked when someone joins, and again when the winners are drawn, so nobody wins who no longer meets them.",
           "A role can only be one of required, blocked or bonus. Picking it for another moves it there."
         ],
-        "winners": ["Bonus entries add up: someone with two bonus roles gets both, on top of their 1 entry."]
+        "bonus": ["Bonus entries add up: someone with two bonus roles gets both, on top of their 1 entry."]
       },
       "durationPlaceholder": "Like 30m, 12h, 3d or 2 weeks",
       "invalidDuration": "That's not a duration I understand. Try something like 12h, 3d or 2 weeks.",
