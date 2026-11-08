@@ -154,7 +154,8 @@ export async function deleteUserData(userId: string) {
     await tx.guildLeveling.updateMany({ where: { monthlyLastWinner: userId }, data: { monthlyLastWinner: null } });
     await tx.tempVoiceSettings.deleteMany({ where: { userId } });
     await tx.giveawayEntry.deleteMany({ where: { userId } });
-    await tx.giveawayWinner.updateMany({ where: { userId }, data: { userId: null } });
+    // Their win stays, so the giveaway still shows how many won, and it can't be claimed by anyone anymore, so it isn't handed on either
+    await tx.giveawayWinner.updateMany({ where: { userId }, data: { userId: null, claimBy: null } });
     await tx.giveaway.deleteMany({ where: { hostId: userId, status: 'draft' } });
     // Forgotten, so their posts aren't updated anymore. The posts are messages in the server, which its moderators can delete
     await tx.starboardEntry.deleteMany({ where: { authorId: userId } });

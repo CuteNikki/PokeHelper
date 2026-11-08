@@ -37,8 +37,8 @@ export const GIVEAWAY_CUSTOM_ID = {
 export interface PostState {
   /** How many people entered. */
   participants: number;
-  /** Who won, once it ended, without the ones who were replaced. */
-  winnerIds: string[];
+  /** Who won, once it ended, without the ones who were replaced. Null for winners who deleted their data, who still count. */
+  winnerIds: (string | null)[];
 }
 
 /** Roles in a line, like `@A, @B`. */
@@ -98,7 +98,10 @@ export function buildGiveawayPost(giveaway: Giveaway, rules: GiveawayRules, stat
     details.push(
       '',
       state.winnerIds.length > 0
-        ? t('giveaway.post.winners', { winners: state.winnerIds.map(userMention).join(', '), count: state.winnerIds.length })
+        ? t('giveaway.post.winners', {
+            winners: state.winnerIds.map((id) => (id ? userMention(id) : t('giveaway.participants.deletedUser'))).join(', '),
+            count: state.winnerIds.length,
+          })
         : t('giveaway.post.noWinners'),
     );
   } else {
