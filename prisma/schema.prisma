@@ -115,9 +115,13 @@ model Guild {
   roleMenusEnabled Boolean @default(true)
   tempVoiceEnabled Boolean @default(true)
   stickiesEnabled  Boolean @default(true)
+  // Switch for giveaways. While off, none can be started or entered, and running ones wait with their draw until it's back on
+  giveawaysEnabled Boolean @default(true)
 
   // How many moderation cases the server has had, which numbers the next one. Never goes down, so deleted numbers aren't used again
-  caseCount Int @default(0)
+  caseCount     Int @default(0)
+  // How many giveaways the server has started, which numbers the next one, like cases
+  giveawayCount Int @default(0)
 
   // Configuration
   counting          GuildCounting?      @relation("GuildCounting")
@@ -132,6 +136,7 @@ model Guild {
   tempVoiceSettings TempVoiceSettings[]
   stickyMessages    StickyMessage[]
   modCases          ModCase[]
+  giveaways         Giveaway[]
   birthdayRoles     BirthdayRole[]
   levels            Level[]
   levelsWeekly      WeeklyLevel[]
@@ -659,6 +664,124 @@ enum ModCaseType {
   kick
   ban
   unban
+}
+
+// A giveaway: a draft while it's being set up, then running until it ends and its winners are drawn
+model Giveaway {
+  id      String         @id @default(cuid())
+  guildId String
+  guild   Guild          @relation(fields: [guildId], references: [guildId], onDelete: Cascade)
+  // Counted per server once it starts, so drafts don't use up numbers, and people can talk about giveaway 4
+  number  Int?
+  status  GiveawayStatus @default(draft)
+
+  // Where it's posted, and who's hosting it
+  channelId String
+  // The post. Null for drafts, and once the post is gone
+  messageId String? @unique
+  hostId    String
+  // The server's language when it started, which the post and the messages to winners are in
+  locale    String
+
+  // What's given away
+  prize           String
+  description     String?
+  winnerCount     Int
+  // How long it runs, counted from the start, as drafts haven't started yet
+  durationMinutes Int
+  endsAt          DateTime?
+  endedAt         DateTime?
+
+  // Who can enter, besides the required and blocked roles. Null for no limit
+  // Whether all the required roles are needed, or any one of them
+  requireAllRoles   Boolean @default(false)
+  minLevel          Int?
+  // How long someone has to be on the server, and how old their account has to be
+  minMemberMinutes  Int?
+  minAccountMinutes Int?
+
+  // Winners
+  // How long winners have to claim their prize before it goes to someone else. Null when they don't have to
+  claimMinutes Int?
+  // A role winners get, and a role pinged when it starts
+  winnerRoleId String?
+  pingRoleId   String?
+  dmWinners    Boolean @default(true)
+
+  roles   GiveawayRole[]
+  entries GiveawayEntry[]
+  winners GiveawayWinner[]
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([guildId, number])
+  @@index([guildId, status])
+  @@index([status, endsAt])
+}
+
+enum GiveawayStatus {
+  draft
+  active
+  ended
+  cancelled
+}
+
+// A role a giveaway asks for, keeps out, or gives bonus entries for
+model GiveawayRole {
+  giveawayId String
+  giveaway   Giveaway         @relation(fields: [giveawayId], references: [id], onDelete: Cascade)
+  roleId     String
+  kind       GiveawayRoleKind
+  // The extra entries, for bonus roles
+  bonus      Int              @default(0)
+
+  @@id([giveawayId, roleId])
+  @@index([roleId])
+}
+
+enum GiveawayRoleKind {
+  required
+  blocked
+  bonus
+}
+
+// Someone who entered a giveaway
+model GiveawayEntry {
+  giveawayId String
+  giveaway   Giveaway @relation(fields: [giveawayId], references: [id], onDelete: Cascade)
+  userId     String
+  // Their chances: 1, plus the bonus of their roles. Kept up to date as their roles change, and worked out once more at the draw
+  entries    Int      @default(1)
+
+  // Timestamps
+  createdAt DateTime @default(now())
+
+  @@id([giveawayId, userId])
+  // For the list of participants, sorted by entries
+  @@index([giveawayId, entries])
+  @@index([userId])
+}
+
+// Someone drawn as a winner. Winners who were replaced, like for not claiming in time, stay, so rerolls can be told apart
+model GiveawayWinner {
+  id         String   @id @default(cuid())
+  giveawayId String
+  giveaway   Giveaway @relation(fields: [giveawayId], references: [id], onDelete: Cascade)
+  // Null once they deleted their data, so the giveaway still shows how many winners it had
+  userId     String?
+
+  drawnAt    DateTime  @default(now())
+  // Until when they can claim their prize, and when they did. Null when claiming isn't needed
+  claimBy    DateTime?
+  claimedAt  DateTime?
+  // When someone else was drawn in their place
+  replacedAt DateTime?
+
+  @@index([giveawayId])
+  @@index([userId])
+  @@index([claimBy])
 }
 
 // The bot's own profile: which theme its avatar and banner wear, so they're only uploaded again when the theme changes.
