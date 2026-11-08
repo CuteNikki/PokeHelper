@@ -25,7 +25,7 @@ function inResponse(giveawayId: string, entries: number, key: 'giveaway.join.ent
           .setCustomId(`${GIVEAWAY_CUSTOM_ID.leave}${giveawayId}`)
           .setLabel(t('giveaway.join.leave'))
           .setEmoji(buttonIcon('user-minus'))
-          .setStyle(ButtonStyle.Secondary),
+          .setStyle(ButtonStyle.Danger),
       ),
     ],
   };
