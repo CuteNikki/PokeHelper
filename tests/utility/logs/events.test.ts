@@ -17,6 +17,7 @@ const config = (changes: Partial<GuildLogs> = {}): GuildLogs => ({
   moderationChannelId: '10',
   serverChannelId: null,
   voiceChannelId: null,
+  giveawaysChannelId: null,
   disabledEvents: [],
   ignoredChannelIds: [],
   ignoredRoleIds: [],

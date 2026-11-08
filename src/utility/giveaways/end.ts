@@ -33,6 +33,7 @@ import { getLevelFromXP } from 'database/leveling';
 import { MINUTE } from 'utility/duration';
 import { buttonIcon } from 'utility/emojis';
 import { type Candidate, drawWinners } from 'utility/giveaways/draw';
+import { logGiveaway, winnersDetail } from 'utility/giveaways/logs';
 import { GIVEAWAY_CUSTOM_ID } from 'utility/giveaways/post';
 import { bonusRolesOf, checkRules, countEntries, rulesOf } from 'utility/giveaways/rules';
 import { syncPost } from 'utility/giveaways/sync';
@@ -194,8 +195,11 @@ async function welcomeWinners(guild: Guild, giveaway: Giveaway, winnerIds: strin
   await dmWinners(guild, giveaway, winnerIds, claimBy);
 }
 
-/** End a giveaway: draw its winners, show them on the post, and let them know. */
-export async function endGiveaway(guild: Guild, giveaway: Giveaway) {
+/**
+ * End a giveaway: draw its winners, show them on the post, and let them know.
+ * @param byId Who ended it early, for the logs. Null when its time ran out.
+ */
+export async function endGiveaway(guild: Guild, giveaway: Giveaway, byId: string | null = null) {
   const winnerIds = drawWinners(await findCandidates(guild, giveaway), giveaway.winnerCount);
   const now = new Date();
   const claimBy = claimDeadline(giveaway, now);
@@ -204,15 +208,19 @@ export async function endGiveaway(guild: Guild, giveaway: Giveaway) {
   const ended: Giveaway = { ...giveaway, status: 'ended', endedAt: now };
   await syncPost(guild, giveaway.id);
   await welcomeWinners(guild, ended, winnerIds, claimBy, 'giveaway.end.announce');
+  await logGiveaway(guild, 'giveawayEnded', ended, byId, (t) => [winnersDetail(winnerIds, t)]);
 }
 
 /**
  * Draw new winners in place of some, from everyone who entered and hasn't won it yet.
  * @param winnerIds The IDs of the winners to replace, not their user IDs.
+ * @param byId Who rerolled them, for the logs. Null when they're replaced for not claiming in time.
  * @returns The new winners' user IDs. Fewer than replaced when there's nobody left to draw, and then those places stay empty.
  */
-export async function rerollWinners(guild: Guild, giveaway: Giveaway, winnerIds: string[]): Promise<string[]> {
-  const everyWinner = new Set((await getAllWinners(giveaway.id)).flatMap((winner) => winner.userId ?? []));
+export async function rerollWinners(guild: Guild, giveaway: Giveaway, winnerIds: string[], byId: string | null = null): Promise<string[]> {
+  const winners = await getAllWinners(giveaway.id);
+  const everyWinner = new Set(winners.flatMap((winner) => winner.userId ?? []));
+  const replacedUsers = winners.filter((winner) => winnerIds.includes(winner.id) && !winner.replacedAt).flatMap((winner) => winner.userId ?? []);
   const drawn = drawWinners(await findCandidates(guild, giveaway, everyWinner), winnerIds.length);
   const now = new Date();
   const claimBy = claimDeadline(giveaway, now);
@@ -222,6 +230,11 @@ export async function rerollWinners(guild: Guild, giveaway: Giveaway, winnerIds:
   const newWinners = drawn.slice(0, replaced);
   await syncPost(guild, giveaway.id);
   await welcomeWinners(guild, giveaway, newWinners, claimBy, 'giveaway.end.reroll');
+  await logGiveaway(guild, 'giveawayRerolled', giveaway, byId, (t) => [
+    t('logs.giveaways.replaced', { users: replacedUsers.map(userMention).join(', ') || '-' }),
+    byId ? null : t('logs.giveaways.missedClaim'),
+    winnersDetail(newWinners, t),
+  ]);
   return newWinners;
 }
 

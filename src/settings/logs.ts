@@ -49,6 +49,7 @@ export const logSettings = createSettingsPanel<GuildLogs>({
     { id: 'moderation', label: (t) => t('logs.settings.categories.moderation'), icon: 'gavel' },
     { id: 'server', label: (t) => t('logs.settings.categories.server'), icon: 'house' },
     { id: 'voice', label: (t) => t('logs.settings.categories.voice'), icon: 'volume-2' },
+    { id: 'giveaways', label: (t) => t('logs.settings.categories.giveaways'), icon: 'gift' },
   ],
   // Logs start with no channels, so there's always a configuration to show
   load: getOrCreateGuildLogs,

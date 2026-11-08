@@ -24,7 +24,7 @@ export default new Button({
     await interaction.deferUpdate();
 
     if (customId.startsWith(GIVEAWAY_DRAFT_CUSTOM_ID.start)) {
-      const result = await publishDraft(interaction.guild, customId.slice(GIVEAWAY_DRAFT_CUSTOM_ID.start.length), t);
+      const result = await publishDraft(interaction.guild, customId.slice(GIVEAWAY_DRAFT_CUSTOM_ID.start.length), interaction.user.id, t);
       // An error leaves the draft as it is, to fix what's wrong and try again
       if ('error' in result) return sendError(interaction, result.error);
       return interaction.editReply(createResponse(t('giveaway.draft.started', { channel: channelMention(result.channelId), link: result.link }), 'success'));

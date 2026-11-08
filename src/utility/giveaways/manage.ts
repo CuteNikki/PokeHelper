@@ -45,6 +45,7 @@ import { DiscordLimits } from 'utility/discordLimits';
 import { formatNumber } from 'utility/duration';
 import { buttonIcon } from 'utility/emojis';
 import { endGiveaway, rerollWinners } from 'utility/giveaways/end';
+import { logGiveaway } from 'utility/giveaways/logs';
 import { MANAGE_ACTIONS, MANAGE_PREFIX, type ManageAction, manageId } from 'utility/giveaways/ids';
 import { openParticipantsId } from 'utility/giveaways/participants';
 import { markPostChanged, syncPost } from 'utility/giveaways/sync';
@@ -284,7 +285,7 @@ export async function handleManageButton(interaction: ButtonInteraction<'cached'
 
     case 'end':
       if (giveaway.status !== 'active') return panelWith(t('giveaway.manage.notRunning'), 'info');
-      await endGiveaway(interaction.guild, giveaway);
+      await endGiveaway(interaction.guild, giveaway, interaction.user.id);
       return panelWith(t('giveaway.manage.ended'), 'success');
 
     case 'cancel':
@@ -302,6 +303,7 @@ export async function handleManageButton(interaction: ButtonInteraction<'cached'
     case 'cancelYes':
       if (!(await cancelGiveaway(giveaway.id))) return panelWith(t('giveaway.manage.notRunning'), 'info');
       await syncPost(interaction.guild, giveaway.id);
+      await logGiveaway(interaction.guild, 'giveawayCancelled', giveaway, interaction.user.id);
       return panelWith(t('giveaway.manage.cancelled'), 'success');
 
     case 'delete':
@@ -321,6 +323,7 @@ export async function handleManageButton(interaction: ButtonInteraction<'cached'
       if (giveaway.status === 'active') return panelWith(t('giveaway.manage.stillRunning'), 'info');
       await deletePost(interaction.guild, giveaway);
       await deleteGiveaway(interaction.guildId, giveaway.id);
+      await logGiveaway(interaction.guild, 'giveawayDeleted', giveaway, interaction.user.id);
       return interaction.editReply(withNotice(t('giveaway.manage.deleted'), 'success', await renderGiveawayList(interaction.guild, 'ended', t)));
   }
 }
@@ -347,7 +350,7 @@ export async function handleManageSelect(interaction: AnySelectMenuInteraction<'
 
   if (action === 'rerollPick') {
     if (giveaway.status !== 'ended') return interaction.editReply(await renderGiveawayPanel(interaction.guild, giveaway, t));
-    const drawn = await rerollWinners(interaction.guild, giveaway, interaction.values);
+    const drawn = await rerollWinners(interaction.guild, giveaway, interaction.values, interaction.user.id);
     const notice = drawn.length > 0 ? t('giveaway.manage.rerolled', { count: drawn.length }) : t('giveaway.manage.nobodyLeft');
     return interaction.editReply(withNotice(notice, drawn.length > 0 ? 'success' : 'info', await renderGiveawayPanel(interaction.guild, giveaway, t)));
   }

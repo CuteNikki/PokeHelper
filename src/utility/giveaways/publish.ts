@@ -1,10 +1,11 @@
-import { type Guild, type GuildTextBasedChannel, messageLink, roleMention, TextDisplayBuilder } from 'discord.js';
+import { type Guild, type GuildTextBasedChannel, messageLink, roleMention, TextDisplayBuilder, time, TimestampStyles } from 'discord.js';
 
 import { getFeatureSwitches } from 'database/features';
 import { getGiveaway, type Giveaway, MAX_ACTIVE_GIVEAWAYS, setGiveawayMessage, startGiveaway, unstartGiveaway } from 'database/giveaways';
 
 import { formatNumber } from 'utility/duration';
 import { GIVEAWAY_CHANNEL_PERMISSIONS } from 'utility/giveaways/ids';
+import { logGiveaway } from 'utility/giveaways/logs';
 import { buildGiveawayPost, type PostState } from 'utility/giveaways/post';
 import { rulesOf } from 'utility/giveaways/rules';
 import { getTranslate, type Translate } from 'utility/i18next';
@@ -40,9 +41,15 @@ function postChannel(guild: Guild, channelId: string): GuildTextBasedChannel | n
 
 /**
  * Start a draft and post it.
+ * @param byId Who started it, for the logs.
  * @returns What to tell whoever started it: that it's up with a link to it, or why it couldn't be started.
  */
-export async function publishDraft(guild: Guild, giveawayId: string, t: Translate): Promise<{ error: string } | { link: string; channelId: string }> {
+export async function publishDraft(
+  guild: Guild,
+  giveawayId: string,
+  byId: string,
+  t: Translate,
+): Promise<{ error: string } | { link: string; channelId: string }> {
   const [draft, { giveawaysEnabled }] = await Promise.all([getGiveaway(guild.id, giveawayId), getFeatureSwitches(guild.id)]);
   if (draft?.status !== 'draft') return { error: t('giveaway.draft.gone') };
   if (!giveawaysEnabled) return { error: t('giveaway.draft.off') };
@@ -60,6 +67,9 @@ export async function publishDraft(guild: Guild, giveawayId: string, t: Translat
   try {
     const message = await channel.send(renderPost(guild, started, { participants: 0, winnerIds: [] }));
     await setGiveawayMessage(started.id, message.id);
+    await logGiveaway(guild, 'giveawayStarted', { ...started, messageId: message.id }, byId, (logT) => [
+      started.endsAt ? logT('logs.giveaways.ends', { time: time(started.endsAt, TimestampStyles.LongDateShortTime) }) : null,
+    ]);
     return { link: messageLink(channel.id, message.id, guild.id), channelId: channel.id };
   } catch (error) {
     // Like when the permissions changed meanwhile. Back to a draft, so it can be started again once it can be posted

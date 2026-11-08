@@ -1,6 +1,14 @@
 import { prisma } from 'database/index';
 
-const LOG_CHANNELS = ['defaultChannelId', 'messagesChannelId', 'membersChannelId', 'moderationChannelId', 'serverChannelId', 'voiceChannelId'] as const;
+const LOG_CHANNELS = [
+  'defaultChannelId',
+  'messagesChannelId',
+  'membersChannelId',
+  'moderationChannelId',
+  'serverChannelId',
+  'voiceChannelId',
+  'giveawaysChannelId',
+] as const;
 
 /**
  * Forget a deleted channel in every setting of a guild that points at it, so the settings don't show a channel that's gone.

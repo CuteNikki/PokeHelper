@@ -556,6 +556,7 @@ model GuildLogs {
   moderationChannelId String?
   serverChannelId     String?
   voiceChannelId      String?
+  giveawaysChannelId  String?
   // The events turned off, so ones added later start turned on
   disabledEvents      String[] @default([])
   // Messages and voice in these channels, or in the channels of these categories, aren't logged

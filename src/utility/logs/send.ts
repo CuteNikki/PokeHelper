@@ -69,7 +69,7 @@ const KIND_COLORS: Record<LogKind, number> = {
 };
 
 /** What an entry can be about. */
-export type LogSubject = 'user' | 'channel' | 'thread' | 'role' | 'emoji' | 'sticker' | 'invite' | 'server';
+export type LogSubject = 'user' | 'channel' | 'thread' | 'role' | 'emoji' | 'sticker' | 'invite' | 'server' | 'giveaway';
 
 /** One log entry. Everything in it is already in the server's language. */
 export interface LogEntry {

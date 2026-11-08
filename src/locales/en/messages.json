@@ -1264,7 +1264,13 @@
       "inviteDeleted": "{{icon.link}} Invite deleted",
       "voiceJoined": "{{icon.volume-2}} Joined voice",
       "voiceLeft": "{{icon.volume-x}} Left voice",
-      "voiceMoved": "{{icon.arrow-left-right}} Moved voice channels"
+      "voiceMoved": "{{icon.arrow-left-right}} Moved voice channels",
+      "giveawayStarted": "{{icon.gift}} Giveaway started",
+      "giveawayEnded": "{{icon.trophy}} Giveaway ended",
+      "giveawayRerolled": "{{icon.refresh-cw}} Giveaway rerolled",
+      "giveawayCancelled": "{{icon.x}} Giveaway cancelled",
+      "giveawayDeleted": "{{icon.trash-2}} Giveaway deleted",
+      "giveawayRulesChanged": "{{icon.shield}} Giveaway rules changed"
     },
     "copy": {
       "button": "Copy IDs",
@@ -1333,7 +1339,8 @@
         "members": "Members",
         "moderation": "Moderation",
         "server": "Server",
-        "voice": "Voice"
+        "voice": "Voice",
+        "giveaways": "Giveaways"
       },
       "enabled": {
         "label": "Enabled",
@@ -1439,6 +1446,30 @@
         "voiceMoved": {
           "label": "Moves",
           "description": "Who moved from one voice channel to another"
+        },
+        "giveawayStarted": {
+          "label": "Started",
+          "description": "A giveaway that was started, and by whom"
+        },
+        "giveawayEnded": {
+          "label": "Ended",
+          "description": "A giveaway that ended, with its winners"
+        },
+        "giveawayRerolled": {
+          "label": "Rerolled",
+          "description": "Winners who were replaced, by whom or for not claiming in time, and who won instead"
+        },
+        "giveawayCancelled": {
+          "label": "Cancelled",
+          "description": "A giveaway that was cancelled, and by whom"
+        },
+        "giveawayDeleted": {
+          "label": "Deleted",
+          "description": "A giveaway that was deleted, and by whom"
+        },
+        "giveawayRulesChanged": {
+          "label": "Rules changed",
+          "description": "A role a running giveaway required was deleted, so the rules for who can enter changed"
         }
       }
     },
@@ -1458,7 +1489,8 @@
       "emoji": "Emoji",
       "sticker": "Sticker",
       "invite": "Invite",
-      "server": "Server"
+      "server": "Server",
+      "giveaway": "Giveaway"
     },
     "in": "In",
     "byLabel": "By",
@@ -1481,6 +1513,17 @@
       "moderation": ["The reason a moderator gave is taken from the audit log, so it needs View Audit Log."],
       "server": ["The Copy IDs button on every entry is for phones, where text in messages can't be selected."],
       "voice": ["Channels left out under General are left out here too."]
+    },
+    "giveaways": {
+      "jump": "Go to giveaway",
+      "winners_one": "Winner",
+      "winners_other": "Winners",
+      "noWinners": "Nobody could be drawn, so there are no winners.",
+      "ends": "**Ends** {{time}}",
+      "replaced": "**Replaced** {{users}}",
+      "missedClaim": "They didn't claim their prize in time.",
+      "roleDeleted": "The required role {{role}} was deleted, so it no longer counts.",
+      "openToAll": "It was the only required role, so anyone can enter now."
     }
   },
   "starboard": {

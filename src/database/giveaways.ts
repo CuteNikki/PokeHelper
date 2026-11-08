@@ -305,7 +305,7 @@ export const cancelGiveaway = async (id: string, now = new Date()) =>
 
 /**
  * Take a deleted role out of a server's giveaways that can still change: out of their rules and bonus roles, and as their ping or winner role.
- * @returns The running giveaways it was in, and which of them it gave bonus entries in, whose entries then change.
+ * @returns The running giveaways it was in, with whether it gave bonus entries there, whose entries then change, and whether it was required.
  */
 export const forgetDeletedGiveawayRole = (guildId: string, roleId: string) =>
   prisma.$transaction(async (tx) => {
@@ -316,8 +316,9 @@ export const forgetDeletedGiveawayRole = (guildId: string, roleId: string) =>
     const winner = await tx.giveaway.updateManyAndReturn({ where: { ...changing, winnerRoleId: roleId }, data: { winnerRoleId: null }, select: { id: true } });
     const touched = new Set([...roles.map((role) => role.giveawayId), ...ping.map((g) => g.id), ...winner.map((g) => g.id)]);
     const active = await tx.giveaway.findMany({ where: { id: { in: [...touched] }, status: 'active' }, select: { id: true } });
-    const bonus = new Set(roles.filter((role) => role.kind === 'bonus').map((role) => role.giveawayId));
-    return active.map((giveaway) => ({ id: giveaway.id, hadBonus: bonus.has(giveaway.id) }));
+    const ofKind = (kind: GiveawayRoleKind) => new Set(roles.filter((role) => role.kind === kind).map((role) => role.giveawayId));
+    const [bonus, required] = [ofKind('bonus'), ofKind('required')];
+    return active.map((giveaway) => ({ id: giveaway.id, hadBonus: bonus.has(giveaway.id), wasRequired: required.has(giveaway.id) }));
   });
 
 /** Forget the posts of a server's giveaways that were in a deleted channel, which went with it. They go on, and still end and draw. */
