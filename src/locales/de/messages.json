@@ -625,7 +625,25 @@
       "moderators_one": "{{users}} zum Moderator gemacht",
       "moderators_other": "{{users}} zu Moderatoren gemacht",
       "unmoderators_one": "{{users}} ist kein Moderator mehr",
-      "unmoderators_other": "{{users}} sind keine Moderatoren mehr"
+      "unmoderators_other": "{{users}} sind keine Moderatoren mehr",
+      "single": {
+        "renamed": "{{user}} hat den Kanal in **{{name}}** umbenannt.",
+        "limit_one": "{{user}} hat das Limit auf {{count, number}} Person gesetzt.",
+        "limit_other": "{{user}} hat das Limit auf {{count, number}} Leute gesetzt.",
+        "noLimit": "{{user}} hat das Limit entfernt.",
+        "locked": "{{user}} hat den Kanal abgeschlossen.",
+        "unlocked": "{{user}} hat den Kanal aufgeschlossen.",
+        "hidden": "{{user}} hat den Kanal versteckt.",
+        "shown": "{{user}} hat den Kanal wieder sichtbar gemacht.",
+        "allowed": "{{user}} hat {{users}} reingelassen.",
+        "blocked": "{{user}} hat {{users}} ausgesperrt.",
+        "unallowed": "{{user}} lässt {{users}} nicht mehr rein.",
+        "unblocked": "{{user}} sperrt {{users}} nicht mehr aus.",
+        "moderators_one": "{{user}} hat {{users}} zum Moderator gemacht.",
+        "moderators_other": "{{user}} hat {{users}} zu Moderatoren gemacht.",
+        "unmoderators_one": "{{user}} hat {{users}} als Moderator entfernt.",
+        "unmoderators_other": "{{user}} hat {{users}} als Moderatoren entfernt."
+      }
     },
     "controls": {
       "gone": "Diesen Kanal gibt es nicht mehr.",

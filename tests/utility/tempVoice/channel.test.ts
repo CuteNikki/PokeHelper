@@ -2,7 +2,7 @@ import { beforeAll, describe, expect, test } from 'bun:test';
 import type { RateLimitData } from 'discord.js';
 
 import { getTranslate, initI18Next } from 'utility/i18next';
-import { channelLabel, channelName, describeChanges, isRenameLimit, maxLabelLength } from 'utility/tempVoice/channel';
+import { announceChanges, channelLabel, channelName, describeChanges, isRenameLimit, maxLabelLength } from 'utility/tempVoice/channel';
 import { parseTempVoiceCustomId, tempVoiceCustomId } from 'utility/tempVoice/panel';
 
 beforeAll(() => initI18Next());
@@ -81,5 +81,39 @@ describe('isRenameLimit', () => {
   test('waits as usual for messages in a channel, and anything else', () => {
     expect(isRenameLimit(limit('PATCH', '/channels/123/messages/:id', 300_000))).toBe(false);
     expect(isRenameLimit(limit('POST', '/channels/123', 300_000))).toBe(false);
+  });
+});
+
+describe('announceChanges', () => {
+  const base = { name: 'Nikki', userLimit: 0, namePrefix: '', locked: false, hidden: false, allowed: [], blocked: [], moderators: [] };
+  const t = () => getTranslate('en');
+
+  test('says nothing when nothing changed', () => {
+    expect(announceChanges(base, base, '<@9>', t())).toBeNull();
+  });
+
+  test('one change is a sentence of its own', () => {
+    expect(announceChanges(base, { ...base, locked: true }, '<@9>', t())).toBe('<@9> locked the channel.');
+    expect(announceChanges({ ...base, hidden: true }, base, '<@9>', t())).toBe('<@9> made the channel visible again.');
+    expect(announceChanges(base, { ...base, userLimit: 99 }, '<@9>', t())).toBe('<@9> set the limit to 99 people.');
+    expect(announceChanges(base, { ...base, name: 'meowy' }, '<@9>', t())).toBe('<@9> renamed the channel to **meowy**.');
+    expect(announceChanges(base, { ...base, moderators: ['3', '4'] }, '<@9>', t())).toBe('<@9> made <@3>, <@4> moderators.');
+  });
+
+  test('several changes at once are a list under who made them', () => {
+    expect(announceChanges(base, { ...base, allowed: ['1'], blocked: ['2'] }, '<@9>', t())).toBe('<@9> changed this channel:\n- let in <@1>\n- kept out <@2>');
+  });
+
+  test('every change has a sentence in every language', () => {
+    for (const language of ['en', 'de']) {
+      const translate = getTranslate(language);
+      const changed = { ...base, name: 'x', userLimit: 2, locked: true, hidden: true, allowed: ['1'], blocked: ['2'], moderators: ['3'] };
+      for (const line of [...describeChanges(base, changed, translate), ...describeChanges(changed, base, translate)]) expect(line).not.toContain('tempVoice.');
+      const singles = [{ name: 'x' }, { userLimit: 2 }, { locked: true }, { hidden: true }, { allowed: ['1'] }, { blocked: ['2'] }, { moderators: ['3'] }];
+      for (const change of singles) {
+        expect(announceChanges(base, { ...base, ...change }, '<@9>', translate)).toStartWith('<@9>');
+        expect(announceChanges({ ...base, ...change }, base, '<@9>', translate)).not.toContain('tempVoice.');
+      }
+    }
   });
 });

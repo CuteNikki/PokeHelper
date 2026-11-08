@@ -467,42 +467,76 @@ export function changeTempChannel(temp: TempChannel, by: GuildMember, change: Ch
     refreshPanel(temp);
 
     const t = guildTranslate(temp.channel.guild);
-    const changes = describeChanges(before, { name: temp.channel.name, userLimit: temp.channel.userLimit, ...temp.record }, t);
-    if (changes.length > 0)
-      await announce(temp, [t('tempVoice.announce.changed', { user: userMention(by.id) }), ...changes.map((line) => `- ${line}`)].join('\n'));
+    const text = announceChanges(before, { name: temp.channel.name, userLimit: temp.channel.userLimit, ...temp.record }, userMention(by.id), t);
+    if (text) await announce(temp, text);
   });
 }
 
 type Described = Access & { name: string; userLimit: number; namePrefix: string };
 
-/** What changed about a channel, as things someone did to it, for everyone in it to see. */
-export function describeChanges(before: Described, after: Described, t: Translate): string[] {
-  const changes: string[] = [];
+/** The kinds of things someone can do to a channel, each the end of its translation key under `tempVoice.announce`. */
+type ChangeKey =
+  | 'renamed'
+  | 'limit'
+  | 'noLimit'
+  | 'locked'
+  | 'unlocked'
+  | 'hidden'
+  | 'shown'
+  | 'allowed'
+  | 'blocked'
+  | 'unallowed'
+  | 'unblocked'
+  | 'moderators'
+  | 'unmoderators';
+/** Something someone did to a channel, and what goes in its text. */
+type ChangeText = [key: ChangeKey, params?: Record<string, unknown>];
+
+/** What changed about a channel, as things someone did to it. */
+function listChanges(before: Described, after: Described): ChangeText[] {
+  const changes: ChangeText[] = [];
   const added = (from: string[], to: string[]) => to.filter((id) => !from.includes(id));
   const mentions = (ids: string[]) => ids.map((id) => userMention(id)).join(', ');
 
-  if (after.name !== before.name) changes.push(t('tempVoice.announce.renamed', { name: channelLabel(after.namePrefix, after.name) }));
-  if (after.userLimit !== before.userLimit)
-    changes.push(after.userLimit ? t('tempVoice.announce.limit', { count: after.userLimit }) : t('tempVoice.announce.noLimit'));
-  if (after.locked !== before.locked) changes.push(t(after.locked ? 'tempVoice.announce.locked' : 'tempVoice.announce.unlocked'));
-  if (after.hidden !== before.hidden) changes.push(t(after.hidden ? 'tempVoice.announce.hidden' : 'tempVoice.announce.shown'));
+  if (after.name !== before.name) changes.push(['renamed', { name: channelLabel(after.namePrefix, after.name) }]);
+  if (after.userLimit !== before.userLimit) changes.push(after.userLimit ? ['limit', { count: after.userLimit }] : ['noLimit']);
+  if (after.locked !== before.locked) changes.push([after.locked ? 'locked' : 'unlocked']);
+  if (after.hidden !== before.hidden) changes.push([after.hidden ? 'hidden' : 'shown']);
 
   const letIn = added(before.allowed, after.allowed);
   const keptOut = added(before.blocked, after.blocked);
   // Moving someone from one list to the other is said once, as where they went
   const noLongerLetIn = added(after.allowed, before.allowed).filter((id) => !keptOut.includes(id));
   const letBackIn = added(after.blocked, before.blocked).filter((id) => !letIn.includes(id));
-  if (letIn.length > 0) changes.push(t('tempVoice.announce.allowed', { users: mentions(letIn) }));
-  if (keptOut.length > 0) changes.push(t('tempVoice.announce.blocked', { users: mentions(keptOut) }));
-  if (noLongerLetIn.length > 0) changes.push(t('tempVoice.announce.unallowed', { users: mentions(noLongerLetIn) }));
-  if (letBackIn.length > 0) changes.push(t('tempVoice.announce.unblocked', { users: mentions(letBackIn) }));
+  if (letIn.length > 0) changes.push(['allowed', { users: mentions(letIn) }]);
+  if (keptOut.length > 0) changes.push(['blocked', { users: mentions(keptOut) }]);
+  if (noLongerLetIn.length > 0) changes.push(['unallowed', { users: mentions(noLongerLetIn) }]);
+  if (letBackIn.length > 0) changes.push(['unblocked', { users: mentions(letBackIn) }]);
 
   const newModerators = added(before.moderators, after.moderators);
   const noLongerModerators = added(after.moderators, before.moderators);
-  if (newModerators.length > 0) changes.push(t('tempVoice.announce.moderators', { users: mentions(newModerators), count: newModerators.length }));
-  if (noLongerModerators.length > 0)
-    changes.push(t('tempVoice.announce.unmoderators', { users: mentions(noLongerModerators), count: noLongerModerators.length }));
+  if (newModerators.length > 0) changes.push(['moderators', { users: mentions(newModerators), count: newModerators.length }]);
+  if (noLongerModerators.length > 0) changes.push(['unmoderators', { users: mentions(noLongerModerators), count: noLongerModerators.length }]);
   return changes;
+}
+
+/** What changed about a channel, as things someone did to it, each a line of a list. */
+export const describeChanges = (before: Described, after: Described, t: Translate): string[] =>
+  listChanges(before, after).map(([key, params]) => t(`tempVoice.announce.${key}`, params));
+
+/**
+ * What everyone in a channel is told about a change to it, or null when nothing changed. One change, like most clicks on the panel,
+ * is a sentence of its own, like "@Nikki locked the channel.", and several at once are a list under who made them.
+ * @param user The mention of who made the change.
+ */
+export function announceChanges(before: Described, after: Described, user: string, t: Translate): string | null {
+  const changes = listChanges(before, after);
+  if (changes.length === 0) return null;
+  if (changes.length === 1) {
+    const [key, params] = changes[0]!;
+    return t(`tempVoice.announce.single.${key}`, { ...params, user });
+  }
+  return [t('tempVoice.announce.changed', { user }), ...changes.map(([key, params]) => `- ${t(`tempVoice.announce.${key}`, params)}`)].join('\n');
 }
 
 /**

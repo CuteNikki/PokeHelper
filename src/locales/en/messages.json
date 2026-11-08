@@ -1070,7 +1070,25 @@
       "moderators_one": "made {{users}} a moderator",
       "moderators_other": "made {{users}} moderators",
       "unmoderators_one": "made {{users}} not a moderator anymore",
-      "unmoderators_other": "made {{users}} not moderators anymore"
+      "unmoderators_other": "made {{users}} not moderators anymore",
+      "single": {
+        "renamed": "{{user}} renamed the channel to **{{name}}**.",
+        "limit_one": "{{user}} set the limit to {{count, number}} person.",
+        "limit_other": "{{user}} set the limit to {{count, number}} people.",
+        "noLimit": "{{user}} removed the limit.",
+        "locked": "{{user}} locked the channel.",
+        "unlocked": "{{user}} unlocked the channel.",
+        "hidden": "{{user}} hid the channel.",
+        "shown": "{{user}} made the channel visible again.",
+        "allowed": "{{user}} let {{users}} in.",
+        "blocked": "{{user}} kept {{users}} out.",
+        "unallowed": "{{user}} stopped letting {{users}} in.",
+        "unblocked": "{{user}} stopped keeping {{users}} out.",
+        "moderators_one": "{{user}} made {{users}} a moderator.",
+        "moderators_other": "{{user}} made {{users}} moderators.",
+        "unmoderators_one": "{{user}} removed {{users}} as a moderator.",
+        "unmoderators_other": "{{user}} removed {{users}} as moderators."
+      }
     },
     "controls": {
       "gone": "This channel doesn't exist anymore.",
