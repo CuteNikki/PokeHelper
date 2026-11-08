@@ -292,11 +292,12 @@ export const endGiveaway = (guild: Guild, giveaway: Giveaway, byId: string | nul
   });
 
 async function drawAndEnd(guild: Guild, giveaway: Giveaway, byId: string | null) {
-  const winnerIds = drawWinners(await findCandidates(guild, giveaway), giveaway.winnerCount);
+  const drawn = drawWinners(await findCandidates(guild, giveaway), giveaway.winnerCount);
   const now = new Date();
   const claimBy = claimDeadline(giveaway, now);
+  const winnerIds = await finishGiveaway(giveaway.id, drawn, claimBy, now);
   // Someone may have ended it meanwhile, who then drew the winners already
-  if (!(await finishGiveaway(giveaway.id, winnerIds, claimBy, now))) return;
+  if (!winnerIds) return;
   const ended: Giveaway = { ...giveaway, status: 'ended', endedAt: now };
   await syncPost(guild, giveaway.id);
   await welcomeWinners(guild, ended, winnerIds, claimBy, 'giveaway.end.announce');
@@ -319,10 +320,9 @@ async function reroll(guild: Guild, giveaway: Giveaway, winnerIds: string[], byI
   const drawn = drawWinners(await findCandidates(guild, giveaway, everyWinner), winnerIds.length);
   const now = new Date();
   const claimBy = claimDeadline(giveaway, now);
-  const replaced = await replaceWinners(giveaway.id, winnerIds, drawn, claimBy, now);
+  const newWinners = await replaceWinners(giveaway.id, winnerIds, drawn, claimBy, now);
   // Replaced meanwhile by someone else
-  if (replaced === 0) return [];
-  const newWinners = drawn.slice(0, replaced);
+  if (!newWinners) return [];
   await syncPost(guild, giveaway.id);
   await welcomeWinners(guild, giveaway, newWinners, claimBy, 'giveaway.end.reroll');
   await logGiveaway(guild, 'giveawayRerolled', giveaway, byId, (t) => [

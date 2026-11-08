@@ -249,19 +249,33 @@ export async function getXpOf(guildId: string, userIds: string[]): Promise<Map<s
 }
 
 /**
+ * Of some people drawn, the ones still in a giveaway, in the same order. Their entries are locked until the transaction is done, so deleting
+ * their data waits for it, and then takes them off the winners too. Someone who deleted their data meanwhile is left out, so their ID isn't
+ * stored again.
+ */
+async function stillEntered(tx: Prisma.TransactionClient, giveawayId: string, userIds: string[]): Promise<string[]> {
+  if (userIds.length === 0) return [];
+  const rows = await tx.$queryRaw<{ userId: string }[]>`
+    SELECT "userId" FROM "GiveawayEntry" WHERE "giveawayId" = ${giveawayId} AND "userId" = ANY(${userIds}) FOR SHARE`;
+  const entered = new Set(rows.map((row) => row.userId));
+  return userIds.filter((userId) => entered.has(userId));
+}
+
+/**
  * End a running giveaway with its winners.
  * @param claimBy Until when winners can claim their prize, or null when they don't have to.
- * @returns Whether it was still running, as it may have been ended meanwhile, like by a moderator.
+ * @returns The winners saved, without anyone who left it meanwhile, or null if it wasn't running anymore, like when a moderator ended it.
  */
 export const finishGiveaway = (id: string, winnerIds: string[], claimBy: Date | null, now = new Date()) =>
   prisma.$transaction(async (tx) => {
     const { count } = await tx.giveaway.updateMany({ where: { id, status: 'active' }, data: { status: 'ended', endedAt: now } });
-    if (count === 0) return false;
+    if (count === 0) return null;
+    const winners = await stillEntered(tx, id, winnerIds);
     // A millisecond apart, so the order they were drawn in stays
     await tx.giveawayWinner.createMany({
-      data: winnerIds.map((userId, index) => ({ giveawayId: id, userId, drawnAt: new Date(now.getTime() + index), claimBy })),
+      data: winners.map((userId, index) => ({ giveawayId: id, userId, drawnAt: new Date(now.getTime() + index), claimBy })),
     });
-    return true;
+    return winners;
   });
 
 /**
@@ -290,16 +304,18 @@ export const getMissedClaims = (now = new Date()) =>
 /**
  * Replace winners with new ones, like ones who didn't claim in time, or in a reroll.
  * @param winnerIds The IDs of the winners to replace, not their user IDs.
- * @returns How many were still there to replace, as someone may have replaced them meanwhile.
+ * @returns The new winners saved, as many as were still there to replace, without anyone who left it meanwhile. Null if none were left
+ * to replace, as someone may have replaced them meanwhile.
  */
 export const replaceWinners = (giveawayId: string, winnerIds: string[], newUserIds: string[], claimBy: Date | null, now = new Date()) =>
   prisma.$transaction(async (tx) => {
     const { count } = await tx.giveawayWinner.updateMany({ where: { giveawayId, id: { in: winnerIds }, replacedAt: null }, data: { replacedAt: now } });
-    if (count === 0) return 0;
+    if (count === 0) return null;
+    const winners = await stillEntered(tx, giveawayId, newUserIds.slice(0, count));
     await tx.giveawayWinner.createMany({
-      data: newUserIds.slice(0, count).map((userId, index) => ({ giveawayId, userId, drawnAt: new Date(now.getTime() + index), claimBy })),
+      data: winners.map((userId, index) => ({ giveawayId, userId, drawnAt: new Date(now.getTime() + index), claimBy })),
     });
-    return count;
+    return winners;
   });
 
 /** Which giveaways a list shows: the ones running, or the ones that ended or were cancelled. */
