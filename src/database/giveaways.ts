@@ -197,3 +197,14 @@ export async function getParticipantPosition(giveawayId: string, userId: string,
 
 /** Every winner of a giveaway, also the ones who were replaced, in the order they were drawn. */
 export const getAllWinners = (giveawayId: string) => prisma.giveawayWinner.findMany({ where: { giveawayId }, orderBy: { drawnAt: 'asc' } });
+
+/** Someone's entries in a server's running giveaways that have bonus roles, with those roles, to work their entries out again. */
+export const getEntriesWithBonus = (guildId: string, userId: string) =>
+  prisma.giveawayEntry.findMany({
+    where: { userId, giveaway: { guildId, status: 'active', roles: { some: { kind: 'bonus' } } } },
+    include: { giveaway: { select: { roles: { where: { kind: 'bonus' }, select: { roleId: true, bonus: true } } } } },
+  });
+
+/** Change someone's entries in a giveaway, like after their roles changed. */
+export const setEntries = (giveawayId: string, userId: string, entries: number) =>
+  prisma.giveawayEntry.updateMany({ where: { giveawayId, userId }, data: { entries } });
