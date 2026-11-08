@@ -49,6 +49,7 @@ import {
   CASE_ICONS,
   caseNumber,
   formatUntil,
+  happenedAnyway,
   MAX_BAN_DAYS,
   MAX_REASON_LENGTH,
   MAX_TIMEOUT_DAYS,
@@ -482,9 +483,11 @@ async function endNow(interaction: ModalSubmitInteraction<'cached'>, modCase: Mo
   const lifted = await createCase({ guildId: guild.id, type, userId: modCase.userId, moderatorId: interaction.user.id, reason });
   try {
     await act(auditReason(interaction.user, reason));
-  } catch {
-    await undoCase(lifted);
-    return sendError(interaction, t('moderation.failed'));
+  } catch (error) {
+    if (!(await happenedAnyway(error, guild, modCase.userId, type, null))) {
+      await undoCase(lifted);
+      return sendError(interaction, t('moderation.failed'));
+    }
   }
   // Told by DM like with /untimeout. Someone unbanned rarely shares a server with the bot to get one, like with /unban
   if (type === 'untimeout') {

@@ -2,9 +2,11 @@ import {
   bold,
   type ChatInputCommandInteraction,
   ContainerBuilder,
+  DiscordAPIError,
   type Guild,
   type GuildMember,
   MessageFlags,
+  RESTJSONErrorCodes,
   type PermissionsString,
   subtext,
   TextDisplayBuilder,
@@ -16,7 +18,7 @@ import {
 import { createCase, undoCase } from 'database/moderation';
 
 import type { ModCase, ModCaseType } from 'generated/prisma/client';
-import { DAY, formatNumber } from 'utility/duration';
+import { DAY, formatNumber, MINUTE } from 'utility/duration';
 import { textIcon } from 'utility/emojis';
 import type { IconName } from 'utility/icons';
 import { getTranslate, type Translate } from 'utility/i18next';
@@ -119,6 +121,54 @@ export function moderationProblem(
 /** Whether someone is banned from a server, asked of Discord. */
 export const isBanned = async (guild: Guild, userId: string) => (await guild.bans.fetch({ user: userId, force: true }).catch(() => null)) !== null;
 
+const isApiError = (error: unknown, ...codes: RESTJSONErrorCodes[]) => error instanceof DiscordAPIError && codes.includes(error.code as RESTJSONErrorCodes);
+
+/** Whether someone is banned from a server, asked of Discord, or undefined if it couldn't be asked. */
+async function fetchBanned(guild: Guild, userId: string): Promise<boolean | undefined> {
+  try {
+    await guild.bans.fetch({ user: userId, force: true });
+    return true;
+  } catch (error) {
+    return isApiError(error, RESTJSONErrorCodes.UnknownBan) ? false : undefined;
+  }
+}
+
+/** Someone as a member of a server, asked of Discord: null if they're not on it, or undefined if it couldn't be asked. */
+export async function fetchMember(guild: Guild, userId: string): Promise<GuildMember | null | undefined> {
+  try {
+    return await guild.members.fetch({ user: userId, force: true });
+  } catch (error) {
+    return isApiError(error, RESTJSONErrorCodes.UnknownMember, RESTJSONErrorCodes.UnknownUser) ? null : undefined;
+  }
+}
+
+/**
+ * Whether a moderation action happened on Discord although asking for it failed, like when the answer didn't arrive in time. Discord
+ * saying no means it didn't, everything else is checked by asking Discord how things are now.
+ * @param expiresAt When a timeout ends, to tell it apart from one that was there before.
+ */
+export async function happenedAnyway(error: unknown, guild: Guild, userId: string, type: ModCaseType, expiresAt: Date | null): Promise<boolean> {
+  if (error instanceof DiscordAPIError && error.status < 500) return false;
+  switch (type) {
+    case 'warn':
+      return false;
+    case 'timeout': {
+      const member = await fetchMember(guild, userId);
+      return !!member && !!expiresAt && Math.abs((member.communicationDisabledUntilTimestamp ?? 0) - expiresAt.getTime()) < MINUTE;
+    }
+    case 'untimeout': {
+      const member = await fetchMember(guild, userId);
+      return !!member && !member.isCommunicationDisabled();
+    }
+    case 'kick':
+      return (await fetchMember(guild, userId)) === null;
+    case 'ban':
+      return (await fetchBanned(guild, userId)) === true;
+    case 'unban':
+      return (await fetchBanned(guild, userId)) === false;
+  }
+}
+
 /** The DM telling someone what happened to them on a server, in the server's language, as theirs isn't known. */
 export function buildCaseDm(guild: Guild, modCase: ModCase, t: Translate): ResponsePayload {
   const lines = [
@@ -218,9 +268,14 @@ export async function moderate(context: ModerationContext, request: ModerationRe
   try {
     await prepared.act(auditReason(context.user, reason));
   } catch (error) {
-    logger.warn(error, `Failed to ${type} ${user.id} in ${guild.id}`);
-    await Promise.all([undoCase(modCase), dm?.delete().catch(() => null)]);
-    return { ok: false, content: t('moderation.failed') };
+    // Kept when it happened anyway, as the audit log skips what the bot does, so nothing else would make its case
+    if (await happenedAnyway(error, guild, user.id, type, prepared.expiresAt)) {
+      logger.warn(error, `Asking to ${type} ${user.id} in ${guild.id} failed, but it happened`);
+    } else {
+      logger.warn(error, `Failed to ${type} ${user.id} in ${guild.id}`);
+      await Promise.all([undoCase(modCase), dm?.delete().catch(() => null)]);
+      return { ok: false, content: t('moderation.failed') };
+    }
   }
 
   // Bans say until when only if they end, timeouts always do
