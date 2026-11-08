@@ -7,7 +7,6 @@ import {
   ContainerBuilder,
   type Guild,
   type GuildMember,
-  hyperlink,
   MessageFlags,
   messageLink,
   TextDisplayBuilder,
@@ -175,14 +174,14 @@ export const claimDeadline = (giveaway: Giveaway, now = new Date()) =>
 const claimLine = (claimBy: Date, key: 'giveaway.claim.announce' | 'giveaway.claim.dm', t: Translate) =>
   t(key, { date: time(claimBy, TimestampStyles.LongDateShortTime), relative: time(claimBy, TimestampStyles.RelativeTime) });
 
-const claimRow = (giveaway: Giveaway, t: Translate) =>
-  new ActionRowBuilder<ButtonBuilder>().addComponents(
-    new ButtonBuilder()
-      .setCustomId(`${GIVEAWAY_CUSTOM_ID.claim}${giveaway.id}`)
-      .setLabel(t('giveaway.claim.button'))
-      .setEmoji(buttonIcon('gift'))
-      .setStyle(ButtonStyle.Success),
-  );
+const claimButton = (giveaway: Giveaway, t: Translate) =>
+  new ButtonBuilder()
+    .setCustomId(`${GIVEAWAY_CUSTOM_ID.claim}${giveaway.id}`)
+    .setLabel(t('giveaway.claim.button'))
+    .setEmoji(buttonIcon('gift'))
+    .setStyle(ButtonStyle.Success);
+
+const claimRow = (giveaway: Giveaway, t: Translate) => new ActionRowBuilder<ButtonBuilder>().addComponents(claimButton(giveaway, t));
 
 /** Say who won under the giveaway's post, or in its channel if the post is gone. Returns whether it was posted. */
 async function announceWinners(guild: Guild, giveaway: Giveaway, winners: NewWinner[], claimBy: Date | null, key: WinnersKey): Promise<boolean> {
@@ -232,10 +231,13 @@ async function dmWinners(guild: Guild, giveaway: Giveaway, winners: NewWinner[],
     const text = [
       t('giveaway.end.dm', { prize: prizeOf(giveaway, winner), server: bold(guild.name) }),
       ...(claimBy ? [claimLine(claimBy, 'giveaway.claim.dm', t)] : []),
-      ...(link ? [hyperlink(t('giveaway.end.dmLink'), link)] : []),
     ].join('\n');
     const container = new ContainerBuilder().setAccentColor(ThemeColors.success).addTextDisplayComponents(new TextDisplayBuilder().setContent(text));
-    if (claimBy) container.addActionRowComponents(claimRow(giveaway, t));
+    const buttons = [
+      ...(claimBy ? [claimButton(giveaway, t)] : []),
+      ...(link ? [new ButtonBuilder().setStyle(ButtonStyle.Link).setURL(link).setLabel(t('giveaway.end.dmLink'))] : []),
+    ];
+    if (buttons.length > 0) container.addActionRowComponents(new ActionRowBuilder<ButtonBuilder>().addComponents(buttons));
     await guild.client.users.send(winner.userId, quietMessageOf(container)).catch(() => null);
   }
 }
