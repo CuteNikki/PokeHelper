@@ -2,9 +2,9 @@ import { Events } from 'discord.js';
 
 import { Event } from 'classes/base/event';
 
-import { runBirthdayJob } from 'utility/birthday/job';
 import { deleteOldDrafts } from 'database/giveaways';
 
+import { runBirthdayJob } from 'utility/birthday/job';
 import { runGiveawayJob } from 'utility/giveaways/end';
 import { flushPosts } from 'utility/giveaways/sync';
 import { runResetJob } from 'utility/leveling/reset';
