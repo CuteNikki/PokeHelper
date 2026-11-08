@@ -13,12 +13,14 @@ import {
   getGiveaway,
   type Giveaway,
   MAX_BONUS,
+  MAX_CLAIM_MINUTES,
   MAX_DESCRIPTION_LENGTH,
   MAX_DURATION_MINUTES,
   MAX_HOST_LENGTH,
   MAX_PRIZE_LENGTH,
   MAX_RULE_ROLES,
   MAX_WINNERS,
+  MIN_CLAIM_MINUTES,
   MIN_DURATION_MINUTES,
   MIN_WINNERS,
   setBonusRole,
@@ -293,6 +295,22 @@ export function getGiveawaySettings(giveawayId: string): SettingsPanel {
         },
         get: (giveaway) => giveaway.roles.filter((role) => role.kind === 'bonus').map((role) => ({ targetId: role.roleId, value: role.bonus })),
         set: (_guildId, roleId, bonus) => setBonusRole(giveawayId, roleId, bonus),
+      },
+      {
+        type: 'text',
+        key: 'claim',
+        category: 'winners',
+        maxLength: 50,
+        label: (t) => t('giveaway.settings.claim.label'),
+        description: (t) => t('giveaway.settings.claim.description'),
+        placeholder: (t) => t('giveaway.settings.durationPlaceholder'),
+        get: (giveaway) => (giveaway.claimMinutes ? minutesText(giveaway.claimMinutes) : null),
+        formatValue: (value, t) => formatMinutes(parseMinutes(value, 0, Infinity) ?? 0, t),
+        validate: (text, t) =>
+          parseMinutes(text, MIN_CLAIM_MINUTES, MAX_CLAIM_MINUTES) === null
+            ? t('giveaway.settings.claim.invalid', { max: formatMinutes(MAX_CLAIM_MINUTES, t) })
+            : null,
+        set: (_guildId, text) => updateGiveaway(giveawayId, { claimMinutes: text ? parseMinutes(text, MIN_CLAIM_MINUTES, MAX_CLAIM_MINUTES) : null }),
       },
       {
         type: 'role',

@@ -19,6 +19,9 @@ export const MAX_WINNERS = 50;
 /** How long a giveaway runs at least and at most, in minutes. */
 export const MIN_DURATION_MINUTES = 1;
 export const MAX_DURATION_MINUTES = 60 * 24 * 60;
+/** How long winners can have to claim their prize at least and at most, in minutes. */
+export const MIN_CLAIM_MINUTES = 5;
+export const MAX_CLAIM_MINUTES = 30 * 24 * 60;
 /** How long a draft is kept without being started. */
 export const DRAFT_LIFETIME = DAY;
 
@@ -236,4 +239,41 @@ export const finishGiveaway = (id: string, winnerIds: string[], claimBy: Date | 
       data: winnerIds.map((userId, index) => ({ giveawayId: id, userId, drawnAt: new Date(now.getTime() + index), claimBy })),
     });
     return true;
+  });
+
+/**
+ * Claim a prize, for a winner who has to and is still in time.
+ * @returns Whether it was claimed now.
+ */
+export const claimWin = async (giveawayId: string, userId: string, now = new Date()) =>
+  (
+    await prisma.giveawayWinner.updateMany({
+      where: { giveawayId, userId, replacedAt: null, claimedAt: null, claimBy: { gt: now } },
+      data: { claimedAt: now },
+    })
+  ).count > 0;
+
+/** Someone's win in a giveaway, the newest if they were drawn again after being replaced, or null if they never won it. */
+export const getWin = (giveawayId: string, userId: string) => prisma.giveawayWinner.findFirst({ where: { giveawayId, userId }, orderBy: { drawnAt: 'desc' } });
+
+/** Winners who didn't claim their prize in time and haven't been replaced yet, in ended giveaways. */
+export const getMissedClaims = (now = new Date()) =>
+  prisma.giveawayWinner.findMany({
+    where: { claimBy: { lte: now }, claimedAt: null, replacedAt: null, giveaway: { status: 'ended' } },
+    select: { id: true, giveawayId: true, giveaway: { select: { guildId: true } } },
+  });
+
+/**
+ * Replace winners with new ones, like ones who didn't claim in time, or in a reroll.
+ * @param winnerIds The IDs of the winners to replace, not their user IDs.
+ * @returns How many were still there to replace, as someone may have replaced them meanwhile.
+ */
+export const replaceWinners = (giveawayId: string, winnerIds: string[], newUserIds: string[], claimBy: Date | null, now = new Date()) =>
+  prisma.$transaction(async (tx) => {
+    const { count } = await tx.giveawayWinner.updateMany({ where: { giveawayId, id: { in: winnerIds }, replacedAt: null }, data: { replacedAt: now } });
+    if (count === 0) return 0;
+    await tx.giveawayWinner.createMany({
+      data: newUserIds.slice(0, count).map((userId, index) => ({ giveawayId, userId, drawnAt: new Date(now.getTime() + index), claimBy })),
+    });
+    return count;
   });

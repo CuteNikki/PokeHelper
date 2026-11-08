@@ -2046,9 +2046,14 @@
         "input": "Extra-Lose, von 1 bis {{max}}",
         "invalid": "Gib eine ganze Zahl von 1 bis {{max}} ein."
       },
+      "claim": {
+        "label": "Zeit zum Abholen",
+        "description": "Wie lange Gewinner Zeit haben, auf Abholen zu drücken, bevor ihr Preis an jemand anderen geht. Ohne Angabe müssen sie nichts tun",
+        "invalid": "Mit dieser Zeit kann ich nichts anfangen. Probier sowas wie 1h, 12h oder 2T, von 5 Minuten bis {{max}}."
+      },
       "winnerRole": {
         "label": "Gewinner-Rolle",
-        "description": "Eine Rolle, die Gewinner bekommen. Sie bleibt, also nimm sie selbst wieder weg, wenn sie nicht mehr gebraucht wird"
+        "description": "Eine Rolle, die Gewinner bekommen, oder sobald sie ihren Preis abholen, wenn sie das müssen. Sie bleibt, also nimm sie selbst wieder weg, wenn sie nicht mehr gebraucht wird"
       },
       "dm": {
         "label": "Gewinnern schreiben",
@@ -2100,7 +2105,17 @@
       "none": "Für **{{prize}}** konnte niemand gezogen werden, also gibt es diesmal keine Gewinner.",
       "dm": "{{icon.gift}} Du hast **{{prize}}** auf {{server}} gewonnen! Es ist von {{host}}.",
       "dmLink": "Zum Giveaway",
-      "roleReason": "Hat das Giveaway für {{prize}} gewonnen"
+      "roleReason": "Hat das Giveaway für {{prize}} gewonnen",
+      "noneLeft": "Für **{{prize}}** konnte sonst niemand gezogen werden, also geht er an niemand Neues."
+    },
+    "claim": {
+      "announce": "Drück bis {{date}} ({{relative}}) auf **Abholen**, um deinen Preis zu bekommen, sonst geht er an jemand anderen.",
+      "dm": "Drück bis {{date}} ({{relative}}) unter dem Giveaway auf **Abholen**, sonst geht der Preis an jemand anderen.",
+      "button": "Abholen",
+      "done": "Abgeholt! Viel Spaß mit deinem Preis. Er ist von {{host}}.",
+      "already": "Du hast deinen Preis schon abgeholt.",
+      "notWinner": "Nur die Gewinner können diesen Preis abholen.",
+      "late": "Die Zeit zum Abholen ist abgelaufen, also geht der Preis an jemand anderen."
     }
   }
 }

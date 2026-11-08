@@ -2102,9 +2102,14 @@
         "input": "Extra entries, from 1 to {{max}}",
         "invalid": "Enter a whole number from 1 to {{max}}."
       },
+      "claim": {
+        "label": "Claim time",
+        "description": "How long winners have to press Claim before their prize goes to someone else. Without one, they don't have to claim it",
+        "invalid": "That's not a time I can use. Try something like 1h, 12h or 2d, from 5 minutes up to {{max}}."
+      },
       "winnerRole": {
         "label": "Winner role",
-        "description": "A role winners get. It stays with them, so take it away yourself once it's done its job"
+        "description": "A role winners get, or once they claim their prize if they have to. It stays with them, so take it away yourself once it's done its job"
       },
       "dm": {
         "label": "DM winners",
@@ -2156,7 +2161,17 @@
       "none": "Nobody could be drawn for **{{prize}}**, so there are no winners this time.",
       "dm": "{{icon.gift}} You won **{{prize}}** in {{server}}! It is from {{host}}.",
       "dmLink": "See the giveaway",
-      "roleReason": "Won the giveaway for {{prize}}"
+      "roleReason": "Won the giveaway for {{prize}}",
+      "noneLeft": "Nobody else could be drawn for **{{prize}}**, so it doesn't go to anyone new."
+    },
+    "claim": {
+      "announce": "Press **Claim** by {{date}} ({{relative}}) to get your prize, or it goes to someone else.",
+      "dm": "Press **Claim** under the giveaway by {{date}} ({{relative}}), or it goes to someone else.",
+      "button": "Claim",
+      "done": "Claimed! Enjoy your prize. It's from {{host}}.",
+      "already": "You already claimed your prize.",
+      "notWinner": "Only the winners can claim this prize.",
+      "late": "The time to claim ran out, so the prize goes to someone else."
     }
   }
 }

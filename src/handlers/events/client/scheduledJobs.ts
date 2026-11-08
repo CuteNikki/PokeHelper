@@ -5,7 +5,7 @@ import { Event } from 'classes/base/event';
 import { deleteOldDrafts } from 'database/giveaways';
 
 import { runBirthdayJob } from 'utility/birthday/job';
-import { runGiveawayJob } from 'utility/giveaways/end';
+import { runClaimJob, runGiveawayJob } from 'utility/giveaways/end';
 import { flushPosts } from 'utility/giveaways/sync';
 import { runResetJob } from 'utility/leveling/reset';
 import { runVoiceXpJob } from 'utility/leveling/voice';
@@ -47,7 +47,11 @@ export default new Event({
     scheduleJob('temporary bans', TEMP_BAN_INTERVAL, () => runTempBanJob(client));
     scheduleJob('starboard cleanup', DAY, forgetOldUnposted);
     scheduleJob('giveaway posts', GIVEAWAY_POST_INTERVAL, () => flushPosts(client));
-    scheduleJob('giveaways', GIVEAWAY_INTERVAL, () => runGiveawayJob(client));
+    // One after the other, so winners drawn at the end are in before missed claims are looked for
+    scheduleJob('giveaways', GIVEAWAY_INTERVAL, async () => {
+      await runGiveawayJob(client);
+      await runClaimJob(client);
+    });
     scheduleJob('giveaway drafts', JOB_INTERVAL, () => deleteOldDrafts());
   },
 });

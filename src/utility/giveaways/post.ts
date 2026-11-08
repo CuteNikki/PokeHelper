@@ -29,6 +29,8 @@ export const GIVEAWAY_CUSTOM_ID = {
   join: 'gw:join:',
   // On the reply to Join, for someone who's in already
   leave: 'gw:leave:',
+  // Under the winners' announcement, when they have to claim their prize
+  claim: 'gw:claim:',
 } as const;
 
 /** What the post shows besides the giveaway itself. */
