@@ -4,7 +4,7 @@ import { Event } from 'classes/base/event';
 
 import { forgetDeletedGiveawayRole, getGiveaway } from 'database/giveaways';
 
-import { refreshAllEntries } from 'utility/giveaways/end';
+import { refreshEntriesSoon } from 'utility/giveaways/end';
 import { logGiveaway } from 'utility/giveaways/logs';
 import { syncPost } from 'utility/giveaways/sync';
 import { logger } from 'utility/logger';
@@ -24,7 +24,7 @@ export default new Event({
         await syncPost(role.guild, id);
         const giveaway = hadBonus || wasRequired ? await getGiveaway(role.guild.id, id) : null;
         if (!giveaway) continue;
-        if (hadBonus) await refreshAllEntries(role.guild, giveaway);
+        if (hadBonus) refreshEntriesSoon(role.guild, giveaway.id);
         if (wasRequired) {
           const openToAll = !giveaway.roles.some((other) => other.kind === 'required');
           await logGiveaway(role.guild, 'giveawayRulesChanged', giveaway, null, (t) => [

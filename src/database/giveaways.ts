@@ -332,3 +332,7 @@ export const getGiveawayById = (id: string) => prisma.giveaway.findUnique({ wher
 /** Let winners keep their prize without claiming it, like when they couldn't be told where to claim it. */
 export const dropClaims = (giveawayId: string, userIds: string[]) =>
   prisma.giveawayWinner.updateMany({ where: { giveawayId, userId: { in: userIds }, replacedAt: null, claimedAt: null }, data: { claimBy: null } });
+
+/** Give several people in a giveaway the same number of entries at once. */
+export const setEntriesOf = (giveawayId: string, userIds: string[], entries: number) =>
+  prisma.giveawayEntry.updateMany({ where: { giveawayId, userId: { in: userIds } }, data: { entries } });

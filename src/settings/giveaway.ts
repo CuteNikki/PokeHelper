@@ -31,14 +31,13 @@ import { getGuildLevelingConfiguration } from 'database/leveling';
 
 import { buttonIcon } from 'utility/emojis';
 import { formatNumber, MINUTE } from 'utility/duration';
-import { refreshAllEntries } from 'utility/giveaways/end';
+import { refreshEntriesSoon } from 'utility/giveaways/end';
 import { GIVEAWAY_CHANNEL_PERMISSIONS, manageId } from 'utility/giveaways/ids';
 import { formatMinutes, minutesText, parseMinutes, parseWhole } from 'utility/giveaways/input';
 import { buildGiveawayPost } from 'utility/giveaways/post';
 import { rulesOf } from 'utility/giveaways/rules';
 import { syncPost } from 'utility/giveaways/sync';
 import type { Translate } from 'utility/i18next';
-import { logger } from 'utility/logger';
 import { createSettingsPanel, formatPermissions, missingBotPermissions, type SettingsPanel } from 'utility/settings';
 
 /** Each giveaway has its own panel, with the giveaway's ID after this. */
@@ -348,11 +347,7 @@ export function getGiveawaySettings(giveawayId: string): SettingsPanel {
         get: (giveaway) => giveaway.roles.filter((role) => role.kind === 'bonus').map((role) => ({ targetId: role.roleId, value: role.bonus })),
         set: (_guildId, roleId, bonus) => setBonusRole(giveawayId, roleId, bonus),
         // Everyone in a running giveaway gets their entries worked out again. In the background, as it can take a while
-        onSaved: (guild) => {
-          void getGiveaway(guild.id, giveawayId)
-            .then((giveaway) => (giveaway?.status === 'active' ? refreshAllEntries(guild, giveaway) : undefined))
-            .catch((error: unknown) => logger.error(error, `Failed to update the entries of giveaway ${giveawayId}`));
-        },
+        onSaved: (guild) => refreshEntriesSoon(guild, giveawayId),
       },
       {
         type: 'text',

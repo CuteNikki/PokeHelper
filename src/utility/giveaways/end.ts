@@ -27,7 +27,7 @@ import {
   getXpOf,
   type Giveaway,
   replaceWinners,
-  setEntries,
+  setEntriesOf,
 } from 'database/giveaways';
 import { getLevelFromXP } from 'database/leveling';
 
@@ -41,6 +41,7 @@ import { giveawayChannel, syncPost } from 'utility/giveaways/sync';
 import { getTranslate, type Translate } from 'utility/i18next';
 import { logger } from 'utility/logger';
 import { canGiveRole } from 'utility/roles';
+import { KeyedQueue } from 'utility/queue';
 import { ThemeColors } from 'utility/theme';
 
 /** How many members are fetched from Discord at once, the most it sends back for one request. */
@@ -48,20 +49,43 @@ const FETCH_CHUNK = 100;
 
 /**
  * Work out everyone's entries in a running giveaway again, like after its bonus roles changed, which keeps the participants list right.
- * Members who left keep theirs, as they can't win anyway.
+ * Members who left keep theirs, as they can't win anyway. Everyone with the same new number is saved at once, a chunk at a time.
  */
-export async function refreshAllEntries(guild: Guild, giveaway: Giveaway) {
+async function refreshAllEntries(guild: Guild, giveaway: Giveaway) {
   const entries = await getAllEntries(giveaway.id);
   const bonusRoles = bonusRolesOf(giveaway);
   for (let start = 0; start < entries.length; start += FETCH_CHUNK) {
     const chunk = entries.slice(start, start + FETCH_CHUNK);
     const members = await guild.members.fetch({ user: chunk.map((entry) => entry.userId) });
+    const changed = new Map<number, string[]>();
     for (const entry of chunk) {
       const member = members.get(entry.userId);
       const count = member ? countEntries([...member.roles.cache.keys()], bonusRoles) : entry.entries;
-      if (count !== entry.entries) await setEntries(giveaway.id, entry.userId, count);
+      if (count !== entry.entries) changed.set(count, [...(changed.get(count) ?? []), entry.userId]);
     }
+    for (const [count, userIds] of changed) await setEntriesOf(giveaway.id, userIds, count);
   }
+}
+
+/** Refreshes of entries one at a time per giveaway, so two never write the same entries at once. */
+const refreshes = new KeyedQueue();
+/** Giveaways with a refresh waiting to start, which covers every change made until it does. */
+const waitingRefreshes = new Set<string>();
+
+/**
+ * Work out everyone's entries in a running giveaway again, in the background, as it can take a while. Changes in a row, like several
+ * bonus roles set one after another, share one refresh that hasn't started yet, which loads the giveaway as it is by then.
+ */
+export function refreshEntriesSoon(guild: Guild, giveawayId: string) {
+  if (waitingRefreshes.has(giveawayId)) return;
+  waitingRefreshes.add(giveawayId);
+  void refreshes
+    .run(giveawayId, async () => {
+      waitingRefreshes.delete(giveawayId);
+      const giveaway = await getGiveaway(guild.id, giveawayId);
+      if (giveaway?.status === 'active') await refreshAllEntries(guild, giveaway);
+    })
+    .catch((error: unknown) => logger.error(error, `Failed to update the entries of giveaway ${giveawayId}`));
 }
 
 /**
@@ -73,19 +97,17 @@ export async function findCandidates(guild: Guild, giveaway: Giveaway, exclude: 
   const entries = (await getAllEntries(giveaway.id)).filter((entry) => !exclude.has(entry.userId));
   const rules = rulesOf(giveaway, (roleId) => guild.roles.cache.has(roleId));
   const bonusRoles = bonusRolesOf(giveaway);
-  const xp = rules.minLevel
-    ? await getXpOf(
-        guild.id,
-        entries.map((entry) => entry.userId),
-      )
-    : new Map<string, number>();
   const now = new Date();
 
   const candidates: Candidate[] = [];
   for (let start = 0; start < entries.length; start += FETCH_CHUNK) {
     const chunk = entries.slice(start, start + FETCH_CHUNK);
-    // Members who left aren't sent back
-    const members = await guild.members.fetch({ user: chunk.map((entry) => entry.userId) });
+    const userIds = chunk.map((entry) => entry.userId);
+    // Members who left aren't sent back. XP a chunk at a time too, so the query stays small however many entered
+    const [members, xp] = await Promise.all([
+      guild.members.fetch({ user: userIds }),
+      rules.minLevel ? getXpOf(guild.id, userIds) : Promise.resolve(new Map<string, number>()),
+    ]);
     for (const entry of chunk) {
       const member = members.get(entry.userId);
       if (!member) continue;
