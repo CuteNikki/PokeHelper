@@ -3,6 +3,7 @@ import { Events } from 'discord.js';
 import { Event } from 'classes/base/event';
 
 import { runBirthdayJob } from 'utility/birthday/job';
+import { flushPosts } from 'utility/giveaways/sync';
 import { runResetJob } from 'utility/leveling/reset';
 import { runVoiceXpJob } from 'utility/leveling/voice';
 import { runTempBanJob } from 'utility/moderation/tempBans';
@@ -18,6 +19,8 @@ const JOB_INTERVAL = 15 * MINUTE;
 const REMINDER_INTERVAL = 15 * SECOND;
 /** How often temporary bans are checked, so they're lifted at most this late. */
 const TEMP_BAN_INTERVAL = MINUTE;
+/** How often giveaway posts are updated, like their number of participants, so a busy one isn't edited with every click. */
+const GIVEAWAY_POST_INTERVAL = 5 * SECOND;
 /** How often voice XP is given, each time for a minute in voice. */
 const VOICE_XP_INTERVAL = MINUTE;
 
@@ -38,5 +41,6 @@ export default new Event({
     scheduleJob('reminders', REMINDER_INTERVAL, () => runReminderJob(client));
     scheduleJob('temporary bans', TEMP_BAN_INTERVAL, () => runTempBanJob(client));
     scheduleJob('starboard cleanup', DAY, forgetOldUnposted);
+    scheduleJob('giveaway posts', GIVEAWAY_POST_INTERVAL, () => flushPosts(client));
   },
 });

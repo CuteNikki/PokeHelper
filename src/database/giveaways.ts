@@ -154,3 +154,6 @@ export const leaveGiveaway = async (giveawayId: string, userId: string) => (awai
 
 /** How many people entered a giveaway. */
 export const countParticipants = (giveawayId: string) => prisma.giveawayEntry.count({ where: { giveawayId } });
+
+/** The winners of a giveaway, without the ones who were replaced, in the order they were drawn. */
+export const getWinners = (giveawayId: string) => prisma.giveawayWinner.findMany({ where: { giveawayId, replacedAt: null }, orderBy: { drawnAt: 'asc' } });

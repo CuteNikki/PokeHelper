@@ -4,6 +4,7 @@ import { getGiveaway, leaveGiveaway } from 'database/giveaways';
 
 import { isRunning } from 'utility/giveaways/entry';
 import { GIVEAWAY_CUSTOM_ID } from 'utility/giveaways/post';
+import { markPostChanged } from 'utility/giveaways/sync';
 import { getTranslate } from 'utility/i18next';
 import { createResponse } from 'utility/response';
 
@@ -23,6 +24,7 @@ export default new Button({
     if (!isRunning(giveaway)) return interaction.editReply(createResponse(t('giveaway.join.ended'), 'error'));
 
     const left = await leaveGiveaway(giveaway.id, interaction.user.id);
+    if (left) markPostChanged(interaction.guildId, giveaway.id);
     return interaction.editReply(createResponse(t(left ? 'giveaway.join.left' : 'giveaway.join.notIn'), left ? 'success' : 'info'));
   },
 });

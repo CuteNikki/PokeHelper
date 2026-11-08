@@ -8,6 +8,7 @@ import { buttonIcon } from 'utility/emojis';
 import { describeProblems, isRunning, participantOf } from 'utility/giveaways/entry';
 import { GIVEAWAY_CUSTOM_ID } from 'utility/giveaways/post';
 import { bonusRolesOf, checkRules, countEntries, rulesOf } from 'utility/giveaways/rules';
+import { markPostChanged } from 'utility/giveaways/sync';
 import { getTranslate, type Translate } from 'utility/i18next';
 import { createResponse, type ResponsePayload } from 'utility/response';
 
@@ -62,6 +63,7 @@ export default new Button({
     const entries = countEntries(participant.roleIds, bonusRolesOf(giveaway));
     // A double click enters them once, and the second says they're in already
     const added = await enterGiveaway(giveaway.id, interaction.user.id, entries);
+    if (added) markPostChanged(interaction.guildId, giveaway.id);
     return reply(inResponse(giveaway.id, entries, added ? 'giveaway.join.entered' : 'giveaway.join.already', t));
   },
 });
