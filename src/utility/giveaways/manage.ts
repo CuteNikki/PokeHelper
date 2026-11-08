@@ -8,6 +8,7 @@ import {
   ContainerBuilder,
   type Guild,
   hyperlink,
+  italic,
   MessageFlags,
   messageLink,
   SeparatorBuilder,
@@ -136,9 +137,10 @@ export async function renderGiveawayList(guild: Guild, tab: GiveawayTab, t: Tran
 /** How a winner is shown: struck through when they were replaced, and whether they claimed their prize when they had to. */
 function winnerLine(winner: Awaited<ReturnType<typeof getAllWinners>>[number], t: Translate): string {
   const name = winner.userId ? userMention(winner.userId) : t('giveaway.participants.deletedUser');
-  if (winner.replacedAt) return `- ${strikethrough(name)} ${subtext(t('giveaway.manage.winner.replaced'))}`;
-  if (winner.claimedAt) return `- ${name} ${subtext(t('giveaway.manage.winner.claimed'))}`;
-  if (winner.claimBy) return `- ${name} ${subtext(t('giveaway.manage.winner.claimBy', { time: time(winner.claimBy, TimestampStyles.RelativeTime) }))}`;
+  // In italics after them, as small text only works at the start of a line
+  if (winner.replacedAt) return `- ${strikethrough(name)} · ${italic(t('giveaway.manage.winner.replaced'))}`;
+  if (winner.claimedAt) return `- ${name} · ${italic(t('giveaway.manage.winner.claimed'))}`;
+  if (winner.claimBy) return `- ${name} · ${italic(t('giveaway.manage.winner.claimBy', { time: time(winner.claimBy, TimestampStyles.RelativeTime) }))}`;
   return `- ${name}`;
 }
 
