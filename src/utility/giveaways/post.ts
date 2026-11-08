@@ -17,7 +17,7 @@ import type { Giveaway } from 'database/giveaways';
 
 import { buttonIcon } from 'utility/emojis';
 import { openParticipantsId } from 'utility/giveaways/participants';
-import { groupByPrize, prizeList } from 'utility/giveaways/prizes';
+import { groupByPrize, prizeList, winnerNames } from 'utility/giveaways/prizes';
 import { bonusRolesOf, type GiveawayRules } from 'utility/giveaways/rules';
 import { formatDuration, formatNumber, MINUTE } from 'utility/duration';
 import type { Translate } from 'utility/i18next';
@@ -99,7 +99,7 @@ export function buildGiveawayPost(giveaway: Giveaway, rules: GiveawayRules, stat
       );
     }
   } else if (giveaway.status === 'ended') {
-    const mention = (userId: string | null) => (userId ? userMention(userId) : t('giveaway.participants.deletedUser'));
+    const mentions = (winners: PostState['winners']) => winnerNames(winners, t).join(', ');
     const groups = groupByPrize(giveaway, state.winners);
     if (state.winners.length === 0) details.push('', t('giveaway.post.noWinners'));
     // With prizes by place, each prize with who won it
@@ -107,12 +107,10 @@ export function buildGiveawayPost(giveaway: Giveaway, rules: GiveawayRules, stat
       details.push(
         '',
         t('giveaway.post.winnersByPrize'),
-        ...groups.map((group) =>
-          t('giveaway.post.winnersLine', { prize: group.prize, winners: group.winners.map((winner) => mention(winner.userId)).join(', ') }),
-        ),
+        ...groups.map((group) => t('giveaway.post.winnersLine', { prize: group.prize, winners: mentions(group.winners) })),
       );
     } else {
-      details.push('', t('giveaway.post.winners', { winners: state.winners.map((winner) => mention(winner.userId)).join(', '), count: state.winners.length }));
+      details.push('', t('giveaway.post.winners', { winners: mentions(state.winners), count: state.winners.length }));
     }
   } else {
     details.push('', t('giveaway.post.cancelled'));

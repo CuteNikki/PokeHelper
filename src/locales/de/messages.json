@@ -2000,7 +2000,9 @@
       "prizes": "**Preise**",
       "prizeLine": "- {{count}}x {{prize}}",
       "winnersByPrize": "**Gewinner**",
-      "winnersLine": "- **{{prize}}**: {{winners}}"
+      "winnersLine": "- **{{prize}}**: {{winners}}",
+      "deletedCount_one": "jemand, der seine Daten gelöscht hat",
+      "deletedCount_other": "{{count}} Leute, die ihre Daten gelöscht haben"
     },
     "rules": {
       "requiredAny_one": "{{roles}} haben",

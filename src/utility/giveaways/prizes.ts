@@ -1,4 +1,8 @@
+import { userMention } from 'discord.js';
+
 import { type Giveaway, MAX_PLACE_PRIZE_LENGTH, MAX_PLACE_PRIZES, MAX_WINNERS, type PlacePrize } from 'database/giveaways';
+
+import type { Translate } from 'utility/i18next';
 
 /** A line of the prizes by place: a count in front, like `2x Rare Candy` or `2 Rare Candy`, or just a name, for one winner. */
 const LINE = /^(?:(\d+)\s*x?\s+)?(.+)$/i;
@@ -67,4 +71,15 @@ export function groupByPrize<W extends { userId: string | null; prize: string | 
     else groups.push({ prize, winners: [winner] });
   }
   return groups;
+}
+
+/**
+ * Winners as names to list, with the ones who deleted their data counted at the end rather than each listed, as with many of them the
+ * list could get longer than Discord allows.
+ */
+export function winnerNames(winners: { userId: string | null }[], t: Translate): string[] {
+  const deleted = winners.filter((winner) => !winner.userId).length;
+  const names: string[] = winners.flatMap((winner) => (winner.userId ? [userMention(winner.userId)] : []));
+  if (deleted > 0) names.push(t('giveaway.post.deletedCount', { count: deleted }));
+  return names;
 }

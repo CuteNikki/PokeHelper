@@ -28,6 +28,7 @@ import {
 
 import { formatNumber } from 'utility/duration';
 import { buttonIcon } from 'utility/emojis';
+import { winnerNames } from 'utility/giveaways/prizes';
 import type { IconName } from 'utility/icons';
 import { getTranslate, type Translate } from 'utility/i18next';
 import { buildPageModal, buildPageRow, clampPage, findMeButton, pageOfPosition, type PageButton, readPageInput } from 'utility/pagination';
@@ -99,7 +100,7 @@ async function winnersLine(giveaway: Giveaway, t: Translate): Promise<string | n
   const current = winners.filter((winner) => !winner.replacedAt);
   const replaced = winners.length - current.length;
   if (current.length === 0 && replaced === 0) return t('giveaway.participants.noWinners');
-  const names = current.map((winner) => (winner.userId ? userMention(winner.userId) : t('giveaway.participants.deletedUser')));
+  const names = winnerNames(current, t);
   if (replaced > 0) names.push(t('giveaway.participants.replaced', { count: replaced }));
   return t('giveaway.participants.winners', { winners: names.join(', '), count: current.length });
 }
