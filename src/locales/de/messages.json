@@ -2045,6 +2045,10 @@
         "value": "+{{bonus}}",
         "input": "Extra-Lose, von 1 bis {{max}}",
         "invalid": "Gib eine ganze Zahl von 1 bis {{max}} ein."
+      },
+      "dm": {
+        "label": "Gewinnern schreiben",
+        "description": "Ob Gewinner eine DM bekommen, dass sie gewonnen haben. Unter dem Giveaway werden sie so oder so gepingt"
       }
     },
     "join": {
@@ -2083,6 +2087,15 @@
         "most": "Meiste Lose",
         "fewest": "Wenigste Lose"
       }
+    },
+    "end": {
+      "announce_one": "{{icon.trophy}} Glückwunsch {{winners}}! Du hast **{{prize}}** gewonnen!",
+      "announce_other": "{{icon.trophy}} Glückwunsch {{winners}}! Ihr habt jeweils **{{prize}}** gewonnen!",
+      "reroll_one": "{{icon.trophy}} Neuer Gewinner: {{winners}}! Du hast **{{prize}}** gewonnen!",
+      "reroll_other": "{{icon.trophy}} Neue Gewinner: {{winners}}! Ihr habt jeweils **{{prize}}** gewonnen!",
+      "none": "Für **{{prize}}** konnte niemand gezogen werden, also gibt es diesmal keine Gewinner.",
+      "dm": "{{icon.gift}} Du hast **{{prize}}** auf {{server}} gewonnen! Es ist von {{host}}.",
+      "dmLink": "Zum Giveaway"
     }
   }
 }

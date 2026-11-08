@@ -2101,6 +2101,10 @@
         "value": "+{{bonus}}",
         "input": "Extra entries, from 1 to {{max}}",
         "invalid": "Enter a whole number from 1 to {{max}}."
+      },
+      "dm": {
+        "label": "DM winners",
+        "description": "Whether winners get a DM saying they won. They're pinged under the giveaway either way"
       }
     },
     "join": {
@@ -2139,6 +2143,15 @@
         "most": "Most entries",
         "fewest": "Fewest entries"
       }
+    },
+    "end": {
+      "announce_one": "{{icon.trophy}} Congrats {{winners}}! You won **{{prize}}**!",
+      "announce_other": "{{icon.trophy}} Congrats {{winners}}! You each won **{{prize}}**!",
+      "reroll_one": "{{icon.trophy}} New winner: {{winners}}! You won **{{prize}}**!",
+      "reroll_other": "{{icon.trophy}} New winners: {{winners}}! You each won **{{prize}}**!",
+      "none": "Nobody could be drawn for **{{prize}}**, so there are no winners this time.",
+      "dm": "{{icon.gift}} You won **{{prize}}** in {{server}}! It is from {{host}}.",
+      "dmLink": "See the giveaway"
     }
   }
 }

@@ -208,3 +208,32 @@ export const getEntriesWithBonus = (guildId: string, userId: string) =>
 /** Change someone's entries in a giveaway, like after their roles changed. */
 export const setEntries = (giveawayId: string, userId: string, entries: number) =>
   prisma.giveawayEntry.updateMany({ where: { giveawayId, userId }, data: { entries } });
+
+/** Running giveaways whose time is up, the ones that ended first first. */
+export const getDueGiveaways = (now = new Date()) =>
+  prisma.giveaway.findMany({ where: { status: 'active', endsAt: { lte: now } }, orderBy: { endsAt: 'asc' }, include: withRoles });
+
+/** Everyone who entered a giveaway, with their entries. */
+export const getAllEntries = (giveawayId: string) => prisma.giveawayEntry.findMany({ where: { giveawayId }, select: { userId: true, entries: true } });
+
+/** The all-time XP of members on a server, by their ID, for the ones who have any. */
+export async function getXpOf(guildId: string, userIds: string[]): Promise<Map<string, number>> {
+  const levels = await prisma.level.findMany({ where: { guildId, userId: { in: userIds } }, select: { userId: true, xp: true } });
+  return new Map(levels.map((level) => [level.userId, level.xp]));
+}
+
+/**
+ * End a running giveaway with its winners.
+ * @param claimBy Until when winners can claim their prize, or null when they don't have to.
+ * @returns Whether it was still running, as it may have been ended meanwhile, like by a moderator.
+ */
+export const finishGiveaway = (id: string, winnerIds: string[], claimBy: Date | null, now = new Date()) =>
+  prisma.$transaction(async (tx) => {
+    const { count } = await tx.giveaway.updateMany({ where: { id, status: 'active' }, data: { status: 'ended', endedAt: now } });
+    if (count === 0) return false;
+    // A millisecond apart, so the order they were drawn in stays
+    await tx.giveawayWinner.createMany({
+      data: winnerIds.map((userId, index) => ({ giveawayId: id, userId, drawnAt: new Date(now.getTime() + index), claimBy })),
+    });
+    return true;
+  });
