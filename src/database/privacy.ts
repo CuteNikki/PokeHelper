@@ -158,7 +158,12 @@ export async function deleteUserData(userId: string) {
     await tx.guildLeveling.updateMany({ where: { monthlyLastWinner: userId }, data: { monthlyLastWinner: null } });
     await tx.tempVoiceSettings.deleteMany({ where: { userId } });
     await tx.giveawayEntry.deleteMany({ where: { userId } });
-    // Their win stays, so the giveaway still shows how many won, and it can't be claimed by anyone anymore, so it isn't handed on either
+    // A prize they still had to claim wasn't theirs yet, so its time to claim ends now, and the claim job gives it to someone else
+    await tx.giveawayWinner.updateMany({
+      where: { userId, claimBy: { not: null }, claimedAt: null, replacedAt: null },
+      data: { userId: null, claimBy: new Date() },
+    });
+    // Other wins stay, so the giveaway still shows how many won
     await tx.giveawayWinner.updateMany({ where: { userId }, data: { userId: null, claimBy: null } });
     await tx.giveaway.deleteMany({ where: { hostId: userId, status: 'draft' } });
     // Forgotten, so their posts aren't updated anymore. The posts are messages in the server, which its moderators can delete

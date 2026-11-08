@@ -321,8 +321,8 @@ export const getWin = (giveawayId: string, userId: string) => prisma.giveawayWin
 /** Winners who didn't claim their prize in time and haven't been replaced yet, in ended giveaways. */
 export const getMissedClaims = (now = new Date()) =>
   prisma.giveawayWinner.findMany({
-    // Not winners who deleted their data, who can't claim anymore but keep their win
-    where: { claimBy: { lte: now }, claimedAt: null, replacedAt: null, userId: { not: null }, giveaway: { status: 'ended' } },
+    // Also winners who deleted their data before claiming, whose time to claim ended then
+    where: { claimBy: { lte: now }, claimedAt: null, replacedAt: null, giveaway: { status: 'ended' } },
     select: { id: true, giveawayId: true, giveaway: { select: { guildId: true } } },
   });
 
