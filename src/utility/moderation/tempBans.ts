@@ -1,6 +1,6 @@
 import { type Client, DiscordAPIError, RESTJSONErrorCodes } from 'discord.js';
 
-import { endCase, getExpiredBans } from 'database/moderation';
+import { endCase, getExpiredBans, reopenCase } from 'database/moderation';
 
 import { getTranslate } from 'utility/i18next';
 import { logger } from 'utility/logger';
@@ -17,15 +17,18 @@ export async function runTempBanJob(client: Client) {
   for (const modCase of await getExpiredBans(new Date())) {
     const guild = client.guilds.cache.get(modCase.guildId);
     if (!guild) continue;
+    // Ended before it's lifted, so a new ban made meanwhile, which ends this one, is never lifted in its place
+    const endedAt = new Date();
+    if (!(await endCase(modCase.id, endedAt))) continue;
     try {
       const t = getTranslate(guild.preferredLocale);
       await guild.members.unban(modCase.userId, t('moderation.tempBanEnded', { number: caseNumber(modCase, t) }));
-      await endCase(modCase.id);
       warned.delete(modCase.id);
     } catch (error) {
-      if (error instanceof DiscordAPIError && error.code === RESTJSONErrorCodes.UnknownBan) {
-        await endCase(modCase.id);
-      } else if (!warned.has(modCase.id)) {
+      // Lifted meanwhile, so it stays ended
+      if (error instanceof DiscordAPIError && error.code === RESTJSONErrorCodes.UnknownBan) continue;
+      await reopenCase(modCase.id, endedAt);
+      if (!warned.has(modCase.id)) {
         // Like when the bot can't ban anymore. Tried again on every run, so it's lifted once it can
         warned.add(modCase.id);
         logger.warn(error, `Failed to lift the temporary ban of ${modCase.userId} in ${modCase.guildId}`);

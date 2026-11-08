@@ -20,8 +20,12 @@ export interface NewCase {
   expiresAt?: Date | null;
 }
 
-/** Cases still running, so a new one of the same kind or an unban can end them. */
-const running = (now: Date): Prisma.ModCaseWhereInput => ({ endedAt: null, OR: [{ expiresAt: null }, { expiresAt: { gt: now } }] });
+/**
+ * Cases still running, so a new one of the same kind or an unban can end them. A timeout that ran out is over, as Discord ends it, but a
+ * ban that ran out is still on until the bot lifts it, which may not have happened yet, like while the bot was offline.
+ */
+const running = (type: ModCaseType, now: Date): Prisma.ModCaseWhereInput =>
+  type === 'ban' ? { endedAt: null } : { endedAt: null, OR: [{ expiresAt: null }, { expiresAt: { gt: now } }] };
 
 /**
  * The cases a new one ends: a ban ends the bans before it, so a temporary one isn't lifted under a new one, a timeout the timeouts
@@ -44,7 +48,7 @@ export const createCase = (data: NewCase) =>
     const now = new Date();
     const ends = endedBy[data.type];
     if (ends) {
-      await tx.modCase.updateMany({ where: { guildId: data.guildId, userId: data.userId, type: ends, ...running(now) }, data: { endedAt: now } });
+      await tx.modCase.updateMany({ where: { guildId: data.guildId, userId: data.userId, type: ends, ...running(ends, now) }, data: { endedAt: now } });
     }
     // Made at the same time as the ones it ends, so undoing it can tell them apart
     return tx.modCase.create({ data: { ...data, expiresAt: data.expiresAt ?? null, number: caseCount, createdAt: now } });
@@ -96,8 +100,12 @@ export async function getUserCases(guildId: string, userId: string, sort: CaseSo
 export const getExpiredBans = (now: Date) =>
   prisma.modCase.findMany({ where: { type: 'ban', endedAt: null, expiresAt: { lte: now } }, orderBy: { expiresAt: 'asc' } });
 
-/** Mark a case as ended, like a temporary ban once it's lifted. */
-export const endCase = (id: string, now = new Date()) => prisma.modCase.updateMany({ where: { id, endedAt: null }, data: { endedAt: now } });
+/** Mark a case as ended, like a temporary ban once it's lifted. Returns whether it was still running, so only one can end it. */
+export const endCase = async (id: string, now = new Date()) =>
+  (await prisma.modCase.updateMany({ where: { id, endedAt: null }, data: { endedAt: now } })).count > 0;
+
+/** Run a case again that was marked as ended at a time, like a temporary ban that couldn't be lifted after all. */
+export const reopenCase = (id: string, endedAt: Date) => prisma.modCase.updateMany({ where: { id, endedAt }, data: { endedAt: null } });
 
 /** Someone's newest case of a type made since a time, like the one a log is about, or null if there's none. */
 export const getRecentCase = (guildId: string, userId: string, type: ModCaseType, since: Date) =>
