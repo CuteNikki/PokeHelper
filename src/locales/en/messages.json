@@ -2230,7 +2230,14 @@
       "deleteConfirm": "Delete it",
       "deleted": "Deleted it.",
       "gone": "That giveaway is gone. It may have been deleted meanwhile.",
-      "edit": "Edit"
+      "edit": "Edit",
+      "reroll": "Reroll",
+      "notEnded": "It hasn't ended yet.",
+      "rerollQuestion": "Which winners of **{{prize}}** should be replaced? New ones are drawn from everyone who entered and hasn't won it yet.",
+      "rerollPlaceholder": "Pick the winners to replace",
+      "rerolled_one": "Drew {{count, number}} new winner.",
+      "rerolled_other": "Drew {{count, number}} new winners.",
+      "nobodyLeft": "Replaced them, but nobody else could be drawn."
     },
     "edit": {
       "header": "It's running, so changes show on its post right away. Its channel can't change anymore, and its ping was already sent."

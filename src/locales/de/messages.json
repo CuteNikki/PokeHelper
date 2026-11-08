@@ -2174,7 +2174,14 @@
       "deleteConfirm": "Löschen",
       "deleted": "Hab es gelöscht.",
       "gone": "Dieses Giveaway gibt es nicht mehr. Vielleicht wurde es inzwischen gelöscht.",
-      "edit": "Bearbeiten"
+      "edit": "Bearbeiten",
+      "reroll": "Neu ziehen",
+      "notEnded": "Es ist noch nicht vorbei.",
+      "rerollQuestion": "Welche Gewinner von **{{prize}}** sollen ersetzt werden? Neue werden aus allen gezogen, die mitgemacht und noch nicht gewonnen haben.",
+      "rerollPlaceholder": "Wähl die Gewinner aus, die ersetzt werden",
+      "rerolled_one": "Hab {{count, number}} neuen Gewinner gezogen.",
+      "rerolled_other": "Hab {{count, number}} neue Gewinner gezogen.",
+      "nobodyLeft": "Hab sie ersetzt, aber sonst konnte niemand gezogen werden."
     },
     "edit": {
       "header": "Es läuft, also siehst du Änderungen sofort auf seinem Post. Der Kanal lässt sich nicht mehr ändern, und der Ping wurde schon gesendet."
