@@ -1693,7 +1693,8 @@
       "banTooLong": "A temporary ban can be at most 5 years long. Leave the duration out to ban them for good.",
       "notTimedOut": "{{user}} isn't timed out.",
       "memberUnknown": "I couldn't ask Discord whether they're on the server, so nothing was done. Try again in a moment.",
-      "banUnknown": "I couldn't ask Discord whether they're banned, so nothing was done. Try again in a moment."
+      "banUnknown": "I couldn't ask Discord whether they're banned, so nothing was done. Try again in a moment.",
+      "admin": "{{user}} has the Administrator permission, and Discord doesn't let anyone time out admins."
     },
     "dm": {
       "warn": "### {{icon}} You were warned on {{server}}",

@@ -132,6 +132,8 @@ export function moderationProblem(
   if (moderator.id !== guild.ownerId && member.roles.highest.comparePositionTo(moderator.roles.highest) >= 0) {
     return t('moderation.problems.aboveYou', { user: mention });
   }
+  // Discord never lets admins be timed out, wherever the bot's role is, so moving it wouldn't help
+  if ((type === 'timeout' || type === 'untimeout') && member.permissions.has('Administrator')) return t('moderation.problems.admin', { user: mention });
   if (rules.canAct && !rules.canAct(member)) return t('moderation.problems.aboveMe', { user: mention });
   return null;
 }
