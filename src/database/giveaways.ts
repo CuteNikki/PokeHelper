@@ -18,8 +18,8 @@ export const MAX_DESCRIPTION_LENGTH = 1000;
 export const MIN_WINNERS = 1;
 export const MAX_WINNERS = 50;
 /** The most prizes by place a giveaway can have, and how long each one's name can be, so they all fit on the post. */
-export const MAX_PLACE_PRIZES = 10;
-export const MAX_PLACE_PRIZE_LENGTH = 100;
+export const MAX_PLACE_PRIZES = 5;
+export const MAX_PLACE_PRIZE_LENGTH = 50;
 /** How long a giveaway runs at least and at most, in minutes. */
 export const MIN_DURATION_MINUTES = 1;
 export const MAX_DURATION_MINUTES = 60 * 24 * 60;

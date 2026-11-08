@@ -1,5 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 
+import { MAX_PLACE_PRIZE_LENGTH, MAX_PLACE_PRIZES, MAX_WINNERS } from 'database/giveaways';
+
 import { formatPlacePrizes, groupByPrize, parsePlacePrizes, prizeList, prizePlan } from 'utility/giveaways/prizes';
 
 const giveaway = (winnerCount: number, prizes: { name: string; count: number }[] = []) => ({
@@ -23,9 +25,9 @@ describe('parsePlacePrizes', () => {
 
   test('says what is wrong', () => {
     expect(parsePlacePrizes('0x Nothing')).toBe('invalid');
-    expect(parsePlacePrizes('51x Too many')).toBe('invalid');
-    expect(parsePlacePrizes(Array.from({ length: 11 }, (_, i) => `Prize ${i}`).join('\n'))).toBe('tooMany');
-    expect(parsePlacePrizes(`1x ${'a'.repeat(101)}`)).toBe('tooLong');
+    expect(parsePlacePrizes(`${MAX_WINNERS + 1}x Too many`)).toBe('invalid');
+    expect(parsePlacePrizes(Array.from({ length: MAX_PLACE_PRIZES + 1 }, (_, i) => `Prize ${i}`).join('\n'))).toBe('tooMany');
+    expect(parsePlacePrizes(`1x ${'a'.repeat(MAX_PLACE_PRIZE_LENGTH + 1)}`)).toBe('tooLong');
   });
 
   test('reads back what it formats', () => {
