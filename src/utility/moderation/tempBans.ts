@@ -3,13 +3,14 @@ import { AuditLogEvent, type Client, type Guild, RESTJSONErrorCodes } from 'disc
 import { endCase, getExpiredBans, reopenCase } from 'database/moderation';
 
 import { isDiscordError } from 'utility/discord';
+import { DiscordLimits } from 'utility/discordLimits';
 import { getTranslate } from 'utility/i18next';
 import { WarnOnce } from 'utility/logger';
 import type { ModCase } from 'generated/prisma/client';
 import { caseNumber, oneAtATime } from 'utility/moderation/run';
 
 /** How many of a server's newest bans in the audit log are looked through for a newer one. */
-const AUDIT_LIMIT = 100;
+const AUDIT_LIMIT = DiscordLimits.auditLogEntriesPerRequest;
 
 /**
  * Whether someone was banned again after a temporary ban, outside the bot, like through Discord while the bot was offline, which it didn't

@@ -33,6 +33,7 @@ import {
 } from 'database/giveaways';
 import { getLevelFromXP } from 'database/leveling';
 
+import { DiscordLimits } from 'utility/discordLimits';
 import { MINUTE, SECOND } from 'utility/duration';
 import { buttonIcon } from 'utility/emojis';
 import { type Candidate, drawWinners } from 'utility/giveaways/draw';
@@ -48,7 +49,7 @@ import { KeyedQueue } from 'utility/queue';
 import { ThemeColors } from 'utility/theme';
 
 /** How many members are fetched from Discord at once, the most it sends back for one request. */
-const FETCH_CHUNK = 100;
+const FETCH_CHUNK = DiscordLimits.membersPerRequest;
 /** How often a chunk of members is asked for when Discord says to wait, before giving up until the next try. */
 const FETCH_TRIES = 5;
 

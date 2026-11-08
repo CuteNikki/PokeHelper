@@ -25,6 +25,7 @@ import {
 } from 'utility/counting/rules';
 import { parseCount } from 'utility/counting/parse';
 import { fetchChannel, isDiscordError } from 'utility/discord';
+import { DiscordLimits } from 'utility/discordLimits';
 import { formatNumber, SECOND } from 'utility/duration';
 import { guildTranslate } from 'utility/i18next';
 import { logger } from 'utility/logger';
@@ -195,7 +196,7 @@ async function syncCounting(client: Client, counting: GuildCounting): Promise<Gu
   let after = startAfter;
   let reachedEnd = false;
   while (messages.length < SYNC_MESSAGE_LIMIT) {
-    const batch = await channel.messages.fetch({ after, limit: 100, cache: false });
+    const batch = await channel.messages.fetch({ after, limit: DiscordLimits.messagesPerRequest, cache: false });
     // Discord returns them newest first
     messages.push(...[...batch.values()].sort((a, b) => (BigInt(a.id) < BigInt(b.id) ? -1 : 1)));
     reachedEnd = batch.size < 100;
@@ -256,8 +257,8 @@ async function syncCounting(client: Client, counting: GuildCounting): Promise<Gu
 
 /** Delete messages, in bulk where Discord allows it, which is for messages up to 14 days old. */
 async function deleteMessages(channel: GuildTextBasedChannel, messages: Message[]) {
-  for (let i = 0; i < messages.length; i += 100) {
-    const chunk = messages.slice(i, i + 100);
+  for (let i = 0; i < messages.length; i += DiscordLimits.messagesPerRequest) {
+    const chunk = messages.slice(i, i + DiscordLimits.messagesPerRequest);
     for (const message of chunk) markBotDelete(message.id);
     const deleted = await channel.bulkDelete(chunk, true).catch(logFailure('Failed to bulk delete counting messages'));
     const remaining = chunk.filter((message) => !deleted?.has(message.id));

@@ -1,6 +1,7 @@
 import { prisma } from 'database/index';
 
 import type { GiveawayRoleKind, GiveawayStatus, Prisma } from 'generated/prisma/client';
+import { DiscordLimits } from 'utility/discordLimits';
 import { DAY, MINUTE } from 'utility/duration';
 
 /** The most giveaways a server can have running at once. */
@@ -338,7 +339,7 @@ export const replaceWinners = (giveawayId: string, winnerIds: string[], newUserI
 /** Which giveaways a list shows: the ones running, or the ones that ended or were cancelled. */
 export type GiveawayTab = 'active' | 'ended';
 /** How many ended giveaways a list shows, the newest first, as many as fit in its select. */
-export const ENDED_LIST_SIZE = 25;
+export const ENDED_LIST_SIZE = DiscordLimits.selectOptions;
 
 /** A server's giveaways of a list, with how many entered each. Running ones end soonest first, ended ones newest first. */
 export const listGiveaways = (guildId: string, tab: GiveawayTab) =>

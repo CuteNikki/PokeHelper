@@ -22,4 +22,12 @@ export const DiscordLimits = {
   messageTextLength: 4000,
   /** Characters in an image's description, which screen readers read out. */
   mediaDescriptionLength: 1024,
+  /** Messages fetched at once, and deleted at once in bulk. */
+  messagesPerRequest: 100,
+  /** Members fetched at once by their IDs. */
+  membersPerRequest: 100,
+  /** People who reacted, fetched at once. */
+  reactionUsersPerRequest: 100,
+  /** Audit log entries fetched at once. */
+  auditLogEntriesPerRequest: 100,
 } as const;

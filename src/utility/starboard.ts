@@ -35,6 +35,7 @@ import {
 } from 'database/starboard';
 
 import { isDiscordError, isMessageGone } from 'utility/discord';
+import { DiscordLimits } from 'utility/discordLimits';
 import { DAY, formatNumber, SECOND } from 'utility/duration';
 import { customEmojiId } from 'utility/emoji';
 import { guildTranslate, type Translate } from 'utility/i18next';
@@ -197,7 +198,7 @@ async function reactorsOf(message: Message, emoji: string): Promise<string[]> {
   const ids: string[] = [];
   let after: string | undefined;
   for (let page = 0; page < MAX_REACTION_PAGES; page++) {
-    const users = await reaction.users.fetch({ limit: 100, after });
+    const users = await reaction.users.fetch({ limit: DiscordLimits.reactionUsersPerRequest, after });
     for (const user of users.values()) if (!user.bot) ids.push(user.id);
     if (users.size < 100) break;
     after = users.lastKey();

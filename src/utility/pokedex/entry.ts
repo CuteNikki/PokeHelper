@@ -228,7 +228,7 @@ function buildEvolutionButtons(
     return new ButtonBuilder()
       .setCustomId(pokedexCustomId('evo', entry.slug, view))
       .setStyle(current ? ButtonStyle.Primary : ButtonStyle.Secondary)
-      .setLabel(name(entry).slice(0, 80))
+      .setLabel(name(entry).slice(0, DiscordLimits.buttonLabelLength))
       .setDisabled(current);
   });
   const rows: ActionRowBuilder<ButtonBuilder>[] = [];

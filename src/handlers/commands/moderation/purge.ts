@@ -11,13 +11,14 @@ import {
 import { Command } from 'classes/base/command';
 
 import { fetchChannel, formatPermissions } from 'utility/discord';
+import { DiscordLimits } from 'utility/discordLimits';
 import { DAY } from 'utility/duration';
 import { getTranslate } from 'utility/i18next';
 import { userSubject } from 'utility/logs/format';
 import { createResponse, sendError, sendResponse } from 'utility/response';
 
 /** The most messages Discord deletes at once, and looks through for someone's. */
-const MAX_MESSAGES = 100;
+const MAX_MESSAGES = DiscordLimits.messagesPerRequest;
 /** Discord only deletes messages younger than this at once. */
 const MAX_AGE = 14 * DAY;
 /** What the bot needs in the channel to find and delete the messages. */
