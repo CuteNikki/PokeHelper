@@ -44,8 +44,7 @@ export type RuleProblem =
  * role would keep everyone out, also before it's taken out of the giveaway, like when it was deleted while the bot was offline.
  */
 export function rulesOf(giveaway: Giveaway, roleExists: (roleId: string) => boolean): GiveawayRules {
-  const ofKind = (kind: 'required' | 'blocked') =>
-    giveaway.roles.filter((role) => role.kind === kind && roleExists(role.roleId)).map((role) => role.roleId);
+  const ofKind = (kind: 'required' | 'blocked') => giveaway.roles.filter((role) => role.kind === kind && roleExists(role.roleId)).map((role) => role.roleId);
   return {
     requiredRoleIds: ofKind('required'),
     requireAllRoles: giveaway.requireAllRoles,
