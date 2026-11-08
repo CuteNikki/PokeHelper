@@ -38,9 +38,14 @@ export type RuleProblem =
   /** When their account is old enough. */
   | { rule: 'accountAge'; from: Date };
 
-/** The rules of a giveaway. */
-export function rulesOf(giveaway: Giveaway): GiveawayRules {
-  const ofKind = (kind: 'required' | 'blocked') => giveaway.roles.filter((role) => role.kind === kind).map((role) => role.roleId);
+/**
+ * The rules of a giveaway.
+ * @param roleExists Whether a role is still on the server. Deleted ones are left out, as nobody can have them, so a deleted required
+ * role would keep everyone out, also before it's taken out of the giveaway, like when it was deleted while the bot was offline.
+ */
+export function rulesOf(giveaway: Giveaway, roleExists: (roleId: string) => boolean): GiveawayRules {
+  const ofKind = (kind: 'required' | 'blocked') =>
+    giveaway.roles.filter((role) => role.kind === kind && roleExists(role.roleId)).map((role) => role.roleId);
   return {
     requiredRoleIds: ofKind('required'),
     requireAllRoles: giveaway.requireAllRoles,
