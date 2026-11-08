@@ -1987,7 +1987,6 @@
       "winnerCount_other": "{{count, number}} Gewinner",
       "rules": "**Wer mitmachen kann**",
       "bonus": "**Extra-Lose**",
-      "bonusRole": "{{role}}: +{{bonus}}",
       "winners_one": "**Gewinner:** {{winners}}",
       "winners_other": "**Gewinner:** {{winners}}",
       "noWinners": "Diesmal gibt's keine Gewinner, weil niemand gezogen werden konnte.",
@@ -2000,7 +1999,9 @@
       "winnersLine": "- **{{prize}}**: {{winners}}",
       "deletedCount_one": "jemand, der seine Daten gelöscht hat",
       "deletedCount_other": "{{count}} Leute, die ihre Daten gelöscht haben",
-      "prizeHeadline": "## {{count}}x {{prize}}"
+      "prizeHeadline": "## {{count}}x {{prize}}",
+      "bonusRole_one": "{{role}}: +{{count, number}} Los",
+      "bonusRole_other": "{{role}}: +{{count, number}} Lose"
     },
     "rules": {
       "requiredAny_one": "{{roles}} haben",

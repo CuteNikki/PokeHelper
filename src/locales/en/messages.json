@@ -2043,7 +2043,6 @@
       "winnerCount_other": "{{count, number}} winners",
       "rules": "**Who can enter**",
       "bonus": "**Bonus entries**",
-      "bonusRole": "{{role}}: +{{bonus}}",
       "winners_one": "**Winner:** {{winners}}",
       "winners_other": "**Winners:** {{winners}}",
       "noWinners": "No winners this time, as nobody could be drawn.",
@@ -2056,7 +2055,9 @@
       "winnersLine": "- **{{prize}}**: {{winners}}",
       "deletedCount_one": "someone who deleted their data",
       "deletedCount_other": "{{count}} people who deleted their data",
-      "prizeHeadline": "## {{count}}x {{prize}}"
+      "prizeHeadline": "## {{count}}x {{prize}}",
+      "bonusRole_one": "{{role}}: +{{count, number}} entry",
+      "bonusRole_other": "{{role}}: +{{count, number}} entries"
     },
     "rules": {
       "requiredAny_one": "Have {{roles}}",

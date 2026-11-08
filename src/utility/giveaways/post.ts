@@ -96,7 +96,7 @@ export function buildGiveawayPost(giveaway: Giveaway, rules: GiveawayRules, stat
       details.push(
         '',
         t('giveaway.post.bonus'),
-        ...bonusRoles.map((role) => `- ${t('giveaway.post.bonusRole', { role: roleMention(role.roleId), bonus: formatNumber(role.bonus, t) })}`),
+        ...bonusRoles.map((role) => `- ${t('giveaway.post.bonusRole', { role: roleMention(role.roleId), count: role.bonus })}`),
       );
     }
   } else if (giveaway.status === 'ended') {
