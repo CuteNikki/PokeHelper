@@ -290,6 +290,23 @@ export const claimWin = async (giveawayId: string, userId: string, now = new Dat
     })
   ).count > 0;
 
+/**
+ * Of some people, the ones who still won another giveaway of a server that gives a role, and keep the role for that one. A win they have
+ * to claim counts once they claimed it, as only then they got the role.
+ */
+export async function getOtherRoleWinners(guildId: string, giveawayId: string, roleId: string, userIds: string[]): Promise<Set<string>> {
+  const wins = await prisma.giveawayWinner.findMany({
+    where: {
+      userId: { in: userIds },
+      replacedAt: null,
+      OR: [{ claimBy: null }, { claimedAt: { not: null } }],
+      giveaway: { guildId, id: { not: giveawayId }, status: 'ended', winnerRoleId: roleId },
+    },
+    select: { userId: true },
+  });
+  return new Set(wins.flatMap((win) => win.userId ?? []));
+}
+
 /** Someone's win in a giveaway, the newest if they were drawn again after being replaced, or null if they never won it. */
 export const getWin = (giveawayId: string, userId: string) => prisma.giveawayWinner.findFirst({ where: { giveawayId, userId }, orderBy: { drawnAt: 'desc' } });
 

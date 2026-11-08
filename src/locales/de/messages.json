@@ -2170,7 +2170,8 @@
       "dm": "{{icon.gift}} Du hast **{{prize}}** auf {{server}} gewonnen! Es ist von {{host}}.",
       "dmLink": "Zum Giveaway",
       "roleReason": "Hat das Giveaway für {{prize}} gewonnen",
-      "noneLeft": "Für **{{prize}}** konnte sonst niemand gezogen werden, also geht er an niemand Neues."
+      "noneLeft": "Für **{{prize}}** konnte sonst niemand gezogen werden, also geht er an niemand Neues.",
+      "roleTakenReason": "Als Gewinner von {{prize}} ersetzt"
     },
     "claim": {
       "announce": "Drück bis {{date}} ({{relative}}) auf **Abholen**, um deinen Preis zu bekommen, sonst geht er an jemand anderen.",

@@ -2226,7 +2226,8 @@
       "dm": "{{icon.gift}} You won **{{prize}}** in {{server}}! It is from {{host}}.",
       "dmLink": "See the giveaway",
       "roleReason": "Won the giveaway for {{prize}}",
-      "noneLeft": "Nobody else could be drawn for **{{prize}}**, so it doesn't go to anyone new."
+      "noneLeft": "Nobody else could be drawn for **{{prize}}**, so it doesn't go to anyone new.",
+      "roleTakenReason": "Replaced as a winner of {{prize}}"
     },
     "claim": {
       "announce": "Press **Claim** by {{date}} ({{relative}}) to get your prize, or it goes to someone else.",

@@ -25,6 +25,7 @@ import {
   getDueGiveaways,
   getGiveaway,
   getMissedClaims,
+  getOtherRoleWinners,
   getXpOf,
   type Giveaway,
   replaceWinners,
@@ -239,7 +240,7 @@ async function dmWinners(guild: Guild, giveaway: Giveaway, winnerIds: string[], 
 }
 
 /**
- * Give winners the giveaway's winner role, if it has one the bot can give. It stays with them, like a reward role.
+ * Give winners the giveaway's winner role, if it has one the bot can give. It stays with them, like a reward role, unless they're replaced.
  * A winner who left meanwhile is skipped.
  */
 export async function giveWinnerRole(guild: Guild, giveaway: Giveaway, winnerIds: string[]) {
@@ -250,6 +251,23 @@ export async function giveWinnerRole(guild: Guild, giveaway: Giveaway, winnerIds
     await guild.members
       .addRole({ user: userId, role: roleId, reason: t('giveaway.end.roleReason', { prize: giveaway.prize }) })
       .catch((error: unknown) => logger.warn(error, `Failed to give the winner role of giveaway ${giveaway.id} to ${userId}`));
+  }
+}
+
+/**
+ * Take the winner role away from winners who were replaced, unless they still won another giveaway that gives it.
+ * Failures are only logged, like when they left meanwhile.
+ */
+async function takeWinnerRole(guild: Guild, giveaway: Giveaway, userIds: string[]) {
+  const roleId = giveaway.winnerRoleId;
+  if (!roleId || userIds.length === 0 || !canGiveRole(guild, roleId)) return;
+  const keep = await getOtherRoleWinners(guild.id, giveaway.id, roleId, userIds);
+  const t = getTranslate(giveaway.locale);
+  for (const userId of userIds) {
+    if (keep.has(userId)) continue;
+    await guild.members
+      .removeRole({ user: userId, role: roleId, reason: t('giveaway.end.roleTakenReason', { prize: giveaway.prize }) })
+      .catch((error: unknown) => logger.warn(error, `Failed to take back the winner role of giveaway ${giveaway.id} from ${userId}`));
   }
 }
 
@@ -323,6 +341,7 @@ async function reroll(guild: Guild, giveaway: Giveaway, winnerIds: string[], byI
   const newWinners = await replaceWinners(giveaway.id, winnerIds, drawn, claimBy, now);
   // Replaced meanwhile by someone else
   if (!newWinners) return [];
+  await takeWinnerRole(guild, giveaway, replacedUsers);
   await syncPost(guild, giveaway.id);
   await welcomeWinners(guild, giveaway, newWinners, claimBy, 'giveaway.end.reroll');
   await logGiveaway(guild, 'giveawayRerolled', giveaway, byId, (t) => [
