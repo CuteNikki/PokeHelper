@@ -226,7 +226,6 @@ export async function renderRoleMenuList(guild: Guild, t: Translate): Promise<Re
   const container = new ContainerBuilder()
     .setAccentColor(ThemeColors.info)
     .addTextDisplayComponents(new TextDisplayBuilder().setContent(t('roleMenu.list.title')))
-    // Large, so the title, the switch and the list stand apart, like in the settings panels
     .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large))
     .addSectionComponents(
       buildSwitchSection(t('roleMenu.list.enabled.label'), t('roleMenu.list.enabled.description'), roleMenusEnabled, ROLE_MENU_CUSTOM_ID.toggle, t),
@@ -252,7 +251,6 @@ export async function renderRoleMenuList(guild: Guild, t: Translate): Promise<Re
         [subtext(t('roleMenu.list.count', { count: menus.length, max: formatNumber(MAX_ROLE_MENUS, t) })), ...lines].join('\n'),
       ),
     )
-    // Large, like before the buttons at the bottom of the settings panels
     .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large))
     .addActionRowComponents(
       new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(

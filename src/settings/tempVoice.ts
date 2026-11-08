@@ -156,7 +156,6 @@ export async function renderTempVoiceList(guild: Guild, t: Translate): Promise<R
     .setAccentColor(ThemeColors.info)
     // What join channels are, as the list is where admins start
     .addTextDisplayComponents(new TextDisplayBuilder().setContent(`${t('tempVoice.config.list.title')}\n${t('tempVoice.config.list.description')}`))
-    // Large, so the title, the switch and the list stand apart, like in the settings panels
     .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large))
     .addSectionComponents(
       buildSwitchSection(
@@ -190,7 +189,6 @@ export async function renderTempVoiceList(guild: Guild, t: Translate): Promise<R
         [subtext(t('tempVoice.config.list.count', { count: creators.length, max: formatNumber(MAX_TEMP_VOICE_CREATORS, t) })), ...lines].join('\n'),
       ),
     )
-    // Large, like before the buttons at the bottom of the settings panels
     .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large))
     .addActionRowComponents(
       new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(

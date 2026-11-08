@@ -3,11 +3,9 @@ import { extname } from 'node:path';
 import { DiscordAPIError, REST, Routes } from 'discord.js';
 
 /**
- * Set the bot's avatar and banner from image files, through Discord's API: the developer portal turns an animated GIF into a still
- * picture, the API keeps it animated.
- *
+ * Set the bot's avatar and banner through the API, which keeps GIFs animated, unlike the developer portal.
  * Usage: `bun run profile --avatar path/to/avatar.gif --banner path/to/banner.gif`, either one or both.
- * Discord only lets an avatar change a couple of times an hour, so a rate limit here means waiting a bit.
+ * Avatars can only change a couple of times an hour, so a rate limit here means waiting a bit.
  */
 
 const DISCORD_TOKEN = process.env.DISCORD_TOKEN;
@@ -23,7 +21,6 @@ const argument = (flag: string) => {
   return index === -1 ? null : (process.argv[index + 1] ?? null);
 };
 
-/** An image file as the data URI Discord takes. */
 async function dataUri(path: string): Promise<string> {
   const mime = MIME_TYPES[extname(path).toLowerCase()];
   if (!mime) throw new Error(`${path} isn't a GIF, PNG, JPEG or WebP.`);

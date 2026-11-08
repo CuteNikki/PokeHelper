@@ -16,7 +16,7 @@ import { getTempVoiceSettings, TEMP_VOICE_PANEL_PREFIX } from 'settings/tempVoic
 import { createResponse, sendError } from 'utility/response';
 import { parseSettingsCustomId, settingsContext, type SettingsInput, type SettingsModal, type SettingsPanel } from 'utility/settings';
 
-/** Every settings panel, so their buttons and selects can find them by ID. Role menus, join channels and giveaways each have their own, found by their ID. */
+/** Every settings panel, so their buttons and selects can find them by ID. Role menus, join channels and giveaways have one per item. */
 const panels: SettingsPanel[] = [countingSettings, levelingSettings, birthdaySettings, myBirthdaySettings, friendCodeSettings, logSettings, starboardSettings];
 
 const MODAL_INPUT_ID = 'value';
@@ -32,10 +32,7 @@ function getSettingsPanel(id: string) {
 
 type PanelInteraction = ButtonInteraction | AnySelectMenuInteraction | ModalSubmitInteraction;
 
-/**
- * Whether someone may change the settings of a panel. Checked on every use, as permissions may have changed since the panel was opened.
- * Server settings need a server and the panel's permissions there. Personal settings are always someone's own, so anyone can use them anywhere.
- */
+/** Whether someone may change a panel's settings. Checked on every use, as permissions may have changed since it was opened. */
 async function checkPermissions(interaction: PanelInteraction, panel: SettingsPanel, t: Translate) {
   if (panel.scope === 'user') return true;
   // Only a server the bot is in has settings, so a panel from anywhere else is outdated
@@ -62,10 +59,7 @@ async function saveAndRender(interaction: PanelInteraction, panel: SettingsPanel
   await interaction.editReply(await panel.render(context, t, page));
 }
 
-/**
- * Handle a button or select on a settings panel: check permissions, apply the change, ask for a value with a popup if needed,
- * and show the updated panel.
- */
+/** Handle a button or select on a settings panel. */
 export async function handleSettingsInteraction(interaction: ButtonInteraction | AnySelectMenuInteraction) {
   // Settings panels are only seen by the person using them, so they're in their language
   const t = getTranslate(interaction.locale);
@@ -75,7 +69,7 @@ export async function handleSettingsInteraction(interaction: ButtonInteraction |
   if (!id || !panel) return sendError(interaction, t('system.outdated'));
   if (!(await checkPermissions(interaction, panel, t))) return;
 
-  // Answered before the settings are loaded, unless it may open a popup, which has to be the first answer. Errors still only go to whoever used it
+  // Answered before the settings are loaded, as Discord gives up after 3 seconds, unless it may open a popup, which has to be the first answer
   if (!panel.mayShowModal(id)) await interaction.deferUpdate();
   const input: SettingsInput = interaction.isAnySelectMenu() ? { type: 'select', values: interaction.values } : { type: 'button' };
   const result = await panel.handle(settingsContext(interaction), id, input, t);
@@ -94,10 +88,7 @@ export async function handleSettingsInteraction(interaction: ButtonInteraction |
   await saveAndRender(interaction, panel, result.page, result.save, t);
 }
 
-/**
- * Handle a submitted settings popup. The popup's custom ID says what it's for, so it's handled the same however long it was open,
- * even across restarts.
- */
+/** Handle a submitted settings popup. Its custom ID says what it's for, so it works however long it was open, even across restarts. */
 export async function handleSettingsModal(interaction: ModalSubmitInteraction) {
   const t = getTranslate(interaction.locale);
   // Settings popups are always opened from a panel
@@ -108,7 +99,7 @@ export async function handleSettingsModal(interaction: ModalSubmitInteraction) {
   if (!id || !panel) return sendError(interaction, t('system.outdated'));
   if (!(await checkPermissions(interaction, panel, t))) return;
 
-  // Answered before the settings are loaded, which can take a moment. Errors still only go to whoever sent it
+  // Answered before the settings are loaded, which can take a moment
   await interaction.deferUpdate();
   const result = await panel.submitModal(settingsContext(interaction), id, interaction.fields.getTextInputValue(MODAL_INPUT_ID), t);
   if (result.error) return sendError(interaction, result.error);

@@ -35,10 +35,7 @@ function birthdayGuildOptions(client: Client, userId: string, saved: string[]) {
     .map((guild) => ({ value: guild.id, label: guild.name }));
 }
 
-/**
- * The servers to save from what was picked. Saved servers that weren't listed, like one the bot can't see right now, are kept,
- * as they couldn't be unpicked.
- */
+/** The servers to save from what was picked. Saved ones that weren't listed are kept, as they couldn't be unpicked. */
 export function pickedGuilds(picked: string[], listed: string[], saved: string[]): string[] {
   return [...new Set([...saved.filter((guildId) => !listed.includes(guildId)), ...picked])];
 }

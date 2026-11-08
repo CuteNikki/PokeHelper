@@ -10,10 +10,7 @@ export class Button {
       /** Whether only whoever used the command it's on can use it. */
       isAuthorOnly?: boolean;
       permissions?: PermissionsString[];
-      /**
-       * A wait in seconds after each use, for heavy work, like creating a file. Without it, a few uses in a row are fine and only
-       * spamming is stopped, see `utility/rateLimit`.
-       */
+      /** A wait in seconds after each use, for heavy work. Without it, only spamming is stopped, see `utility/rateLimit`. */
       cooldown?: number;
       execute: (interaction: ButtonInteraction) => unknown;
     },

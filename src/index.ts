@@ -38,8 +38,7 @@ const client = new ExtendedClient({
 
 await initI18Next();
 
-// Last line of defense: anything not caught elsewhere is logged here instead of going unnoticed
-// Passed as err, so anything thrown is written out readably, also when it isn't an error
+// Last line of defense. Passed as err, so anything thrown is written out readably, also when it isn't an error
 process.on('unhandledRejection', (reason) => logger.error({ err: reason }, t('system.process.unhandledRejection')));
 process.on('uncaughtException', (error) => {
   // The process is in an unknown state after an uncaught exception, so exit and let the container restart it
