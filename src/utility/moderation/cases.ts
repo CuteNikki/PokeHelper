@@ -416,6 +416,10 @@ export async function handleCasesModal(interaction: ModalSubmitInteraction): Pro
   const t = getTranslate(interaction.locale);
   const parsed = parseCasesId(interaction.customId);
   if (!parsed || !interaction.inCachedGuild() || !interaction.isFromMessage()) return sendError(interaction, t('system.outdated'));
+  // Like its buttons and selects, as they may not be a moderator anymore since the popup was opened
+  if (!interaction.member.permissions.has('ModerateMembers')) {
+    return sendError(interaction, t('system.button.permissions', { permissions: t('permission.ModerateMembers') }));
+  }
 
   if (parsed.action === 'goto') {
     const page = readPageInput(interaction);
