@@ -5,13 +5,14 @@ import { Event } from 'classes/base/event';
 import { createCase } from 'database/moderation';
 
 import { logger } from 'utility/logger';
+import { fetchMember } from 'utility/moderation/run';
 
 /** The change in an audit log entry that gives or takes away a timeout. */
 const TIMEOUT_CHANGE = 'communication_disabled_until';
 
 /**
  * Bans, unbans, kicks, timeouts and timeouts taken away done through Discord itself, like from the menu on someone's name, become cases too, so someone's
- * case history is complete however they were moderated. Discord's audit log says who did it and why. The bot's own doing, from its
+ * case history is complete however they were moderated. So do timeouts by AutoMod, with no moderator and its rule as the reason. Discord's audit log says who did it and why. The bot's own doing, from its
  * commands or a temporary ban running out, already has its case.
  */
 export default new Event({
@@ -40,6 +41,14 @@ export default new Event({
           // Taken away before it ran out, which ends the timeout's case
           if (!until || until.getTime() <= Date.now()) await createCase({ ...outside, type: 'untimeout' });
           else await createCase({ ...outside, type: 'timeout', expiresAt: until });
+          break;
+        }
+        case AuditLogEvent.AutoModerationUserCommunicationDisabled: {
+          // The entry doesn't say until when, so that's asked of Discord. Without it, the case only says it happened
+          const member = await fetchMember(guild, userId);
+          const until = member?.communicationDisabledUntil ?? null;
+          const rule = entry.extra && 'autoModerationRuleName' in entry.extra ? entry.extra.autoModerationRuleName : null;
+          await createCase({ ...outside, type: 'timeout', moderatorId: null, reason: rule ? `AutoMod: ${rule}` : 'AutoMod', expiresAt: until });
           break;
         }
       }
