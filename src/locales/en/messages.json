@@ -2101,6 +2101,22 @@
         "input": "Extra entries, from 1 to {{max}}",
         "invalid": "Enter a whole number from 1 to {{max}}."
       }
+    },
+    "join": {
+      "entered_one": "You're in! You have **{{count, number}}** entry. Good luck!",
+      "entered_other": "You're in! Thanks to your roles, you have **{{count, number}}** entries. Good luck!",
+      "already_one": "You're already in, with **{{count, number}}** entry.",
+      "already_other": "You're already in, with **{{count, number}}** entries.",
+      "leave": "Leave",
+      "left": "You left the giveaway. Press Join on it to enter again.",
+      "notIn": "You're not in this giveaway.",
+      "gone": "I can't find this giveaway anymore.",
+      "ended": "This giveaway has ended.",
+      "cantEnter": "You can't enter this giveaway yet. To enter, you need to meet these rules:",
+      "from": "(you can enter {{time}})",
+      "bot": "Not be a bot, as bots can't win anything",
+      "blocked_one": "Not have {{roles}}",
+      "blocked_other": "Not have {{roles}}, as people with these roles can't enter"
     }
   }
 }

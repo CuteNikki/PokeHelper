@@ -2045,6 +2045,22 @@
         "input": "Extra-Lose, von 1 bis {{max}}",
         "invalid": "Gib eine ganze Zahl von 1 bis {{max}} ein."
       }
+    },
+    "join": {
+      "entered_one": "Du bist dabei! Du hast **{{count, number}}** Los. Viel Glück!",
+      "entered_other": "Du bist dabei! Dank deiner Rollen hast du **{{count, number}}** Lose. Viel Glück!",
+      "already_one": "Du bist schon dabei, mit **{{count, number}}** Los.",
+      "already_other": "Du bist schon dabei, mit **{{count, number}}** Losen.",
+      "leave": "Austreten",
+      "left": "Du bist raus. Drück beim Giveaway auf Mitmachen, um wieder einzusteigen.",
+      "notIn": "Du machst bei diesem Giveaway nicht mit.",
+      "gone": "Ich finde dieses Giveaway nicht mehr.",
+      "ended": "Dieses Giveaway ist schon vorbei.",
+      "cantEnter": "Du kannst bei diesem Giveaway noch nicht mitmachen. Dafür musst du diese Regeln erfüllen:",
+      "from": "(geht {{time}})",
+      "bot": "Kein Bot sein, weil Bots nichts gewinnen können",
+      "blocked_one": "{{roles}} nicht haben",
+      "blocked_other": "{{roles}} nicht haben, weil Leute mit diesen Rollen nicht mitmachen können"
     }
   }
 }

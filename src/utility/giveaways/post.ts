@@ -26,6 +26,8 @@ import { ThemeColors } from 'utility/theme';
 /** Custom IDs of the buttons on a giveaway's post, with the giveaway's ID after them. */
 export const GIVEAWAY_CUSTOM_ID = {
   join: 'gw:join:',
+  // On the reply to Join, for someone who's in already
+  leave: 'gw:leave:',
 } as const;
 
 /** What the post shows besides the giveaway itself. */

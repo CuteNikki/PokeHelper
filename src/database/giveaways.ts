@@ -137,3 +137,20 @@ export const countActiveGiveaways = (guildId: string) => prisma.giveaway.count({
 /** Delete the drafts that weren't started in time. */
 export const deleteOldDrafts = (now = new Date()) =>
   prisma.giveaway.deleteMany({ where: { status: 'draft', createdAt: { lt: new Date(now.getTime() - DRAFT_LIFETIME) } } });
+
+/** Someone's entry in a giveaway, or null if they didn't enter. */
+export const getEntry = (giveawayId: string, userId: string) => prisma.giveawayEntry.findUnique({ where: { giveawayId_userId: { giveawayId, userId } } });
+
+/**
+ * Enter someone into a running giveaway.
+ * @param entries Their chances, see `countEntries`.
+ * @returns Whether they're new, as they may have entered meanwhile, like with a double click.
+ */
+export const enterGiveaway = async (giveawayId: string, userId: string, entries: number) =>
+  (await prisma.giveawayEntry.createMany({ data: [{ giveawayId, userId, entries }], skipDuplicates: true })).count > 0;
+
+/** Take someone out of a giveaway. Returns whether they were in it. */
+export const leaveGiveaway = async (giveawayId: string, userId: string) => (await prisma.giveawayEntry.deleteMany({ where: { giveawayId, userId } })).count > 0;
+
+/** How many people entered a giveaway. */
+export const countParticipants = (giveawayId: string) => prisma.giveawayEntry.count({ where: { giveawayId } });
