@@ -17,6 +17,7 @@ import {
 import type { Giveaway } from 'database/giveaways';
 
 import { buttonIcon } from 'utility/emojis';
+import { openParticipantsId } from 'utility/giveaways/participants';
 import { bonusRolesOf, type GiveawayRules } from 'utility/giveaways/rules';
 import { formatDuration, formatNumber, MINUTE } from 'utility/duration';
 import type { Translate } from 'utility/i18next';
@@ -110,19 +111,28 @@ export function buildGiveawayPost(giveaway: Giveaway, rules: GiveawayRules, stat
     .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large))
     .addTextDisplayComponents(new TextDisplayBuilder().setContent(footer.join('\n')));
 
+  const buttons: ButtonBuilder[] = [];
   if (running) {
-    container.addActionRowComponents(
-      new ActionRowBuilder<ButtonBuilder>().addComponents(
-        new ButtonBuilder()
-          .setCustomId(`${GIVEAWAY_CUSTOM_ID.join}${giveaway.id}`)
-          .setLabel(t('giveaway.post.join'))
-          .setEmoji(buttonIcon('gift'))
-          .setStyle(ButtonStyle.Primary)
-          // A draft's preview can't be joined
-          .setDisabled(giveaway.status === 'draft'),
-      ),
+    buttons.push(
+      new ButtonBuilder()
+        .setCustomId(`${GIVEAWAY_CUSTOM_ID.join}${giveaway.id}`)
+        .setLabel(t('giveaway.post.join'))
+        .setEmoji(buttonIcon('gift'))
+        .setStyle(ButtonStyle.Primary)
+        // A draft's preview can't be used
+        .setDisabled(giveaway.status === 'draft'),
     );
   }
+  // Also once it ended, to see who was in it
+  buttons.push(
+    new ButtonBuilder()
+      .setCustomId(openParticipantsId(giveaway.id))
+      .setLabel(t('giveaway.post.participantsButton'))
+      .setEmoji(buttonIcon('users'))
+      .setStyle(ButtonStyle.Secondary)
+      .setDisabled(giveaway.status === 'draft'),
+  );
+  container.addActionRowComponents(new ActionRowBuilder<ButtonBuilder>().addComponents(buttons));
 
   return { components: [container], flags: [MessageFlags.IsComponentsV2], allowedMentions: { parse: [] } };
 }

@@ -157,3 +157,43 @@ export const countParticipants = (giveawayId: string) => prisma.giveawayEntry.co
 
 /** The winners of a giveaway, without the ones who were replaced, in the order they were drawn. */
 export const getWinners = (giveawayId: string) => prisma.giveawayWinner.findMany({ where: { giveawayId, replacedAt: null }, orderBy: { drawnAt: 'asc' } });
+
+/** How a giveaway's participants are listed: who joined first or last, or who has the most or fewest entries. */
+export type ParticipantSort = 'joined' | 'newest' | 'most' | 'fewest';
+export const PARTICIPANT_SORTS: ParticipantSort[] = ['joined', 'newest', 'most', 'fewest'];
+
+/** Ties are broken by who joined first, and then by ID, so the order never changes between pages. */
+const PARTICIPANT_ORDER: Record<ParticipantSort, Prisma.GiveawayEntryOrderByWithRelationInput[]> = {
+  joined: [{ createdAt: 'asc' }, { userId: 'asc' }],
+  newest: [{ createdAt: 'desc' }, { userId: 'desc' }],
+  most: [{ entries: 'desc' }, { createdAt: 'asc' }, { userId: 'asc' }],
+  fewest: [{ entries: 'asc' }, { createdAt: 'asc' }, { userId: 'asc' }],
+};
+
+/**
+ * A page of a giveaway's participants, how many there are, and how many entries they have together.
+ * @param skip How many come before the page.
+ */
+export async function getParticipants(giveawayId: string, sort: ParticipantSort, skip: number, take: number) {
+  const where = { giveawayId };
+  const [participants, totals] = await Promise.all([
+    prisma.giveawayEntry.findMany({ where, orderBy: PARTICIPANT_ORDER[sort], skip, take }),
+    prisma.giveawayEntry.aggregate({ where, _count: { _all: true }, _sum: { entries: true } }),
+  ]);
+  return { participants, total: totals._count._all, entries: totals._sum.entries ?? 0 };
+}
+
+/** Where someone is in a giveaway's participants, counted from 1, or null if they didn't enter. */
+export async function getParticipantPosition(giveawayId: string, userId: string, sort: ParticipantSort): Promise<number | null> {
+  const entry = await getEntry(giveawayId, userId);
+  if (!entry) return null;
+  // Everyone who comes before them in the order, field by field, like in PARTICIPANT_ORDER
+  const before = (field: 'createdAt' | 'userId' | 'entries', direction: 'asc' | 'desc') => ({ [field]: { [direction === 'asc' ? 'lt' : 'gt']: entry[field] } });
+  const same = (field: 'createdAt' | 'userId' | 'entries') => ({ [field]: entry[field] });
+  const order = PARTICIPANT_ORDER[sort].map((part) => Object.entries(part)[0] as ['createdAt' | 'userId' | 'entries', 'asc' | 'desc']);
+  const OR = order.map(([field, direction], index) => ({ AND: [...order.slice(0, index).map(([earlier]) => same(earlier)), before(field, direction)] }));
+  return (await prisma.giveawayEntry.count({ where: { giveawayId, OR } })) + 1;
+}
+
+/** Every winner of a giveaway, also the ones who were replaced, in the order they were drawn. */
+export const getAllWinners = (giveawayId: string) => prisma.giveawayWinner.findMany({ where: { giveawayId }, orderBy: { drawnAt: 'asc' } });

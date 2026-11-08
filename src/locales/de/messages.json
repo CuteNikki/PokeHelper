@@ -1938,7 +1938,8 @@
       "participants_one": "{{count, number}} Person macht mit",
       "participants_other": "{{count, number}} Leute machen mit",
       "number": "Giveaway #{{number}}",
-      "join": "Mitmachen"
+      "join": "Mitmachen",
+      "participantsButton": "Teilnehmer"
     },
     "rules": {
       "requiredAny_one": "{{roles}} haben",
@@ -2061,6 +2062,27 @@
       "bot": "Kein Bot sein, weil Bots nichts gewinnen können",
       "blocked_one": "{{roles}} nicht haben",
       "blocked_other": "{{roles}} nicht haben, weil Leute mit diesen Rollen nicht mitmachen können"
+    },
+    "participants": {
+      "title": "### {{icon.users}} Teilnehmer",
+      "people_one": "{{count, number}} Person",
+      "people_other": "{{count, number}} Leute",
+      "entries_one": "{{count, number}} Los",
+      "entries_other": "{{count, number}} Lose",
+      "item": "{{position}}. {{user}}",
+      "joined": "beigetreten {{time}}",
+      "none": "Bisher macht noch niemand mit.",
+      "notIn": "Du machst bei diesem Giveaway nicht mit.",
+      "winners_one": "{{icon.trophy}} **Gewinner:** {{winners}}",
+      "winners_other": "{{icon.trophy}} **Gewinner:** {{winners}}",
+      "noWinners": "{{icon.trophy}} Keine Gewinner, weil niemand gezogen werden konnte.",
+      "deletedUser": "Jemand, der seine Daten gelöscht hat",
+      "sort": {
+        "joined": "Zuerst dabei",
+        "newest": "Zuletzt dabei",
+        "most": "Meiste Lose",
+        "fewest": "Wenigste Lose"
+      }
     }
   }
 }

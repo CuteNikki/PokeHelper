@@ -6,6 +6,7 @@ import { handleSettingsModal } from 'settings/index';
 
 import { COUNTING_PAGE_MODAL_PREFIX, handleCountingPageModal } from 'utility/counting/pages';
 import { FRIEND_CODES_COPY_MODAL_ID } from 'utility/friendCodeView';
+import { handleParticipantsModal, PARTICIPANTS_PREFIX } from 'utility/giveaways/participants';
 import { getTranslate } from 'utility/i18next';
 import { handleLeaderboardPageModal } from 'utility/leveling/leaderboardPageModal';
 import { LEADERBOARD_PAGE_MODAL_PREFIX } from 'utility/leveling/leaderboardView';
@@ -42,7 +43,9 @@ export default new Event({
       else if (interaction.customId.startsWith(TEMP_VOICE_EDIT_MODAL_PREFIX)) await handleTempVoiceModal(interaction);
       else if (interaction.customId.startsWith(STICKY_MODAL_PREFIX)) await handleStickyModal(interaction);
       else if (interaction.customId.startsWith(CASES_PREFIX)) await handleCasesModal(interaction);
-      else if (interaction.customId.startsWith(MOD_PANEL_PREFIX)) {
+      else if (interaction.customId.startsWith(PARTICIPANTS_PREFIX)) {
+        if (interaction.inCachedGuild()) await handleParticipantsModal(interaction);
+      } else if (interaction.customId.startsWith(MOD_PANEL_PREFIX)) {
         if (interaction.inCachedGuild()) await handleModerationPanelModal(interaction);
       } else if (interaction.customId === COPY_IDS_MODAL_ID || interaction.customId === FRIEND_CODES_COPY_MODAL_ID) await closeCopyModal(interaction);
       else await sendError(interaction, getTranslate(interaction.locale)('system.outdated'));

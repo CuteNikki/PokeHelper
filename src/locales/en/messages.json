@@ -1994,7 +1994,8 @@
       "participants_one": "{{count, number}} person entered",
       "participants_other": "{{count, number}} people entered",
       "number": "Giveaway #{{number}}",
-      "join": "Join"
+      "join": "Join",
+      "participantsButton": "Participants"
     },
     "rules": {
       "requiredAny_one": "Have {{roles}}",
@@ -2117,6 +2118,27 @@
       "bot": "Not be a bot, as bots can't win anything",
       "blocked_one": "Not have {{roles}}",
       "blocked_other": "Not have {{roles}}, as people with these roles can't enter"
+    },
+    "participants": {
+      "title": "### {{icon.users}} Participants",
+      "people_one": "{{count, number}} person",
+      "people_other": "{{count, number}} people",
+      "entries_one": "{{count, number}} entry",
+      "entries_other": "{{count, number}} entries",
+      "item": "{{position}}. {{user}}",
+      "joined": "joined {{time}}",
+      "none": "Nobody has entered yet.",
+      "notIn": "You're not in this giveaway.",
+      "winners_one": "{{icon.trophy}} **Winner:** {{winners}}",
+      "winners_other": "{{icon.trophy}} **Winners:** {{winners}}",
+      "noWinners": "{{icon.trophy}} No winners, as nobody could be drawn.",
+      "deletedUser": "Someone who deleted their data",
+      "sort": {
+        "joined": "Joined first",
+        "newest": "Joined last",
+        "most": "Most entries",
+        "fewest": "Fewest entries"
+      }
     }
   }
 }
