@@ -54,6 +54,7 @@ import {
   MAX_REASON_LENGTH,
   MAX_TIMEOUT_DAYS,
   moderationProblem,
+  oneAtATime,
 } from 'utility/moderation/run';
 import { buildPageModal, buildPageRow, clampPage, type PageButton, readPageInput } from 'utility/pagination';
 import { sendError, withNotice, type ResponsePayload } from 'utility/response';
@@ -523,7 +524,7 @@ async function changeEnd(interaction: ModalSubmitInteraction<'cached'>, id: stri
   // Dates are in the timezone the moderator picked for their reminders, or UTC. Discord shows the result in everyone's own time
   const timezone = (await getReminderTimezone(interaction.user.id)) ?? 'UTC';
   const end = parseNewEnd(interaction.fields.getTextInputValue(END_INPUT_ID), type, modCase.expiresAt, timezone);
-  if (end === END_NOW) return endNow(interaction, modCase, state, t);
+  if (end === END_NOW) return oneAtATime(interaction.guildId, modCase.userId, () => endNow(interaction, modCase, state, t));
   if (typeof end === 'string') return sendError(interaction, endProblem(end, type, t));
 
   const reason = auditReason(interaction.user, t('moderation.cases.endModal.audit', { number: caseNumber(modCase, t) }));

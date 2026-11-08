@@ -24,6 +24,7 @@ import type { IconName } from 'utility/icons';
 import { getTranslate, type Translate } from 'utility/i18next';
 import { logger } from 'utility/logger';
 import { userSubject } from 'utility/logs/format';
+import { KeyedQueue } from 'utility/queue';
 import { parseDuration } from 'utility/reminders/time';
 import { createResponse, sendResponse, type ResponsePayload } from 'utility/response';
 import { quote } from 'utility/text';
@@ -243,13 +244,25 @@ async function prepareModeration(
   return { expiresAt, act: actions[type] };
 }
 
+/** Actions on the same person, one at a time. */
+const queue = new KeyedQueue();
+
+/**
+ * Run an action on someone once the ones before it on them are done, so two at once, like a ban sent twice, don't both pass the checks
+ * and make two cases and DMs. The second one is checked after the first, which finds them banned already.
+ */
+export const oneAtATime = <T>(guildId: string, userId: string, task: () => Promise<T>) => queue.run(`${guildId}:${userId}`, task);
+
 /**
  * Do what a moderator asked for, after its checks: make its case, tell them by DM if wanted, do it on Discord, and say how it went.
  * The case is made first, so the logs find it when Discord tells them about it. If the action fails, the case and the DM are taken back.
  * Someone unbanned is never told by DM, as they rarely share a server with the bot to get one.
  * Only call it once the interaction is answered, as the checks ask Discord, and Discord gives up after 3 seconds.
  */
-export async function moderate(context: ModerationContext, request: ModerationRequest): Promise<ModerationResult> {
+export const moderate = (context: ModerationContext, request: ModerationRequest) =>
+  oneAtATime(context.guild.id, request.user.id, () => moderateNow(context, request));
+
+async function moderateNow(context: ModerationContext, request: ModerationRequest): Promise<ModerationResult> {
   const t = getTranslate(context.locale);
   const { guild } = context;
   const prepared = await prepareModeration(context, request, t);
