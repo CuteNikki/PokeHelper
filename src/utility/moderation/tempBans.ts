@@ -5,7 +5,7 @@ import { endCase, getExpiredBans, reopenCase } from 'database/moderation';
 import { getTranslate } from 'utility/i18next';
 import { logger } from 'utility/logger';
 import type { ModCase } from 'generated/prisma/client';
-import { caseNumber } from 'utility/moderation/run';
+import { caseNumber, oneAtATime } from 'utility/moderation/run';
 
 /** How many of a server's newest bans in the audit log are looked through for a newer one. */
 const AUDIT_LIMIT = 100;
@@ -32,25 +32,30 @@ export async function runTempBanJob(client: Client) {
   // Only those of servers the bot is in, so the ones of servers it left aren't looked at on every run
   for (const modCase of await getExpiredBans(new Date(), [...client.guilds.cache.keys()])) {
     const guild = client.guilds.cache.get(modCase.guildId);
-    if (!guild) continue;
-    // Ended before it's lifted, so a new ban made meanwhile, which ends this one, is never lifted in its place
-    const endedAt = new Date();
-    if (!(await endCase(modCase.id, endedAt))) continue;
-    // Banned again since, so this one only ends
-    if (await bannedAgain(guild, modCase)) continue;
-    try {
-      const t = getTranslate(guild.preferredLocale);
-      await guild.members.unban(modCase.userId, t('moderation.tempBanEnded', { number: caseNumber(modCase, t) }));
-      warned.delete(modCase.id);
-    } catch (error) {
-      // Lifted meanwhile, or their account was deleted, so there's nothing to lift and it stays ended
-      if (error instanceof DiscordAPIError && (error.code === RESTJSONErrorCodes.UnknownBan || error.code === RESTJSONErrorCodes.UnknownUser)) continue;
-      await reopenCase(modCase.id, endedAt);
-      if (!warned.has(modCase.id)) {
-        // Like when the bot can't ban anymore. Tried again on every run, so it's lifted once it can
-        warned.add(modCase.id);
-        logger.warn(error, `Failed to lift the temporary ban of ${modCase.userId} in ${modCase.guildId}`);
-      }
+    // Like the moderators' actions on them, so one like /unban at the same moment can't run alongside
+    if (guild) await oneAtATime(guild.id, modCase.userId, () => liftTempBan(guild, modCase));
+  }
+}
+
+/** Lift a temporary ban that ran out, unless it ended meanwhile or they were banned again since. */
+async function liftTempBan(guild: Guild, modCase: ModCase) {
+  // Ended before it's lifted, so a new ban made meanwhile, which ends this one, is never lifted in its place
+  const endedAt = new Date();
+  if (!(await endCase(modCase.id, endedAt))) return;
+  // Banned again since, so this one only ends
+  if (await bannedAgain(guild, modCase)) return;
+  try {
+    const t = getTranslate(guild.preferredLocale);
+    await guild.members.unban(modCase.userId, t('moderation.tempBanEnded', { number: caseNumber(modCase, t) }));
+    warned.delete(modCase.id);
+  } catch (error) {
+    // Lifted meanwhile, or their account was deleted, so there's nothing to lift and it stays ended
+    if (error instanceof DiscordAPIError && (error.code === RESTJSONErrorCodes.UnknownBan || error.code === RESTJSONErrorCodes.UnknownUser)) return;
+    await reopenCase(modCase.id, endedAt);
+    if (!warned.has(modCase.id)) {
+      // Like when the bot can't ban anymore. Tried again on every run, so it's lifted once it can
+      warned.add(modCase.id);
+      logger.warn(error, `Failed to lift the temporary ban of ${modCase.userId} in ${modCase.guildId}`);
     }
   }
 }
