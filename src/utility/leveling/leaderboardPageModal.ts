@@ -20,7 +20,7 @@ export async function handleLeaderboardPageModal(interaction: ModalSubmitInterac
   const page = readPageInput(interaction);
   if (page === null) return sendError(interaction, t('pagination.modal.invalid'));
 
-  // Answered before anything is looked up, which can take a moment, as Discord gives up after 3 seconds. Errors still only go to whoever sent it
+  // Answered first, as looking things up can take longer than the 3 seconds Discord waits
   await interaction.deferUpdate();
   const levelingConfig = await getGuildLevelingConfiguration(interaction.guildId);
   if (!levelingConfig?.enabled) return sendError(interaction, t('leveling.disabled'));

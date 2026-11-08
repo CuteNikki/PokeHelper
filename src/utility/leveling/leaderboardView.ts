@@ -11,10 +11,7 @@ export interface LeaderboardView {
   text: boolean;
 }
 
-/**
- * What a leaderboard button or select does: go to the page in its view, ask for a page, sort, find whoever pressed it,
- * switch between image and text, or switch between all-time, weekly and monthly.
- */
+/** What a leaderboard button or select does. `mode` switches between image and text, `period` cycles all-time, weekly and monthly. */
 export type LeaderboardAction = 'first' | 'prev' | 'goto' | 'next' | 'last' | 'sort' | 'me' | 'mode' | 'period';
 
 /**

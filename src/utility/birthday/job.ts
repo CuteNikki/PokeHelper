@@ -10,10 +10,7 @@ import { logger } from 'utility/logger';
 import { createResponse } from 'utility/response';
 import { canGiveRole } from 'utility/roles';
 
-/**
- * Give out and take away birthday roles and announce birthdays, for whatever is due.
- * Runs regularly, and what was done is saved, so nothing is done twice and a missed run is caught up on.
- */
+/** Give out and take away birthday roles and announce birthdays. What was done is saved, so nothing happens twice and missed runs catch up. */
 export async function runBirthdayJob(client: Client) {
   const [birthdays, guildConfigs] = await Promise.all([prisma.userBirthday.findMany(), prisma.guildBirthday.findMany()]);
   const now = new Date();
@@ -88,7 +85,6 @@ async function announceBirthday(client: Client, birthday: UserBirthday, guildCon
       : t('birthday.announcement.message', { user: userMention(birthday.userId) });
 
     await channel
-      // Pings the birthday member, so they see the wishes
       .send({ ...createResponse(content, 'success'), allowedMentions: { users: [birthday.userId] } })
       .catch((error: unknown) => logger.error(error, `Failed to announce the birthday of ${birthday.userId} in guild ${guild.id}`));
   }

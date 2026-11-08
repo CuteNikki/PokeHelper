@@ -29,7 +29,6 @@ import { ThemeColors } from 'utility/theme';
 
 export const ITEMS_PER_PAGE = 5;
 
-/** The title of each period's leaderboard. */
 const TITLE_KEYS = {
   allTime: 'leveling.leaderboard.title',
   weekly: 'leveling.leaderboard.titleWeekly',
@@ -64,18 +63,15 @@ function drawRowCard(ctx: SKRSContext2D, entry: LeaderboardEntry, x: number, y: 
 
   const centerY = y + h / 2;
 
-  // Rank Number
   ctx.font = 'bold 32px "Roboto"';
   ctx.fillStyle = colors.textWhite;
   ctx.textAlign = 'left';
   ctx.textBaseline = 'middle';
   ctx.fillText(`#${formatCompactNumber(entry.position, t)}`, x + 24, centerY);
 
-  // Avatar
   const avatarX = x + 120;
   drawAvatar(ctx, entry.avatarImage, avatarX, centerY, 28);
 
-  // User Name & Username
   const nameX = avatarX + 44;
   ctx.textAlign = 'left';
   ctx.font = 'bold 20px "Roboto", "EmojiFallback"';
@@ -90,7 +86,6 @@ function drawRowCard(ctx: SKRSContext2D, entry: LeaderboardEntry, x: number, y: 
   const username = truncateText(ctx, `@${entry.username}`, 240);
   ctx.fillText(username, nameX, centerY + 15);
 
-  // Stats
   const rightX = x + w - 24;
   const level = getLevelFromXP(entry.xp);
 
@@ -101,10 +96,7 @@ function drawRowCard(ctx: SKRSContext2D, entry: LeaderboardEntry, x: number, y: 
   ctx.fillText(`${t('leveling.rank.exp').toUpperCase()}: ${formatCompactNumber(entry.xp, t)}`, rightX, centerY + 14);
 }
 
-/**
- * Draw a page of the leaderboard: the top 3 on a podium and the rest in rows on the first page, rows only on the others.
- * @returns The page as a PNG.
- */
+/** Draw a page of the leaderboard as a PNG: the top 3 on a podium and the rest in rows on the first page, rows only on the others. */
 function renderLeaderboardCanvas(entries: LeaderboardEntry[], isTopPodiumView: boolean, t: Translate): Buffer {
   const width = 640;
   const margin = 30;
@@ -177,7 +169,6 @@ function renderLeaderboardCanvas(entries: LeaderboardEntry[], isTopPodiumView: b
         ctx.restore();
       }
 
-      // Rank Badge
       ctx.beginPath();
       ctx.arc(avatarX, avatarY + avatarRadius, 12, 0, Math.PI * 2);
       ctx.fillStyle = item.color;
@@ -189,7 +180,6 @@ function renderLeaderboardCanvas(entries: LeaderboardEntry[], isTopPodiumView: b
       ctx.textBaseline = 'middle';
       ctx.fillText(`${item.rank}`, avatarX, avatarY + avatarRadius);
 
-      // Display & Username
       ctx.textBaseline = 'alphabetic';
       ctx.font = 'bold 20px "Roboto", "EmojiFallback"';
       ctx.fillStyle = colors.textWhite;
@@ -203,14 +193,12 @@ function renderLeaderboardCanvas(entries: LeaderboardEntry[], isTopPodiumView: b
       const userName = truncateText(ctx, `@${item.entry.username}`, item.w - 20);
       ctx.fillText(userName, avatarX, item.y + (isFirst ? 90 : 80));
 
-      // Level
       const level = getLevelFromXP(item.entry.xp);
 
       ctx.font = 'bold 16px "Roboto"';
       ctx.fillStyle = item.color;
       ctx.fillText(`${t('leveling.rank.level').toUpperCase()}: ${formatNumber(level, t)}`, avatarX, item.y + (isFirst ? 124 : 112));
 
-      // XP
       ctx.font = 'bold 15px "Roboto"';
       ctx.fillStyle = colors.textGray;
       ctx.fillText(`${t('leveling.rank.exp').toUpperCase()}: ${formatCompactNumber(item.entry.xp, t)}`, avatarX, item.y + (isFirst ? 146 : 134));
@@ -267,7 +255,6 @@ function buildControls(view: LeaderboardView, totalPages: number, t: Translate) 
   return [rowPageButtons, rowSortOrder, rowMore] as const;
 }
 
-/** The leaderboard in a container, like the bot's other messages: the title, the page as an image or as text, and the controls. */
 function inContainer(heading: TextDisplayBuilder, body: TextDisplayBuilder | MediaGalleryBuilder, rows: readonly ActionRowBuilder<MessageActionRowComponentBuilder>[]) {
   const container = new ContainerBuilder().setAccentColor(ThemeColors.info).addTextDisplayComponents(heading);
   if (body instanceof MediaGalleryBuilder) container.addMediaGalleryComponents(body);
@@ -275,10 +262,7 @@ function inContainer(heading: TextDisplayBuilder, body: TextDisplayBuilder | Med
   return container.addActionRowComponents(...rows);
 }
 
-/**
- * Build a page of the leaderboard as a Components V2 message: the title, the page as an image or as text, and the controls.
- * @param t The translation, for whoever opened or paged the leaderboard.
- */
+/** A page of the leaderboard as a Components V2 message: the title, the page as an image or as text, and the controls. */
 export async function buildLeaderboard(requested: LeaderboardView, guild: Guild, t: Translate): Promise<InteractionEditReplyOptions> {
   const { period, sortOrder, text } = requested;
   const userCount = await getTotalUsersWithXP(guild.id, period);
@@ -331,7 +315,6 @@ export async function buildLeaderboard(requested: LeaderboardView, guild: Guild,
     return { components: [inContainer(heading, list, controls)], attachments: [], flags: [MessageFlags.IsComponentsV2], allowedMentions: { parse: [] } };
   }
 
-  // Avatars are loaded at the same time, from the cache when they were shown recently
   const entries: LeaderboardEntry[] = await Promise.all(
     entriesData.map(async (entry) => ({
       ...entry,

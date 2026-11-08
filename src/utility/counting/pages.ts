@@ -45,20 +45,15 @@ export function parseCountingPageId(customId: string): { list: CountingList; pag
   return { list: list as CountingList, page: Number(page), action };
 }
 
-/** The list a page popup is for, or null if it isn't one. */
 function parseCountingPageModalId(customId: string): CountingList | null {
   const list = customId.slice(COUNTING_PAGE_MODAL_PREFIX.length);
   return LISTS.includes(list as CountingList) ? (list as CountingList) : null;
 }
 
-/**
- * The lines of a page, with buttons to the first, previous, next and last page and to ask for one when there's more than one,
- * and on the leaderboard one to find yourself on its own row. Nobody is pinged.
- */
+/** The lines of a page, with page buttons when there's more than one page, and a find-me button on the leaderboard. */
 function buildPage(list: CountingList, lines: string[], page: number, pages: number, t: Translate): ResponsePayload {
   const container = new ContainerBuilder().setAccentColor(ThemeColors.info).addTextDisplayComponents(new TextDisplayBuilder().setContent(lines.join('\n')));
   if (pages > 1) {
-    // Going to the first and the previous page can be the same page, so the custom IDs say which button it is
     const customId = (button: PageButton, target: number) =>
       `${COUNTING_PAGE_PREFIX}${list}:${target}${button === 'prev' || button === 'next' ? '' : `:${button}`}`;
     container.addActionRowComponents(buildPageRow(page, pages, customId, t));

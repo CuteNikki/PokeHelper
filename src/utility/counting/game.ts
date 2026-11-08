@@ -42,7 +42,6 @@ const LIFE_LOST_DURATION = 6 * SECOND;
 
 /** Everything that reads or changes a guild's counting game runs through here, one task at a time per guild. */
 const queue = new KeyedQueue();
-/** How many resets the catch-up summary lists. */
 const MAX_RESETS_LISTED = 5;
 /** Guilds whose counting channel was caught up since the bot last connected. */
 const syncedGuilds = new Set<string>();
@@ -53,11 +52,7 @@ const syncedGuilds = new Set<string>();
  */
 export const runCountingTask = <T>(guildId: string, task: () => Promise<T>) => queue.run(guildId, task);
 
-/**
- * Whether a message was sent by a member, and not by a bot or by Discord itself.
- * System messages, like "X pinned a message" or join messages when the counting channel is also the system channel,
- * have a member as author but aren't something they typed, so they mustn't count as wrong numbers.
- */
+/** Whether a member typed a message. System messages like "X pinned a message" have a member as author, but mustn't count as wrong numbers. */
 export const isPlayerMessage = (message: Message) => !message.author.bot && (message.type === MessageType.Default || message.type === MessageType.Reply);
 
 const toCountMessage = (message: Message): CountMessage => ({
@@ -86,7 +81,6 @@ export async function handleCountingMessage(client: Client, message: Message<tru
   if (counting.lastCheckedMessageId && isAtOrBefore(message.id, counting.lastCheckedMessageId)) return;
 
   const processed = processCount(toCountingState(counting), counting, toCountMessage(message));
-  // Everyone in the channel sees these messages, so they're in the server's language
   const t = guildTranslate(message.guild);
   if (!(await saveProgress(counting, processed.state, processed.events))) return;
 
@@ -126,7 +120,6 @@ export async function handleCountingMessage(client: Client, message: Message<tru
     .reply({ ...createResponse(content, 'error'), allowedMentions: { repliedUser: false } })
     .catch(logFailure('Failed to send counting warning'));
 
-  // Losing a life is worth reading, so it stays a bit longer
   setTimeout(
     () => {
       void deleteMessage(message);
@@ -162,10 +155,7 @@ export async function syncAllCountings(client: Client) {
   );
 }
 
-/**
- * Catch up on the guild's counting channel if that hasn't happened since the bot connected. Must run inside {@link runCountingTask}.
- * @returns The counting configuration after catching up.
- */
+/** Catch up on the guild's counting channel if that hasn't happened since the bot connected. Must run inside {@link runCountingTask}. */
 async function ensureCountingSynced(client: Client, counting: GuildCounting): Promise<GuildCounting> {
   if (syncedGuilds.has(counting.guildId)) return counting;
   // Marked before trying, so a channel that can't be read doesn't get retried with every message
@@ -191,7 +181,6 @@ async function syncCounting(client: Client, counting: GuildCounting): Promise<Gu
   // Games from before this was tracked fall back to the last counted message, or to when the game last changed
   const startAfter = counting.lastCheckedMessageId ?? counting.lastNumberMessageId ?? SnowflakeUtil.generate({ timestamp: counting.updatedAt }).toString();
 
-  // Fetch everything sent since, oldest first
   const messages: Message[] = [];
   let after = startAfter;
   let reachedEnd = false;
@@ -267,9 +256,8 @@ async function deleteMessages(channel: GuildTextBasedChannel, messages: Message[
 }
 
 /**
- * Repost the last number if its message was deleted, or edited so it no longer shows that number, so everyone still knows where the count is.
+ * Repost the last number if its message was deleted, or edited to no longer show it, so everyone still knows where the count is.
  * Must run inside {@link runCountingTask}.
- * @param edited Whether the message was edited rather than deleted.
  */
 export async function handleChangedCount(message: Message | PartialMessage, edited: boolean) {
   if (!message.guildId) return;

@@ -4,12 +4,8 @@ import type { GuildLeveling } from 'generated/prisma/client';
 
 /** Where a message was sent and who sent it, which decides whether it earns XP and how much. */
 export interface XpContext {
-  /**
-   * The channel the message was sent in, followed by its parents: for a thread its channel and that channel's category,
-   * for a channel its category. Filters and multipliers on any of them apply.
-   */
+  /** The channel it was sent in, followed by its parents. Filters and multipliers on any of them apply. */
   channelIds: string[];
-  /** The roles of the member who sent it. */
   roleIds: string[];
 }
 
@@ -60,10 +56,7 @@ export function startOfWeek(now: Date): Date {
 /** The start of the month a time is in: the 1st at 00:00 UTC. */
 export const startOfMonth = (now: Date) => new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
 
-/**
- * Whether the weekly or monthly XP should be reset: the last reset, or the setup if there was none, was before this week or month started.
- * Checked regularly instead of only right when it starts, so a week or month isn't skipped when the bot was offline then.
- */
+/** Whether the weekly or monthly XP should be reset: the last reset, or the setup if there was none, was before this week or month started. */
 export const isResetDue = (period: ResetPeriod, lastResetAt: Date | null, createdAt: Date, now: Date) =>
   (lastResetAt ?? createdAt) < (period === 'weekly' ? startOfWeek(now) : startOfMonth(now));
 

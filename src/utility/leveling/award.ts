@@ -21,9 +21,8 @@ const MIN_XP = 15;
 const MAX_XP = 25;
 
 /**
- * Give a member XP, with the multipliers of where they earned it, and the reward roles they reached.
- * A level up is announced in the level up channel, or where they earned it without one.
- * @param channel Where they earned it: the channel they wrote in, or the voice channel they're in.
+ * Give a member XP, with the multipliers of where they earned it, and the reward roles they reached. A level up is announced in
+ * the level up channel, or without one in `channel`, which is where they wrote or the voice channel they're in.
  */
 export async function awardXp(member: GuildMember, config: LevelingConfig, context: XpContext, channel: GuildTextBasedChannel) {
   const baseXp = Math.floor(Math.random() * (MAX_XP - MIN_XP + 1)) + MIN_XP;
@@ -47,7 +46,6 @@ export async function awardXp(member: GuildMember, config: LevelingConfig, conte
   const targetChannel = member.guild.channels.cache.get(config.levelUpChannelId ?? channel.id) ?? channel;
   if (!targetChannel.isSendable()) return;
 
-  // Everyone in the channel sees it, so it's in the server's language
   const translate = guildTranslate(member.guild);
   const text = [translate('leveling.levelUp.body', { user: userMention(member.id), level: formatNumber(newLevel, translate) })];
   if (givenRoles.length > 0) text.push(translate('leveling.levelUp.rewards', { roles: givenRoles.map(roleMention).join(', '), count: givenRoles.length }));

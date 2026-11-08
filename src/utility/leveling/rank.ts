@@ -24,7 +24,6 @@ import { createResponse, imageWithDescription } from 'utility/response';
 export interface RankView {
   /** The period of the card, which the text keeps, so switching back shows the same one. */
   period: LevelPeriod;
-  /** Shown as text instead of an image. */
   text: boolean;
 }
 
@@ -61,7 +60,6 @@ async function getPeriodProgress(guildId: string, userId: string, period: LevelP
   return { xp, level, rank, xpIntoLevel: xp - currentLevelXP, xpRequired: getXPForLevel(level + 1) - currentLevelXP };
 }
 
-/** The values of a progress line, formatted for the language. */
 function progressValues(progress: LevelProgress & { xp: number }, t: Translate) {
   return {
     level: formatNumber(progress.level, t),
@@ -72,7 +70,6 @@ function progressValues(progress: LevelProgress & { xp: number }, t: Translate) 
   };
 }
 
-/** The button switching between the card and the text, keeping the period. */
 function modeButton(userId: string, view: RankView, t: Translate) {
   return new ButtonBuilder()
     .setCustomId(rankCustomId(userId, { ...view, text: !view.text }))
@@ -82,9 +79,8 @@ function modeButton(userId: string, view: RankView, t: Translate) {
 }
 
 /**
- * Build someone's rank as a Components V2 message: one period's card with buttons switching to the next of all-time, weekly and monthly
- * and to text, or all three periods as text, like for screen readers, with a button back to the card.
- * @param t The translation, for whoever opened the rank or switched it.
+ * Someone's rank: one period's card with buttons to the next period and to text, or all three periods as text, like for screen
+ * readers, with a button back to the card.
  */
 export async function buildRank(guild: Guild, user: User, view: RankView, t: Translate): Promise<InteractionEditReplyOptions> {
   if (view.text) {

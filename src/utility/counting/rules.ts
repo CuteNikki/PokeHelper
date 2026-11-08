@@ -73,7 +73,6 @@ function applyReset(state: CountingState, message: CountMessage, maxLives: numbe
   };
 }
 
-/** The state after a message was checked without changing the game, like an invalid message that gets deleted. */
 function applyChecked(state: CountingState, message: CountMessage): CountingState {
   return { ...state, lastCheckedMessageId: message.id };
 }
@@ -95,7 +94,6 @@ export interface ProcessedCount {
    * - skipped: a bot message, which is ignored
    */
   outcome: 'valid' | 'lifeLost' | 'reset' | 'invalid' | 'skipped';
-  /** The result of the check, or null for skipped messages. */
   check: CountCheck | null;
   /** Whether counting a milestone gave back a life. */
   lifeGained: boolean;
@@ -116,7 +114,6 @@ export function processCount(
   const check = checkCount({ ...state, allowMath: counting.allowMath }, message);
 
   if (check.result === 'valid') {
-    // With regeneration on, milestones give back a life, up to the maximum
     const lifeGained = counting.regenerateLives && counting.maxLives !== null && state.livesLeft < counting.maxLives && isMilestone(check.number);
     const counted = applyCount(state, check.number, message);
 
@@ -153,24 +150,18 @@ export function processCount(
 
 export interface ReplayResult {
   state: CountingState;
-  /** How many messages counted a number. */
   counted: number;
   /** Messages that broke the rules without resetting the game, which should be deleted. */
   invalidIds: string[];
   /** How many lives were lost, not counting the last life of a run that was reset. */
   livesLost: number;
-  /** How many lives milestones gave back. */
   livesGained: number;
   /** The resets that happened, with the number that was reached and who sent the wrong number. */
   resets: { number: number; userId: string }[];
-  /** Everything to record for the stats, in order. */
   events: CountingEvent[];
 }
 
-/**
- * Check messages in order with the same rules as live counting, for catching up on messages sent while the bot was offline.
- * @param messages The messages, oldest first.
- */
+/** Check messages, oldest first, with the same rules as live counting, for catching up after the bot was offline. */
 export function replayCounts(
   state: CountingState,
   counting: Pick<GuildCounting, 'allowMath' | 'maxLives' | 'regenerateLives'>,
@@ -202,7 +193,6 @@ export const accuracy = (counted: number, mistakes: number) => Math.round((count
 /** Show lives as hearts, like ❤️❤️🖤 for 2 of 3 lives left. */
 export const formatLives = (livesLeft: number, maxLives: number) => '❤️'.repeat(Math.max(0, livesLeft)) + '🖤'.repeat(Math.max(0, maxLives - livesLeft));
 
-/** The first milestone, after which they go 250, 500, 1000, 2500, 5000 and so on. */
 const FIRST_MILESTONE = 100;
 
 /** The milestones up to and including a number: 100, 250, 500, 1000, 2500, 5000, 10000 and so on. */
@@ -219,7 +209,6 @@ export function getMilestones(upTo: number): number[] {
 /** Whether a number is a milestone, like 100, 250, 500 or 1000. */
 export const isMilestone = (number: number) => getMilestones(number).at(-1) === number;
 
-/** Pick the counting state out of a full configuration. */
 export function toCountingState(counting: GuildCounting): CountingState {
   return {
     livesLeft: counting.livesLeft,

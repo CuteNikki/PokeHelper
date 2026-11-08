@@ -46,7 +46,6 @@ export async function runResetJob(client: Client, period: ResetPeriod) {
 
       const guild = await client.guilds.fetch(guildId).catch(() => null);
       if (!guild) continue;
-      // Everyone in the channel sees the announcement, so it's in the server's language
       const t = guildTranslate(guild);
       const canGiveRewardRole = roleId !== null && canGiveRole(guild, roleId);
 

@@ -22,9 +22,8 @@ export function getChannelChain(channel: GuildTextBasedChannel): string[] {
 }
 
 /**
- * Give a member every reward role they've earned but don't have, like after a reward was added for a lower level, or after they left and came back.
- * Roles the bot can't give are skipped, the settings panel warns about those.
- * @returns The roles that were given.
+ * Give a member the reward roles they've earned but don't have, like after a reward was added for a lower level or they came back,
+ * and return them. Roles the bot can't give are skipped, the settings panel warns about those.
  */
 export async function syncRewardRoles(member: GuildMember, rewards: { level: number; roleId: string }[], level: number): Promise<string[]> {
   const missing = getEarnedRewardRoles(rewards, level).filter((roleId) => !member.roles.cache.has(roleId) && canGiveRole(member.guild, roleId));

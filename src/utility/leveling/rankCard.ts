@@ -18,12 +18,10 @@ export interface RankCardData {
   displayName: string;
   username: string;
   avatar: Image | null;
-  /** The period the card shows, which the button below it switches. */
   period: LevelPeriod;
   progress: LevelProgress;
 }
 
-/** The label above the rank, for each period. */
 const PERIOD_LABEL_KEYS = {
   allTime: 'leveling.rank.all',
   weekly: 'leveling.rank.weekly',
@@ -44,24 +42,18 @@ const COLORS = {
   textGray: '#a6adc8',
 };
 
-/**
- * Draw a member's rank card for one period: avatar, name, rank, a progress bar for the level, and the level's XP.
- * @param t The translation for the labels.
- * @returns The card as a PNG.
- */
+/** Draw a member's rank card for one period as a PNG: avatar, name, rank, a progress bar for the level, and the level's XP. */
 export function renderRankCard(data: RankCardData, t: Translate): Buffer {
   const canvas = createCanvas(WIDTH, HEIGHT);
   const ctx = canvas.getContext('2d');
   // Big ranks and XP are shortened, like 12.3k. The text option and the alt text have the exact numbers
   const compact = (value: number) => formatCompactNumber(value, t);
 
-  // Card
   ctx.fillStyle = COLORS.cardBg;
   ctx.beginPath();
   ctx.roundRect(0, 0, WIDTH, HEIGHT, 16);
   ctx.fill();
 
-  // Avatar
   const avatarX = PADDING + AVATAR_RADIUS;
   drawAvatar(ctx, data.avatar, avatarX, HEIGHT / 2, AVATAR_RADIUS);
 
@@ -85,7 +77,6 @@ export function renderRankCard(data: RankCardData, t: Translate): Buffer {
   // The name may use the space up to the rank or its label, whichever is wider
   const nameMaxWidth = rightX - Math.max(ctx.measureText(rank).width, periodLabelWidth) - 24 - contentX;
 
-  // Name and username
   ctx.textAlign = 'left';
   ctx.font = 'bold 30px "Roboto", "EmojiFallback"';
   ctx.fillStyle = COLORS.textWhite;
@@ -95,7 +86,6 @@ export function renderRankCard(data: RankCardData, t: Translate): Buffer {
   ctx.fillStyle = COLORS.textGray;
   ctx.fillText(truncateText(ctx, `@${data.username}`, nameMaxWidth), contentX, 92);
 
-  // Progress bar for the level
   const barY = 114;
   const barW = rightX - contentX;
   const barH = 20;

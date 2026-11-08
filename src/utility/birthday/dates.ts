@@ -4,10 +4,7 @@ const ANNOUNCEMENT_HOUR = 8;
 
 const isLeapYear = (year: number) => (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
 
-/**
- * Whether it's someone's birthday on a local date. Birthdays on February 29 are celebrated on February 28 in other years.
- * @param birthday The birthday, stored as midnight UTC of the date.
- */
+/** Whether it's someone's birthday on a local date. Birthdays on February 29 count on February 28 in other years. */
 export function isBirthdayOn(birthday: Date, local: Pick<WallTime, 'year' | 'month' | 'day'>): boolean {
   const month = birthday.getUTCMonth() + 1;
   let day = birthday.getUTCDate();
@@ -20,20 +17,16 @@ export const ageInYear = (birthday: Date, year: number) => year - birthday.getUT
 
 /** What should happen for a birthday right now. */
 export interface BirthdayActions {
-  /** Give the birthday role, as it's their birthday and they haven't gotten it this year. */
   giveRole: boolean;
-  /** Announce the birthday, as it's their birthday, the announcement hour has come and it wasn't announced this year. */
   announce: boolean;
-  /** Take the birthday role away again, as their birthday is over. */
   removeRole: boolean;
   /** The year it is for the member, to remember what was done. */
   year: number;
 }
 
 /**
- * Work out what's due for a birthday. Checked regularly instead of at fixed times, so nothing is missed while the bot was offline:
- * a late announcement still happens that day, and the role is removed whenever the bot runs after the birthday.
- * @param state What was already done: the year the role was given and the birthday announced, and whether the role is still on.
+ * Work out what's due for a birthday. Checked regularly instead of at fixed times, so a late announcement still happens that day
+ * and the role is removed whenever the bot runs after the birthday.
  */
 export function getBirthdayActions(
   birthday: { date: Date; timezone: string | null },
@@ -55,9 +48,7 @@ export function getBirthdayActions(
 const EARLIEST_YEAR = 1900;
 
 /**
- * Parse a birthday typed like `2000-05-01` or the way German speakers write it, `01.05.2000`. Dates that don't exist, like
- * February 31, aren't rolled over into the next month, and the year has to be written in full and can't be in the future.
- * @returns The birthday at midnight UTC, or null if it isn't a valid one.
+ * Parse `2000-05-01` or the German `01.05.2000` into midnight UTC. Dates that don't exist, short years and future dates give null.
  */
 export function parseBirthday(input: string, now: Date): Date | null {
   const text = input.trim();

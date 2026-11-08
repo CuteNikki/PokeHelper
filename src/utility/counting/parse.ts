@@ -4,14 +4,9 @@ const MAX_MATH_LENGTH = 200;
 const MAX_FACTORIAL = 20;
 
 /**
- * Read the number a counting message counts.
- *
- * The number has to come first and be followed by whitespace or nothing, so `5` and `5 nice` count as 5,
- * while `5abc`, `5.9` and `05` don't count at all.
- *
- * With math allowed, the number can also be an expression, like `1+1`, `2 * (3 - 1)`, `2^3`, `10 % 3` or `3!`.
- * The result has to be a whole number. Anything after the expression has to be separated by whitespace, like with plain numbers.
- * @returns The counted number, or null if the message doesn't count a number.
+ * Read the number a counting message counts, or null. The number comes first, followed by whitespace or nothing, so `5` and `5 nice`
+ * count as 5 while `5abc`, `5.9` and `05` don't. With math allowed it can be an expression like `2 * (3 - 1)`, `2^3` or `3!`,
+ * as long as the result is a whole number.
  */
 export function parseCount(content: string, allowMath: boolean): number | null {
   const text = content.trim();
@@ -36,10 +31,7 @@ export function parseCount(content: string, allowMath: boolean): number | null {
   return toWholeNumber(result);
 }
 
-/**
- * Round a result to a whole number if it's one within floating point error, like `0.1 * 30`.
- * @returns The whole number, or null if the result isn't a positive safe integer.
- */
+/** Round to a whole number if it's one within floating point error, like `0.1 * 30`. Null if it isn't a positive safe integer. */
 function toWholeNumber(value: number): number | null {
   if (!Number.isFinite(value)) return null;
   const rounded = Math.round(value);
