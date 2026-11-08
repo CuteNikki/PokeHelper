@@ -112,6 +112,10 @@ export const getTempBans = (guildId: string) => prisma.modCase.findMany({ where:
 export const endCase = async (id: string, now = new Date()) =>
   (await prisma.modCase.updateMany({ where: { id, endedAt: null }, data: { endedAt: now } })).count > 0;
 
+/** End someone's ban cases that are still running, like once they're unbanned. */
+export const endRunningBans = (guildId: string, userId: string, now = new Date()) =>
+  prisma.modCase.updateMany({ where: { guildId, userId, type: 'ban', endedAt: null }, data: { endedAt: now } });
+
 /** Run a case again that was marked as ended at a time, like a temporary ban that couldn't be lifted after all. */
 export const reopenCase = (id: string, endedAt: Date) => prisma.modCase.updateMany({ where: { id, endedAt }, data: { endedAt: null } });
 

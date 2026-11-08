@@ -32,6 +32,7 @@ import { getTranslate, type Translate } from 'utility/i18next';
 import { logger } from 'utility/logger';
 import { forgetLogConfig } from 'utility/logs/send';
 import { caseNumber } from 'utility/moderation/run';
+import { bannedAgain } from 'utility/moderation/tempBans';
 import { createResponse, sendError, type ResponsePayload } from 'utility/response';
 import type { SettingsContext } from 'utility/settings';
 import { ThemeColors } from 'utility/theme';
@@ -157,6 +158,7 @@ export async function deleteOwnData(context: SettingsContext, t: Translate): Pro
 async function liftTempBans(guild: Guild) {
   const t = getTranslate(guild.preferredLocale);
   for (const modCase of await getTempBans(guild.id)) {
+    if (await bannedAgain(guild, modCase)) continue;
     await guild.members.unban(modCase.userId, t('moderation.tempBanDataDeleted', { number: caseNumber(modCase, t) })).catch((error: unknown) => {
       // Lifted meanwhile
       if (!(error instanceof DiscordAPIError && error.code === RESTJSONErrorCodes.UnknownBan)) {

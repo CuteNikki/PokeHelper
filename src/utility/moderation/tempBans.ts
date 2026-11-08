@@ -1,10 +1,25 @@
-import { type Client, DiscordAPIError, RESTJSONErrorCodes } from 'discord.js';
+import { AuditLogEvent, type Client, DiscordAPIError, type Guild, RESTJSONErrorCodes } from 'discord.js';
 
 import { endCase, getExpiredBans, reopenCase } from 'database/moderation';
 
 import { getTranslate } from 'utility/i18next';
 import { logger } from 'utility/logger';
+import type { ModCase } from 'generated/prisma/client';
 import { caseNumber } from 'utility/moderation/run';
+
+/** How many of a server's newest bans in the audit log are looked through for a newer one. */
+const AUDIT_LIMIT = 100;
+
+/**
+ * Whether someone was banned again after a temporary ban, outside the bot, like through Discord while the bot was offline, which it didn't
+ * see. Then the ban on them is that one, which mustn't be lifted. Without the right to view the audit log, that can't be known.
+ */
+export async function bannedAgain(guild: Guild, modCase: ModCase): Promise<boolean> {
+  if (!guild.members.me?.permissions.has('ViewAuditLog')) return false;
+  const logs = await guild.fetchAuditLogs({ type: AuditLogEvent.MemberBanAdd, limit: AUDIT_LIMIT }).catch(() => null);
+  const latest = logs?.entries.find((entry) => entry.targetId === modCase.userId);
+  return !!latest && latest.executorId !== guild.client.user.id && latest.createdTimestamp > modCase.createdAt.getTime();
+}
 
 /** Temporary bans that couldn't be lifted, so the logs say so once and not on every run. */
 const warned = new Set<string>();
@@ -21,6 +36,8 @@ export async function runTempBanJob(client: Client) {
     // Ended before it's lifted, so a new ban made meanwhile, which ends this one, is never lifted in its place
     const endedAt = new Date();
     if (!(await endCase(modCase.id, endedAt))) continue;
+    // Banned again since, so this one only ends
+    if (await bannedAgain(guild, modCase)) continue;
     try {
       const t = getTranslate(guild.preferredLocale);
       await guild.members.unban(modCase.userId, t('moderation.tempBanEnded', { number: caseNumber(modCase, t) }));
