@@ -528,7 +528,9 @@
       "description": "Die Einstellungen und Giveaways des Servers und die Level, Zähl-Statistiken und Moderationsfälle seiner Mitglieder",
       "downloaded": "Hier ist alles, was über diesen Server gespeichert ist, als Datei, die nur du sehen kannst.",
       "confirm": "### Alle Daten von {{name}} löschen?\nAlle Einstellungen, Rollenmenüs, Log-Einstellungen, Beitrittskanäle und Giveaways sowie die Level, Zähl-Statistiken und Moderationsfälle aller hier werden gelöscht, als wäre der Bot gerade erst hinzugefügt worden. Laufende Banns auf Zeit werden jetzt aufgehoben, weil sie sonst nie mehr enden würden. Das lässt sich nicht rückgängig machen.",
-      "deleted": "Alle Daten dieses Servers sind gelöscht. Alles ist wieder so wie direkt nach dem Hinzufügen des Bots."
+      "deleted": "Alle Daten dieses Servers sind gelöscht. Alles ist wieder so wie direkt nach dem Hinzufügen des Bots.",
+      "bansNotLifted_one": "{{count}} Bann auf Zeit konnte ich nicht aufheben, darum gilt er jetzt für immer. Du kannst ihn unter Banns in den Servereinstellungen aufheben.",
+      "bansNotLifted_other": "{{count}} Banns auf Zeit konnte ich nicht aufheben, darum gelten sie jetzt für immer. Du kannst sie unter Banns in den Servereinstellungen aufheben."
     }
   },
   "guess": {

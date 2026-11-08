@@ -973,7 +973,9 @@
       "description": "The server's settings and giveaways, and its members' levels, counting stats and moderation cases",
       "downloaded": "Here's everything stored about this server, as a file only you can see.",
       "confirm": "### Delete all data of {{name}}?\nEvery setting, role menu, log setting and join channel, every giveaway, and everyone's levels, counting stats and moderation cases here are deleted, as if the bot was just added. Temporary bans that are still running are lifted now, as nothing would lift them later. This can't be undone.",
-      "deleted": "All data of this server is deleted. Every feature is back to how it was when the bot was added."
+      "deleted": "All data of this server is deleted. Every feature is back to how it was when the bot was added.",
+      "bansNotLifted_one": "I couldn't lift {{count}} temporary ban, so it lasts for good now. You can lift it under Bans in the server settings.",
+      "bansNotLifted_other": "I couldn't lift {{count}} temporary bans, so they last for good now. You can lift them under Bans in the server settings."
     }
   },
   "guess": {
