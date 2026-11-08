@@ -85,8 +85,11 @@ export async function getUserData(userId: string) {
     reminders: { timezone: user?.reminderTimezone ?? null, list: user?.reminders ?? [] },
     birthdayRoles,
     moderation: {
-      // Cases about them, in full, with who made them and why
-      cases: casesAbout,
+      // Cases about them, with why, but the moderator only as redacted, as who that is is about someone else
+      cases: casesAbout.map((modCase) => ({
+        ...modCase,
+        moderatorId: modCase.moderatorId && modCase.moderatorId !== userId ? 'redacted' : modCase.moderatorId,
+      })),
       // Cases they made as a moderator, without who they were about or why, which is about someone else
       made: casesMade,
     },
