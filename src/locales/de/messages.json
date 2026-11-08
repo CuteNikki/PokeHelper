@@ -1917,5 +1917,37 @@
     "note": "Nach ihren Typen. Fähigkeiten wie Schwebe zählen nicht mit.",
     "weakSpots": "Schwachstellen",
     "covered": "Abgedeckt"
+  },
+  "giveaway": {
+    "post": {
+      "title": "### {{icon.gift}} Giveaway",
+      "titleEnded": "### {{icon.trophy}} Giveaway beendet",
+      "titleCancelled": "### {{icon.x}} Giveaway abgesagt",
+      "ends": "Endet {{relative}} ({{date}})",
+      "ended": "Beendet {{relative}}",
+      "details": "{{winners}} · Veranstaltet von {{host}}",
+      "winnerCount_one": "{{count, number}} Gewinner",
+      "winnerCount_other": "{{count, number}} Gewinner",
+      "rules": "**Wer mitmachen kann**",
+      "bonus": "**Extra-Lose**",
+      "bonusRole": "{{role}}: +{{bonus}}",
+      "winners_one": "**Gewinner:** {{winners}}",
+      "winners_other": "**Gewinner:** {{winners}}",
+      "noWinners": "Diesmal gibt's keine Gewinner, weil niemand gezogen werden konnte.",
+      "cancelled": "Dieses Giveaway wurde abgesagt, also gibt's keine Gewinner.",
+      "participants_one": "{{count, number}} Person macht mit",
+      "participants_other": "{{count, number}} Leute machen mit",
+      "number": "Giveaway #{{number}}",
+      "join": "Mitmachen"
+    },
+    "rules": {
+      "requiredAny_one": "{{roles}} haben",
+      "requiredAny_other": "Eine dieser Rollen haben: {{roles}}",
+      "requiredAll": "Alle diese Rollen haben: {{roles}}",
+      "blocked": "{{roles}} nicht haben",
+      "level": "Level {{level}} oder höher",
+      "memberAge": "Seit mindestens {{duration}} auf dem Server",
+      "accountAge": "Ein Account, der mindestens {{duration}} alt ist"
+    }
   }
 }

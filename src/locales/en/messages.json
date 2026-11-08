@@ -1973,5 +1973,37 @@
     "note": "From their types. Abilities like Levitate aren't counted.",
     "weakSpots": "Weak spots",
     "covered": "Covered"
+  },
+  "giveaway": {
+    "post": {
+      "title": "### {{icon.gift}} Giveaway",
+      "titleEnded": "### {{icon.trophy}} Giveaway ended",
+      "titleCancelled": "### {{icon.x}} Giveaway cancelled",
+      "ends": "Ends {{relative}} ({{date}})",
+      "ended": "Ended {{relative}}",
+      "details": "{{winners}} · Hosted by {{host}}",
+      "winnerCount_one": "{{count, number}} winner",
+      "winnerCount_other": "{{count, number}} winners",
+      "rules": "**Who can enter**",
+      "bonus": "**Bonus entries**",
+      "bonusRole": "{{role}}: +{{bonus}}",
+      "winners_one": "**Winner:** {{winners}}",
+      "winners_other": "**Winners:** {{winners}}",
+      "noWinners": "No winners this time, as nobody could be drawn.",
+      "cancelled": "This giveaway was cancelled, so there are no winners.",
+      "participants_one": "{{count, number}} person entered",
+      "participants_other": "{{count, number}} people entered",
+      "number": "Giveaway #{{number}}",
+      "join": "Join"
+    },
+    "rules": {
+      "requiredAny_one": "Have {{roles}}",
+      "requiredAny_other": "Have one of these roles: {{roles}}",
+      "requiredAll": "Have all of these roles: {{roles}}",
+      "blocked": "Don't have {{roles}}",
+      "level": "Level {{level}} or higher",
+      "memberAge": "On the server for at least {{duration}}",
+      "accountAge": "An account at least {{duration}} old"
+    }
   }
 }
