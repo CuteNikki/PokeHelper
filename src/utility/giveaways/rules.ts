@@ -19,7 +19,6 @@ export interface Participant {
   roleIds: readonly string[];
   /** When they joined the server, null if that isn't known. */
   joinedAt: Date | null;
-  /** When their account was made. */
   createdAt: Date;
   /** Their all-time level on the server. */
   level: number;

@@ -30,10 +30,10 @@ export const MAX_CLAIM_MINUTES = 30 * 24 * 60;
 export const DRAFT_LIFETIME = DAY;
 
 const withRoles = { roles: { orderBy: { roleId: 'asc' } }, prizes: { orderBy: { position: 'asc' } } } satisfies Prisma.GiveawayInclude;
-/** A giveaway with its roles, which is how they're always loaded. */
+/** A giveaway with its roles and prizes, which is how they're always loaded. */
 export type Giveaway = Prisma.GiveawayGetPayload<{ include: typeof withRoles }>;
 
-/** What a new draft starts with. Everything else starts empty or off. */
+/** What a new draft starts with. */
 export interface NewDraft {
   guildId: string;
   channelId: string;
@@ -45,10 +45,7 @@ export interface NewDraft {
   durationMinutes: number;
 }
 
-/**
- * Add a draft, making sure the server is stored first.
- * @returns The draft, or null if the server already has the most drafts there can be.
- */
+/** Add a draft, or null if the server already has the most drafts there can be. */
 export const createDraft = (data: NewDraft) =>
   prisma.$transaction(async (tx) => {
     // One at a time per server, so two at once can't both pass the count and go over the limit
@@ -64,7 +61,7 @@ export const getGiveaway = (guildId: string, id: string) => prisma.giveaway.find
 /** The giveaway a message is the post of, or null if it isn't one. */
 export const getGiveawayByMessage = (messageId: string) => prisma.giveaway.findUnique({ where: { messageId }, include: withRoles });
 
-/** The fields of a giveaway that can be changed directly, like its prize or rules. */
+/** The fields of a giveaway that can be changed directly. */
 export type GiveawayUpdate = Pick<
   Prisma.GiveawayUncheckedUpdateInput,
   | 'channelId'
@@ -84,24 +81,17 @@ export type GiveawayUpdate = Pick<
   | 'dmWinners'
 >;
 
-/** The giveaways that can still be changed: drafts and running ones. One that ended or was cancelled stays as it was. */
 const CHANGEABLE: GiveawayStatus[] = ['draft', 'active'];
 
-/** Change a draft or running giveaway. Returns whether it could still be changed, as it may have ended meanwhile. */
+/** Change a draft or running giveaway. Returns false if it ended meanwhile. */
 export const updateGiveaway = async (id: string, data: GiveawayUpdate) =>
   (await prisma.giveaway.updateMany({ where: { id, status: { in: CHANGEABLE } }, data })).count > 0;
 
-/**
- * Lock a draft or running giveaway until the transaction is done, so it can't end meanwhile, as ending it waits for the lock.
- * @returns Whether it can still be changed.
- */
+/** Lock a draft or running giveaway until the transaction is done, so ending it waits. Returns whether it can still be changed. */
 const lockChangeable = async (tx: Prisma.TransactionClient, id: string) =>
   (await tx.$queryRaw<unknown[]>`SELECT 1 FROM "Giveaway" WHERE id = ${id} AND status::text IN ('draft', 'active') FOR UPDATE`).length > 0;
 
-/**
- * Set the roles of one kind, replacing the ones before. A role can only be of one kind, so it's taken off the others.
- * @param roles The roles, with their bonus for bonus roles.
- */
+/** Set the roles of one kind, replacing the ones before. A role can only be of one kind, so it's taken off the others. */
 export const setGiveawayRoles = (giveawayId: string, kind: GiveawayRoleKind, roles: { roleId: string; bonus?: number }[]) =>
   prisma.$transaction(async (tx) => {
     if (!(await lockChangeable(tx, giveawayId))) return;
@@ -140,10 +130,7 @@ export const setBonusRole = (giveawayId: string, roleId: string, bonus: number |
 /** Why a draft couldn't be started. */
 export type StartRefusal = 'notDraft' | 'full';
 
-/**
- * Start a draft: give it the server's next number and its end time. The post is sent afterwards, see {@link setGiveawayMessage}.
- * @returns The started giveaway, or why it couldn't be started.
- */
+/** Start a draft with the server's next number and its end time, or say why it couldn't. The post is sent afterwards. */
 export const startGiveaway = (guildId: string, id: string, now = new Date()) =>
   prisma.$transaction(async (tx): Promise<Giveaway | StartRefusal> => {
     await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`giveaways:${guildId}`}))`;
@@ -178,11 +165,7 @@ export const deleteOldDrafts = (now = new Date()) =>
 /** Someone's entry in a giveaway, or null if they didn't enter. */
 export const getEntry = (giveawayId: string, userId: string) => prisma.giveawayEntry.findUnique({ where: { giveawayId_userId: { giveawayId, userId } } });
 
-/**
- * Enter someone into a running giveaway.
- * @param entries Their chances, see `countEntries`.
- * @returns Whether they were added, were in it already, like with a double click, or it ended meanwhile.
- */
+/** Enter someone into a running giveaway. Returns whether they were added, were in it already, like with a double click, or it ended. */
 export const enterGiveaway = (giveawayId: string, userId: string, entries: number, now = new Date()) =>
   prisma.$transaction(async (tx) => {
     // Locked until the entry is saved, so ending it waits for it, and nobody can enter one that ended in the meantime
@@ -214,10 +197,7 @@ const PARTICIPANT_ORDER: Record<ParticipantSort, Prisma.GiveawayEntryOrderByWith
   fewest: [{ entries: 'asc' }, { createdAt: 'asc' }, { userId: 'asc' }],
 };
 
-/**
- * A page of a giveaway's participants, how many there are, and how many entries they have together.
- * @param skip How many come before the page.
- */
+/** A page of a giveaway's participants, how many there are, and how many entries they have together. */
 export async function getParticipants(giveawayId: string, sort: ParticipantSort, skip: number, take: number) {
   const where = { giveawayId };
   const [participants, totals] = await Promise.all([
@@ -288,7 +268,7 @@ export interface NewWinner {
 /**
  * End a running giveaway with its winners.
  * @param claimBy Until when winners can claim their prize, or null when they don't have to.
- * @returns The winners saved, without anyone who left it meanwhile, or null if it wasn't running anymore, like when a moderator ended it.
+ * @returns The winners saved, without anyone who left meanwhile, or null if it wasn't running anymore.
  */
 export const finishGiveaway = (id: string, drawn: NewWinner[], claimBy: Date | null, now = new Date()) =>
   prisma.$transaction(async (tx) => {
@@ -309,10 +289,7 @@ export const finishGiveaway = (id: string, drawn: NewWinner[], claimBy: Date | n
     return winners;
   });
 
-/**
- * Claim a prize, for a winner who has to and is still in time.
- * @returns Whether it was claimed now.
- */
+/** Claim a prize, for a winner who has to and is still in time. Returns whether it was claimed now. */
 export const claimWin = async (giveawayId: string, userId: string, now = new Date()) =>
   (
     await prisma.giveawayWinner.updateMany({
@@ -351,9 +328,8 @@ export const getMissedClaims = (now = new Date()) =>
 
 /**
  * Replace winners with new ones, like ones who didn't claim in time, or in a reroll.
- * @param winnerIds The IDs of the winners to replace, not their user IDs.
- * @returns The new winners saved, as many as were still there to replace, without anyone who left it meanwhile. Null if none were left
- * to replace, as someone may have replaced them meanwhile.
+ * @param winnerIds The IDs of the winner rows, not user IDs.
+ * @returns The new winners saved, without anyone who left meanwhile, or null if someone else replaced them all meanwhile.
  */
 export const replaceWinners = (giveawayId: string, winnerIds: string[], newUserIds: string[], claimBy: Date | null, now = new Date()) =>
   prisma.$transaction(async (tx) => {
@@ -410,7 +386,7 @@ export const cancelGiveaway = async (id: string, now = new Date()) =>
 
 /**
  * Take a deleted role out of a server's giveaways that can still change: out of their rules and bonus roles, and as their ping or winner role.
- * @returns The running giveaways it was in, with whether it gave bonus entries there, whose entries then change, and whether it was required.
+ * @returns The running giveaways it was in, with whether it gave bonus entries or was required there.
  */
 export const forgetDeletedGiveawayRole = (guildId: string, roleId: string) =>
   prisma.$transaction(async (tx) => {

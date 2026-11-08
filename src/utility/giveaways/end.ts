@@ -50,7 +50,7 @@ import { canGiveRole } from 'utility/roles';
 import { KeyedQueue } from 'utility/queue';
 import { ThemeColors } from 'utility/theme';
 
-/** How many members are fetched from Discord at once, the most it sends back for one request. */
+/** As many members as Discord sends back for one request. */
 const FETCH_CHUNK = DiscordLimits.membersPerRequest;
 /** How often a chunk of members is asked for when Discord says to wait, before giving up until the next try. */
 const FETCH_TRIES = 5;
@@ -62,8 +62,8 @@ function retryAfter(error: unknown): number | null {
 }
 
 /**
- * Members of a server, from the cache, which Discord keeps up to date, or else asked of Discord a chunk at a time. When Discord says to
- * slow down, that chunk is asked for again after waiting, so a big giveaway isn't started over. Those who left aren't in it.
+ * Members of a server, from the cache or else from Discord a chunk at a time. When Discord says to slow down, that chunk is asked for
+ * again after waiting, so a big giveaway isn't started over. Those who left aren't in it.
  */
 async function fetchMembers(guild: Guild, userIds: string[]): Promise<Map<string, GuildMember>> {
   const members = new Map<string, GuildMember>();
@@ -89,10 +89,7 @@ async function fetchMembers(guild: Guild, userIds: string[]): Promise<Map<string
   return members;
 }
 
-/**
- * Work out everyone's entries in a running giveaway again, like after its bonus roles changed, which keeps the participants list right.
- * Members who left keep theirs, as they can't win anyway. Everyone with the same new number is saved at once, a chunk at a time.
- */
+/** Work out everyone's entries in a running giveaway again. Members who left keep theirs, as they can't win anyway. */
 async function refreshAllEntries(guild: Guild, giveaway: Giveaway) {
   const entries = await getAllEntries(giveaway.id);
   const bonusRoles = bonusRolesOf(giveaway);
@@ -175,11 +172,9 @@ export async function findCandidates(guild: Guild, giveaway: Giveaway, exclude: 
 export const claimDeadline = (giveaway: Giveaway, now = new Date()) =>
   giveaway.claimMinutes ? new Date(now.getTime() + giveaway.claimMinutes * MINUTE) : null;
 
-/** The line telling winners until when to claim their prize. */
 const claimLine = (claimBy: Date, key: 'giveaway.claim.announce' | 'giveaway.claim.dm', t: Translate) =>
   t(key, { date: time(claimBy, TimestampStyles.LongDateShortTime), relative: time(claimBy, TimestampStyles.RelativeTime) });
 
-/** The button winners claim their prize with. */
 const claimRow = (giveaway: Giveaway, t: Translate) =>
   new ActionRowBuilder<ButtonBuilder>().addComponents(
     new ButtonBuilder()
@@ -189,11 +184,7 @@ const claimRow = (giveaway: Giveaway, t: Translate) =>
       .setStyle(ButtonStyle.Success),
   );
 
-/**
- * Say who won under the giveaway's post, pinging them, or in its channel if the post is gone.
- * When winners have to claim their prize, it says until when, with the button to claim it.
- * @returns Whether it was posted.
- */
+/** Say who won under the giveaway's post, or in its channel if the post is gone. Returns whether it was posted. */
 async function announceWinners(guild: Guild, giveaway: Giveaway, winners: NewWinner[], claimBy: Date | null, key: WinnersKey): Promise<boolean> {
   const channel = await giveawayChannel(guild, giveaway.channelId);
   if (!channel) return false;
@@ -232,10 +223,7 @@ async function announceWinners(guild: Guild, giveaway: Giveaway, winners: NewWin
   }
 }
 
-/**
- * Tell winners in a DM that they won, with a link to the giveaway. Winners with closed DMs still see it under the post.
- * When they have to claim their prize, the DM has the button too, so they can claim it without finding the announcement.
- */
+/** DM winners that they won, with the claim button when they have to claim. Winners with closed DMs still see it under the post. */
 async function dmWinners(guild: Guild, giveaway: Giveaway, winners: NewWinner[], claimBy: Date | null) {
   if (!giveaway.dmWinners) return;
   const t = getTranslate(giveaway.locale);
@@ -252,10 +240,7 @@ async function dmWinners(guild: Guild, giveaway: Giveaway, winners: NewWinner[],
   }
 }
 
-/**
- * Give winners the giveaway's winner role, if it has one the bot can give. It stays with them, like a reward role, unless they're replaced.
- * A winner who left meanwhile is skipped.
- */
+/** Give winners the giveaway's winner role, if the bot can. It stays with them unless they're replaced. */
 export async function giveWinnerRole(guild: Guild, giveaway: Giveaway, winnerIds: string[]) {
   const roleId = giveaway.winnerRoleId;
   if (!roleId || !canGiveRole(guild, roleId)) return;
@@ -267,10 +252,7 @@ export async function giveWinnerRole(guild: Guild, giveaway: Giveaway, winnerIds
   }
 }
 
-/**
- * Take the winner role away from winners who were replaced, unless they still won another giveaway that gives it.
- * Failures are only logged, like when they left meanwhile.
- */
+/** Take the winner role away from replaced winners, unless they still won another giveaway that gives it. */
 async function takeWinnerRole(guild: Guild, giveaway: Giveaway, userIds: string[]) {
   const roleId = giveaway.winnerRoleId;
   if (!roleId || userIds.length === 0 || !canGiveRole(guild, roleId)) return;
@@ -287,9 +269,9 @@ async function takeWinnerRole(guild: Guild, giveaway: Giveaway, userIds: string[
 type WinnersKey = 'giveaway.end.announce' | 'giveaway.end.reroll';
 
 /**
- * Let new winners know: under the post and in a DM. They get the winner role right away, or when they claim their prize if they have to,
- * so winners who never claim don't keep it. When the announcement couldn't be posted, like when the channel is gone, winners with closed
- * DMs would have nowhere to claim it, so then nobody has to.
+ * Let new winners know, under the post and in a DM. They get the winner role right away, or when they claim if they have to, so winners
+ * who never claim don't keep it. When the announcement couldn't be posted, winners with closed DMs would have nowhere to claim, so then
+ * nobody has to.
  */
 async function welcomeWinners(guild: Guild, giveaway: Giveaway, winners: NewWinner[], claimBy: Date | null, key: WinnersKey) {
   if (winners.length === 0) {
@@ -340,10 +322,9 @@ async function drawAndEnd(guild: Guild, giveaway: Giveaway, byId: string | null)
 
 /**
  * Draw new winners in place of some, from everyone who entered and hasn't won it yet.
- * @param winnerIds The IDs of the winners to replace, not their user IDs.
+ * @param winnerIds The IDs of the winner rows, not user IDs.
  * @param byId Who rerolled them, for the logs. Null when they're replaced for not claiming in time.
- * @returns The new winners, with the prizes of those they replace. Fewer than replaced when there's nobody left to draw, and then those
- * places stay empty.
+ * @returns The new winners, with the prizes of those they replace. Fewer when there's nobody left to draw.
  */
 export const rerollWinners = (guild: Guild, giveaway: Giveaway, winnerIds: string[], byId: string | null = null): Promise<NewWinner[]> =>
   draws.run(giveaway.id, () => reroll(guild, giveaway, winnerIds, byId));
@@ -369,10 +350,7 @@ async function reroll(guild: Guild, giveaway: Giveaway, winnerIds: string[], byI
   return newWinners;
 }
 
-/**
- * Whether giveaways are on in a server, each looked up once per run. While they're off, giveaways wait with their draw, and winners who
- * missed their claim with being replaced, until they're on again.
- */
+/** Whether giveaways are on in a server, looked up once per run. While they're off, draws and replacing missed claims wait. */
 function switchCheck() {
   const known = new Map<string, Promise<boolean>>();
   return (guildId: string) => {
@@ -382,7 +360,6 @@ function switchCheck() {
   };
 }
 
-/** Winners who didn't claim in time and couldn't be replaced. */
 const claimWarnings = new WarnOnce();
 
 /** Give the prizes of winners who didn't claim them in time to someone else. Giveaways in servers the bot isn't in wait for it. */
@@ -407,13 +384,9 @@ export async function runClaimJob(client: Client) {
   }
 }
 
-/** Giveaways that couldn't be ended. */
 const endWarnings = new WarnOnce();
 
-/**
- * End the giveaways whose time is up. Runs regularly, so ones that ended while the bot was offline are drawn once it's back.
- * Giveaways in servers the bot isn't in right now wait for it to come back.
- */
+/** End the giveaways whose time is up, also ones that ran out while the bot was offline. Servers the bot isn't in wait for it. */
 export async function runGiveawayJob(client: Client) {
   const isOn = switchCheck();
   for (const giveaway of await getDueGiveaways()) {

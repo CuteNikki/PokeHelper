@@ -85,7 +85,6 @@ function ageSetting(key: 'memberAge' | 'accountAge', field: 'minMemberMinutes' |
     label: (t: Translate) => t(`giveaway.settings.${key}.label`),
     description: (t: Translate) => t(`giveaway.settings.${key}.description`),
     placeholder: (t: Translate) => t('giveaway.settings.durationPlaceholder'),
-    // Shown as the duration it is, in the language of whoever looks at it
     get: (giveaway: GiveawayConfig) => (giveaway[field] ? minutesText(giveaway[field]) : null),
     formatValue: (value: string, t: Translate) => formatMinutes(parseMinutes(value, 0, Infinity) ?? 0, t),
     validate: (text: string, t: Translate) => (parseMinutes(text, 1, MAX_AGE_MINUTES) === null ? t('giveaway.settings.invalidDuration') : null),
@@ -108,7 +107,6 @@ async function setRuleRoles(guildId: string, giveawayId: string, kind: 'required
   if (guild && tookBonus) refreshEntriesSoon(guild, giveawayId);
 }
 
-/** Start and Throw away, under a draft. */
 const draftButtons = (giveaway: Giveaway, t: Translate) => [
   new ButtonBuilder()
     .setCustomId(`${GIVEAWAY_DRAFT_CUSTOM_ID.start}${giveaway.id}`)
@@ -123,13 +121,11 @@ const draftButtons = (giveaway: Giveaway, t: Translate) => [
 ];
 
 const isDraft = (giveaway: Giveaway) => giveaway.status === 'draft';
-/** Minutes left until a running giveaway ends, at least 1. */
 const minutesLeft = (giveaway: Giveaway) => Math.max(1, Math.ceil(((giveaway.endsAt?.getTime() ?? Date.now()) - Date.now()) / MINUTE));
 
 /**
- * The settings of a giveaway: a draft before it starts, with a preview of its post under them, and once it runs, what can still
- * change, which shows on its post right away. Every setting is saved right away, so a draft can be left and picked up again until
- * it's started or deleted.
+ * The settings of a draft, with a preview of its post, or of a running giveaway, whose post shows changes right away. Every setting is
+ * saved right away, so a draft can be left and picked up again.
  */
 export function getGiveawaySettings(giveawayId: string): SettingsPanel {
   const panel = createSettingsPanel<GiveawayConfig>({
@@ -158,7 +154,7 @@ export function getGiveawaySettings(giveawayId: string): SettingsPanel {
       isDraft(giveaway)
         ? draftButtons(giveaway, t)
         : [new ButtonBuilder().setCustomId(manageId('view', giveaway.id)).setLabel(t('giveaway.manage.back')).setStyle(ButtonStyle.Secondary)],
-    // A running giveaway's post shows the change right away. A draft has no post yet, which this then leaves alone
+    // A draft has no post yet, which this then leaves alone
     onSaved: async ({ guild }) => {
       if (guild) await syncPost(guild, giveawayId);
     },
@@ -423,8 +419,7 @@ export function getGiveawaySettings(giveawayId: string): SettingsPanel {
 
   return {
     ...panel,
-    // A preview of the post under the settings, so it's clear what starting it posts
-    // Only on the first page, as a message can have 40 components at most, which the other pages and the preview together would go over
+    // The preview of the post only on the first page, as a message can have 40 components at most, which the other pages would go over
     async render(context, t, page) {
       const payload = await panel.render(context, t, page);
       const guild = context.guild;

@@ -34,7 +34,6 @@ export function renderPost(guild: Guild, giveaway: Giveaway, state: PostState): 
   };
 }
 
-/** The channel a giveaway is posted in, if the bot can post there. */
 function postChannel(guild: Guild, channelId: string): GuildTextBasedChannel | null {
   const channel = guild.channels.cache.get(channelId);
   return channel?.isTextBased() ? channel : null;
@@ -42,8 +41,7 @@ function postChannel(guild: Guild, channelId: string): GuildTextBasedChannel | n
 
 /**
  * Start a draft and post it.
- * @param byId Who started it, for the logs.
- * @returns What to tell whoever started it: that it's up with a link to it, or why it couldn't be started.
+ * @returns What to tell whoever started it: a link to it, or why it couldn't be started.
  */
 export async function publishDraft(
   guild: Guild,

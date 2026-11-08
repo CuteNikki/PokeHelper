@@ -60,7 +60,6 @@ import { ThemeColors } from 'utility/theme';
 export { MANAGE_PREFIX };
 const TABS: GiveawayTab[] = ['active', 'ended'];
 
-/** A giveaway's number, like `#4`. */
 const numberOf = (giveaway: Giveaway, t: Translate) => (giveaway.number ? t('giveaway.manage.number', { number: formatNumber(giveaway.number, t) }) : '');
 
 /** A server's running or ended giveaways, with buttons to switch between them, and a select to open one. */
@@ -69,7 +68,7 @@ export async function renderGiveawayList(guild: Guild, tab: GiveawayTab, t: Tran
   const container = new ContainerBuilder()
     .setAccentColor(ThemeColors.info)
     .addTextDisplayComponents(new TextDisplayBuilder().setContent(t('giveaway.manage.listTitle')))
-    // Large, so the title, the switch and the list stand apart, like in the settings panels
+    // Large, like in the settings panels
     .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large))
     .addSectionComponents(
       buildSwitchSection(t('giveaway.manage.enabled.label'), t('giveaway.manage.enabled.description'), giveawaysEnabled, `${MANAGE_PREFIX}toggle:${tab}`, t),
@@ -143,7 +142,6 @@ const WINNERS_TEXT_LENGTH = DiscordLimits.messageTextLength - 1000;
 /** The panel's lines of an ended giveaway's winners: the ones it has now, as many as fit, and how many were replaced. */
 function winnerLines(giveaway: Giveaway, winners: Awaited<ReturnType<typeof getAllWinners>>, t: Translate): string[] {
   const current = winners.filter((winner) => !winner.replacedAt);
-  // What each won, when there are prizes by place
   const showPrizes = current.some((winner) => winner.prize !== null);
   const replaced = winners.length - current.length;
   const lines: string[] = [];
@@ -162,7 +160,6 @@ function winnerLines(giveaway: Giveaway, winners: Awaited<ReturnType<typeof getA
   return lines;
 }
 
-/** How a winner is shown, with whether they claimed their prize when they had to. */
 function winnerLine(winner: Awaited<ReturnType<typeof getAllWinners>>[number], prize: string | null, t: Translate): string {
   const user = winner.userId ? userMention(winner.userId) : t('giveaway.participants.deletedUser');
   const name = prize ? `${user} · ${bold(prize)}` : user;
@@ -265,7 +262,6 @@ export async function renderGiveawayPanel(guild: Guild, giveaway: Giveaway, t: T
   return quietMessageOf(container);
 }
 
-/** Delete a giveaway's post, if it still has one. */
 async function deletePost(guild: Guild, giveaway: Giveaway) {
   const channel = guild.channels.cache.get(giveaway.channelId);
   if (!giveaway.messageId || !channel?.isTextBased()) return;
@@ -397,7 +393,6 @@ export async function handleManageSelect(interaction: AnySelectMenuInteraction<'
   return interaction.editReply(await renderGiveawayPanel(interaction.guild, giveaway, t));
 }
 
-/** Pick which winners of a giveaway to replace with new ones. */
 async function renderRerollPicker(guild: Guild, giveaway: Giveaway, t: Translate): Promise<ResponsePayload> {
   const winners = (await getAllWinners(giveaway.id)).filter((winner) => !winner.replacedAt);
   // A select fits 25, and a giveaway can have more winners, who Replace all still covers

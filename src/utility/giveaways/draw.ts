@@ -7,8 +7,7 @@ export interface Candidate {
 }
 
 /**
- * Draw winners at random, each with chances by their entries, so someone with 3 entries is three times as likely as someone with 1.
- * Nobody is drawn twice. When there are fewer candidates than winners, all of them win.
+ * Draw winners at random, weighted by their entries, nobody twice. When there are fewer candidates than winners, all of them win.
  * @param random A whole number from 0 up to but not including max. Secure by default, so nobody can work out who'll win.
  * @returns The winners, in the order they were drawn.
  */

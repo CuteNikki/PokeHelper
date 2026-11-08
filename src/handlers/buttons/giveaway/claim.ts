@@ -10,9 +10,8 @@ import { getTranslate } from 'utility/i18next';
 import { createResponse } from 'utility/response';
 
 /**
- * The Claim button, for giveaways whose winners have to claim their prize: under the winners' announcement, where anyone sees it, so it
- * says so when someone who didn't win presses it, and in the winners' DMs, so they can claim it also when they can't see the channel.
- * Winners get the winner role when they claim.
+ * The Claim button, under the winners' announcement, where anyone can press it, and in the winners' DMs, so they can claim it also when
+ * they can't see the channel. Winners get the winner role when they claim.
  */
 export default new Button({
   customId: GIVEAWAY_CUSTOM_ID.claim,

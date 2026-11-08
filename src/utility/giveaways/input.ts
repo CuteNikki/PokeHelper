@@ -2,10 +2,7 @@ import { formatDuration, MINUTE } from 'utility/duration';
 import type { Translate } from 'utility/i18next';
 import { parseDuration } from 'utility/reminders/time';
 
-/**
- * A duration typed in, like `2h 30m` or `7 Tage`, in whole minutes.
- * @returns The minutes, or null if it isn't a duration, or it's shorter than `min` or longer than `max`.
- */
+/** A duration typed in, like `2h 30m` or `7 Tage`, in whole minutes, or null if it isn't one or it's out of the range. */
 export function parseMinutes(input: string, min: number, max: number, now = new Date()): number | null {
   const end = parseDuration(input, now);
   if (!end) return null;

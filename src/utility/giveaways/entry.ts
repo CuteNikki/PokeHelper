@@ -9,10 +9,7 @@ import { formatRoles } from 'utility/giveaways/post';
 import type { Participant, RuleProblem } from 'utility/giveaways/rules';
 import type { Translate } from 'utility/i18next';
 
-/**
- * What the rules look at of a member.
- * @param needsLevel Whether their level is needed, which is only looked up then, as it takes a moment.
- */
+/** What the rules look at of a member. Their level is only looked up when needed, as it takes a moment. */
 export async function participantOf(member: GuildMember, needsLevel: boolean): Promise<Participant> {
   const level = needsLevel ? getLevelFromXP((await getUserLevelingData(member.guild.id, member.id))?.xp ?? 0) : 0;
   return {
@@ -29,7 +26,6 @@ export async function participantOf(member: GuildMember, needsLevel: boolean): P
  * @param endsAt When the giveaway ends, as a time after it doesn't help.
  */
 export function describeProblems(problems: RuleProblem[], giveaway: Pick<Giveaway, 'minMemberMinutes' | 'minAccountMinutes'>, endsAt: Date, t: Translate) {
-  // Only said for times they can still make it by
   const from = (date: Date | null) => (date && date < endsAt ? ` ${t('giveaway.join.from', { time: time(date, TimestampStyles.RelativeTime) })}` : '');
   return problems.map((problem) => {
     switch (problem.rule) {

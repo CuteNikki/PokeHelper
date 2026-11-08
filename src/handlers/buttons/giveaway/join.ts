@@ -31,10 +31,7 @@ function inResponse(giveawayId: string, entries: number, key: 'giveaway.join.ent
   };
 }
 
-/**
- * The Join button on a giveaway's post. Checks the rules and enters whoever pressed it, or tells them which rules they don't meet.
- * Answered privately, as only they need to know.
- */
+/** The Join button on a giveaway's post. Enters whoever pressed it, or tells them privately which rules they don't meet. */
 export default new Button({
   customId: GIVEAWAY_CUSTOM_ID.join,
   includesCustomId: true,

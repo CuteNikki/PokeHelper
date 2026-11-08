@@ -11,9 +11,9 @@ import { logger } from 'utility/logger';
 import { code } from 'utility/text';
 
 /**
- * A deleted role is taken out of giveaways: nobody can have it anymore, so a required one would keep everyone out. Running ones show
- * their new rules, and if it gave bonus entries, everyone's entries are worked out again. People who entered stay in. A required one
- * changes who can enter, which the logs say, also when it was the only one, as anyone can enter then.
+ * A deleted role is taken out of giveaways, as a required one would keep everyone out. Running ones show their new rules, and if it gave
+ * bonus entries, everyone's entries are worked out again. People who entered stay in. Losing a required one is logged, as it changes who
+ * can enter.
  */
 export default new Event({
   name: Events.GuildRoleDelete,

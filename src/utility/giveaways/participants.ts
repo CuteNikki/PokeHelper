@@ -119,7 +119,7 @@ export async function renderParticipants(giveaway: Giveaway, requested: ListStat
   const container = new ContainerBuilder()
     .setAccentColor(ThemeColors.info)
     .addTextDisplayComponents(new TextDisplayBuilder().setContent(header.join('\n')))
-    // Large, so the title, the list and the buttons stand apart, like in the settings panels
+    // Large, like in the settings panels
     .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large));
 
   if (total === 0) {

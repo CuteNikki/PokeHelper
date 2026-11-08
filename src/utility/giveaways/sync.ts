@@ -27,10 +27,7 @@ export async function giveawayChannel(guild: Guild, channelId: string): Promise<
   }
 }
 
-/**
- * Bring a giveaway's post up to date, like its number of participants or its winners.
- * A post that's gone is forgotten, and the giveaway goes on without it.
- */
+/** Bring a giveaway's post up to date. A post that's gone is forgotten, and the giveaway goes on without it. */
 export const syncPost = (guild: Guild, giveawayId: string) =>
   queue.run(giveawayId, async () => {
     const giveaway = await getGiveaway(guild.id, giveawayId);

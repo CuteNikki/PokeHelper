@@ -21,8 +21,7 @@ const KINDS: Record<GiveawayLogEvent, LogKind> = {
 
 /**
  * Log something that happened to a giveaway, if the server logs it. Never throws.
- * @param byId Who did it, like who pressed End now. Null when the bot did it by itself, like when its time ran out.
- * @param details What else to say, like the winners, each its own part.
+ * @param byId Who did it. Null when the bot did it by itself, like when its time ran out.
  */
 export function logGiveaway(
   guild: Guild,
