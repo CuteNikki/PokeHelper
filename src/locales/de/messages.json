@@ -2186,7 +2186,7 @@
       "reroll_one": "{{icon.trophy}} Neuer Gewinner: {{winners}}! Du hast **{{prize}}** gewonnen!",
       "reroll_other": "{{icon.trophy}} Neue Gewinner: {{winners}}! Ihr habt jeweils **{{prize}}** gewonnen!",
       "none": "Für **{{prize}}** konnte niemand gezogen werden, also gibt es diesmal keine Gewinner.",
-      "dm": "{{icon.gift}} Du hast **{{prize}}** auf {{server}} gewonnen! Es ist von {{host}}.",
+      "dm": "{{icon.gift}} Du hast **{{prize}}** auf {{server}} gewonnen!",
       "dmLink": "Zum Giveaway",
       "roleReason": "Hat das Giveaway für {{prize}} gewonnen",
       "noneLeft": "Für **{{prize}}** konnte sonst niemand gezogen werden, also geht er an niemand Neues.",

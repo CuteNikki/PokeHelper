@@ -230,7 +230,7 @@ async function dmWinners(guild: Guild, giveaway: Giveaway, winners: NewWinner[],
   const link = giveaway.messageId ? messageLink(giveaway.channelId, giveaway.messageId, guild.id) : null;
   for (const winner of winners) {
     const text = [
-      t('giveaway.end.dm', { prize: prizeOf(giveaway, winner), server: bold(guild.name), host: giveaway.host ?? userMention(giveaway.hostId) }),
+      t('giveaway.end.dm', { prize: prizeOf(giveaway, winner), server: bold(guild.name) }),
       ...(claimBy ? [claimLine(claimBy, 'giveaway.claim.dm', t)] : []),
       ...(link ? [hyperlink(t('giveaway.end.dmLink'), link)] : []),
     ].join('\n');
