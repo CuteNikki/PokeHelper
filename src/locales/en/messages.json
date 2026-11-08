@@ -370,11 +370,11 @@
       },
       "ignoredChannels": {
         "label": "Ignored Channels",
-        "description": "No XP for messages here."
+        "description": "No XP for messages here, or for being in voice here."
       },
       "enabledChannels": {
         "label": "Only These Channels",
-        "description": "If any are picked, only messages here earn XP."
+        "description": "If any are picked, only messages and voice here earn XP."
       },
       "ignoredRoles": {
         "label": "Ignored Roles",
@@ -393,7 +393,7 @@
       },
       "channelMultipliers": {
         "label": "Channel Multipliers",
-        "description": "More or less XP for messages in these channels. Click a value to change it, after 3x you can type your own."
+        "description": "More or less XP for messages and voice in these channels. Click a value to change it, after 3x you can type your own."
       },
       "roleMultipliers": {
         "label": "Role Multipliers",
@@ -416,6 +416,7 @@
     "tips": {
       "general": [
         "Members get XP for one message a minute at most, so spamming doesn't help.",
+        "In voice, members only get XP while they aren't deafened and someone else is there who isn't either. The server's AFK channel never gives XP.",
         "With level up messages off, members still level up and get their reward roles, just without a message."
       ],
       "winners": [
@@ -711,7 +712,7 @@
     "overview": "Overview",
     "descriptions": {
       "pokemon": "Everything about Pokémon",
-      "leveling": "Levels and ranks for chatting",
+      "leveling": "Levels and ranks for chatting and voice",
       "birthday": "Birthdays and their announcements",
       "counting": "The counting game",
       "role-menu": "Roles to pick for yourself",

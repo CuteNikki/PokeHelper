@@ -267,7 +267,7 @@
     "overview": "Übersicht",
     "descriptions": {
       "pokemon": "Alles rund um Pokémon",
-      "leveling": "Level und Ränge fürs Schreiben",
+      "leveling": "Level und Ränge fürs Schreiben und Voice",
       "birthday": "Geburtstage und ihre Ankündigungen",
       "counting": "Das Zählspiel",
       "role-menu": "Rollen, die du dir selbst aussuchst",
@@ -1129,11 +1129,11 @@
       },
       "ignoredChannels": {
         "label": "Ignorierte Kanäle",
-        "description": "Keine XP für Nachrichten hier."
+        "description": "Keine XP für Nachrichten oder Voice hier."
       },
       "enabledChannels": {
         "label": "Nur diese Kanäle",
-        "description": "Wenn welche ausgewählt sind, geben nur Nachrichten hier XP."
+        "description": "Wenn welche ausgewählt sind, geben nur Nachrichten und Voice hier XP."
       },
       "ignoredRoles": {
         "label": "Ignorierte Rollen",
@@ -1152,7 +1152,7 @@
       },
       "channelMultipliers": {
         "label": "Kanal-Multiplikatoren",
-        "description": "Mehr oder weniger XP für Nachrichten in diesen Kanälen. Klick auf einen Wert, um ihn zu ändern, nach 3x kannst du einen eigenen eingeben."
+        "description": "Mehr oder weniger XP für Nachrichten und Voice in diesen Kanälen. Klick auf einen Wert, um ihn zu ändern, nach 3x kannst du einen eigenen eingeben."
       },
       "roleMultipliers": {
         "label": "Rollen-Multiplikatoren",
@@ -1212,6 +1212,7 @@
     "tips": {
       "general": [
         "Es gibt höchstens für eine Nachricht pro Minute XP, Spammen bringt also nichts.",
+        "Im Voice gibt's nur XP, solange der Ton an ist und noch jemand dabei ist, bei dem er auch an ist. Im AFK-Kanal des Servers gibt's nie XP.",
         "Ohne Level-Up-Nachrichten steigen Mitglieder trotzdem auf und bekommen ihre Belohnungsrollen, nur ohne Nachricht."
       ],
       "winners": [
