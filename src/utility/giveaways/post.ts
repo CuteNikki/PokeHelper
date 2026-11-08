@@ -66,9 +66,13 @@ export function describeRules(rules: GiveawayRules, t: Translate): string[] {
 export function buildGiveawayPost(giveaway: Giveaway, rules: GiveawayRules, state: PostState, t: Translate): ResponsePayload {
   const running = giveaway.status === 'active' || giveaway.status === 'draft';
   const title = running ? 'giveaway.post.title' : giveaway.status === 'ended' ? 'giveaway.post.titleEnded' : 'giveaway.post.titleCancelled';
+  // With prizes by place, those are what it gives away, so they're listed in place of the one prize
+  const prizes = prizeList(giveaway);
+  const headline =
+    prizes.length > 0 ? prizes.map((prize) => t('giveaway.post.prizeHeadline', { count: prize.count, prize: prize.name })) : [`## ${giveaway.prize}`];
   const container = new ContainerBuilder()
     .setAccentColor(running ? ThemeColors.info : giveaway.status === 'ended' ? ThemeColors.success : ThemeColors.warning)
-    .addTextDisplayComponents(new TextDisplayBuilder().setContent([t(title), `## ${giveaway.prize}`, giveaway.description].filter(Boolean).join('\n')));
+    .addTextDisplayComponents(new TextDisplayBuilder().setContent([t(title), ...headline, giveaway.description].filter(Boolean).join('\n')));
 
   // A draft is shown as if it started now, as it would when started
   const endsAt = giveaway.endsAt ?? new Date(Date.now() + giveaway.durationMinutes * MINUTE);
@@ -84,10 +88,6 @@ export function buildGiveawayPost(giveaway: Giveaway, rules: GiveawayRules, stat
   container.addSeparatorComponents(new SeparatorBuilder().setDivider(false).setSpacing(SeparatorSpacingSize.Small));
 
   if (running) {
-    const prizes = prizeList(giveaway);
-    if (prizes.length > 0) {
-      details.push('', t('giveaway.post.prizes'), ...prizes.map((prize) => t('giveaway.post.prizeLine', { count: prize.count, prize: prize.name })));
-    }
     const ruleLines = describeRules(rules, t);
     if (ruleLines.length > 0) details.push('', t('giveaway.post.rules'), ...ruleLines.map((line) => `- ${line}`));
     const bonusRoles = bonusRolesOf(giveaway);

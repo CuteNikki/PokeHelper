@@ -2053,12 +2053,11 @@
       "number": "Giveaway #{{number}}",
       "join": "Join",
       "participantsButton": "Participants",
-      "prizes": "**Prizes**",
-      "prizeLine": "- {{count}}x {{prize}}",
       "winnersByPrize": "**Winners**",
       "winnersLine": "- **{{prize}}**: {{winners}}",
       "deletedCount_one": "someone who deleted their data",
-      "deletedCount_other": "{{count}} people who deleted their data"
+      "deletedCount_other": "{{count}} people who deleted their data",
+      "prizeHeadline": "## {{count}}x {{prize}}"
     },
     "rules": {
       "requiredAny_one": "Have {{roles}}",

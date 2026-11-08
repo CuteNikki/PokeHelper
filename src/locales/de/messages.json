@@ -1997,12 +1997,11 @@
       "number": "Giveaway #{{number}}",
       "join": "Mitmachen",
       "participantsButton": "Teilnehmer",
-      "prizes": "**Preise**",
-      "prizeLine": "- {{count}}x {{prize}}",
       "winnersByPrize": "**Gewinner**",
       "winnersLine": "- **{{prize}}**: {{winners}}",
       "deletedCount_one": "jemand, der seine Daten gelöscht hat",
-      "deletedCount_other": "{{count}} Leute, die ihre Daten gelöscht haben"
+      "deletedCount_other": "{{count}} Leute, die ihre Daten gelöscht haben",
+      "prizeHeadline": "## {{count}}x {{prize}}"
     },
     "rules": {
       "requiredAny_one": "{{roles}} haben",
