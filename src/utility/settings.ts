@@ -23,6 +23,7 @@ import {
   subtext,
   TextDisplayBuilder,
 } from 'discord.js';
+import { formatPermissions } from 'utility/discord';
 import type { IconName } from 'utility/icons';
 import { buttonIcon, switchIcon } from 'utility/emojis';
 import type { Translate } from 'utility/i18next';
@@ -390,8 +391,6 @@ export function missingBotPermissions(guild: Guild, channelId: string, permissio
   const granted = channel.permissionsFor(me);
   return permissions.filter((permission) => !granted.has(permission));
 }
-
-export const formatPermissions = (permissions: PermissionsString[], t: Translate) => permissions.map((permission) => t(`permission.${permission}`)).join(', ');
 
 /**
  * Why the bot can't give a role to members, or null if it can.

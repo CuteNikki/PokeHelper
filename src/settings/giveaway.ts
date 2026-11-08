@@ -30,6 +30,7 @@ import {
 } from 'database/giveaways';
 import { getGuildLevelingConfiguration } from 'database/leveling';
 
+import { formatPermissions } from 'utility/discord';
 import { buttonIcon } from 'utility/emojis';
 import { formatNumber, MINUTE } from 'utility/duration';
 import { refreshEntriesSoon } from 'utility/giveaways/end';
@@ -39,7 +40,7 @@ import { buildGiveawayPost } from 'utility/giveaways/post';
 import { rulesOf } from 'utility/giveaways/rules';
 import { syncPost } from 'utility/giveaways/sync';
 import type { Translate } from 'utility/i18next';
-import { createSettingsPanel, formatPermissions, missingBotPermissions, type SettingsPanel } from 'utility/settings';
+import { createSettingsPanel, missingBotPermissions, type SettingsPanel } from 'utility/settings';
 
 /** Each giveaway has its own panel, with the giveaway's ID after this. */
 export const GIVEAWAY_PANEL_PREFIX = 'giveaway-';

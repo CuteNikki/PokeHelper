@@ -10,7 +10,7 @@ import {
 
 import { Command } from 'classes/base/command';
 
-import { fetchChannel } from 'utility/discord';
+import { fetchChannel, formatPermissions } from 'utility/discord';
 import { DAY } from 'utility/duration';
 import { getTranslate } from 'utility/i18next';
 import { userSubject } from 'utility/logs/format';
@@ -51,7 +51,7 @@ export default new Command({
     const channel = fetchedChannel?.isTextBased() && !fetchedChannel.isDMBased() ? fetchedChannel : null;
     const missing = channel && interaction.guild.members.me ? channel.permissionsFor(interaction.guild.members.me).missing(NEEDED) : NEEDED;
     if (!channel || missing.length > 0) {
-      return sendError(interaction, t('moderation.purge.missing', { permissions: missing.map((permission) => t(`permission.${permission}`)).join(', ') }));
+      return sendError(interaction, t('moderation.purge.missing', { permissions: formatPermissions(missing, t) }));
     }
     const amount = interaction.options.getInteger('amount', true);
     const user = interaction.options.getUser('user');

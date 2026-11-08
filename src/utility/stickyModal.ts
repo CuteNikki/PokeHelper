@@ -3,11 +3,12 @@ import { channelMention, type Guild, MessageFlags, type ModalSubmitInteraction, 
 import { getFeatureSwitches } from 'database/features';
 import { MAX_STICKIES, saveSticky } from 'database/sticky';
 
+import { formatPermissions } from 'utility/discord';
 import { formatNumber } from 'utility/duration';
 import { getTranslate, type Translate } from 'utility/i18next';
 import { buildTextModal } from 'utility/modal';
 import { createResponse, sendError, sendResponse, withNotice } from 'utility/response';
-import { formatPermissions, missingBotPermissions } from 'utility/settings';
+import { missingBotPermissions } from 'utility/settings';
 import { addStickyChannel, MAX_STICKY_LENGTH, postStickyNow, removeSticky, runStickyTask, STICKY_MODAL_PREFIX, STICKY_TEXT_INPUT_ID } from 'utility/sticky';
 import { renderStickyList } from 'utility/stickyList';
 import type { ResponseKind } from 'utility/theme';

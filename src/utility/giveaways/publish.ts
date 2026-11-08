@@ -3,6 +3,7 @@ import { type Guild, type GuildTextBasedChannel, messageLink, roleMention, TextD
 import { getFeatureSwitches } from 'database/features';
 import { getGiveaway, type Giveaway, MAX_ACTIVE_GIVEAWAYS, setGiveawayMessage, startGiveaway, unstartGiveaway } from 'database/giveaways';
 
+import { formatPermissions } from 'utility/discord';
 import { formatNumber } from 'utility/duration';
 import { GIVEAWAY_CHANNEL_PERMISSIONS } from 'utility/giveaways/ids';
 import { logGiveaway } from 'utility/giveaways/logs';
@@ -11,7 +12,7 @@ import { rulesOf } from 'utility/giveaways/rules';
 import { getTranslate, type Translate } from 'utility/i18next';
 import { logger } from 'utility/logger';
 import type { ResponsePayload } from 'utility/response';
-import { formatPermissions, missingBotPermissions } from 'utility/settings';
+import { missingBotPermissions } from 'utility/settings';
 
 /**
  * A giveaway's post as it's sent and edited, in the server's language from when it started, so everyone sees the same.

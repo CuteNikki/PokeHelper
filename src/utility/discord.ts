@@ -1,4 +1,6 @@
-import { type Channel, type Client, DiscordAPIError, type Guild, type GuildMember, RESTJSONErrorCodes } from 'discord.js';
+import { type Channel, type Client, DiscordAPIError, type Guild, type GuildMember, type PermissionsString, RESTJSONErrorCodes } from 'discord.js';
+
+import type { Translate } from 'utility/i18next';
 
 /** Whether an error is Discord answering with one of these codes, like UnknownMessage for a message that was deleted. */
 export const isDiscordError = (error: unknown, ...codes: RESTJSONErrorCodes[]) =>
@@ -38,3 +40,6 @@ export async function fetchChannel(client: Client, channelId: string): Promise<C
     return isDiscordError(error, RESTJSONErrorCodes.UnknownChannel) ? null : undefined;
   }
 }
+
+/** Permissions by their names in a language, in a line, like `View Channel, Send Messages`. */
+export const formatPermissions = (permissions: PermissionsString[], t: Translate) => permissions.map((permission) => t(`permission.${permission}`)).join(', ');

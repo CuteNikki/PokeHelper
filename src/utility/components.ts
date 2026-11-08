@@ -1,6 +1,7 @@
 import type { AnySelectMenuInteraction, ButtonInteraction, PermissionsBitField, PermissionsString } from 'discord.js';
 import { t } from 'i18next';
 
+import { formatPermissions } from 'utility/discord';
 import { getTranslate } from 'utility/i18next';
 import { logger } from 'utility/logger';
 import { takeBurst, takeCooldown, waitMessage } from 'utility/rateLimit';
@@ -51,7 +52,7 @@ export async function handleComponent<I extends ButtonInteraction | AnySelectMen
   }
 
   if (options.permissions && interaction.member && !(interaction.member.permissions as PermissionsBitField).has(options.permissions)) {
-    const permissions = options.permissions.map((permission) => translate(`permission.${permission}`)).join(', ');
+    const permissions = formatPermissions(options.permissions, translate);
     return sendError(interaction, translate(texts.permissions, { permissions }));
   }
 

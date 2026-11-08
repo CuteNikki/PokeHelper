@@ -23,7 +23,7 @@ import { ensureGuild } from 'database/guild';
 import { getTempBans } from 'database/moderation';
 import { deleteGuildData, deleteUserData, getGivenRoles, getGuildData, getUserData, type GivenRole } from 'database/privacy';
 
-import { isDiscordError } from 'utility/discord';
+import { formatPermissions, isDiscordError } from 'utility/discord';
 import { buttonIcon } from 'utility/emojis';
 import { runCountingTask } from 'utility/counting/game';
 import { buildConfirmation } from 'utility/confirm';
@@ -98,10 +98,7 @@ export async function handlePrivacyButton(interaction: ButtonInteraction): Promi
   if (scope === 'guild') {
     if (!interaction.inCachedGuild()) return sendError(interaction, t('system.outdated'));
     if (!interaction.memberPermissions.has(GUILD_DATA_PERMISSIONS)) {
-      return sendError(
-        interaction,
-        t('system.button.permissions', { permissions: GUILD_DATA_PERMISSIONS.map((permission) => t(`permission.${permission}`)).join(', ') }),
-      );
+      return sendError(interaction, t('system.button.permissions', { permissions: formatPermissions(GUILD_DATA_PERMISSIONS, t) }));
     }
   }
 

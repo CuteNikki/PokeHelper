@@ -18,9 +18,10 @@ import { COUNTING_CHANNEL_PERMISSIONS, countingSettings } from 'settings/countin
 
 import { askToReset, showSettingsPanel } from 'utility/configCommand';
 import { runCountingTask } from 'utility/counting/game';
+import { formatPermissions } from 'utility/discord';
 import { getTranslate } from 'utility/i18next';
 import { createResponse, withNotice } from 'utility/response';
-import { formatPermissions, missingBotPermissions, settingsContext } from 'utility/settings';
+import { missingBotPermissions, settingsContext } from 'utility/settings';
 
 export default new Command({
   data: new SlashCommandBuilder()

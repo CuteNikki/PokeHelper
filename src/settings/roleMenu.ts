@@ -19,6 +19,7 @@ import {
 import { getFeatureSwitches } from 'database/features';
 import { getRoleMenu, getRoleMenus, setRoleMenuRole, updateRoleMenu, type RoleMenu } from 'database/roleMenu';
 
+import { formatPermissions } from 'utility/discord';
 import { buttonIcon } from 'utility/emojis';
 import type { Translate } from 'utility/i18next';
 import { formatNumber } from 'utility/duration';
@@ -26,7 +27,7 @@ import type { ResponsePayload } from 'utility/response';
 import { DiscordLimits } from 'utility/discordLimits';
 import { MAX_EMOJI_LENGTH, parseEmoji } from 'utility/emoji';
 import { MAX_MENU_ROLES, MAX_ROLE_MENUS, moveRoleMenu, ROLE_MENU_CHANNEL_PERMISSIONS, syncRoleMenuMessage } from 'utility/roleMenu';
-import { buildSwitchSection, createSettingsPanel, formatPermissions, missingBotPermissions, type SettingsPanel } from 'utility/settings';
+import { buildSwitchSection, createSettingsPanel, missingBotPermissions, type SettingsPanel } from 'utility/settings';
 import { ThemeColors } from 'utility/theme';
 
 /** Each menu has its own panel, with the menu's ID after this. */

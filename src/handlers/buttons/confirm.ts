@@ -2,6 +2,7 @@ import { Button } from 'classes/base/button';
 
 import { CONFIRM_CUSTOM_ID_PREFIX, parseConfirmation } from 'utility/confirm';
 import { confirmations } from 'utility/confirmations';
+import { formatPermissions } from 'utility/discord';
 import { getTranslate } from 'utility/i18next';
 import { sendError } from 'utility/response';
 import { settingsContext } from 'utility/settings';
@@ -21,10 +22,7 @@ export default new Button({
       if (!interaction.inCachedGuild()) return sendError(interaction, t('system.outdated'));
       // Checked again here, as permissions may have changed since the question was asked
       if (!interaction.memberPermissions.has(confirmation.permissions)) {
-        return sendError(
-          interaction,
-          t('system.button.permissions', { permissions: confirmation.permissions.map((permission) => t(`permission.${permission}`)).join(', ') }),
-        );
+        return sendError(interaction, t('system.button.permissions', { permissions: formatPermissions(confirmation.permissions, t) }));
       }
     }
 

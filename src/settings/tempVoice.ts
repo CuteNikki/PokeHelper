@@ -25,12 +25,13 @@ import {
   type TempVoiceCreator,
 } from 'database/tempVoice';
 
+import { formatPermissions } from 'utility/discord';
 import { buttonIcon } from 'utility/emojis';
 import type { Translate } from 'utility/i18next';
 import { formatNumber } from 'utility/duration';
 import type { ResponsePayload } from 'utility/response';
 import { DiscordLimits } from 'utility/discordLimits';
-import { buildSwitchSection, createSettingsPanel, formatPermissions, type SettingsPanel } from 'utility/settings';
+import { buildSwitchSection, createSettingsPanel, type SettingsPanel } from 'utility/settings';
 import { creatorCategory, missingCreatorPermissions, TEMP_VOICE_PERMISSIONS } from 'utility/tempVoice/channel';
 import { ThemeColors } from 'utility/theme';
 

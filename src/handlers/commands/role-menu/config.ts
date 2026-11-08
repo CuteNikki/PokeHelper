@@ -15,12 +15,13 @@ import { countRoleMenus, createRoleMenu, getRoleMenu, getRoleMenus } from 'datab
 
 import { getRoleMenuSettings, MAX_NAME_LENGTH, renderRoleMenuList, roleMenuName } from 'settings/roleMenu';
 
+import { formatPermissions } from 'utility/discord';
 import { formatNumber } from 'utility/duration';
 import { DiscordLimits } from 'utility/discordLimits';
 import { getTranslate } from 'utility/i18next';
 import { createResponse, sendResponse } from 'utility/response';
 import { MAX_ROLE_MENUS, ROLE_MENU_CHANNEL_PERMISSIONS } from 'utility/roleMenu';
-import { formatPermissions, missingBotPermissions, settingsContext } from 'utility/settings';
+import { missingBotPermissions, settingsContext } from 'utility/settings';
 
 export default new Command({
   data: new SlashCommandBuilder()
