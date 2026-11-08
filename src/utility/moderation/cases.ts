@@ -349,7 +349,8 @@ export async function handleCasesButton(interaction: ButtonInteraction<'cached'>
         inputId: REASON_INPUT_ID,
         placeholder: t('moderation.cases.reasonModal.placeholder'),
         value: modCase.reason ?? undefined,
-        maxLength: MAX_REASON_LENGTH,
+        // Reasons from Discord's audit log can be longer than the bot's own, and Discord doesn't show a popup whose text doesn't fit
+        maxLength: Math.max(MAX_REASON_LENGTH, modCase.reason?.length ?? 0),
         optional: true,
         paragraph: true,
       }),
