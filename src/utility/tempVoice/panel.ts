@@ -144,15 +144,14 @@ export function buildPanel({ channel, record }: TempChannel, t: Translate): Resp
   const container = new ContainerBuilder()
     .setAccentColor(ThemeColors.info)
     .addTextDisplayComponents(new TextDisplayBuilder().setContent(`${t('tempVoice.panel.title')}\n${owner} · ${people}`))
-    // Large, so the title stands apart, like in the settings panels. The small one below keeps the channel's own controls together
+    // Large, so the title stands apart, like in the settings panels, and the same between every part below
     .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large))
     .addSectionComponents(
       // Quoted, like the values of text settings
       row(t('tempVoice.panel.name'), t('tempVoice.panel.nameDescription'), edit('rename'), quote(channelLabel(record.namePrefix, channel.name))),
       row(t('tempVoice.panel.limit'), t('tempVoice.panel.limitDescription'), edit('limit'), quote(limit)),
     )
-    // Small, between what the channel is and who can get in
-    .addSeparatorComponents(new SeparatorBuilder())
+    .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large))
     .addSectionComponents(
       row(t('tempVoice.panel.locked'), t('tempVoice.panel.lockedDescription'), toggle('lock', record.locked)),
       row(t('tempVoice.panel.hidden'), t('tempVoice.panel.hiddenDescription'), toggle('hide', record.hidden)),
