@@ -336,3 +336,7 @@ export const dropClaims = (giveawayId: string, userIds: string[]) =>
 /** Give several people in a giveaway the same number of entries at once. */
 export const setEntriesOf = (giveawayId: string, userIds: string[], entries: number) =>
   prisma.giveawayEntry.updateMany({ where: { giveawayId, userId: { in: userIds } }, data: { entries } });
+
+/** The running giveaways someone entered, with their servers. */
+export const getRunningEntriesOf = (userId: string) =>
+  prisma.giveawayEntry.findMany({ where: { userId, giveaway: { status: 'active' } }, select: { giveawayId: true, giveaway: { select: { guildId: true } } } });

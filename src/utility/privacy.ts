@@ -16,12 +16,14 @@ import {
   TextDisplayBuilder,
 } from 'discord.js';
 
+import { getRunningEntriesOf } from 'database/giveaways';
 import { ensureGuild } from 'database/guild';
 import { deleteGuildData, deleteUserData, getGivenRoles, getGuildData, getUserData, type GivenRole } from 'database/privacy';
 
 import { buttonIcon } from 'utility/emojis';
 import { runCountingTask } from 'utility/counting/game';
 import { buildConfirmation } from 'utility/confirm';
+import { markPostChanged } from 'utility/giveaways/sync';
 import { getTranslate, type Translate } from 'utility/i18next';
 import { logger } from 'utility/logger';
 import { forgetLogConfig } from 'utility/logs/send';
@@ -136,7 +138,10 @@ async function takeBackRoles(client: Client, roles: GivenRole[]) {
 /** Delete everything about whoever confirmed, in every server. */
 export async function deleteOwnData(context: SettingsContext, t: Translate): Promise<ResponsePayload> {
   await takeBackRoles(context.client, await getGivenRoles({ userId: context.userId }));
+  const entries = await getRunningEntriesOf(context.userId);
   await deleteUserData(context.userId);
+  // Their entries are gone, so the posts of the giveaways they were in show one person fewer
+  for (const entry of entries) markPostChanged(entry.giveaway.guildId, entry.giveawayId);
   return createResponse(t('privacy.user.deleted'), 'warning');
 }
 
