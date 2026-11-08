@@ -33,9 +33,8 @@ async function sendInChannel(client: Client, reminder: Reminder, next: Date | nu
 }
 
 /**
- * Send the reminders that are due, where they were meant to go or else the other way: by DM or in the channel they were set in.
- * Repeating ones move on to their next time, the others are deleted. Runs regularly, so reminders missed while the bot was offline
- * go off once it's back, repeating ones once and not for every time they missed.
+ * Send the reminders that are due, by DM or in their channel, falling back to the other way. Repeating ones move on, the others are deleted.
+ * Ones missed while offline go off once it's back, repeating ones once and not for every time they missed.
  */
 export async function runReminderJob(client: Client) {
   const now = new Date();

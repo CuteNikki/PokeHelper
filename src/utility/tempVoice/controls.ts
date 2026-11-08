@@ -60,10 +60,7 @@ const DELETE_DELAY = 3 * SECOND;
 /** The most people a channel keeps out, as each is a permission on every channel the owner makes, and their next one would take long to make. */
 const MAX_KEPT_OUT = 50;
 
-/**
- * The channel a control is for, if whoever used it may change it. Otherwise answers why not.
- * @param channelId From the control's custom ID.
- */
+/** The channel a control is for, if whoever used it may change it. Otherwise answers why not. */
 async function controlledChannel(interaction: Control, channelId: string, forModerators: boolean, t: Translate): Promise<TempChannel | null> {
   const temp = await findTempChannel(interaction.guild, channelId);
   if (!temp) {
@@ -83,10 +80,7 @@ async function controlledChannel(interaction: Control, channelId: string, forMod
 /** "Try again in …", for a channel Discord won't change yet. */
 const tryAgain = (retryAt: Date, t: Translate) => t('tempVoice.controls.changeLimit', { time: time(retryAt, TimestampStyles.RelativeTime) });
 
-/**
- * After a change made from a panel, deferred with deferUpdate: shows that panel as it is now, and says so if Discord wouldn't change
- * the channel yet. The panel in the channel's chat catches up on its own.
- */
+/** After a deferred change from a panel: show it as it is now, and say so if Discord wouldn't change the channel yet. */
 async function showChanged(interaction: Control, temp: TempChannel, result: { retryAt: Date } | void, t: Translate) {
   if (result) await sendError(interaction, tryAgain(result.retryAt, t));
   // The panel is in the server's language in the channel's chat, and in the user's own where only they see it
@@ -97,7 +91,6 @@ async function showChanged(interaction: Control, temp: TempChannel, result: { re
 /** What a popup changes: the name, the limit, or both, for panels from before they were apart. */
 type EditKind = 'name' | 'limit' | 'both';
 
-/** The popup to rename a channel, set its limit, or both. */
 function buildEditModal(temp: TempChannel, kind: EditKind, t: Translate) {
   const labels: LabelBuilder[] = [];
   if (kind !== 'limit') {
@@ -167,10 +160,7 @@ export async function handleTempVoiceButton(interaction: ButtonInteraction): Pro
   }
 }
 
-/**
- * Hand over, kick or keep out someone, after picking them from the panel. Answered on the question, which only whoever picked sees.
- * The button was deferred with deferUpdate.
- */
+/** Hand over, kick or keep out someone picked from the panel. Answered on the question only whoever picked sees. */
 async function handleMemberAction(interaction: ButtonInteraction<'cached'>, temp: TempChannel, action: TempVoiceAction, memberId: string, t: Translate) {
   const answer = (text: string, kind: 'info' | 'error' = 'info') => interaction.editReply({ ...createResponse(text, kind), allowedMentions: { parse: [] } });
   const mention = userMention(memberId);
@@ -229,8 +219,7 @@ export async function handleTempVoiceSelect(interaction: AnySelectMenuInteractio
   const t = getTranslate(interaction.locale);
   const parsed = parseTempVoiceCustomId(interaction.customId);
   if (!parsed || !interaction.inCachedGuild()) return sendError(interaction, t('system.outdated'));
-  // Answered before the channel is looked up, which can take a moment, as Discord gives up after 3 seconds. Someone picked from who's
-  // here gets a question of their own, the lists change the panel. Errors still only go to whoever picked
+  // Answered before the channel is looked up, as Discord gives up after 3 seconds. Picking someone gets its own question, the lists change the panel
   if (parsed.action === 'member') await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
   else await interaction.deferUpdate();
   const temp = await controlledChannel(interaction, parsed.channelId, MODERATOR_ACTIONS.includes(parsed.action), t);
@@ -239,7 +228,6 @@ export async function handleTempVoiceSelect(interaction: AnySelectMenuInteractio
   // Picking sets the whole list, so leaving someone out takes them off it. Who can't be on it is left off, and whoever picked is told why
   if ((parsed.action === 'moderators' || parsed.action === 'allow' || parsed.action === 'block') && interaction.isUserSelectMenu()) {
     const list = parsed.action;
-    /** Why someone can't be on the list, or null if they can. */
     const reason = (id: string): 'bot' | 'owner' | 'staff' | 'moderator' | null => {
       if (interaction.users.get(id)?.bot) return 'bot';
       // The owner is always let in and can do everything already

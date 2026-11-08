@@ -34,10 +34,7 @@ function addMonths(time: number, months: number): number {
   return target.getTime();
 }
 
-/**
- * Parse a duration like `10m`, `2h 30m`, `1,5 Std` or `in 3 days and 4 hours`, with the units of any language.
- * @returns When it ends, counted from now, or null if it isn't a duration.
- */
+/** Parse a duration like `10m`, `2h 30m`, `1,5 Std` or `in 3 days and 4 hours` into when it ends, or null if it isn't one. */
 export function parseDuration(input: string, now: Date, words: Vocabulary = getVocabulary()): Date | null {
   // Commas and joining words between the parts, like `1h and 30m` or `1 Tag, 2 Std`, and a word in front, like `in`
   const tokens = input
@@ -78,10 +75,7 @@ interface DatePart {
   rest: string;
 }
 
-/**
- * A date like `24.12.`, `24.12.2026`, `2026-12-24`, a day counted from today like `tomorrow`, or a weekday, which is the next one,
- * today included.
- */
+/** A date like `24.12.`, `2026-12-24` or `tomorrow`, or a weekday, which is the next one, today included. */
 function parseDatePart(text: string, today: WallTime, words: Vocabulary): DatePart | null {
   const take = (match: RegExpExecArray) => text.slice(0, match.index) + ' ' + text.slice(match.index + match[0].length);
   const fromToday = (days: number) => new Date(Date.UTC(today.year, today.month - 1, today.day + days));
@@ -118,10 +112,7 @@ function parseDatePart(text: string, today: WallTime, words: Vocabulary): DatePa
   return null;
 }
 
-/**
- * A time like `18:00`, `6pm`, `6:30 pm`, `18 Uhr` or, after a date, just `18`.
- * @returns The hour and minute, or null if it isn't a time.
- */
+/** A time like `18:00`, `6pm`, `6:30 pm`, `18 Uhr` or, after a date, just `18`. */
 function parseTimePart(text: string, afterDate: boolean, words: Vocabulary): { hour: number; minute: number } | null {
   const match = /^(\d{1,2})(?:[:.](\d{2}))?\s*(\p{L}+)?$/u.exec(text);
   if (!match) return null;
@@ -140,10 +131,8 @@ function parseTimePart(text: string, afterDate: boolean, words: Vocabulary): { h
 }
 
 /**
- * Parse a date and time like `18:00`, `tomorrow 9am`, `friday 18:00`, `24.12. 18:00` or `2026-12-24`, in someone's timezone,
- * with the words of any language. A time without a date is today, or tomorrow once it passed. A weekday is the next one, or a week
- * later once its time passed today. A date without a year is the next time it comes, and a date without a time is at 9:00.
- * @returns When it is, or why it can't be used.
+ * Parse a date and time like `tomorrow 9am`, `friday 18:00` or `24.12. 18:00` in someone's timezone. A time without a date is the next
+ * time it comes, a date without a year likewise, and a date without a time is at 9:00.
  */
 export function parseDateTime(input: string, now: Date, timezone: string, words: Vocabulary = getVocabulary()): Date | WhenError {
   const today = getWallTime(now, timezone);
@@ -185,10 +174,7 @@ export function parseDateTime(input: string, now: Date, timezone: string, words:
   return result;
 }
 
-/**
- * When a reminder is due, from a duration like `2h 30m` or a date and time like `tomorrow 18:00`.
- * @param timezone The user's timezone, for dates and times.
- */
+/** When a reminder is due, from a duration like `2h 30m` or a date and time like `tomorrow 18:00`. */
 export function parseWhen(input: string, now: Date, timezone: string, words: Vocabulary = getVocabulary()): Date | WhenError {
   const result = parseDuration(input, now, words) ?? parseDateTime(input, now, timezone, words);
   if (typeof result === 'string') return result;
@@ -203,11 +189,8 @@ export function parseWhen(input: string, now: Date, timezone: string, words: Voc
 const LONGEST: Record<ReminderRepeat, number> = { daily: DAY + HOUR, weekly: 7 * DAY + HOUR, monthly: 31 * DAY + HOUR, yearly: 366 * DAY + HOUR };
 
 /**
- * The next time a repeating reminder goes off after a moment: the same time on the clock in its timezone, a day, week,
- * month or year on from when it first went off. Counting from the first time keeps a reminder on the 31st on the last day
- * of shorter months, without moving it to the 28th for good after February.
- * @param startAt When it first went off.
- * @param after The moment it has to be after, like now.
+ * The next time a repeating reminder goes off after `after`, counted from when it first went off (`startAt`), so one on the 31st
+ * lands on the last day of shorter months without moving to the 28th for good after February.
  */
 export function nextOccurrence(startAt: Date, repeat: ReminderRepeat, timezone: string, after: Date): Date {
   const start = getWallTime(startAt, timezone);

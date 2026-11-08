@@ -30,11 +30,8 @@ import { channelLabel, MAX_MODERATORS, type TempChannel } from 'utility/tempVoic
 import { ThemeColors } from 'utility/theme';
 
 /**
- * A temporary channel's control panel: what it's like right now and everything that changes it, in one message at the top of its chat,
- * edited whenever anything does. The same panel can be shown to its owner anywhere with /voice, since every control says which channel
- * it's for.
- *
- * Custom IDs are `tempvoice:<action>:<channel>`, and `tempvoice:<action>:<channel>:<member>` for what's done to someone in it.
+ * A temporary channel's control panel, posted at the top of its chat and also shown with /voice, as every control says its channel.
+ * Custom IDs are `tempvoice:<action>:<channel>`, plus `:<member>` for what's done to someone in it.
  */
 export const TEMP_VOICE_CUSTOM_ID_PREFIX = 'tempvoice:';
 /** The popup to rename a channel and set its limit, followed by the channel's ID. */
@@ -94,7 +91,7 @@ export function buildPanel({ channel, record }: TempChannel, t: Translate): Resp
       .setLabel(t(on ? 'state.on' : 'state.off'))
       .setEmoji(switchIcon(on))
       .setStyle(on ? ButtonStyle.Success : ButtonStyle.Secondary);
-  // A bold name with a short description under it, like the rows above, for the pickers that have no row of their own
+  // For the pickers that have no row of their own
   const heading = (label: string, description: string) => new TextDisplayBuilder().setContent(`${bold(label)}\n${subtext(description)}`);
   // Who's on a list past what the picker shows, so they aren't forgotten
   const withHidden = (description: string, count: number) =>
@@ -147,7 +144,6 @@ export function buildPanel({ channel, record }: TempChannel, t: Translate): Resp
     // Large, so the title stands apart, like in the settings panels, and the same between every part below
     .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large))
     .addSectionComponents(
-      // Quoted, like the values of text settings
       row(t('tempVoice.panel.name'), t('tempVoice.panel.nameDescription'), edit('rename'), quote(channelLabel(record.namePrefix, channel.name))),
       row(t('tempVoice.panel.limit'), t('tempVoice.panel.limitDescription'), edit('limit'), quote(limit)),
     )
@@ -166,7 +162,6 @@ export function buildPanel({ channel, record }: TempChannel, t: Translate): Resp
     .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large))
     .addTextDisplayComponents(heading(t('tempVoice.panel.someone'), t('tempVoice.panel.someoneDescription')))
     .addActionRowComponents(new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(someone))
-    // More space above the button at the bottom, like on the settings panels
     .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large))
     .addActionRowComponents(
       new ActionRowBuilder<ButtonBuilder>().addComponents(

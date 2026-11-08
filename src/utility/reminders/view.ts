@@ -40,11 +40,7 @@ const TEXT_MARGIN = 100;
 /** When a reminder goes off, as a date Discord shows in everyone's own time, and how long until then. */
 export const formatDue = (dueAt: Date) => `${time(dueAt, TimestampStyles.LongDateShortTime)} (${time(dueAt, TimestampStyles.RelativeTime)})`;
 
-/**
- * A reminder going off.
- * @param inChannel Whether it's sent in a channel, where it mentions who it's for, instead of a DM.
- * @param next When a repeating one comes back, or null for one that doesn't.
- */
+/** A reminder going off. In a channel, it mentions who it's for. */
 export function buildReminderMessage(reminder: Reminder, inChannel: boolean, next: Date | null, now: Date, t: Translate): ResponsePayload {
   const notes = [t('reminders.message.set', { time: time(reminder.createdAt, TimestampStyles.RelativeTime) })];
   if (now.getTime() - reminder.dueAt.getTime() > LATE_AFTER)
@@ -83,7 +79,6 @@ export function buildReminderList(reminders: Reminder[], t: Translate): Response
   const container = new ContainerBuilder()
     .setAccentColor(ThemeColors.info)
     .addTextDisplayComponents(new TextDisplayBuilder().setContent(t('reminders.list.title')))
-    // Large, so the title and the list stand apart, like in the settings panels
     .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large));
 
   if (reminders.length === 0) {
@@ -98,7 +93,6 @@ export function buildReminderList(reminders: Reminder[], t: Translate): Response
       due: formatDue(reminder.dueAt),
       details: describe(reminder, t),
     });
-  // How many there are of how many can be set, above the list like on the admin lists
   const count = subtext(t('reminders.list.count', { count: reminders.length, max: formatNumber(MAX_REMINDERS, t) }));
   // The texts share what's left of Discord's limit for a message's text, so a long list still fits
   const rest =
@@ -107,7 +101,6 @@ export function buildReminderList(reminders: Reminder[], t: Translate): Response
   const lines = reminders.map((reminder, index) => line(reminder, index, shorten(reminder.text.replace(/\s+/g, ' '), perText)));
   container
     .addTextDisplayComponents(new TextDisplayBuilder().setContent([count, ...lines].join('\n')))
-    // Large, like before the buttons at the bottom of the settings panels
     .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large));
 
   const select = new StringSelectMenuBuilder()
