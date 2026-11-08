@@ -37,7 +37,6 @@ export default new Command({
     if (!levelingConfig?.enabled) return sendError(interaction, t('leveling.disabled'));
 
     await interaction.deferReply();
-    // The buttons carry this view, so they work however old the message gets
     const view = {
       page: interaction.options.getInteger('page') || 1,
       sortOrder: 'desc' as const,

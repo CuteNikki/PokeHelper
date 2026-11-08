@@ -24,10 +24,7 @@ import { handleStickyModal } from 'utility/stickyModal';
 import { handleTempVoiceModal } from 'utility/tempVoice/controls';
 import { TEMP_VOICE_EDIT_MODAL_PREFIX } from 'utility/tempVoice/panel';
 
-/**
- * Popups are handled by their custom ID, like buttons, instead of being waited for where they were shown,
- * so they work however long they were open, even across restarts.
- */
+/** Popups are handled by their custom ID, like buttons, so they work however long they were open, even across restarts. */
 export default new Event({
   name: Events.InteractionCreate,
   once: false,

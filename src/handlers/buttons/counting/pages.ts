@@ -28,7 +28,7 @@ export default new Button({
     // Asks which page in a popup, which has to be the first answer
     if (parsed.action === 'goto') return interaction.showModal(buildPageModal(`${COUNTING_PAGE_MODAL_PREFIX}${parsed.list}`, parsed.page + 1, t));
 
-    // Answered before anything is looked up, which can take a moment, as Discord gives up after 3 seconds. Errors still only go to whoever pressed
+    // Answered first, as Discord gives up after 3 seconds
     await interaction.deferUpdate();
     let page = parsed.page;
     if (parsed.action === 'me') {

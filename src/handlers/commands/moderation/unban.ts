@@ -4,9 +4,7 @@ import { Command } from 'classes/base/command';
 
 import { MAX_REASON_LENGTH, runModeration } from 'utility/moderation/run';
 
-/**
- * Lift a ban, which ends a temporary one early. Nobody is told by DM, as someone banned rarely shares a server with the bot to get one.
- */
+/** Lift a ban, which ends a temporary one early. Nobody is told by DM, as someone banned rarely shares a server with the bot to get one. */
 export default new Command({
   data: new SlashCommandBuilder()
     .setContexts(InteractionContextType.Guild)

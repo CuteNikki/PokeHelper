@@ -61,7 +61,6 @@ export default new Event({
         subject,
         thumbnail,
         by: doer,
-        // Blocks like the other changes: a bold heading, then a role on each line
         details: [
           added.length > 0 ? `${bold(t('logs.changes.added'))}\n${added.join('\n')}` : null,
           removed.length > 0 ? `${bold(t('logs.changes.removed'))}\n${removed.join('\n')}` : null,
@@ -82,7 +81,6 @@ export default new Event({
         about: 'user',
         subject,
         thumbnail,
-        // Like a profile's avatar: changed, with the new one as the picture, or removed
         details: [`${bold(t('logs.avatar'))} ${t(after.avatar ? 'logs.avatarChanged' : 'logs.avatarRemoved')}`],
         ids,
       }));

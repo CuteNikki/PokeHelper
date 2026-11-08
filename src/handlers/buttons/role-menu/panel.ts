@@ -14,10 +14,7 @@ import { settingsContext } from 'utility/settings';
 /** The buttons that act on one menu, followed by its ID. */
 const MENU_ACTIONS = [ROLE_MENU_CUSTOM_ID.repost, ROLE_MENU_CUSTOM_ID.delete, ROLE_MENU_CUSTOM_ID.confirmDelete, ROLE_MENU_CUSTOM_ID.back];
 
-/**
- * The buttons around the role menu settings: back to the list, posting a menu again, and deleting it.
- * Everything they need is in their custom ID, so they never stop working, also the confirmation for deleting.
- */
+/** The buttons around the role menu settings. Everything they need, also to confirm deleting, is in their custom ID, so they never stop working. */
 export default new Button({
   customId: 'rolemenu:',
   includesCustomId: true,
@@ -27,7 +24,7 @@ export default new Button({
     const t = getTranslate(interaction.locale);
     const { customId } = interaction;
 
-    // Answered before anything is looked up, which can take a moment, as Discord gives up after 3 seconds. None of them opens a popup
+    // Answered first, as Discord gives up after 3 seconds. None of them opens a popup
     await interaction.deferUpdate();
 
     if (customId === ROLE_MENU_CUSTOM_ID.list) {
@@ -67,7 +64,6 @@ export default new Button({
 
       case ROLE_MENU_CUSTOM_ID.confirmDelete: {
         await deleteRoleMenu(interaction.guild, menu);
-        // Back to the list, to go on with another menu
         return interaction.editReply(withNotice(t('roleMenu.delete.success'), 'success', await renderRoleMenuList(interaction.guild, t)));
       }
 

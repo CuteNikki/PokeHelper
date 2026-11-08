@@ -20,7 +20,7 @@ export default new Command({
   async execute(interaction) {
     if (!interaction.inCachedGuild()) return;
     const t = getTranslate(interaction.locale);
-    // Like the buttons of the history, also when the server shows the command to others in its settings
+    // Also when the server shows the command to others in its settings
     const problem = permissionProblem(interaction.member, 'ModerateMembers', t);
     if (problem) return sendError(interaction, problem);
     // Answered first, as Discord gives up after 3 seconds

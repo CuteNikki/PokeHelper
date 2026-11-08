@@ -10,11 +10,7 @@ import { logger } from 'utility/logger';
 /** The change in an audit log entry that gives or takes away a timeout. */
 const TIMEOUT_CHANGE = 'communication_disabled_until';
 
-/**
- * Bans, unbans, kicks, timeouts and timeouts taken away done through Discord itself, like from the menu on someone's name, become cases too, so someone's
- * case history is complete however they were moderated. So do timeouts by AutoMod, with no moderator and its rule as the reason. Discord's audit log says who did it and why. The bot's own doing, from its
- * commands or a temporary ban running out, already has its case.
- */
+/** Moderation done through Discord itself, and timeouts by AutoMod, become cases too, so a case history is complete. The bot's own doing already has its case. */
 export default new Event({
   name: Events.GuildAuditLogEntryCreate,
   once: false,

@@ -19,7 +19,6 @@ export default new Event({
       thumbnail: avatarOf(member.user),
       details: [
         member.joinedTimestamp ? `${bold(t('logs.joined'))} ${when(member.joinedTimestamp)}` : null,
-        // A block like the other lists: a bold heading, then a role on each line
         roles.length > 0 ? `${bold(t('logs.roles'))}\n${roles.join('\n')}` : null,
       ],
       ids: { user: member.id },

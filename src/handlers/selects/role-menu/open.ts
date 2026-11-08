@@ -16,7 +16,7 @@ export default new SelectMenu({
     if (!interaction.inCachedGuild()) return;
     const t = getTranslate(interaction.locale);
 
-    // Answered before anything is looked up, which can take a moment, as Discord gives up after 3 seconds
+    // Answered first, as Discord gives up after 3 seconds
     await interaction.deferUpdate();
     const menu = await getRoleMenu(interaction.values[0] ?? '');
     if (menu?.guildId !== interaction.guildId) return interaction.editReply(createResponse(t('roleMenu.notFound'), 'error'));

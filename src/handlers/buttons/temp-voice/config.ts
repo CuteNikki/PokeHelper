@@ -13,10 +13,7 @@ import { settingsContext } from 'utility/settings';
 /** The buttons that act on one join channel, followed by its ID. */
 const ACTIONS = [TEMP_VOICE_CONFIG_ID.delete, TEMP_VOICE_CONFIG_ID.confirmDelete, TEMP_VOICE_CONFIG_ID.back];
 
-/**
- * The buttons around the join channel settings: back to the list, and deleting one.
- * Everything they need is in their custom ID, so they never stop working, also the confirmation for deleting.
- */
+/** The buttons around the join channel settings. Everything they need, also to confirm deleting, is in their custom ID, so they never stop working. */
 export default new Button({
   customId: 'voicecfg:',
   includesCustomId: true,
@@ -26,7 +23,7 @@ export default new Button({
     const t = getTranslate(interaction.locale);
     const { customId } = interaction;
 
-    // Answered before anything is looked up, which can take a moment, as Discord gives up after 3 seconds. None of them opens a popup
+    // Answered first, as Discord gives up after 3 seconds. None of them opens a popup
     await interaction.deferUpdate();
 
     if (customId === TEMP_VOICE_CONFIG_ID.list) return interaction.editReply(await renderTempVoiceList(interaction.guild, t));

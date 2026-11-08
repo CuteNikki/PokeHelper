@@ -127,11 +127,7 @@ async function handleRegister(interaction: ChatInputCommandInteraction<'cached'>
   return interaction.editReply(createResponse(lines.join('\n'), 'success'));
 }
 
-/**
- * Restart the bot, for changes to shared code that a reload doesn't pick up.
- * The bot shuts down cleanly and relies on something starting it again, like Docker with `restart: unless-stopped`.
- * Whatever happens while it's away is caught up on, like counting and scheduled jobs.
- */
+/** Restart the bot, for changes a reload doesn't pick up. Relies on something starting it again, like Docker with `restart: unless-stopped`. */
 async function handleRestart(interaction: ChatInputCommandInteraction<'cached'>) {
   await interaction.reply({ ...createResponse(t('dev.restart.message'), 'warning'), flags: [MessageFlags.IsComponentsV2, MessageFlags.Ephemeral] });
   logger.info(`Restarting, as asked by ${interaction.user.tag} (${interaction.user.id})`);
@@ -181,7 +177,7 @@ async function handleThemeCalendar(interaction: ChatInputCommandInteraction<'cac
   return interaction.reply({ ...createResponse(lines.filter(Boolean).join('\n'), 'info'), flags: [MessageFlags.IsComponentsV2, MessageFlags.Ephemeral] });
 }
 
-/** Every theme in one GIF, posted for everyone in the channel to see, like to show them off. */
+/** Every theme in one GIF, posted for everyone in the channel to see. */
 async function handleThemePreview(interaction: ChatInputCommandInteraction<'cached'>) {
   // Drawing it the first time takes a few seconds
   await interaction.deferReply();

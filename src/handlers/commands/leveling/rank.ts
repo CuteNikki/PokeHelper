@@ -34,7 +34,6 @@ export default new Command({
     if (!levelingConfig?.enabled) return sendError(interaction, t('leveling.disabled'));
 
     await interaction.deferReply({ flags: ephemeral ? [MessageFlags.Ephemeral] : undefined });
-    // The buttons carry the view, so they work however old the message gets
     return interaction.editReply(await buildRank(interaction.guild, targetUser, { period: 'allTime', text }, t));
   },
 });

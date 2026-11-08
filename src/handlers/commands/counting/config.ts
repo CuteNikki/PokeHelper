@@ -54,7 +54,6 @@ export default new Command({
   },
 });
 
-/** Start the counting game in a channel. */
 async function handleSetup(interaction: ChatInputCommandInteraction<'cached'>): Promise<unknown> {
   const t = getTranslate(interaction.locale);
   await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
