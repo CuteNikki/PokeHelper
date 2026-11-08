@@ -16,7 +16,7 @@ Poke Helper brings the games and tools a community server needs, in a look that 
 
 • **Starboard:** messages with enough reactions are collected in their own channel
 
-• **Giveaways:** with rules for who can enter, bonus entries for roles, a list of who's in, and winners who claim their prize in time, or it goes to someone new
+• **Giveaways:** with rules for who can enter, prizes by place, bonus entries for roles, a list of who's in, and winners who claim their prize in time, or it goes to someone new
 
 **🛠️ Tools**
 

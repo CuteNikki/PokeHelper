@@ -1996,7 +1996,11 @@
       "participants_other": "{{count, number}} Leute machen mit",
       "number": "Giveaway #{{number}}",
       "join": "Mitmachen",
-      "participantsButton": "Teilnehmer"
+      "participantsButton": "Teilnehmer",
+      "prizes": "**Preise**",
+      "prizeLine": "- {{count}}x {{prize}}",
+      "winnersByPrize": "**Gewinner**",
+      "winnersLine": "- **{{prize}}**: {{winners}}"
     },
     "rules": {
       "requiredAny_one": "{{roles}} haben",
@@ -2124,6 +2128,14 @@
       "dm": {
         "label": "Gewinnern schreiben",
         "description": "Ob Gewinner eine DM bekommen, dass sie gewonnen haben. Unter dem Giveaway werden sie so oder so gepingt"
+      },
+      "prizes": {
+        "label": "Preise nach Platz",
+        "description": "Andere Preise für die ersten gezogenen Gewinner, einer pro Zeile, wie 1x Shiny Glurak. Alle danach gewinnen den Preis oben",
+        "placeholder": "1x Shiny Glurak\n2x Sonderbonbon",
+        "invalid": "Schreib einen Preis pro Zeile, mit der Anzahl der Gewinner davor, wie 2x Sonderbonbon. Höchstens {{max}} Gewinner pro Preis.",
+        "tooMany": "Das sind mehr als {{max}} Preise.",
+        "tooLong": "Der Name eines Preises darf höchstens {{max}} Zeichen lang sein."
       }
     },
     "join": {
@@ -2176,7 +2188,10 @@
       "dmLink": "Zum Giveaway",
       "roleReason": "Hat das Giveaway für {{prize}} gewonnen",
       "noneLeft": "Für **{{prize}}** konnte sonst niemand gezogen werden, also geht er an niemand Neues.",
-      "roleTakenReason": "Als Gewinner von {{prize}} ersetzt"
+      "roleTakenReason": "Als Gewinner von {{prize}} ersetzt",
+      "announcePrizes": "{{icon.trophy}} Glückwunsch! Hier siehst du, wer was gewonnen hat:",
+      "rerollPrizes": "{{icon.trophy}} Neue Gewinner! Hier siehst du, wer was gewonnen hat:",
+      "prizeLine": "- {{winners}}: **{{prize}}**"
     },
     "claim": {
       "announce": "Drück bis {{date}} ({{relative}}) auf **Abholen**, um deinen Preis zu bekommen, sonst geht er an jemand anderen.",

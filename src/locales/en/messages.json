@@ -2052,7 +2052,11 @@
       "participants_other": "{{count, number}} people entered",
       "number": "Giveaway #{{number}}",
       "join": "Join",
-      "participantsButton": "Participants"
+      "participantsButton": "Participants",
+      "prizes": "**Prizes**",
+      "prizeLine": "- {{count}}x {{prize}}",
+      "winnersByPrize": "**Winners**",
+      "winnersLine": "- **{{prize}}**: {{winners}}"
     },
     "rules": {
       "requiredAny_one": "Have {{roles}}",
@@ -2180,6 +2184,14 @@
       "dm": {
         "label": "DM winners",
         "description": "Whether winners get a DM saying they won. They're pinged under the giveaway either way"
+      },
+      "prizes": {
+        "label": "Prizes by place",
+        "description": "Other prizes for the first winners drawn, one per line, like 1x Shiny Charizard. Everyone after them wins the prize above",
+        "placeholder": "1x Shiny Charizard\n2x Rare Candy",
+        "invalid": "Write one prize per line, with how many winners get it in front, like 2x Rare Candy. At most {{max}} winners each.",
+        "tooMany": "That's more than {{max}} prizes.",
+        "tooLong": "A prize's name can be at most {{max}} characters long."
       }
     },
     "join": {
@@ -2232,7 +2244,10 @@
       "dmLink": "See the giveaway",
       "roleReason": "Won the giveaway for {{prize}}",
       "noneLeft": "Nobody else could be drawn for **{{prize}}**, so it doesn't go to anyone new.",
-      "roleTakenReason": "Replaced as a winner of {{prize}}"
+      "roleTakenReason": "Replaced as a winner of {{prize}}",
+      "announcePrizes": "{{icon.trophy}} Congrats! Here's who won what:",
+      "rerollPrizes": "{{icon.trophy}} New winners! Here's who won what:",
+      "prizeLine": "- {{winners}}: **{{prize}}**"
     },
     "claim": {
       "announce": "Press **Claim** by {{date}} ({{relative}}) to get your prize, or it goes to someone else.",

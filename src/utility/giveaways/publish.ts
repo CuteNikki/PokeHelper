@@ -67,7 +67,7 @@ export async function publishDraft(
 
   let message;
   try {
-    message = await channel.send(renderPost(guild, started, { participants: 0, winnerIds: [] }));
+    message = await channel.send(renderPost(guild, started, { participants: 0, winners: [] }));
   } catch (error) {
     // Like when the permissions changed meanwhile. Back to a draft, so it can be started again once it can be posted
     logger.warn(error, `Failed to post giveaway ${started.id} in channel ${channel.id} of guild ${guild.id}`);

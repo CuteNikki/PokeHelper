@@ -100,6 +100,7 @@ _A Pokémon themed Discord bot_
 
 - `/giveaway start` sets up a draft with a preview of its post, which only you see until you press Start
 - A prize, a description, how many win, how long it runs, the channel, a role to ping, and a host, which can be anyone or anything, like a team or a sponsor
+- Prizes by place, like a Shiny Charizard for the first winner drawn and Rare Candies for the next two, with everyone after them winning the main prize
 - Rules for who can enter: roles they need, one or all of them, roles that keep them out, a level, how long they've been on the server, and how old their account is
 - Bonus entries for roles, like +2 for boosters, which add up and follow members' roles while it runs
 - Join tells members every rule they don't meet, and when they can enter for rules that only need time, and lets them leave again

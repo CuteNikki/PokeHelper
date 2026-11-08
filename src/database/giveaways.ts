@@ -17,6 +17,9 @@ export const MAX_HOST_LENGTH = 100;
 export const MAX_DESCRIPTION_LENGTH = 1000;
 export const MIN_WINNERS = 1;
 export const MAX_WINNERS = 50;
+/** The most prizes by place a giveaway can have, and how long each one's name can be, so they all fit on the post. */
+export const MAX_PLACE_PRIZES = 10;
+export const MAX_PLACE_PRIZE_LENGTH = 100;
 /** How long a giveaway runs at least and at most, in minutes. */
 export const MIN_DURATION_MINUTES = 1;
 export const MAX_DURATION_MINUTES = 60 * 24 * 60;
@@ -26,7 +29,7 @@ export const MAX_CLAIM_MINUTES = 30 * 24 * 60;
 /** How long a draft is kept without being started. */
 export const DRAFT_LIFETIME = DAY;
 
-const withRoles = { roles: { orderBy: { roleId: 'asc' } } } satisfies Prisma.GiveawayInclude;
+const withRoles = { roles: { orderBy: { roleId: 'asc' } }, prizes: { orderBy: { position: 'asc' } } } satisfies Prisma.GiveawayInclude;
 /** A giveaway with its roles, which is how they're always loaded. */
 export type Giveaway = Prisma.GiveawayGetPayload<{ include: typeof withRoles }>;
 
@@ -104,6 +107,20 @@ export const setGiveawayRoles = (giveawayId: string, kind: GiveawayRoleKind, rol
     if (!(await lockChangeable(tx, giveawayId))) return;
     await tx.giveawayRole.deleteMany({ where: { giveawayId, OR: [{ kind }, { roleId: { in: roles.map((role) => role.roleId) } }] } });
     await tx.giveawayRole.createMany({ data: roles.map((role) => ({ giveawayId, kind, roleId: role.roleId, bonus: role.bonus ?? 0 })) });
+  });
+
+/** A prize for some of the first places: its name, and how many winners get it. */
+export interface PlacePrize {
+  name: string;
+  count: number;
+}
+
+/** Set the prizes by place, in order, replacing the ones before. None means every winner gets the giveaway's prize. */
+export const setPlacePrizes = (giveawayId: string, prizes: PlacePrize[]) =>
+  prisma.$transaction(async (tx) => {
+    if (!(await lockChangeable(tx, giveawayId))) return;
+    await tx.giveawayPrize.deleteMany({ where: { giveawayId } });
+    await tx.giveawayPrize.createMany({ data: prizes.map((prize, position) => ({ giveawayId, position, name: prize.name, count: prize.count })) });
   });
 
 /** Give a role bonus entries, or take it off the bonus roles with null. A role can only be of one kind, so it's taken off the others. */
@@ -262,19 +279,32 @@ async function stillEntered(tx: Prisma.TransactionClient, giveawayId: string, us
   return userIds.filter((userId) => entered.has(userId));
 }
 
+/** Someone drawn as a winner, with the prize by place they get, or null for the giveaway's prize. */
+export interface NewWinner {
+  userId: string;
+  prize: string | null;
+}
+
 /**
  * End a running giveaway with its winners.
  * @param claimBy Until when winners can claim their prize, or null when they don't have to.
  * @returns The winners saved, without anyone who left it meanwhile, or null if it wasn't running anymore, like when a moderator ended it.
  */
-export const finishGiveaway = (id: string, winnerIds: string[], claimBy: Date | null, now = new Date()) =>
+export const finishGiveaway = (id: string, drawn: NewWinner[], claimBy: Date | null, now = new Date()) =>
   prisma.$transaction(async (tx) => {
     const { count } = await tx.giveaway.updateMany({ where: { id, status: 'active' }, data: { status: 'ended', endedAt: now } });
     if (count === 0) return null;
-    const winners = await stillEntered(tx, id, winnerIds);
+    const entered = new Set(
+      await stillEntered(
+        tx,
+        id,
+        drawn.map((winner) => winner.userId),
+      ),
+    );
+    const winners = drawn.filter((winner) => entered.has(winner.userId));
     // A millisecond apart, so the order they were drawn in stays
     await tx.giveawayWinner.createMany({
-      data: winners.map((userId, index) => ({ giveawayId: id, userId, drawnAt: new Date(now.getTime() + index), claimBy })),
+      data: winners.map((winner, index) => ({ giveawayId: id, ...winner, drawnAt: new Date(now.getTime() + index), claimBy })),
     });
     return winners;
   });
@@ -327,11 +357,28 @@ export const getMissedClaims = (now = new Date()) =>
  */
 export const replaceWinners = (giveawayId: string, winnerIds: string[], newUserIds: string[], claimBy: Date | null, now = new Date()) =>
   prisma.$transaction(async (tx) => {
-    const { count } = await tx.giveawayWinner.updateMany({ where: { giveawayId, id: { in: winnerIds }, replacedAt: null }, data: { replacedAt: now } });
+    const replaced = await tx.giveawayWinner.findMany({
+      where: { giveawayId, id: { in: winnerIds }, replacedAt: null },
+      orderBy: { drawnAt: 'asc' },
+      select: { id: true, prize: true },
+    });
+    const { count } = await tx.giveawayWinner.updateMany({
+      where: { id: { in: replaced.map((winner) => winner.id) }, replacedAt: null },
+      data: { replacedAt: now },
+    });
     if (count === 0) return null;
-    const winners = await stillEntered(tx, giveawayId, newUserIds.slice(0, count));
+    // Each new winner gets the prize of the one they replace
+    const drawn = newUserIds.slice(0, replaced.length).map((userId, index) => ({ userId, prize: replaced[index]!.prize }));
+    const entered = new Set(
+      await stillEntered(
+        tx,
+        giveawayId,
+        drawn.map((winner) => winner.userId),
+      ),
+    );
+    const winners = drawn.filter((winner) => entered.has(winner.userId));
     await tx.giveawayWinner.createMany({
-      data: winners.map((userId, index) => ({ giveawayId, userId, drawnAt: new Date(now.getTime() + index), claimBy })),
+      data: winners.map((winner, index) => ({ giveawayId, ...winner, drawnAt: new Date(now.getTime() + index), claimBy })),
     });
     return winners;
   });

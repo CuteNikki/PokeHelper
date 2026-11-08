@@ -16,7 +16,7 @@ Poke Helper bringt die Spiele und Tools mit, die ein Community-Server braucht, i
 
 • **Starboard:** Nachrichten mit genug Reaktionen landen in einem eigenen Kanal
 
-• **Giveaways:** mit Regeln, wer mitmachen kann, Extra-Losen für Rollen, einer Liste, wer dabei ist, und Gewinnern, die ihren Preis rechtzeitig abholen, sonst geht er an jemand Neues
+• **Giveaways:** mit Regeln, wer mitmachen kann, Preisen nach Platz, Extra-Losen für Rollen, einer Liste, wer dabei ist, und Gewinnern, die ihren Preis rechtzeitig abholen, sonst geht er an jemand Neues
 
 **🛠️ Tools**
 

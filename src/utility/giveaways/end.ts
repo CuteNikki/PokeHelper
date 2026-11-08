@@ -28,6 +28,7 @@ import {
   getOtherRoleWinners,
   getXpOf,
   type Giveaway,
+  type NewWinner,
   replaceWinners,
   setEntriesOf,
 } from 'database/giveaways';
@@ -39,6 +40,7 @@ import { buttonIcon } from 'utility/emojis';
 import { type Candidate, drawWinners } from 'utility/giveaways/draw';
 import { logGiveaway, winnersDetail } from 'utility/giveaways/logs';
 import { GIVEAWAY_CUSTOM_ID } from 'utility/giveaways/post';
+import { groupByPrize, prizeOf, prizePlan } from 'utility/giveaways/prizes';
 import { bonusRolesOf, checkRules, countEntries, rulesOf } from 'utility/giveaways/rules';
 import { giveawayChannel, syncPost } from 'utility/giveaways/sync';
 import { getTranslate, type Translate } from 'utility/i18next';
@@ -192,14 +194,23 @@ const claimRow = (giveaway: Giveaway, t: Translate) =>
  * When winners have to claim their prize, it says until when, with the button to claim it.
  * @returns Whether it was posted.
  */
-async function announceWinners(guild: Guild, giveaway: Giveaway, winnerIds: string[], claimBy: Date | null, key: WinnersKey): Promise<boolean> {
+async function announceWinners(guild: Guild, giveaway: Giveaway, winners: NewWinner[], claimBy: Date | null, key: WinnersKey): Promise<boolean> {
   const channel = await giveawayChannel(guild, giveaway.channelId);
   if (!channel) return false;
   const t = getTranslate(giveaway.locale);
+  const winnerIds = winners.map((winner) => winner.userId);
+  const groups = groupByPrize(giveaway, winners);
+  const mentions = (list: NewWinner[]) => list.map((winner) => userMention(winner.userId)).join(', ');
   const lines =
-    winnerIds.length > 0
-      ? [t(key, { winners: winnerIds.map(userMention).join(', '), prize: giveaway.prize, count: winnerIds.length })]
-      : [t(key === 'giveaway.end.announce' ? 'giveaway.end.none' : 'giveaway.end.noneLeft', { prize: giveaway.prize })];
+    winners.length === 0
+      ? [t(key === 'giveaway.end.announce' ? 'giveaway.end.none' : 'giveaway.end.noneLeft', { prize: giveaway.prize })]
+      : groups.length === 1
+        ? [t(key, { winners: mentions(winners), prize: groups[0]!.prize, count: winners.length })]
+        : // Different prizes, each with who won it
+          [
+            t(key === 'giveaway.end.announce' ? 'giveaway.end.announcePrizes' : 'giveaway.end.rerollPrizes'),
+            ...groups.map((group) => t('giveaway.end.prizeLine', { winners: mentions(group.winners), prize: group.prize })),
+          ];
   if (claimBy && winnerIds.length > 0) lines.push(claimLine(claimBy, 'giveaway.claim.announce', t));
 
   const container = new ContainerBuilder()
@@ -225,19 +236,19 @@ async function announceWinners(guild: Guild, giveaway: Giveaway, winnerIds: stri
  * Tell winners in a DM that they won, with a link to the giveaway. Winners with closed DMs still see it under the post.
  * When they have to claim their prize, the DM has the button too, so they can claim it without finding the announcement.
  */
-async function dmWinners(guild: Guild, giveaway: Giveaway, winnerIds: string[], claimBy: Date | null) {
+async function dmWinners(guild: Guild, giveaway: Giveaway, winners: NewWinner[], claimBy: Date | null) {
   if (!giveaway.dmWinners) return;
   const t = getTranslate(giveaway.locale);
   const link = giveaway.messageId ? messageLink(giveaway.channelId, giveaway.messageId, guild.id) : null;
-  const text = [
-    t('giveaway.end.dm', { prize: giveaway.prize, server: bold(guild.name), host: giveaway.host ?? userMention(giveaway.hostId) }),
-    ...(claimBy ? [claimLine(claimBy, 'giveaway.claim.dm', t)] : []),
-    ...(link ? [hyperlink(t('giveaway.end.dmLink'), link)] : []),
-  ].join('\n');
-  const container = new ContainerBuilder().setAccentColor(ThemeColors.success).addTextDisplayComponents(new TextDisplayBuilder().setContent(text));
-  if (claimBy) container.addActionRowComponents(claimRow(giveaway, t));
-  for (const userId of winnerIds) {
-    await guild.client.users.send(userId, quietMessageOf(container)).catch(() => null);
+  for (const winner of winners) {
+    const text = [
+      t('giveaway.end.dm', { prize: prizeOf(giveaway, winner), server: bold(guild.name), host: giveaway.host ?? userMention(giveaway.hostId) }),
+      ...(claimBy ? [claimLine(claimBy, 'giveaway.claim.dm', t)] : []),
+      ...(link ? [hyperlink(t('giveaway.end.dmLink'), link)] : []),
+    ].join('\n');
+    const container = new ContainerBuilder().setAccentColor(ThemeColors.success).addTextDisplayComponents(new TextDisplayBuilder().setContent(text));
+    if (claimBy) container.addActionRowComponents(claimRow(giveaway, t));
+    await guild.client.users.send(winner.userId, quietMessageOf(container)).catch(() => null);
   }
 }
 
@@ -280,16 +291,17 @@ type WinnersKey = 'giveaway.end.announce' | 'giveaway.end.reroll';
  * so winners who never claim don't keep it. When the announcement couldn't be posted, like when the channel is gone, winners with closed
  * DMs would have nowhere to claim it, so then nobody has to.
  */
-async function welcomeWinners(guild: Guild, giveaway: Giveaway, winnerIds: string[], claimBy: Date | null, key: WinnersKey) {
-  if (winnerIds.length === 0) {
-    await announceWinners(guild, giveaway, winnerIds, null, key);
+async function welcomeWinners(guild: Guild, giveaway: Giveaway, winners: NewWinner[], claimBy: Date | null, key: WinnersKey) {
+  if (winners.length === 0) {
+    await announceWinners(guild, giveaway, winners, null, key);
     return;
   }
-  const posted = await announceWinners(guild, giveaway, winnerIds, claimBy, key);
+  const winnerIds = winners.map((winner) => winner.userId);
+  const posted = await announceWinners(guild, giveaway, winners, claimBy, key);
   const mustClaim = posted ? claimBy : null;
   if (claimBy && !mustClaim) await dropClaims(giveaway.id, winnerIds);
   if (!mustClaim) await giveWinnerRole(guild, giveaway, winnerIds);
-  await dmWinners(guild, giveaway, winnerIds, mustClaim);
+  await dmWinners(guild, giveaway, winners, mustClaim);
 }
 
 /**
@@ -312,28 +324,31 @@ export const endGiveaway = (guild: Guild, giveaway: Giveaway, byId: string | nul
   });
 
 async function drawAndEnd(guild: Guild, giveaway: Giveaway, byId: string | null) {
-  const drawn = drawWinners(await findCandidates(guild, giveaway), giveaway.winnerCount);
+  // The first drawn get the prizes by place, in order
+  const plan = prizePlan(giveaway);
+  const drawn = drawWinners(await findCandidates(guild, giveaway), giveaway.winnerCount).map((userId, index) => ({ userId, prize: plan[index] ?? null }));
   const now = new Date();
   const claimBy = claimDeadline(giveaway, now);
-  const winnerIds = await finishGiveaway(giveaway.id, drawn, claimBy, now);
+  const winners = await finishGiveaway(giveaway.id, drawn, claimBy, now);
   // Someone may have ended it meanwhile, who then drew the winners already
-  if (!winnerIds) return;
+  if (!winners) return;
   const ended: Giveaway = { ...giveaway, status: 'ended', endedAt: now };
   await syncPost(guild, giveaway.id);
-  await welcomeWinners(guild, ended, winnerIds, claimBy, 'giveaway.end.announce');
-  await logGiveaway(guild, 'giveawayEnded', ended, byId, (t) => [winnersDetail(winnerIds, t)]);
+  await welcomeWinners(guild, ended, winners, claimBy, 'giveaway.end.announce');
+  await logGiveaway(guild, 'giveawayEnded', ended, byId, (t) => [winnersDetail(ended, winners, t)]);
 }
 
 /**
  * Draw new winners in place of some, from everyone who entered and hasn't won it yet.
  * @param winnerIds The IDs of the winners to replace, not their user IDs.
  * @param byId Who rerolled them, for the logs. Null when they're replaced for not claiming in time.
- * @returns The new winners' user IDs. Fewer than replaced when there's nobody left to draw, and then those places stay empty.
+ * @returns The new winners, with the prizes of those they replace. Fewer than replaced when there's nobody left to draw, and then those
+ * places stay empty.
  */
-export const rerollWinners = (guild: Guild, giveaway: Giveaway, winnerIds: string[], byId: string | null = null): Promise<string[]> =>
+export const rerollWinners = (guild: Guild, giveaway: Giveaway, winnerIds: string[], byId: string | null = null): Promise<NewWinner[]> =>
   draws.run(giveaway.id, () => reroll(guild, giveaway, winnerIds, byId));
 
-async function reroll(guild: Guild, giveaway: Giveaway, winnerIds: string[], byId: string | null): Promise<string[]> {
+async function reroll(guild: Guild, giveaway: Giveaway, winnerIds: string[], byId: string | null): Promise<NewWinner[]> {
   const winners = await getAllWinners(giveaway.id);
   const everyWinner = new Set(winners.flatMap((winner) => winner.userId ?? []));
   const replacedUsers = winners.filter((winner) => winnerIds.includes(winner.id) && !winner.replacedAt).flatMap((winner) => winner.userId ?? []);
@@ -349,7 +364,7 @@ async function reroll(guild: Guild, giveaway: Giveaway, winnerIds: string[], byI
   await logGiveaway(guild, 'giveawayRerolled', giveaway, byId, (t) => [
     t('logs.giveaways.replaced', { users: replacedUsers.map(userMention).join(', ') || '-' }),
     byId ? null : t('logs.giveaways.missedClaim'),
-    winnersDetail(newWinners, t),
+    winnersDetail(giveaway, newWinners, t),
   ]);
   return newWinners;
 }

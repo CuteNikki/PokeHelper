@@ -1,8 +1,9 @@
 import { bold, channelMention, type Guild, messageLink, userMention } from 'discord.js';
 
-import type { Giveaway } from 'database/giveaways';
+import type { Giveaway, NewWinner } from 'database/giveaways';
 
 import { formatNumber } from 'utility/duration';
+import { groupByPrize } from 'utility/giveaways/prizes';
 import type { Translate } from 'utility/i18next';
 import { sendLog, type LogKind } from 'utility/logs/send';
 
@@ -47,8 +48,14 @@ export function logGiveaway(
   }));
 }
 
-/** The winners as a detail of a log, or that there are none. */
-export const winnersDetail = (winnerIds: string[], t: Translate) =>
-  winnerIds.length > 0
-    ? `${bold(t('logs.giveaways.winners', { count: winnerIds.length }))}\n${winnerIds.map(userMention).join(', ')}`
-    : t('logs.giveaways.noWinners');
+/** The winners as a detail of a log, with what they won when the prizes differ, or that there are none. */
+export function winnersDetail(giveaway: Giveaway, winners: NewWinner[], t: Translate) {
+  if (winners.length === 0) return t('logs.giveaways.noWinners');
+  const groups = groupByPrize(giveaway, winners);
+  const mentions = (list: NewWinner[]) => list.map((winner) => userMention(winner.userId)).join(', ');
+  const list =
+    groups.length > 1
+      ? groups.map((group) => t('giveaway.end.prizeLine', { winners: mentions(group.winners), prize: group.prize })).join('\n')
+      : mentions(winners);
+  return `${bold(t('logs.giveaways.winners', { count: winners.length }))}\n${list}`;
+}

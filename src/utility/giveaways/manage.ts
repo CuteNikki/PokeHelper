@@ -1,5 +1,6 @@
 import {
   ActionRowBuilder,
+  bold,
   type AnySelectMenuInteraction,
   ButtonBuilder,
   type ButtonInteraction,
@@ -47,6 +48,7 @@ import { endGiveaway, rerollWinners } from 'utility/giveaways/end';
 import { logGiveaway } from 'utility/giveaways/logs';
 import { MANAGE_ACTIONS, MANAGE_PREFIX, type ManageAction, manageId } from 'utility/giveaways/ids';
 import { openParticipantsId } from 'utility/giveaways/participants';
+import { prizeOf } from 'utility/giveaways/prizes';
 import { markPostChanged, syncPost } from 'utility/giveaways/sync';
 import { getTranslate, type Translate } from 'utility/i18next';
 import { logger } from 'utility/logger';
@@ -139,13 +141,15 @@ export async function renderGiveawayList(guild: Guild, tab: GiveawayTab, t: Tran
 const WINNERS_TEXT_LENGTH = DiscordLimits.messageTextLength - 1000;
 
 /** The panel's lines of an ended giveaway's winners: the ones it has now, as many as fit, and how many were replaced. */
-function winnerLines(winners: Awaited<ReturnType<typeof getAllWinners>>, t: Translate): string[] {
+function winnerLines(giveaway: Giveaway, winners: Awaited<ReturnType<typeof getAllWinners>>, t: Translate): string[] {
   const current = winners.filter((winner) => !winner.replacedAt);
+  // What each won, when there are prizes by place
+  const showPrizes = current.some((winner) => winner.prize !== null);
   const replaced = winners.length - current.length;
   const lines: string[] = [];
   let length = 0;
   for (const [index, winner] of current.entries()) {
-    const line = winnerLine(winner, t);
+    const line = winnerLine(winner, showPrizes ? prizeOf(giveaway, winner) : null, t);
     length += line.length + 1;
     if (length > WINNERS_TEXT_LENGTH) {
       lines.push(t('giveaway.manage.moreWinners', { count: current.length - index }));
@@ -159,8 +163,9 @@ function winnerLines(winners: Awaited<ReturnType<typeof getAllWinners>>, t: Tran
 }
 
 /** How a winner is shown, with whether they claimed their prize when they had to. */
-function winnerLine(winner: Awaited<ReturnType<typeof getAllWinners>>[number], t: Translate): string {
-  const name = winner.userId ? userMention(winner.userId) : t('giveaway.participants.deletedUser');
+function winnerLine(winner: Awaited<ReturnType<typeof getAllWinners>>[number], prize: string | null, t: Translate): string {
+  const user = winner.userId ? userMention(winner.userId) : t('giveaway.participants.deletedUser');
+  const name = prize ? `${user} · ${bold(prize)}` : user;
   // In italics after them, as small text only works at the start of a line
   if (winner.claimedAt) return `- ${name} · ${italic(t('giveaway.manage.winner.claimed'))}`;
   if (winner.claimBy) return `- ${name} · ${italic(t('giveaway.manage.winner.claimBy', { time: time(winner.claimBy, TimestampStyles.RelativeTime) }))}`;
@@ -192,7 +197,7 @@ export async function renderGiveawayPanel(guild: Guild, giveaway: Giveaway, t: T
   ];
   if (giveaway.status === 'ended') {
     lines.push('', t('giveaway.manage.winners', { count: giveaway.winnerCount }));
-    lines.push(...winnerLines(winners, t));
+    lines.push(...winnerLines(giveaway, winners, t));
   }
 
   const buttons = running

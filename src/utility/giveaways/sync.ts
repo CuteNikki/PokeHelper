@@ -41,7 +41,7 @@ export const syncPost = (guild: Guild, giveawayId: string) =>
     if (!channel) return;
     const [participants, winners] = await Promise.all([countParticipants(giveaway.id), getWinners(giveaway.id)]);
     try {
-      await channel.messages.edit(giveaway.messageId, renderPost(guild, giveaway, { participants, winnerIds: winners.map((winner) => winner.userId) }));
+      await channel.messages.edit(giveaway.messageId, renderPost(guild, giveaway, { participants, winners }));
     } catch (error) {
       if (isMessageGone(error)) await setGiveawayMessage(giveaway.id, null);
       else logger.warn(error, `Failed to update the post of giveaway ${giveaway.id} in guild ${guild.id}`);

@@ -712,6 +712,8 @@ model Giveaway {
   dmWinners    Boolean @default(true)
 
   roles   GiveawayRole[]
+  // Prizes for the first places, in order. Winners after them get `prize`
+  prizes  GiveawayPrize[]
   entries GiveawayEntry[]
   winners GiveawayWinner[]
 
@@ -768,6 +770,19 @@ model GiveawayEntry {
 }
 
 // Someone drawn as a winner. Winners who were replaced, like for not claiming in time, stay, so rerolls can be told apart
+// A prize for some of a giveaway's first places, like 1 Shiny Charizard for the first winner drawn, then 2 Rare Candies
+model GiveawayPrize {
+  giveawayId String
+  giveaway   Giveaway @relation(fields: [giveawayId], references: [id], onDelete: Cascade)
+  // Its order among the giveaway's prizes, from 0
+  position   Int
+  name       String
+  // How many winners get it
+  count      Int
+
+  @@id([giveawayId, position])
+}
+
 model GiveawayWinner {
   id         String   @id @default(cuid())
   giveawayId String
@@ -781,6 +796,8 @@ model GiveawayWinner {
   claimedAt  DateTime?
   // When someone else was drawn in their place
   replacedAt DateTime?
+  // What they won when it isn't the giveaway's prize, from its prizes by place. Kept when the prizes change later
+  prize      String?
 
   @@index([giveawayId])
   @@index([userId])

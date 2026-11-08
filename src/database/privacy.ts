@@ -68,6 +68,7 @@ export async function getUserData(userId: string) {
       where: { userId },
       select: {
         drawnAt: true,
+        prize: true,
         claimBy: true,
         claimedAt: true,
         replacedAt: true,

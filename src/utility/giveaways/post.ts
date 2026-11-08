@@ -17,6 +17,7 @@ import type { Giveaway } from 'database/giveaways';
 
 import { buttonIcon } from 'utility/emojis';
 import { openParticipantsId } from 'utility/giveaways/participants';
+import { groupByPrize, prizeList } from 'utility/giveaways/prizes';
 import { bonusRolesOf, type GiveawayRules } from 'utility/giveaways/rules';
 import { formatDuration, formatNumber, MINUTE } from 'utility/duration';
 import type { Translate } from 'utility/i18next';
@@ -36,8 +37,8 @@ export const GIVEAWAY_CUSTOM_ID = {
 export interface PostState {
   /** How many people entered. */
   participants: number;
-  /** Who won, once it ended, without the ones who were replaced. Null for winners who deleted their data, who still count. */
-  winnerIds: (string | null)[];
+  /** Who won what, once it ended, without the ones who were replaced. Null for winners who deleted their data, who still count. */
+  winners: { userId: string | null; prize: string | null }[];
 }
 
 /** Roles in a line, like `@A, @B`. */
@@ -83,6 +84,10 @@ export function buildGiveawayPost(giveaway: Giveaway, rules: GiveawayRules, stat
   container.addSeparatorComponents(new SeparatorBuilder().setDivider(false).setSpacing(SeparatorSpacingSize.Small));
 
   if (running) {
+    const prizes = prizeList(giveaway);
+    if (prizes.length > 0) {
+      details.push('', t('giveaway.post.prizes'), ...prizes.map((prize) => t('giveaway.post.prizeLine', { count: prize.count, prize: prize.name })));
+    }
     const ruleLines = describeRules(rules, t);
     if (ruleLines.length > 0) details.push('', t('giveaway.post.rules'), ...ruleLines.map((line) => `- ${line}`));
     const bonusRoles = bonusRolesOf(giveaway);
@@ -94,15 +99,21 @@ export function buildGiveawayPost(giveaway: Giveaway, rules: GiveawayRules, stat
       );
     }
   } else if (giveaway.status === 'ended') {
-    details.push(
-      '',
-      state.winnerIds.length > 0
-        ? t('giveaway.post.winners', {
-            winners: state.winnerIds.map((id) => (id ? userMention(id) : t('giveaway.participants.deletedUser'))).join(', '),
-            count: state.winnerIds.length,
-          })
-        : t('giveaway.post.noWinners'),
-    );
+    const mention = (userId: string | null) => (userId ? userMention(userId) : t('giveaway.participants.deletedUser'));
+    const groups = groupByPrize(giveaway, state.winners);
+    if (state.winners.length === 0) details.push('', t('giveaway.post.noWinners'));
+    // With prizes by place, each prize with who won it
+    else if (groups.length > 1 || giveaway.prizes.length > 0) {
+      details.push(
+        '',
+        t('giveaway.post.winnersByPrize'),
+        ...groups.map((group) =>
+          t('giveaway.post.winnersLine', { prize: group.prize, winners: group.winners.map((winner) => mention(winner.userId)).join(', ') }),
+        ),
+      );
+    } else {
+      details.push('', t('giveaway.post.winners', { winners: state.winners.map((winner) => mention(winner.userId)).join(', '), count: state.winners.length }));
+    }
   } else {
     details.push('', t('giveaway.post.cancelled'));
   }

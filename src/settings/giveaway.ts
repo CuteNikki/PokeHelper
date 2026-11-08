@@ -18,6 +18,8 @@ import {
   MAX_DESCRIPTION_LENGTH,
   MAX_DURATION_MINUTES,
   MAX_HOST_LENGTH,
+  MAX_PLACE_PRIZE_LENGTH,
+  MAX_PLACE_PRIZES,
   MAX_PRIZE_LENGTH,
   MAX_RULE_ROLES,
   MAX_WINNERS,
@@ -26,6 +28,7 @@ import {
   MIN_WINNERS,
   setBonusRole,
   setGiveawayRoles,
+  setPlacePrizes,
   updateGiveaway,
 } from 'database/giveaways';
 import { getGuildLevelingConfiguration } from 'database/leveling';
@@ -37,6 +40,7 @@ import { refreshEntriesSoon } from 'utility/giveaways/end';
 import { GIVEAWAY_CHANNEL_PERMISSIONS, manageId } from 'utility/giveaways/ids';
 import { formatMinutes, minutesText, parseMinutes, parseWhole } from 'utility/giveaways/input';
 import { buildGiveawayPost } from 'utility/giveaways/post';
+import { formatPlacePrizes, parsePlacePrizes } from 'utility/giveaways/prizes';
 import { rulesOf } from 'utility/giveaways/rules';
 import { syncPost } from 'utility/giveaways/sync';
 import type { Translate } from 'utility/i18next';
@@ -358,6 +362,28 @@ export function getGiveawaySettings(giveawayId: string): SettingsPanel {
       },
       {
         type: 'text',
+        key: 'prizes',
+        category: 'winners',
+        maxLength: MAX_PLACE_PRIZES * (MAX_PLACE_PRIZE_LENGTH + 5),
+        paragraph: true,
+        label: (t) => t('giveaway.settings.prizes.label'),
+        description: (t) => t('giveaway.settings.prizes.description'),
+        placeholder: (t) => t('giveaway.settings.prizes.placeholder'),
+        get: (giveaway) => (giveaway.prizes.length > 0 ? formatPlacePrizes(giveaway.prizes) : null),
+        validate: (text, t) => {
+          const prizes = parsePlacePrizes(text);
+          if (prizes === 'invalid') return t('giveaway.settings.prizes.invalid', { max: formatNumber(MAX_WINNERS, t) });
+          if (prizes === 'tooMany') return t('giveaway.settings.prizes.tooMany', { max: formatNumber(MAX_PLACE_PRIZES, t) });
+          if (prizes === 'tooLong') return t('giveaway.settings.prizes.tooLong', { max: formatNumber(MAX_PLACE_PRIZE_LENGTH, t) });
+          return null;
+        },
+        set: async (_guildId, text) => {
+          const prizes = text ? parsePlacePrizes(text) : [];
+          if (Array.isArray(prizes)) await setPlacePrizes(giveawayId, prizes);
+        },
+      },
+      {
+        type: 'text',
         key: 'claim',
         category: 'winners',
         maxLength: DURATION_INPUT_LENGTH,
@@ -408,7 +434,7 @@ export function getGiveawaySettings(giveawayId: string): SettingsPanel {
       const post = buildGiveawayPost(
         giveaway,
         rulesOf(giveaway, (roleId) => guild.roles.cache.has(roleId)),
-        { participants: 0, winnerIds: [] },
+        { participants: 0, winners: [] },
         t,
       );
       return {
