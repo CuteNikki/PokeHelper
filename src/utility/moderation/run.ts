@@ -90,6 +90,23 @@ export const ACTION_RULES: Record<ModCaseType, ActionRules> = {
 };
 
 /**
+ * What a moderator needs to be allowed to do each, for the commands and the panel alike. The commands are hidden from those without it,
+ * but a server can show them to others in its settings, which doesn't let them do more than they could through Discord itself.
+ */
+export const MODERATOR_PERMISSIONS: Record<ModCaseType, PermissionsString> = {
+  warn: 'ModerateMembers',
+  timeout: 'ModerateMembers',
+  untimeout: 'ModerateMembers',
+  kick: 'KickMembers',
+  ban: 'BanMembers',
+  unban: 'BanMembers',
+};
+
+/** Why a moderator isn't allowed to do something, or null if they are. */
+export const permissionProblem = (moderator: GuildMember, permission: PermissionsString, t: Translate) =>
+  moderator.permissions.has(permission) ? null : t('moderation.panel.noPermission', { permission: t(`permission.${permission}`) });
+
+/**
  * Why someone can't do a moderation action to someone, or null if they can: not to themselves, the bot or the server's owner,
  * only to members whose highest role is below theirs, and only what the bot is allowed to do. Those who aren't on the server, like for
  * a ban by ID, only need the bot's permission.
@@ -213,6 +230,8 @@ async function prepareModeration(
   t: Translate,
 ): Promise<string | { expiresAt: Date | null; act: (auditReason: string) => Promise<unknown> }> {
   const { type, user } = request;
+  const notAllowed = permissionProblem(moderator, MODERATOR_PERMISSIONS[type], t);
+  if (notAllowed) return notAllowed;
   // Asked of Discord each time, as who's on the server and their roles may have changed since. If that can't be asked, nothing is done,
   // as it would skip the checks of their roles
   const member = await fetchMember(guild, user.id);

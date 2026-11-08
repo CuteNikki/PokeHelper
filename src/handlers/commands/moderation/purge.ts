@@ -38,6 +38,10 @@ export default new Command({
   async execute(interaction) {
     if (!interaction.inCachedGuild()) return;
     const t = getTranslate(interaction.locale);
+    // Also when the server shows the command to others in its settings, as they couldn't delete others' messages themselves
+    if (!interaction.memberPermissions.has('ManageMessages')) {
+      return sendError(interaction, t('moderation.panel.noPermission', { permission: t('permission.ManageMessages') }));
+    }
     const { channel } = interaction;
     const missing = channel && interaction.guild.members.me ? channel.permissionsFor(interaction.guild.members.me).missing(NEEDED) : NEEDED;
     if (!channel || missing.length > 0) {

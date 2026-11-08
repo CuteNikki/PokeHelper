@@ -11,7 +11,6 @@ import {
   MessageFlags,
   ModalBuilder,
   type ModalSubmitInteraction,
-  type PermissionsString,
   RadioGroupBuilder,
   RadioGroupOptionBuilder,
   SeparatorBuilder,
@@ -32,7 +31,17 @@ import type { IconName } from 'utility/icons';
 import { getTranslate, type Translate } from 'utility/i18next';
 import { userRef } from 'utility/logs/format';
 import { renderCasesFor } from 'utility/moderation/cases';
-import { CASE_ICONS, formatUntil, isBanned, MAX_REASON_LENGTH, MAX_TIMEOUT_DAYS, moderate, moderationProblem } from 'utility/moderation/run';
+import {
+  CASE_ICONS,
+  formatUntil,
+  isBanned,
+  MAX_REASON_LENGTH,
+  MAX_TIMEOUT_DAYS,
+  moderate,
+  moderationProblem,
+  MODERATOR_PERMISSIONS,
+  permissionProblem,
+} from 'utility/moderation/run';
 import { sendError, withNotice, type ResponsePayload } from 'utility/response';
 import { ThemeColors } from 'utility/theme';
 
@@ -50,16 +59,6 @@ const DM_INPUT_ID = 'dm';
 
 /** How far back a ban can delete messages, as the popup offers it, in seconds. */
 const DELETE_MESSAGES = { none: 0, hour: HOUR / 1000, day: DAY / 1000, week: (7 * DAY) / 1000 } as const;
-
-/** What the moderator needs to be allowed to do each, like for the commands. */
-const MODERATOR_PERMISSIONS: Record<ModCaseType, PermissionsString> = {
-  warn: 'ModerateMembers',
-  timeout: 'ModerateMembers',
-  untimeout: 'ModerateMembers',
-  kick: 'KickMembers',
-  ban: 'BanMembers',
-  unban: 'BanMembers',
-};
 
 const isCaseType = (value: string): value is ModCaseType => (CASE_TYPES as readonly string[]).includes(value);
 
@@ -184,12 +183,6 @@ export function parsePanelId(customId: string): { action: ModCaseType | 'cases';
   return { action, userId };
 }
 
-/** Why the moderator can't do something from the panel, or null if they can, as who sees a panel can change meanwhile. */
-const permissionProblem = (moderator: GuildMember, type: ModCaseType, t: Translate) =>
-  moderator.permissions.has(MODERATOR_PERMISSIONS[type])
-    ? null
-    : t('moderation.panel.noPermission', { permission: t(`permission.${MODERATOR_PERMISSIONS[type]}`) });
-
 /** The panel's buttons: the case history in its place, or the popup for what to do. */
 export async function handleModerationPanelButton(interaction: ButtonInteraction<'cached'>): Promise<unknown> {
   const t = getTranslate(interaction.locale);
@@ -200,7 +193,8 @@ export async function handleModerationPanelButton(interaction: ButtonInteraction
     await interaction.deferUpdate();
     return interaction.editReply(await renderCasesFor(interaction.guild, parsed.userId, t));
   }
-  const problem = permissionProblem(interaction.member, parsed.action, t);
+  // Checked when pressed, as who sees a panel can change meanwhile
+  const problem = permissionProblem(interaction.member, MODERATOR_PERMISSIONS[parsed.action], t);
   if (problem) return sendError(interaction, problem);
   // Their name from what's known already, as a popup has to be shown within 3 seconds
   const name = interaction.guild.members.cache.get(parsed.userId)?.displayName ?? interaction.client.users.cache.get(parsed.userId)?.username ?? parsed.userId;
@@ -213,7 +207,7 @@ export async function handleModerationPanelModal(interaction: ModalSubmitInterac
   const parsed = parsePanelId(interaction.customId);
   if (!parsed || parsed.action === 'cases') return sendError(interaction, t('system.outdated'));
   const type = parsed.action;
-  const problem = permissionProblem(interaction.member, type, t);
+  const problem = permissionProblem(interaction.member, MODERATOR_PERMISSIONS[type], t);
   if (problem) return sendError(interaction, problem);
 
   // Answered before anything is asked of Discord, as it gives up after 3 seconds

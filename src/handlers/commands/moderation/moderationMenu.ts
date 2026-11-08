@@ -11,6 +11,8 @@ import { Command } from 'classes/base/command';
 
 import { getTranslate } from 'utility/i18next';
 import { renderModerationPanel } from 'utility/moderation/panel';
+import { permissionProblem } from 'utility/moderation/run';
+import { sendError } from 'utility/response';
 
 /**
  * Everything moderation does to someone, from the menu of their name, shown only to who asked: their cases, and warning, timing out,
@@ -26,9 +28,11 @@ export default new Command<ApplicationCommandType.User>({
 
   async execute(interaction) {
     if (!interaction.inCachedGuild()) return;
+    const t = getTranslate(interaction.locale);
+    // Like the panel's buttons, also when the server shows the menu to others in its settings
+    const problem = permissionProblem(interaction.member, 'ModerateMembers', t);
+    if (problem) return sendError(interaction, problem);
     await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
-    return interaction.editReply(
-      await renderModerationPanel(interaction.guild, interaction.targetUser.id, interaction.member, getTranslate(interaction.locale)),
-    );
+    return interaction.editReply(await renderModerationPanel(interaction.guild, interaction.targetUser.id, interaction.member, t));
   },
 });
