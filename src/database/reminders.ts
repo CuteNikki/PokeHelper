@@ -12,10 +12,7 @@ export const getUserReminders = (userId: string) => prisma.reminder.findMany({ w
 
 export const countUserReminders = (userId: string) => prisma.reminder.count({ where: { userId } });
 
-/**
- * Add a reminder, making sure the user is stored first.
- * @returns The reminder, or null if they already have the most there can be.
- */
+/** Add a reminder, or return null if they already have the most there can be. */
 export const createReminder = (data: Omit<Prisma.ReminderUncheckedCreateInput, 'id'>) =>
   prisma.$transaction(async (tx) => {
     // One at a time per user, so two at once can't both pass the count and go over the limit

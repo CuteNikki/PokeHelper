@@ -43,7 +43,6 @@ export const deleteUserBirthday = async (userId: string) =>
 
 /** Set someone's birthday, which also sets it up with the defaults if it's their first. */
 export async function setUserBirthdayDate(userId: string, date: Date) {
-  // A birthday belongs to a user, who may not be saved yet
   await ensureUser(userId);
   return prisma.userBirthday.upsert({ where: { userId }, create: { userId, date, showAge: false, announceInGuildsByDefault: true }, update: { date } });
 }

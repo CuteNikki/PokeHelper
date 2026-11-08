@@ -33,9 +33,7 @@ const running = (type: ModCaseType, now: Date): Prisma.ModCaseWhereInput =>
  */
 const endedBy: Partial<Record<ModCaseType, ModCaseType>> = { ban: 'ban', timeout: 'timeout', untimeout: 'timeout', unban: 'ban' };
 
-/**
- * Add a case with the server's next number, making sure the server is stored first. Ends the cases it replaces, see {@link endedBy}.
- */
+/** Add a case with the server's next number, making sure the server is stored first. Ends the cases it replaces, see {@link endedBy}. */
 export const createCase = (data: NewCase) =>
   prisma.$transaction(async (tx) => {
     // Counting up locks the server's row, so two cases at once can't get the same number
@@ -82,11 +80,7 @@ const ORDER: Record<CaseSort, Prisma.ModCaseOrderByWithRelationInput[]> = {
   type: [{ type: 'asc' }, { createdAt: 'desc' }],
 };
 
-/**
- * A page of someone's cases on a server, how many they have, and how many of each type.
- * @param skip How many cases come before the page.
- * @param take How many cases the page has. With 0, only the counts are looked up.
- */
+/** A page of someone's cases on a server, how many they have, and how many of each type. With `take` 0, only the counts are looked up. */
 export async function getUserCases(guildId: string, userId: string, sort: CaseSort, skip: number, take: number) {
   const where = { guildId, userId };
   const [cases, groups] = await Promise.all([
@@ -129,7 +123,7 @@ export const setCaseEnd = async (guildId: string, id: string, expiresAt: Date | 
 
 /**
  * The cases related to one: the case that ended it, and the cases it ended. A case that ends others is made at the very moment they end,
- * see {@link createCase}, which is how they're found, also for cases made before this was shown.
+ * see {@link createCase}, which is how they're found.
  */
 export const getRelatedCases = (modCase: ModCase) =>
   prisma.modCase.findMany({

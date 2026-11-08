@@ -13,12 +13,7 @@ export const getRunNumber = async (guildId: string, runId: number) =>
     where: { guildId, id: { lte: runId } },
   });
 
-/**
- * Get the most recent runs of a guild, newest first, with their position among all runs.
- * @param take How many runs to get.
- * @param skip How many of the newest to skip, for later pages.
- * @returns The runs, with their number counted from the first, and how many runs there are.
- */
+/** The most recent runs of a guild, newest first, with their number counted from the first, and how many runs there are. */
 export const getRecentRuns = async (guildId: string, take: number, skip = 0) => {
   const [runs, total] = await Promise.all([
     prisma.countingRun.findMany({ where: { guildId }, orderBy: { id: 'desc' }, take, skip }),
@@ -27,22 +22,14 @@ export const getRecentRuns = async (guildId: string, take: number, skip = 0) => 
   return { runs: runs.map((run, index) => ({ ...run, runNumber: total - skip - index })), total };
 };
 
-/**
- * Get when each of the given numbers was counted in a run.
- * @param numbers The numbers to look up, like milestones.
- */
+/** When each of the given numbers, like milestones, was counted in a run. */
 export const getEntriesForNumbers = async (runId: number, numbers: number[]) =>
   prisma.countingEntry.findMany({
     where: { runId, number: { in: numbers } },
     orderBy: { number: 'asc' },
   });
 
-/**
- * Get the members who counted the most in a guild.
- * @param take How many members to get.
- * @param skip How many of the top to skip, for later pages.
- * @returns The members, and how many counted at all.
- */
+/** The members who counted the most in a guild, and how many counted at all. */
 export const getTopCounters = async (guildId: string, take: number, skip = 0) => {
   const where = { guildId, counted: { gt: 0 } };
   const [counters, total] = await Promise.all([
@@ -70,10 +57,7 @@ export async function getCounterPosition(guildId: string, userId: string): Promi
   return ahead + 1;
 }
 
-/**
- * Get a member's counting stats in a guild, with their place on the leaderboard, ties broken the same way.
- * @returns The stats, with a rank of null when they haven't counted.
- */
+/** A member's counting stats in a guild, with their place on the leaderboard, ties broken the same way, or a rank of null when they haven't counted. */
 export const getCountingUser = async (guildId: string, userId: string) => {
   const [user, rank] = await Promise.all([
     prisma.countingUser.findUnique({ where: { guildId_userId: { guildId, userId } } }),

@@ -74,10 +74,7 @@ export const getTotalUsersWithXP = (guildId: string, period: LevelPeriod = 'allT
 export const getUserRank = async (guildId: string, userId: string, period: LevelPeriod) =>
   (await getLeaderboardPosition(guildId, userId, period, 'desc')) ?? (await getTotalUsersWithXP(guildId, period)) + 1;
 
-/**
- * Record a weekly or monthly reset and start the new period from zero.
- * @param winnerRole The role the winner got, or null if none was given.
- */
+/** Record a weekly or monthly reset and start the new period from zero. */
 export const processResetTransaction = (guildId: string, period: ResetPeriod, newWinnerId: string | null, winnerRole: string | null) =>
   prisma.$transaction([
     prisma.guildLeveling.update({

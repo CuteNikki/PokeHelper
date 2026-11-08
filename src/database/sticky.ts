@@ -13,10 +13,7 @@ export const getSticky = (channelId: string) => prisma.stickyMessage.findUnique(
 /** A server's sticky messages, the oldest first. */
 export const getGuildStickies = (guildId: string) => prisma.stickyMessage.findMany({ where: { guildId }, orderBy: { createdAt: 'asc' } });
 
-/**
- * Set the sticky message of a channel, or change its text, making sure the server is stored first.
- * @returns Whether it's new or its text was changed, or null if the server already has the most there can be.
- */
+/** Set the sticky message of a channel, or change its text. Returns whether it's new or changed, or null if the server is at the limit. */
 export const saveSticky = (guildId: string, channelId: string, text: string) =>
   prisma.$transaction(async (tx) => {
     // One at a time per server, so two at once can't both pass the count and go over the limit

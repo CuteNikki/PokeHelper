@@ -12,10 +12,7 @@ export const getCounting = async (guildId: string) =>
 /** Get the counting configurations of all guilds. */
 export const getAllCountings = async () => prisma.guildCounting.findMany();
 
-/**
- * Create a new counting configuration for a guild.
- * @param data.lastCheckedMessageId The message to start checking after, so older messages in the channel are left alone.
- */
+/** Create a guild's counting configuration. `lastCheckedMessageId` is where checking starts, so older messages are left alone. */
 export const createCounting = async (
   guildId: string,
   data: Pick<GuildCounting, 'channelId' | 'maxLives' | 'livesLeft' | 'regenerateLives' | 'allowMath' | 'lastCheckedMessageId'>,
@@ -39,7 +36,6 @@ export const resetCounting = async (guildId: string) =>
 
 /**
  * Save the counting state and record what happened for the stats, together, but only if no other message was checked since the state was read.
- * @param previousCheckedMessageId The last checked message ID when the state was read.
  * @param events What happened, in order: counted numbers go into the current run, resets end it.
  * @returns Whether it was saved. False means the state changed in between and nothing was saved.
  */
