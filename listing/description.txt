@@ -4,5 +4,5 @@ A Pokémon themed bot for your community.
 📈 Leveling with rank cards and weekly and monthly leaderboards
 🔨 Moderation with case history and 📜 detailed server logs
 🎂 Birthdays, 🎭 role menus and 🔊 temp voice channels
-⭐ A starboard, 📌 sticky messages and ⏰ reminders
+🎁 Giveaways, ⭐ a starboard, 📌 sticky messages and ⏰ reminders
 📖 A Pokédex, a "Who's that Pokémon?" guessing game and friend codes

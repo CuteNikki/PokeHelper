@@ -16,11 +16,13 @@ Poke Helper bringt die Spiele und Tools mit, die ein Community-Server braucht, i
 
 • **Starboard:** Nachrichten mit genug Reaktionen landen in einem eigenen Kanal
 
+• **Giveaways:** mit Regeln, wer mitmachen kann, Extra-Losen für Rollen, einer Liste, wer dabei ist, und Gewinnern, die ihren Preis rechtzeitig abholen, sonst geht er an jemand Neues
+
 **🛠️ Tools**
 
 • **Moderation:** verwarnen, Timeout geben, kicken und bannen, auch auf Zeit, mit einer DM, die sagt warum, und dem Verlauf der Fälle von allen zum Sortieren, Ändern und Löschen, alles auch übers Menü am Namen
 
-• **Server-Logs:** bearbeitete und gelöschte Nachrichten, Mitglieder, Moderation, Rollen, Kanäle und Voice, mit wer es war und einem IDs-kopieren-Button, der auch am Handy geht
+• **Server-Logs:** bearbeitete und gelöschte Nachrichten, Mitglieder, Moderation, Rollen, Kanäle, Voice und Giveaways, mit wer es war und einem IDs-kopieren-Button, der auch am Handy geht
 
 • **Eigene Sprachkanäle:** rein in den Kanal und du hast deinen eigenen, zum Abschließen, Verstecken, mit Limit und eigenen Moderatoren
 
