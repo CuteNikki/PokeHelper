@@ -71,7 +71,10 @@ export function buildGiveawayPost(giveaway: Giveaway, rules: GiveawayRules, stat
     running
       ? t('giveaway.post.ends', { relative: time(endsAt, TimestampStyles.RelativeTime), date: time(endsAt, TimestampStyles.LongDateShortTime) })
       : t('giveaway.post.ended', { relative: time(giveaway.endedAt ?? endsAt, TimestampStyles.RelativeTime) }),
-    t('giveaway.post.details', { winners: t('giveaway.post.winnerCount', { count: giveaway.winnerCount }), host: userMention(giveaway.hostId) }),
+    t('giveaway.post.details', {
+      winners: t('giveaway.post.winnerCount', { count: giveaway.winnerCount }),
+      host: giveaway.host ?? userMention(giveaway.hostId),
+    }),
   ];
   container.addSeparatorComponents(new SeparatorBuilder().setDivider(false).setSpacing(SeparatorSpacingSize.Small));
 

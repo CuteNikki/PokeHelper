@@ -675,11 +675,13 @@ model Giveaway {
   number  Int?
   status  GiveawayStatus @default(draft)
 
-  // Where it's posted, and who's hosting it
+  // Where it's posted, who set it up, and who's hosting it
   channelId String
   // The post. Null for drafts, and once the post is gone
   messageId String? @unique
   hostId    String
+  // Who it's from as the post says it, which can be anyone or anything, like a team or a company. Null for whoever set it up
+  host      String?
   // The server's language when it started, which the post and the messages to winners are in
   locale    String
 

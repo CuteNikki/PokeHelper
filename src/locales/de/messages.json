@@ -1988,6 +1988,11 @@
         "label": "Beschreibung",
         "description": "Mehr über den Preis, oder wie die Gewinner ihn bekommen"
       },
+      "host": {
+        "label": "Veranstalter",
+        "description": "Von wem es ist: du, jemand anderes, ein Team, eine Firma, egal was. Ohne Angabe ist es, wer es eingerichtet hat",
+        "placeholder": "Z. B. ein Mitglied, das Mod-Team oder ein Sponsor"
+      },
       "winners": {
         "label": "Gewinner",
         "description": "Wie viele gewinnen, bis zu {{max}}",

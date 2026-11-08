@@ -637,6 +637,10 @@
           "channel": {
             "name": "kanal",
             "description": "Wo es gepostet wird. Ohne Angabe dieser Kanal"
+          },
+          "host": {
+            "name": "veranstalter",
+            "description": "Von wem es ist, z. B. du, ein Team oder eine Firma. Ohne Angabe du"
           }
         }
       }

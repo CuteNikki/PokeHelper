@@ -10,7 +10,16 @@ import {
 
 import { Command } from 'classes/base/command';
 
-import { createDraft, MAX_DRAFTS, MAX_DURATION_MINUTES, MAX_PRIZE_LENGTH, MAX_WINNERS, MIN_DURATION_MINUTES, MIN_WINNERS } from 'database/giveaways';
+import {
+  createDraft,
+  MAX_DRAFTS,
+  MAX_DURATION_MINUTES,
+  MAX_HOST_LENGTH,
+  MAX_PRIZE_LENGTH,
+  MAX_WINNERS,
+  MIN_DURATION_MINUTES,
+  MIN_WINNERS,
+} from 'database/giveaways';
 
 import { getGiveawaySettings } from 'settings/giveaway';
 
@@ -39,6 +48,9 @@ export default new Command({
             .setName('channel')
             .setDescription('Where it is posted. Defaults to this channel')
             .addChannelTypes(ChannelType.GuildText, ChannelType.GuildAnnouncement),
+        )
+        .addStringOption((option) =>
+          option.setName('host').setDescription('Who it is from, like you, a team or a company. Defaults to you').setMaxLength(MAX_HOST_LENGTH),
         ),
     ),
 
@@ -66,6 +78,7 @@ async function handleStart(interaction: ChatInputCommandInteraction<'cached'>) {
     guildId: interaction.guildId,
     channelId: interaction.options.getChannel('channel')?.id ?? interaction.channelId,
     hostId: interaction.user.id,
+    host: interaction.options.getString('host')?.trim() || null,
     locale: interaction.guild.preferredLocale,
     prize: interaction.options.getString('prize', true).trim(),
     winnerCount: interaction.options.getInteger('winners') ?? MIN_WINNERS,

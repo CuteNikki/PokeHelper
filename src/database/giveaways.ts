@@ -12,6 +12,7 @@ export const MAX_RULE_ROLES = 5;
 /** The most entries one bonus role can give. */
 export const MAX_BONUS = 10;
 export const MAX_PRIZE_LENGTH = 256;
+export const MAX_HOST_LENGTH = 100;
 export const MAX_DESCRIPTION_LENGTH = 1000;
 export const MIN_WINNERS = 1;
 export const MAX_WINNERS = 50;
@@ -30,6 +31,7 @@ export interface NewDraft {
   guildId: string;
   channelId: string;
   hostId: string;
+  host: string | null;
   locale: string;
   prize: string;
   winnerCount: number;
@@ -59,7 +61,7 @@ export const getGiveawayByMessage = (messageId: string) => prisma.giveaway.findU
 export type GiveawayUpdate = Pick<
   Prisma.GiveawayUncheckedUpdateInput,
   | 'channelId'
-  | 'hostId'
+  | 'host'
   | 'prize'
   | 'description'
   | 'winnerCount'

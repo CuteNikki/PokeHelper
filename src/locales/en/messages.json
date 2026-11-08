@@ -2044,6 +2044,11 @@
         "label": "Description",
         "description": "More about the prize, or how winners get it"
       },
+      "host": {
+        "label": "Host",
+        "description": "Who it's from: you, someone else, a team, a company, anything. Without one, it's whoever set it up",
+        "placeholder": "Like a member, the mod team or a sponsor"
+      },
       "winners": {
         "label": "Winners",
         "description": "How many win, up to {{max}}",
