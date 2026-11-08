@@ -649,5 +649,8 @@
         "description": "Sieh dir die Giveaways dieses Servers an, um sie zu beenden, abzusagen oder zu löschen"
       }
     }
+  },
+  "Manage giveaway": {
+    "name": "Giveaway verwalten"
   }
 }

@@ -2240,7 +2240,8 @@
       "nobodyLeft": "Replaced them, but nobody else could be drawn.",
       "removePlaceholder": "Remove someone's entry",
       "removed": "Took {{user}} out of the giveaway. They can join again, unless a rule keeps them out.",
-      "notEntered": "They're not in this giveaway."
+      "notEntered": "They're not in this giveaway.",
+      "notAGiveaway": "That's not a giveaway. Use this on a giveaway's post."
     },
     "edit": {
       "header": "It's running, so changes show on its post right away. Its channel can't change anymore, and its ping was already sent."

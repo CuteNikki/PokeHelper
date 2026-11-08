@@ -2184,7 +2184,8 @@
       "nobodyLeft": "Hab sie ersetzt, aber sonst konnte niemand gezogen werden.",
       "removePlaceholder": "Jemanden aus dem Giveaway nehmen",
       "removed": "Hab {{user}} aus dem Giveaway genommen. Sie können wieder mitmachen, außer eine Regel hält sie ab.",
-      "notEntered": "Diese Person macht bei dem Giveaway nicht mit."
+      "notEntered": "Diese Person macht bei dem Giveaway nicht mit.",
+      "notAGiveaway": "Das ist kein Giveaway. Benutz das bei einem Giveaway-Post."
     },
     "edit": {
       "header": "Es läuft, also siehst du Änderungen sofort auf seinem Post. Der Kanal lässt sich nicht mehr ändern, und der Ping wurde schon gesendet."
