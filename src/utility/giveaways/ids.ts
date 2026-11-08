@@ -13,5 +13,5 @@ export type ManageAction = 'view' | 'edit' | 'end' | 'cancel' | 'cancelYes' | 'd
 export const MANAGE_ACTIONS: ManageAction[] = ['view', 'edit', 'end', 'cancel', 'cancelYes', 'delete', 'deleteYes', 'reroll', 'remove'];
 export const manageId = (action: ManageAction, giveawayId: string) => `${MANAGE_PREFIX}${action}:${giveawayId}`;
 
-/** What the bot needs in the channel a giveaway is posted in. */
-export const GIVEAWAY_CHANNEL_PERMISSIONS: PermissionsString[] = ['ViewChannel', 'SendMessages'];
+/** What the bot needs in the channel a giveaway is posted in. Reading the history too, as the winners are announced in a reply to the post. */
+export const GIVEAWAY_CHANNEL_PERMISSIONS: PermissionsString[] = ['ViewChannel', 'SendMessages', 'ReadMessageHistory'];
