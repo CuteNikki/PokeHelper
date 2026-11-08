@@ -6,7 +6,6 @@ import {
   roleMention,
   SeparatorBuilder,
   SeparatorSpacingSize,
-  subtext,
   TextDisplayBuilder,
   time,
   TimestampStyles,
@@ -67,12 +66,14 @@ export function buildGiveawayPost(giveaway: Giveaway, rules: GiveawayRules, stat
   const running = giveaway.status === 'active' || giveaway.status === 'draft';
   const title = running ? 'giveaway.post.title' : giveaway.status === 'ended' ? 'giveaway.post.titleEnded' : 'giveaway.post.titleCancelled';
   // With prizes by place, those are what it gives away, so they're listed in place of the one prize
+  // Drafts get their number when they start
+  const number = giveaway.number ? ` #${formatNumber(giveaway.number, t)}` : '';
   const prizes = prizeList(giveaway);
   const headline =
     prizes.length > 0 ? prizes.map((prize) => t('giveaway.post.prizeHeadline', { count: prize.count, prize: prize.name })) : [`## ${giveaway.prize}`];
   const container = new ContainerBuilder()
     .setAccentColor(running ? ThemeColors.info : giveaway.status === 'ended' ? ThemeColors.success : ThemeColors.warning)
-    .addTextDisplayComponents(new TextDisplayBuilder().setContent([t(title), ...headline, giveaway.description].filter(Boolean).join('\n')));
+    .addTextDisplayComponents(new TextDisplayBuilder().setContent([t(title, { number }), ...headline, giveaway.description].filter(Boolean).join('\n')));
 
   // A draft is shown as if it started now, as it would when started
   const endsAt = giveaway.endsAt ?? new Date(Date.now() + giveaway.durationMinutes * MINUTE);
@@ -118,7 +119,6 @@ export function buildGiveawayPost(giveaway: Giveaway, rules: GiveawayRules, stat
   container.addTextDisplayComponents(new TextDisplayBuilder().setContent(details.join('\n')));
 
   const footer = [t('giveaway.post.participants', { count: state.participants })];
-  if (giveaway.number) footer.push(subtext(t('giveaway.post.number', { number: formatNumber(giveaway.number, t) })));
   container
     // Large, like above the buttons of the settings panels
     .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large))

@@ -1977,9 +1977,9 @@
   },
   "giveaway": {
     "post": {
-      "title": "### {{icon.gift}} Giveaway",
-      "titleEnded": "### {{icon.trophy}} Giveaway beendet",
-      "titleCancelled": "### {{icon.x}} Giveaway abgesagt",
+      "title": "### {{icon.gift}} Giveaway{{number}}",
+      "titleEnded": "### {{icon.trophy}} Giveaway{{number}} beendet",
+      "titleCancelled": "### {{icon.x}} Giveaway{{number}} abgesagt",
       "ends": "Endet {{relative}} ({{date}})",
       "ended": "Beendet {{relative}}",
       "details": "{{winners}} · Veranstaltet von {{host}}",
@@ -1994,7 +1994,6 @@
       "cancelled": "Dieses Giveaway wurde abgesagt, also gibt's keine Gewinner.",
       "participants_one": "{{count, number}} Person macht mit",
       "participants_other": "{{count, number}} Leute machen mit",
-      "number": "Giveaway #{{number}}",
       "join": "Mitmachen",
       "participantsButton": "Teilnehmer",
       "winnersByPrize": "**Gewinner**",

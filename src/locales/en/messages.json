@@ -2033,9 +2033,9 @@
   },
   "giveaway": {
     "post": {
-      "title": "### {{icon.gift}} Giveaway",
-      "titleEnded": "### {{icon.trophy}} Giveaway ended",
-      "titleCancelled": "### {{icon.x}} Giveaway cancelled",
+      "title": "### {{icon.gift}} Giveaway{{number}}",
+      "titleEnded": "### {{icon.trophy}} Giveaway{{number}} ended",
+      "titleCancelled": "### {{icon.x}} Giveaway{{number}} cancelled",
       "ends": "Ends {{relative}} ({{date}})",
       "ended": "Ended {{relative}}",
       "details": "{{winners}} · Hosted by {{host}}",
@@ -2050,7 +2050,6 @@
       "cancelled": "This giveaway was cancelled, so there are no winners.",
       "participants_one": "{{count, number}} person entered",
       "participants_other": "{{count, number}} people entered",
-      "number": "Giveaway #{{number}}",
       "join": "Join",
       "participantsButton": "Participants",
       "winnersByPrize": "**Winners**",
