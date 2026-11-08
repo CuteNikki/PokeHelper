@@ -9,7 +9,6 @@ import {
   SeparatorSpacingSize,
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder,
-  strikethrough,
   subtext,
   TextDisplayBuilder,
   time,
@@ -90,16 +89,19 @@ export function parseParticipantsId(customId: string): Parsed | null {
   }
 }
 
-/** The winners of an ended giveaway, with the ones who were replaced struck through, or null before it ended. */
+/**
+ * The winners of an ended giveaway, and how many were replaced, or null before it ended. The ones replaced are only counted, as with
+ * rerolls there can be many, more than fit in a message.
+ */
 async function winnersLine(giveaway: Giveaway, t: Translate): Promise<string | null> {
   if (giveaway.status !== 'ended') return null;
   const winners = await getAllWinners(giveaway.id);
-  if (winners.length === 0) return t('giveaway.participants.noWinners');
-  const names = winners.map((winner) => {
-    const name = winner.userId ? userMention(winner.userId) : t('giveaway.participants.deletedUser');
-    return winner.replacedAt ? strikethrough(name) : name;
-  });
-  return t('giveaway.participants.winners', { winners: names.join(', '), count: winners.length });
+  const current = winners.filter((winner) => !winner.replacedAt);
+  const replaced = winners.length - current.length;
+  if (current.length === 0 && replaced === 0) return t('giveaway.participants.noWinners');
+  const names = current.map((winner) => (winner.userId ? userMention(winner.userId) : t('giveaway.participants.deletedUser')));
+  if (replaced > 0) names.push(t('giveaway.participants.replaced', { count: replaced }));
+  return t('giveaway.participants.winners', { winners: names.join(', '), count: current.length });
 }
 
 /** A page of a giveaway's participants, with selects and buttons to sort it, go through it and find yourself in it. */

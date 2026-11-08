@@ -15,7 +15,6 @@ import {
   SeparatorSpacingSize,
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder,
-  strikethrough,
   subtext,
   TextDisplayBuilder,
   time,
@@ -134,11 +133,36 @@ export async function renderGiveawayList(guild: Guild, tab: GiveawayTab, t: Tran
   return { components: [container], flags: [MessageFlags.IsComponentsV2], allowedMentions: { parse: [] } };
 }
 
-/** How a winner is shown: struck through when they were replaced, and whether they claimed their prize when they had to. */
+/**
+ * How much of the panel's text its winners can take, so it stays below Discord's limit for a whole message with the rest of it,
+ * like a long prize. Up to 50 winners who have to claim fit, the rest is counted.
+ */
+const WINNERS_TEXT_LENGTH = DiscordLimits.messageTextLength - 1000;
+
+/** The panel's lines of an ended giveaway's winners: the ones it has now, as many as fit, and how many were replaced. */
+function winnerLines(winners: Awaited<ReturnType<typeof getAllWinners>>, t: Translate): string[] {
+  const current = winners.filter((winner) => !winner.replacedAt);
+  const replaced = winners.length - current.length;
+  const lines: string[] = [];
+  let length = 0;
+  for (const [index, winner] of current.entries()) {
+    const line = winnerLine(winner, t);
+    length += line.length + 1;
+    if (length > WINNERS_TEXT_LENGTH) {
+      lines.push(t('giveaway.manage.moreWinners', { count: current.length - index }));
+      break;
+    }
+    lines.push(line);
+  }
+  if (lines.length === 0) lines.push(t('giveaway.manage.noWinners'));
+  if (replaced > 0) lines.push(subtext(t('giveaway.manage.replacedCount', { count: replaced })));
+  return lines;
+}
+
+/** How a winner is shown, with whether they claimed their prize when they had to. */
 function winnerLine(winner: Awaited<ReturnType<typeof getAllWinners>>[number], t: Translate): string {
   const name = winner.userId ? userMention(winner.userId) : t('giveaway.participants.deletedUser');
   // In italics after them, as small text only works at the start of a line
-  if (winner.replacedAt) return `- ${strikethrough(name)} · ${italic(t('giveaway.manage.winner.replaced'))}`;
   if (winner.claimedAt) return `- ${name} · ${italic(t('giveaway.manage.winner.claimed'))}`;
   if (winner.claimBy) return `- ${name} · ${italic(t('giveaway.manage.winner.claimBy', { time: time(winner.claimBy, TimestampStyles.RelativeTime) }))}`;
   return `- ${name}`;
@@ -169,7 +193,7 @@ export async function renderGiveawayPanel(guild: Guild, giveaway: Giveaway, t: T
   ];
   if (giveaway.status === 'ended') {
     lines.push('', t('giveaway.manage.winners', { count: giveaway.winnerCount }));
-    lines.push(...(winners.length > 0 ? winners.map((winner) => winnerLine(winner, t)) : [t('giveaway.manage.noWinners')]));
+    lines.push(...winnerLines(winners, t));
   }
 
   const buttons = running

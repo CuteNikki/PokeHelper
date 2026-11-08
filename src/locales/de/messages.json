@@ -2157,7 +2157,9 @@
         "newest": "Zuletzt dabei",
         "most": "Meiste Lose",
         "fewest": "Wenigste Lose"
-      }
+      },
+      "replaced_one": "{{count}} ersetzt",
+      "replaced_other": "{{count}} ersetzt"
     },
     "end": {
       "announce_one": "{{icon.trophy}} Glückwunsch {{winners}}! Du hast **{{prize}}** gewonnen!",
@@ -2214,7 +2216,6 @@
       "winners_other": "**Gewinner**",
       "noWinners": "Es konnte niemand gezogen werden.",
       "winner": {
-        "replaced": "ersetzt",
         "claimed": "abgeholt",
         "claimBy": "muss {{time}} abholen"
       },
@@ -2251,7 +2252,10 @@
       },
       "rerollAll": "Alle ersetzen",
       "rerollNotListed_one": "In die Liste passen 25, also fehlt {{count, number}} weiterer Gewinner. Alle ersetzen ersetzt auch ihn.",
-      "rerollNotListed_other": "In die Liste passen 25, also fehlen {{count, number}} weitere Gewinner. Alle ersetzen ersetzt auch sie."
+      "rerollNotListed_other": "In die Liste passen 25, also fehlen {{count, number}} weitere Gewinner. Alle ersetzen ersetzt auch sie.",
+      "replacedCount_one": "{{count}} Gewinner wurde ersetzt.",
+      "replacedCount_other": "{{count}} Gewinner wurden ersetzt.",
+      "moreWinners": "- und {{count}} weitere"
     },
     "edit": {
       "header": "Es läuft, also siehst du Änderungen sofort auf seinem Post. Der Kanal lässt sich nicht mehr ändern, und der Ping wurde schon gesendet."

@@ -2213,7 +2213,9 @@
         "newest": "Joined last",
         "most": "Most entries",
         "fewest": "Fewest entries"
-      }
+      },
+      "replaced_one": "{{count}} replaced",
+      "replaced_other": "{{count}} replaced"
     },
     "end": {
       "announce_one": "{{icon.trophy}} Congrats {{winners}}! You won **{{prize}}**!",
@@ -2270,7 +2272,6 @@
       "winners_other": "**Winners**",
       "noWinners": "Nobody could be drawn.",
       "winner": {
-        "replaced": "replaced",
         "claimed": "claimed",
         "claimBy": "has to claim it {{time}}"
       },
@@ -2307,7 +2308,10 @@
       },
       "rerollAll": "Replace all",
       "rerollNotListed_one": "The list fits 25, so {{count, number}} more winner isn't in it. Replace all replaces them too.",
-      "rerollNotListed_other": "The list fits 25, so {{count, number}} more winners aren't in it. Replace all replaces them too."
+      "rerollNotListed_other": "The list fits 25, so {{count, number}} more winners aren't in it. Replace all replaces them too.",
+      "replacedCount_one": "{{count}} winner was replaced.",
+      "replacedCount_other": "{{count}} winners were replaced.",
+      "moreWinners": "- and {{count}} more"
     },
     "edit": {
       "header": "It's running, so changes show on its post right away. Its channel can't change anymore, and its ping was already sent."
