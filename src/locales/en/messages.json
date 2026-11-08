@@ -2172,6 +2172,60 @@
       "already": "You already claimed your prize.",
       "notWinner": "Only the winners can claim this prize.",
       "late": "The time to claim ran out, so the prize goes to someone else."
+    },
+    "manage": {
+      "listTitle": "### {{icon.gift}} Giveaways",
+      "tabs": {
+        "active": "Running ({{count}})",
+        "ended": "Ended ({{count}})"
+      },
+      "none": {
+        "active": "No giveaways are running. Set one up with `/giveaway start`.",
+        "ended": "No giveaways have ended yet."
+      },
+      "countActive": "{{count, number}}/{{max}} running",
+      "countEnded": "The newest {{shown}} of {{count, number}}",
+      "item": {
+        "active": "{{position}}. **{{prize}}** {{number}} · {{channel}} · ends {{time}} · {{people}}",
+        "ended": "{{position}}. **{{prize}}** {{number}} · {{channel}} · ended {{time}} · {{people}}",
+        "cancelled": "{{position}}. **{{prize}}** {{number}} · {{channel}} · cancelled {{time}} · {{people}}"
+      },
+      "placeholder": "Pick one to manage it",
+      "number": "#{{number}}",
+      "title": "### {{icon.gift}} Giveaway {{number}}",
+      "status": {
+        "running": "Ends {{time}}",
+        "ended": "Ended {{time}}",
+        "cancelled": "Cancelled {{time}}"
+      },
+      "where": "In {{channel}} · {{post}}",
+      "jump": "Jump to it",
+      "noPost": "its post is gone",
+      "by": "Set up by {{user}} · Hosted by {{host}}",
+      "people": "{{people}} entered",
+      "winners_one": "**Winner**",
+      "winners_other": "**Winners**",
+      "noWinners": "Nobody could be drawn.",
+      "winner": {
+        "replaced": "replaced",
+        "claimed": "claimed",
+        "claimBy": "has to claim it {{time}}"
+      },
+      "end": "End now",
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "back": "Back",
+      "keep": "Keep it",
+      "ended": "Ended it and drew the winners.",
+      "notRunning": "It's not running anymore.",
+      "stillRunning": "It is still running. End or cancel it first.",
+      "cancelQuestion": "Cancel the giveaway for **{{prize}}**? It ends right away without winners.",
+      "cancelConfirm": "Cancel it",
+      "cancelled": "Cancelled it.",
+      "deleteQuestion": "Delete the giveaway for **{{prize}}**? Its post, participants and winners are deleted too, and can't be brought back.",
+      "deleteConfirm": "Delete it",
+      "deleted": "Deleted it.",
+      "gone": "That giveaway is gone. It may have been deleted meanwhile."
     }
   }
 }

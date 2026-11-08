@@ -2116,6 +2116,60 @@
       "already": "Du hast deinen Preis schon abgeholt.",
       "notWinner": "Nur die Gewinner können diesen Preis abholen.",
       "late": "Die Zeit zum Abholen ist abgelaufen, also geht der Preis an jemand anderen."
+    },
+    "manage": {
+      "listTitle": "### {{icon.gift}} Giveaways",
+      "tabs": {
+        "active": "Laufend ({{count}})",
+        "ended": "Beendet ({{count}})"
+      },
+      "none": {
+        "active": "Gerade läuft kein Giveaway. Richte mit `/giveaway starten` eins ein.",
+        "ended": "Bisher ist noch kein Giveaway zu Ende."
+      },
+      "countActive": "{{count, number}}/{{max}} laufen",
+      "countEnded": "Die neuesten {{shown}} von {{count, number}}",
+      "item": {
+        "active": "{{position}}. **{{prize}}** {{number}} · {{channel}} · endet {{time}} · {{people}}",
+        "ended": "{{position}}. **{{prize}}** {{number}} · {{channel}} · beendet {{time}} · {{people}}",
+        "cancelled": "{{position}}. **{{prize}}** {{number}} · {{channel}} · abgesagt {{time}} · {{people}}"
+      },
+      "placeholder": "Wähl eins aus, um es zu verwalten",
+      "number": "#{{number}}",
+      "title": "### {{icon.gift}} Giveaway {{number}}",
+      "status": {
+        "running": "Endet {{time}}",
+        "ended": "Beendet {{time}}",
+        "cancelled": "Abgesagt {{time}}"
+      },
+      "where": "In {{channel}} · {{post}}",
+      "jump": "Zum Giveaway",
+      "noPost": "der Post ist weg",
+      "by": "Eingerichtet von {{user}} · Veranstaltet von {{host}}",
+      "people": "Dabei: {{people}}",
+      "winners_one": "**Gewinner**",
+      "winners_other": "**Gewinner**",
+      "noWinners": "Es konnte niemand gezogen werden.",
+      "winner": {
+        "replaced": "ersetzt",
+        "claimed": "abgeholt",
+        "claimBy": "muss {{time}} abholen"
+      },
+      "end": "Jetzt beenden",
+      "cancel": "Absagen",
+      "delete": "Löschen",
+      "back": "Zurück",
+      "keep": "Behalten",
+      "ended": "Hab es beendet und die Gewinner gezogen.",
+      "notRunning": "Es läuft nicht mehr.",
+      "stillRunning": "Es läuft noch. Beende es oder sag es erst ab.",
+      "cancelQuestion": "Das Giveaway für **{{prize}}** absagen? Es endet sofort, ohne Gewinner.",
+      "cancelConfirm": "Absagen",
+      "cancelled": "Hab es abgesagt.",
+      "deleteQuestion": "Das Giveaway für **{{prize}}** löschen? Sein Post, die Teilnehmer und Gewinner werden mitgelöscht und lassen sich nicht zurückholen.",
+      "deleteConfirm": "Löschen",
+      "deleted": "Hab es gelöscht.",
+      "gone": "Dieses Giveaway gibt es nicht mehr. Vielleicht wurde es inzwischen gelöscht."
     }
   }
 }

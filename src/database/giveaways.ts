@@ -277,3 +277,28 @@ export const replaceWinners = (giveawayId: string, winnerIds: string[], newUserI
     });
     return count;
   });
+
+/** Which giveaways a list shows: the ones running, or the ones that ended or were cancelled. */
+export type GiveawayTab = 'active' | 'ended';
+/** How many ended giveaways a list shows, the newest first, as many as fit in its select. */
+export const ENDED_LIST_SIZE = 25;
+
+/** A server's giveaways of a list, with how many entered each. Running ones end soonest first, ended ones newest first. */
+export const listGiveaways = (guildId: string, tab: GiveawayTab) =>
+  prisma.giveaway.findMany({
+    where: { guildId, status: tab === 'active' ? 'active' : { in: ['ended', 'cancelled'] } },
+    orderBy: tab === 'active' ? { endsAt: 'asc' } : { endedAt: 'desc' },
+    take: tab === 'active' ? MAX_ACTIVE_GIVEAWAYS : ENDED_LIST_SIZE,
+    include: { ...withRoles, _count: { select: { entries: true } } },
+  });
+
+/** How many giveaways a server has running, and how many ended or were cancelled. */
+export async function countGiveaways(guildId: string): Promise<Record<GiveawayTab, number>> {
+  const groups = await prisma.giveaway.groupBy({ by: ['status'], where: { guildId, status: { not: 'draft' } }, _count: { _all: true } });
+  const of = (status: string) => groups.find((group) => group.status === status)?._count._all ?? 0;
+  return { active: of('active'), ended: of('ended') + of('cancelled') };
+}
+
+/** Cancel a running giveaway, so it ends without winners. Returns whether it was still running. */
+export const cancelGiveaway = async (id: string, now = new Date()) =>
+  (await prisma.giveaway.updateMany({ where: { id, status: 'active' }, data: { status: 'cancelled', endedAt: now } })).count > 0;

@@ -25,6 +25,7 @@ import { getGiveawaySettings } from 'settings/giveaway';
 
 import { formatNumber } from 'utility/duration';
 import { formatMinutes, parseMinutes } from 'utility/giveaways/input';
+import { renderGiveawayList } from 'utility/giveaways/manage';
 import { getTranslate } from 'utility/i18next';
 import { createResponse } from 'utility/response';
 import { settingsContext } from 'utility/settings';
@@ -52,13 +53,17 @@ export default new Command({
         .addStringOption((option) =>
           option.setName('host').setDescription('Who it is from, like you, a team or a company. Defaults to you').setMaxLength(MAX_HOST_LENGTH),
         ),
-    ),
+    )
+    .addSubcommand((cmd) => cmd.setName('list').setDescription("See this server's giveaways, and end, cancel or delete them")),
 
   async execute(interaction) {
     if (!interaction.inCachedGuild()) return;
     switch (interaction.options.getSubcommand()) {
       case 'start':
         return handleStart(interaction);
+      case 'list':
+        await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
+        return interaction.editReply(await renderGiveawayList(interaction.guild, 'active', getTranslate(interaction.locale)));
     }
   },
 });

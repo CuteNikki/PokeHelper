@@ -643,6 +643,10 @@
             "description": "Von wem es ist, z. B. du, ein Team oder eine Firma. Ohne Angabe du"
           }
         }
+      },
+      "list": {
+        "name": "liste",
+        "description": "Sieh dir die Giveaways dieses Servers an, um sie zu beenden, abzusagen oder zu löschen"
       }
     }
   }
