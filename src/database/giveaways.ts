@@ -80,28 +80,44 @@ export type GiveawayUpdate = Pick<
   | 'dmWinners'
 >;
 
-/** Change a giveaway. Returns whether it was still there. */
-export const updateGiveaway = async (id: string, data: GiveawayUpdate) => (await prisma.giveaway.updateMany({ where: { id }, data })).count > 0;
+/** The giveaways that can still be changed: drafts and running ones. One that ended or was cancelled stays as it was. */
+const CHANGEABLE: GiveawayStatus[] = ['draft', 'active'];
+
+/** Change a draft or running giveaway. Returns whether it could still be changed, as it may have ended meanwhile. */
+export const updateGiveaway = async (id: string, data: GiveawayUpdate) =>
+  (await prisma.giveaway.updateMany({ where: { id, status: { in: CHANGEABLE } }, data })).count > 0;
+
+/**
+ * Lock a draft or running giveaway until the transaction is done, so it can't end meanwhile, as ending it waits for the lock.
+ * @returns Whether it can still be changed.
+ */
+const lockChangeable = async (tx: Prisma.TransactionClient, id: string) =>
+  (await tx.$queryRaw<unknown[]>`SELECT 1 FROM "Giveaway" WHERE id = ${id} AND status::text IN ('draft', 'active') FOR UPDATE`).length > 0;
 
 /**
  * Set the roles of one kind, replacing the ones before. A role can only be of one kind, so it's taken off the others.
  * @param roles The roles, with their bonus for bonus roles.
  */
 export const setGiveawayRoles = (giveawayId: string, kind: GiveawayRoleKind, roles: { roleId: string; bonus?: number }[]) =>
-  prisma.$transaction([
-    prisma.giveawayRole.deleteMany({ where: { giveawayId, OR: [{ kind }, { roleId: { in: roles.map((role) => role.roleId) } }] } }),
-    prisma.giveawayRole.createMany({ data: roles.map((role) => ({ giveawayId, kind, roleId: role.roleId, bonus: role.bonus ?? 0 })) }),
-  ]);
+  prisma.$transaction(async (tx) => {
+    if (!(await lockChangeable(tx, giveawayId))) return;
+    await tx.giveawayRole.deleteMany({ where: { giveawayId, OR: [{ kind }, { roleId: { in: roles.map((role) => role.roleId) } }] } });
+    await tx.giveawayRole.createMany({ data: roles.map((role) => ({ giveawayId, kind, roleId: role.roleId, bonus: role.bonus ?? 0 })) });
+  });
 
 /** Give a role bonus entries, or take it off the bonus roles with null. A role can only be of one kind, so it's taken off the others. */
 export const setBonusRole = (giveawayId: string, roleId: string, bonus: number | null) =>
-  bonus === null
-    ? prisma.giveawayRole.deleteMany({ where: { giveawayId, roleId, kind: 'bonus' } })
-    : prisma.giveawayRole.upsert({
+  prisma.$transaction(async (tx) => {
+    if (!(await lockChangeable(tx, giveawayId))) return;
+    if (bonus === null) await tx.giveawayRole.deleteMany({ where: { giveawayId, roleId, kind: 'bonus' } });
+    else {
+      await tx.giveawayRole.upsert({
         where: { giveawayId_roleId: { giveawayId, roleId } },
         update: { kind: 'bonus', bonus },
         create: { giveawayId, roleId, kind: 'bonus', bonus },
       });
+    }
+  });
 
 /** Why a draft couldn't be started. */
 export type StartRefusal = 'notDraft' | 'full';

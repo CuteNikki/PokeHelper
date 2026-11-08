@@ -284,9 +284,11 @@ const draws = new KeyedQueue();
  */
 export const endGiveaway = (guild: Guild, giveaway: Giveaway, byId: string | null = null) =>
   draws.run(giveaway.id, async () => {
-    // As it is by now, as it may have been ended or changed while waiting
+    // As it is by now, as it may have been ended or changed while waiting, like its end moved later after the job found it
     const current = await getGiveaway(guild.id, giveaway.id);
-    if (current?.status === 'active') await drawAndEnd(guild, current, byId);
+    if (current?.status !== 'active') return;
+    if (!byId && current.endsAt && current.endsAt > new Date()) return;
+    await drawAndEnd(guild, current, byId);
   });
 
 async function drawAndEnd(guild: Guild, giveaway: Giveaway, byId: string | null) {
