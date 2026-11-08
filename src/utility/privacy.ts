@@ -7,9 +7,12 @@ import {
   ButtonStyle,
   type Client,
   ContainerBuilder,
+  DiscordAPIError,
   FileBuilder,
+  type Guild,
   MessageFlags,
   type PermissionsString,
+  RESTJSONErrorCodes,
   SeparatorBuilder,
   SeparatorSpacingSize,
   subtext,
@@ -18,6 +21,7 @@ import {
 
 import { getRunningEntriesOf } from 'database/giveaways';
 import { ensureGuild } from 'database/guild';
+import { getTempBans } from 'database/moderation';
 import { deleteGuildData, deleteUserData, getGivenRoles, getGuildData, getUserData, type GivenRole } from 'database/privacy';
 
 import { buttonIcon } from 'utility/emojis';
@@ -27,6 +31,7 @@ import { markPostChanged } from 'utility/giveaways/sync';
 import { getTranslate, type Translate } from 'utility/i18next';
 import { logger } from 'utility/logger';
 import { forgetLogConfig } from 'utility/logs/send';
+import { caseNumber } from 'utility/moderation/run';
 import { createResponse, sendError, type ResponsePayload } from 'utility/response';
 import type { SettingsContext } from 'utility/settings';
 import { ThemeColors } from 'utility/theme';
@@ -145,10 +150,27 @@ export async function deleteOwnData(context: SettingsContext, t: Translate): Pro
   return createResponse(t('privacy.user.deleted'), 'warning');
 }
 
+/**
+ * Lift a server's temporary bans, as once their cases are deleted, nothing would lift them, which would make them bans for good.
+ * Failures are only logged, like when the bot can't ban anymore.
+ */
+async function liftTempBans(guild: Guild) {
+  const t = getTranslate(guild.preferredLocale);
+  for (const modCase of await getTempBans(guild.id)) {
+    await guild.members.unban(modCase.userId, t('moderation.tempBanDataDeleted', { number: caseNumber(modCase, t) })).catch((error: unknown) => {
+      // Lifted meanwhile
+      if (!(error instanceof DiscordAPIError && error.code === RESTJSONErrorCodes.UnknownBan)) {
+        logger.warn(error, `Failed to lift the temporary ban of ${modCase.userId} in guild ${guild.id}`);
+      }
+    });
+  }
+}
+
 /** Delete everything about the server, as if the bot was just added. */
 export async function deleteServerData(context: SettingsContext, t: Translate): Promise<ResponsePayload> {
   const guildId = context.guild!.id;
   await takeBackRoles(context.client, await getGivenRoles({ guildId }));
+  await liftTempBans(context.guild!);
   // After a count that's being handled, so it doesn't save into what was just deleted
   await runCountingTask(guildId, () => deleteGuildData(guildId));
   forgetLogConfig(guildId);

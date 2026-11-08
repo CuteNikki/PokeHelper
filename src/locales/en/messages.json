@@ -972,7 +972,7 @@
       "title": "About {{name}}",
       "description": "The server's settings and giveaways, and its members' levels, counting stats and moderation cases",
       "downloaded": "Here's everything stored about this server, as a file only you can see.",
-      "confirm": "### Delete all data of {{name}}?\nEvery setting, role menu, log setting and join channel, every giveaway, and everyone's levels, counting stats and moderation cases here are deleted, as if the bot was just added. This can't be undone.",
+      "confirm": "### Delete all data of {{name}}?\nEvery setting, role menu, log setting and join channel, every giveaway, and everyone's levels, counting stats and moderation cases here are deleted, as if the bot was just added. Temporary bans that are still running are lifted now, as nothing would lift them later. This can't be undone.",
       "deleted": "All data of this server is deleted. Every feature is back to how it was when the bot was added."
     }
   },
@@ -1852,7 +1852,8 @@
       "doneOf_one": "Deleted {{count, number}} message of {{user}}.",
       "doneOf_other": "Deleted {{count, number}} messages of {{user}}.",
       "skipped": "Some were left, as Discord doesn't let bots delete messages older than 14 days at once, and pinned ones stay."
-    }
+    },
+    "tempBanDataDeleted": "Server data deleted, so the temporary ban was lifted early (case {{number}})"
   },
   "lookup": {
     "generation": "Generation {{number}}",
