@@ -26,6 +26,7 @@ import { getGuildLevelingConfiguration } from 'database/leveling';
 
 import { buttonIcon } from 'utility/emojis';
 import type { Translate } from 'utility/i18next';
+import type { IconName } from 'utility/icons';
 import type { ResponsePayload } from 'utility/response';
 import { DiscordLimits } from 'utility/discordLimits';
 import { ThemeColors } from 'utility/theme';
@@ -37,6 +38,22 @@ export const HELP_OVERVIEW = 'overview';
 
 /** The order of the categories, by the folder their commands are in. Others come after them. */
 const CATEGORY_ORDER = ['pokemon', 'leveling', 'birthday', 'counting', 'role-menu', 'temp-voice', 'starboard', 'sticky', 'logs', 'moderation', 'reminders', 'general'];
+/** The icon of each category in the select, like the one the features' own messages have. */
+const CATEGORY_ICONS: Record<string, IconName> = {
+  pokemon: 'paw-print',
+  leveling: 'trending-up',
+  birthday: 'cake',
+  counting: 'hash',
+  'role-menu': 'drama',
+  'temp-voice': 'volume-2',
+  starboard: 'star',
+  sticky: 'pin',
+  logs: 'scroll-text',
+  moderation: 'gavel',
+  reminders: 'alarm-clock',
+  general: 'house',
+};
+
 let registered: Collection<string, ApplicationCommand> | null = null;
 
 /**
@@ -147,7 +164,12 @@ export async function buildHelp(interaction: Interaction, category: string, t: T
     .setPlaceholder(t('help.select'))
     .addOptions(
       { label: t('help.overview'), value: HELP_OVERVIEW, emoji: buttonIcon('book-open'), default: !shown },
-      ...categories.map(([key]) => ({ label: label(key).slice(0, DiscordLimits.optionLabelLength), value: key, default: key === shown?.[0] })),
+      ...categories.map(([key]) => ({
+        label: label(key).slice(0, DiscordLimits.optionLabelLength),
+        value: key,
+        emoji: CATEGORY_ICONS[key] && buttonIcon(CATEGORY_ICONS[key]),
+        default: key === shown?.[0],
+      })),
     );
   container
     .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large))
