@@ -7,6 +7,7 @@ import { countingSettings } from 'settings/counting';
 import { levelingSettings } from 'settings/leveling';
 import { logSettings } from 'settings/logs';
 import { friendCodeSettings } from 'settings/friendCodes';
+import { getGiveawaySettings, GIVEAWAY_PANEL_PREFIX } from 'settings/giveaway';
 import { myBirthdaySettings } from 'settings/myBirthday';
 import { getRoleMenuSettings, ROLE_MENU_PANEL_PREFIX } from 'settings/roleMenu';
 import { starboardSettings } from 'settings/starboard';
@@ -15,7 +16,7 @@ import { getTempVoiceSettings, TEMP_VOICE_PANEL_PREFIX } from 'settings/tempVoic
 import { createResponse, sendError } from 'utility/response';
 import { parseSettingsCustomId, settingsContext, type SettingsInput, type SettingsModal, type SettingsPanel } from 'utility/settings';
 
-/** Every settings panel, so their buttons and selects can find them by ID. Role menus and join channels each have their own, found by their ID. */
+/** Every settings panel, so their buttons and selects can find them by ID. Role menus, join channels and giveaways each have their own, found by their ID. */
 const panels: SettingsPanel[] = [countingSettings, levelingSettings, birthdaySettings, myBirthdaySettings, friendCodeSettings, logSettings, starboardSettings];
 
 const MODAL_INPUT_ID = 'value';
@@ -25,6 +26,7 @@ const DEFAULT_INPUT_LENGTH = 20;
 function getSettingsPanel(id: string) {
   if (id.startsWith(ROLE_MENU_PANEL_PREFIX)) return getRoleMenuSettings(id.slice(ROLE_MENU_PANEL_PREFIX.length));
   if (id.startsWith(TEMP_VOICE_PANEL_PREFIX)) return getTempVoiceSettings(id.slice(TEMP_VOICE_PANEL_PREFIX.length));
+  if (id.startsWith(GIVEAWAY_PANEL_PREFIX)) return getGiveawaySettings(id.slice(GIVEAWAY_PANEL_PREFIX.length));
   return panels.find((panel) => panel.id === id);
 }
 

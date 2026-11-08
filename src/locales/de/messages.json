@@ -1948,6 +1948,98 @@
       "level": "Level {{level}} oder höher",
       "memberAge": "Seit mindestens {{duration}} auf dem Server",
       "accountAge": "Ein Account, der mindestens {{duration}} alt ist"
+    },
+    "draft": {
+      "title": "### {{icon.gift}} Neues Giveaway",
+      "header": "Das ist ein Entwurf. **Starten** postet es in {{channel}}, bis dahin siehst nur du es. Entwürfe, die nicht gestartet werden, werden nach einem Tag gelöscht.",
+      "missingChannel": "Ich finde den Kanal nicht mehr, in den es soll. Such dir unter Grundlegendes einen anderen aus.",
+      "missingPermissions": "Ich kann es da nicht posten, mir fehlen diese Berechtigungen: {{permissions}}.",
+      "gone": "Diesen Entwurf gibt es nicht mehr. Er wurde gestartet, weggeworfen oder einen Tag lang nicht gestartet. Richte mit `/giveaway starten` einen neuen ein.",
+      "start": "Starten",
+      "discard": "Wegwerfen",
+      "preview": "-# Vorschau",
+      "full": "Auf diesem Server laufen schon {{max}} Giveaways, mehr geht nicht. Beende eins, bevor du ein neues startest.",
+      "postFailed": "Ich konnte es nicht posten. Schau, dass ich in dem Kanal Nachrichten senden kann, und versuch es nochmal. Der Entwurf ist noch da.",
+      "started": "Es ist online in {{channel}}! [Zum Giveaway]({{link}})",
+      "discarded": "Hab den Entwurf weggeworfen.",
+      "tooMany": "Dieser Server hat schon {{max}} Entwürfe. Starte oder wirf erst einen weg, oder warte einen Tag, dann werden nicht gestartete Entwürfe gelöscht."
+    },
+    "settings": {
+      "categories": {
+        "basics": "Grundlegendes",
+        "rules": "Wer mitmachen kann",
+        "winners": "Gewinner"
+      },
+      "tips": {
+        "basics": ["Das Giveaway startet mit **Starten** und endet, wenn seine Zeit ab dann um ist."],
+        "rules": [
+          "Die Regeln werden geprüft, wenn jemand mitmacht, und nochmal, wenn die Gewinner gezogen werden. So gewinnt niemand, der sie nicht mehr erfüllt.",
+          "Eine Rolle kann nur eins sein: benötigt, ausgeschlossen oder Extra-Lose. Wählst du sie woanders aus, wandert sie dahin."
+        ],
+        "winners": ["Extra-Lose zählen zusammen: Wer zwei Rollen mit Extra-Losen hat, bekommt beide, zusätzlich zu seinem einen Los."]
+      },
+      "durationPlaceholder": "Z. B. 30min, 12h, 3T oder 2 Wochen",
+      "invalidDuration": "Mit dieser Dauer kann ich nichts anfangen. Probier sowas wie 12h, 3T oder 2 Wochen.",
+      "prize": {
+        "label": "Preis",
+        "description": "Was die Gewinner bekommen"
+      },
+      "description": {
+        "label": "Beschreibung",
+        "description": "Mehr über den Preis, oder wie die Gewinner ihn bekommen"
+      },
+      "winners": {
+        "label": "Gewinner",
+        "description": "Wie viele gewinnen, bis zu {{max}}",
+        "invalid": "Gib eine ganze Zahl von 1 bis {{max}} ein."
+      },
+      "duration": {
+        "label": "Dauer",
+        "description": "Wie lange es läuft, sobald es gestartet ist",
+        "invalid": "Mit dieser Dauer kann ich nichts anfangen. Probier sowas wie 30min, 12h oder 3T, von 1 Minute bis {{max}}."
+      },
+      "channel": {
+        "label": "Kanal",
+        "description": "Wo es gepostet wird"
+      },
+      "ping": {
+        "label": "Ping-Rolle",
+        "description": "Eine Rolle, die beim Start gepingt wird. Für eine Rolle, die nicht jeder erwähnen kann, brauche ich die Berechtigung Erwähne @everyone"
+      },
+      "required": {
+        "label": "Benötigte Rollen",
+        "description": "Nur Mitglieder mit diesen Rollen können mitmachen"
+      },
+      "requireAll": {
+        "label": "Benötigte Rollen nötig",
+        "description": "Ob Mitglieder eine der benötigten Rollen brauchen oder alle",
+        "any": "Eine davon",
+        "all": "Alle"
+      },
+      "blocked": {
+        "label": "Ausgeschlossene Rollen",
+        "description": "Mitglieder mit einer dieser Rollen können nicht mitmachen"
+      },
+      "level": {
+        "label": "Level",
+        "description": "Das Level, das Mitglieder mindestens brauchen",
+        "invalid": "Gib eine ganze Zahl von 1 bis {{max}} ein."
+      },
+      "memberAge": {
+        "label": "Zeit auf dem Server",
+        "description": "Wie lange Mitglieder mindestens auf dem Server sein müssen"
+      },
+      "accountAge": {
+        "label": "Account-Alter",
+        "description": "Wie alt Discord-Accounts mindestens sein müssen, damit keine extra fürs Giveaway erstellten Zweitaccounts mitmachen"
+      },
+      "bonus": {
+        "label": "Extra-Lose",
+        "description": "Rollen, die zusätzliche Lose geben, womit man eher gewinnt",
+        "value": "+{{bonus}}",
+        "input": "Extra-Lose, von 1 bis {{max}}",
+        "invalid": "Gib eine ganze Zahl von 1 bis {{max}} ein."
+      }
     }
   }
 }

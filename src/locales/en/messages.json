@@ -2004,6 +2004,98 @@
       "level": "Level {{level}} or higher",
       "memberAge": "On the server for at least {{duration}}",
       "accountAge": "An account at least {{duration}} old"
+    },
+    "draft": {
+      "title": "### {{icon.gift}} New giveaway",
+      "header": "This is a draft. **Start** posts it in {{channel}}, and until then only you can see it. Drafts that aren't started are deleted after a day.",
+      "missingChannel": "I can't find the channel it goes in anymore. Pick another one under Basics.",
+      "missingPermissions": "I can't post it there, as I'm missing these permissions: {{permissions}}.",
+      "gone": "This draft is gone. It was started, thrown away, or not started for a day. Set up a new one with `/giveaway start`.",
+      "start": "Start",
+      "discard": "Throw away",
+      "preview": "-# Preview",
+      "full": "This server already has {{max}} giveaways running, the most there can be. End one before starting another.",
+      "postFailed": "I couldn't post it. Make sure I can send messages in the channel, then try again. The draft is still here.",
+      "started": "It's up in {{channel}}! [Jump to it]({{link}})",
+      "discarded": "Threw the draft away.",
+      "tooMany": "This server already has {{max}} drafts. Start or throw away one first, or wait a day, as drafts that aren't started are deleted then."
+    },
+    "settings": {
+      "categories": {
+        "basics": "Basics",
+        "rules": "Who can enter",
+        "winners": "Winners"
+      },
+      "tips": {
+        "basics": ["The giveaway starts with **Start**, and ends once its time is up, counted from then."],
+        "rules": [
+          "The rules are checked when someone joins, and again when the winners are drawn, so nobody wins who no longer meets them.",
+          "A role can only be one of required, blocked or bonus. Picking it for another moves it there."
+        ],
+        "winners": ["Bonus entries add up: someone with two bonus roles gets both, on top of their 1 entry."]
+      },
+      "durationPlaceholder": "Like 30m, 12h, 3d or 2 weeks",
+      "invalidDuration": "That's not a duration I understand. Try something like 12h, 3d or 2 weeks.",
+      "prize": {
+        "label": "Prize",
+        "description": "What the winners get"
+      },
+      "description": {
+        "label": "Description",
+        "description": "More about the prize, or how winners get it"
+      },
+      "winners": {
+        "label": "Winners",
+        "description": "How many win, up to {{max}}",
+        "invalid": "Enter a whole number from 1 to {{max}}."
+      },
+      "duration": {
+        "label": "Duration",
+        "description": "How long it runs once started",
+        "invalid": "That's not a duration I can use. Try something like 30m, 12h or 3d, from 1 minute up to {{max}}."
+      },
+      "channel": {
+        "label": "Channel",
+        "description": "Where it's posted"
+      },
+      "ping": {
+        "label": "Ping role",
+        "description": "A role that's pinged when it starts. For a role that can't be mentioned by everyone, I need the Mention Everyone permission"
+      },
+      "required": {
+        "label": "Required roles",
+        "description": "Only members with these roles can enter"
+      },
+      "requireAll": {
+        "label": "Required roles needed",
+        "description": "Whether members need one of the required roles, or all of them",
+        "any": "Any one",
+        "all": "All"
+      },
+      "blocked": {
+        "label": "Blocked roles",
+        "description": "Members with any of these roles can't enter"
+      },
+      "level": {
+        "label": "Level",
+        "description": "The level members need at least",
+        "invalid": "Enter a whole number from 1 to {{max}}."
+      },
+      "memberAge": {
+        "label": "Time on the server",
+        "description": "How long members have to be on the server at least"
+      },
+      "accountAge": {
+        "label": "Account age",
+        "description": "How old Discord accounts have to be at least, to keep out alts made for the giveaway"
+      },
+      "bonus": {
+        "label": "Bonus entries",
+        "description": "Roles that give extra entries, which make winning more likely",
+        "value": "+{{bonus}}",
+        "input": "Extra entries, from 1 to {{max}}",
+        "invalid": "Enter a whole number from 1 to {{max}}."
+      }
     }
   }
 }

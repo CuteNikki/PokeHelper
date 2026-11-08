@@ -613,5 +613,33 @@
         "description": "Ob die Person eine DM dazu bekommt. Standardmäßig ja"
       }
     }
+  },
+  "giveaway": {
+    "name": "giveaway",
+    "description": "Verlos etwas an deine Mitglieder",
+    "options": {
+      "start": {
+        "name": "starten",
+        "description": "Richte ein Giveaway ein, mit Regeln und Extra-Losen, bevor es startet",
+        "options": {
+          "prize": {
+            "name": "preis",
+            "description": "Was die Gewinner bekommen"
+          },
+          "duration": {
+            "name": "dauer",
+            "description": "Wie lange es läuft, z. B. 1h, 3T oder 2 Wochen"
+          },
+          "winners": {
+            "name": "gewinner",
+            "description": "Wie viele gewinnen. Ohne Angabe 1"
+          },
+          "channel": {
+            "name": "kanal",
+            "description": "Wo es gepostet wird. Ohne Angabe dieser Kanal"
+          }
+        }
+      }
+    }
   }
 }

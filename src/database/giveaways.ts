@@ -7,10 +7,9 @@ import { DAY, MINUTE } from 'utility/duration';
 export const MAX_ACTIVE_GIVEAWAYS = 25;
 /** The most drafts a server can have at once, so a forgotten draft or two never stops anyone from starting a new one. */
 export const MAX_DRAFTS = 25;
-/** The most roles a giveaway can ask for, keep out and give bonus entries for, together. */
-export const MAX_GIVEAWAY_ROLES = 10;
-/** The most roles that give bonus entries, and the most entries one role can give. */
-export const MAX_BONUS_ROLES = 5;
+/** The most roles a giveaway can ask for, keep out, and give bonus entries for, each. */
+export const MAX_RULE_ROLES = 5;
+/** The most entries one bonus role can give. */
 export const MAX_BONUS = 10;
 export const MAX_PRIZE_LENGTH = 256;
 export const MAX_DESCRIPTION_LENGTH = 1000;
