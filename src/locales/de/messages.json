@@ -518,14 +518,14 @@
       "title": "Über dich",
       "description": "Deine XP, Zähl-Statistiken, dein Geburtstag, deine Freundescodes und deine Sprachkanal-Einstellungen, in allen Servern",
       "downloaded": "Hier ist alles, was über dich gespeichert ist, als Datei, die nur du sehen kannst.",
-      "confirm": "### Deine Daten löschen?\nDeine XP, Zähl-Statistiken, dein Geburtstag, deine Freundescodes und deine gespeicherten Sprachkanal-Einstellungen werden in **allen Servern** gelöscht. Moderationsfälle über dich bleiben, weil sie den Servern gehören. Das lässt sich nicht rückgängig machen.",
+      "confirm": "### Deine Daten löschen?\nDeine XP, Zähl-Statistiken, dein Geburtstag, deine Freundescodes und deine gespeicherten Sprachkanal-Einstellungen werden in **allen Servern** gelöscht, und du wirst aus den Giveaways genommen, bei denen du mitmachst. Moderationsfälle über dich und Giveaways, die du gestartet hast, bleiben, weil sie den Servern gehören. Das lässt sich nicht rückgängig machen.",
       "deleted": "Deine Daten sind gelöscht. Wenn du den Bot wieder benutzt, zum Beispiel beim Schreiben, wo Leveling an ist, fängst du bei null an."
     },
     "guild": {
       "title": "Über {{name}}",
-      "description": "Die Einstellungen des Servers und die Level, Zähl-Statistiken und Moderationsfälle seiner Mitglieder",
+      "description": "Die Einstellungen und Giveaways des Servers und die Level, Zähl-Statistiken und Moderationsfälle seiner Mitglieder",
       "downloaded": "Hier ist alles, was über diesen Server gespeichert ist, als Datei, die nur du sehen kannst.",
-      "confirm": "### Alle Daten von {{name}} löschen?\nAlle Einstellungen, Rollenmenüs, Log-Einstellungen und Beitrittskanäle sowie die Level, Zähl-Statistiken und Moderationsfälle aller hier werden gelöscht, als wäre der Bot gerade erst hinzugefügt worden. Das lässt sich nicht rückgängig machen.",
+      "confirm": "### Alle Daten von {{name}} löschen?\nAlle Einstellungen, Rollenmenüs, Log-Einstellungen, Beitrittskanäle und Giveaways sowie die Level, Zähl-Statistiken und Moderationsfälle aller hier werden gelöscht, als wäre der Bot gerade erst hinzugefügt worden. Das lässt sich nicht rückgängig machen.",
       "deleted": "Alle Daten dieses Servers sind gelöscht. Alles ist wieder so wie direkt nach dem Hinzufügen des Bots."
     }
   },

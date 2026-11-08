@@ -28,6 +28,9 @@ export async function getUserData(userId: string) {
     starred,
     casesAbout,
     casesMade,
+    giveawayEntries,
+    giveawayWins,
+    giveawaysSetUp,
   ] = await Promise.all([
     prisma.user.findUnique({
       where: { userId },
@@ -57,6 +60,21 @@ export async function getUserData(userId: string) {
       select: { guildId: true, number: true, type: true, createdAt: true },
       orderBy: { createdAt: 'asc' },
     }),
+    prisma.giveawayEntry.findMany({
+      where: { userId },
+      select: { entries: true, createdAt: true, giveaway: { select: { guildId: true, number: true, prize: true, status: true, endedAt: true } } },
+    }),
+    prisma.giveawayWinner.findMany({
+      where: { userId },
+      select: {
+        drawnAt: true,
+        claimBy: true,
+        claimedAt: true,
+        replacedAt: true,
+        giveaway: { select: { guildId: true, number: true, prize: true, status: true, endedAt: true } },
+      },
+    }),
+    prisma.giveaway.findMany({ where: { hostId: userId }, select: { guildId: true, number: true, prize: true, status: true, createdAt: true } }),
   ]);
 
   return {
@@ -71,6 +89,12 @@ export async function getUserData(userId: string) {
       cases: casesAbout,
       // Cases they made as a moderator, without who they were about or why, which is about someone else
       made: casesMade,
+    },
+    giveaways: {
+      // Without who else entered or won, which is about someone else
+      entries: giveawayEntries,
+      wins: giveawayWins,
+      setUp: giveawaysSetUp,
     },
     starboard: {
       // Their messages that were starred, with who starred them. What they said is in the posts on Discord, not stored here
@@ -110,7 +134,9 @@ export async function getUserData(userId: string) {
 /**
  * Delete everything stored about someone, in every server. Where they're named in a server's data, like as who holds the counting
  * record, their ID is taken out and the rest stays. Channels they own right now stay theirs until they're deleted, as they're in use.
- * Moderation cases stay, about them and made by them, as they're the server's records, which they can't be allowed to wipe.
+ * Moderation cases stay, about them and made by them, as they're the server's records, which they can't be allowed to wipe. So do
+ * giveaways they started, which are the server's too, while their drafts go. They're taken out of giveaways they entered, and as winners
+ * only their ID goes, so a giveaway still shows how many won.
  */
 export async function deleteUserData(userId: string) {
   const without = (ids: string[]) => ids.filter((id) => id !== userId);
@@ -127,6 +153,9 @@ export async function deleteUserData(userId: string) {
     await tx.guildLeveling.updateMany({ where: { weeklyLastWinner: userId }, data: { weeklyLastWinner: null } });
     await tx.guildLeveling.updateMany({ where: { monthlyLastWinner: userId }, data: { monthlyLastWinner: null } });
     await tx.tempVoiceSettings.deleteMany({ where: { userId } });
+    await tx.giveawayEntry.deleteMany({ where: { userId } });
+    await tx.giveawayWinner.updateMany({ where: { userId }, data: { userId: null } });
+    await tx.giveaway.deleteMany({ where: { hostId: userId, status: 'draft' } });
     // Forgotten, so their posts aren't updated anymore. The posts are messages in the server, which its moderators can delete
     await tx.starboardEntry.deleteMany({ where: { authorId: userId } });
     // Their stars on others' messages are taken back. The counts on the posts change with the next star
@@ -151,7 +180,7 @@ export async function deleteUserData(userId: string) {
   forgetUser(userId);
 }
 
-/** Everything stored about a server: its settings, its members' levels and counting stats, and its moderation cases. The numbers of each counting run are left out, as there can be many. */
+/** Everything stored about a server: its settings, its members' levels and counting stats, its moderation cases and its giveaways. The numbers of each counting run are left out, as there can be many. */
 export const getGuildData = (guildId: string) =>
   prisma.guild.findUnique({
     where: { guildId },
@@ -168,6 +197,7 @@ export const getGuildData = (guildId: string) =>
       starboardEntries: true,
       stickyMessages: true,
       modCases: true,
+      giveaways: { include: { roles: true, entries: true, winners: true } },
       reactionRoleMenus: { include: { roles: true } },
       tempVoiceCreators: true,
       tempVoiceChannels: true,
