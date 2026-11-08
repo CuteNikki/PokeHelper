@@ -17,7 +17,7 @@ import {
 import { createCase, undoCase } from 'database/moderation';
 
 import type { ModCase, ModCaseType } from 'generated/prisma/client';
-import { isDiscordError, isRefused } from 'utility/discord';
+import { fetchMember, isDiscordError, isRefused } from 'utility/discord';
 import { DAY, formatNumber, MINUTE } from 'utility/duration';
 import { textIcon } from 'utility/emojis';
 import type { IconName } from 'utility/icons';
@@ -145,15 +145,6 @@ export async function fetchBanned(guild: Guild, userId: string): Promise<boolean
     return true;
   } catch (error) {
     return isDiscordError(error, RESTJSONErrorCodes.UnknownBan) ? false : undefined;
-  }
-}
-
-/** Someone as a member of a server, asked of Discord: null if they're not on it, or undefined if it couldn't be asked. */
-export async function fetchMember(guild: Guild, userId: string): Promise<GuildMember | null | undefined> {
-  try {
-    return await guild.members.fetch({ user: userId, force: true });
-  } catch (error) {
-    return isDiscordError(error, RESTJSONErrorCodes.UnknownMember, RESTJSONErrorCodes.UnknownUser) ? null : undefined;
   }
 }
 

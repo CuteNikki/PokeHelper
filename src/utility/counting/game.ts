@@ -24,7 +24,7 @@ import {
   type CountMessage,
 } from 'utility/counting/rules';
 import { parseCount } from 'utility/counting/parse';
-import { isDiscordError } from 'utility/discord';
+import { fetchChannel, isDiscordError } from 'utility/discord';
 import { formatNumber, SECOND } from 'utility/duration';
 import { guildTranslate } from 'utility/i18next';
 import { logger } from 'utility/logger';
@@ -184,7 +184,7 @@ async function ensureCountingSynced(client: Client, counting: GuildCounting): Pr
  * Valid numbers count, invalid messages are deleted and a single summary is posted instead of a warning for each.
  */
 async function syncCounting(client: Client, counting: GuildCounting): Promise<GuildCounting> {
-  const channel = await client.channels.fetch(counting.channelId).catch(() => null);
+  const channel = await fetchChannel(client, counting.channelId);
   if (!channel?.isTextBased() || channel.isDMBased()) return counting;
 
   // Games from before this was tracked fall back to the last counted message, or to when the game last changed

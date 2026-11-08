@@ -17,6 +17,7 @@ import {
 
 import { getLevelFromXP, getTopUsersByXP, getTotalUsersWithXP, type LevelPeriod } from 'database/leveling';
 
+import { findMember } from 'utility/discord';
 import { buttonIcon } from 'utility/emojis';
 import { drawAvatar, loadAvatar, truncateText } from 'utility/canvas';
 import { formatCompactNumber, formatNumber } from 'utility/duration';
@@ -267,7 +268,11 @@ function buildControls(view: LeaderboardView, totalPages: number, t: Translate) 
 }
 
 /** The leaderboard in a container, like the bot's other messages: the title, the page as an image or as text, and the controls. */
-function inContainer(heading: TextDisplayBuilder, body: TextDisplayBuilder | MediaGalleryBuilder, rows: readonly ActionRowBuilder<MessageActionRowComponentBuilder>[]) {
+function inContainer(
+  heading: TextDisplayBuilder,
+  body: TextDisplayBuilder | MediaGalleryBuilder,
+  rows: readonly ActionRowBuilder<MessageActionRowComponentBuilder>[],
+) {
   const container = new ContainerBuilder().setAccentColor(ThemeColors.info).addTextDisplayComponents(heading);
   if (body instanceof MediaGalleryBuilder) container.addMediaGalleryComponents(body);
   else container.addTextDisplayComponents(body);
@@ -300,7 +305,7 @@ export async function buildLeaderboard(requested: LeaderboardView, guild: Guild,
     pageData.map(async (entry, index) => {
       const position = (page - 1) * ITEMS_PER_PAGE + index + 1;
 
-      const member = guild.members.cache.get(entry.userId) ?? (await guild.members.fetch(entry.userId).catch(() => null));
+      const member = await findMember(guild, entry.userId);
       const user = member?.user ?? guild.client.users.cache.get(entry.userId) ?? (await guild.client.users.fetch(entry.userId).catch(() => null));
 
       return {

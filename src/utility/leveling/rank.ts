@@ -1,17 +1,9 @@
-import {
-  ActionRowBuilder,
-  ButtonBuilder,
-  ButtonStyle,
-  Guild,
-  MessageFlags,
-  userMention,
-  type InteractionEditReplyOptions,
-  type User,
-} from 'discord.js';
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, Guild, MessageFlags, userMention, type InteractionEditReplyOptions, type User } from 'discord.js';
 
 import { getLevelFromXP, getUserLevelingData, getUserRank, getXPForLevel, type LevelPeriod } from 'database/leveling';
 
 import { loadAvatar } from 'utility/canvas';
+import { findMember } from 'utility/discord';
 import { formatNumber } from 'utility/duration';
 import { buttonIcon } from 'utility/emojis';
 import type { Translate } from 'utility/i18next';
@@ -101,7 +93,7 @@ export async function buildRank(guild: Guild, user: User, view: RankView, t: Tra
     return { ...response, components: [...(response.components ?? []), row], attachments: [], allowedMentions: { parse: [] } };
   }
 
-  const member = guild.members.cache.get(user.id) ?? (await guild.members.fetch(user.id).catch(() => null));
+  const member = await findMember(guild, user.id);
   const displayName = member?.displayName || user.displayName || user.username;
 
   const [progress, avatar] = await Promise.all([

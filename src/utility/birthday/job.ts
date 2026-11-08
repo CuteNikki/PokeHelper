@@ -4,6 +4,7 @@ import { prisma } from 'database/index';
 
 import type { GuildBirthday, UserBirthday } from 'generated/prisma/client';
 import { ageInYear, getBirthdayActions } from 'utility/birthday/dates';
+import { findMember } from 'utility/discord';
 import { guildTranslate } from 'utility/i18next';
 import { logger } from 'utility/logger';
 import { createResponse } from 'utility/response';
@@ -59,7 +60,7 @@ async function removeEndedBirthdayRoles(client: Client) {
     const guild = client.guilds.cache.get(role.guildId);
     if (!guild) continue;
 
-    const member = await guild.members.fetch(role.userId).catch(() => null);
+    const member = await findMember(guild, role.userId);
     if (member?.roles.cache.has(role.roleId)) {
       // Tried once, as a role the bot can't take away anymore, like one moved above its own, would fail every time
       await member.roles
@@ -76,7 +77,7 @@ async function announceBirthday(client: Client, birthday: UserBirthday, guildCon
     if (!birthday.announceInGuildsByDefault && !birthday.announceInGuildIds.includes(guildConfig.guildId)) continue;
 
     const guild = client.guilds.cache.get(guildConfig.guildId);
-    const member = await guild?.members.fetch(birthday.userId).catch(() => null);
+    const member = guild ? await findMember(guild, birthday.userId) : null;
     const channel = guild?.channels.cache.get(guildConfig.channelId);
     if (!guild || !member || !channel?.isSendable()) continue;
 
@@ -103,7 +104,7 @@ async function updateBirthdayRoles(client: Client, birthday: UserBirthday, guild
 
     const guild = client.guilds.cache.get(guildConfig.guildId);
     if (!guild || !canGiveRole(guild, guildConfig.roleId)) continue;
-    const member = await guild.members.fetch(birthday.userId).catch(() => null);
+    const member = await findMember(guild, birthday.userId);
     if (!member) continue;
 
     const hasRole = member.roles.cache.has(guildConfig.roleId);

@@ -4,8 +4,8 @@ import { Event } from 'classes/base/event';
 
 import { createCase } from 'database/moderation';
 
+import { fetchMember } from 'utility/discord';
 import { logger } from 'utility/logger';
-import { fetchMember } from 'utility/moderation/run';
 
 /** The change in an audit log entry that gives or takes away a timeout. */
 const TIMEOUT_CHANGE = 'communication_disabled_until';

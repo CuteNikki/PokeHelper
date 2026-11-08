@@ -29,6 +29,7 @@ import {
   type TempVoiceCreator,
 } from 'database/tempVoice';
 
+import { findMember } from 'utility/discord';
 import { SECOND } from 'utility/duration';
 import { guildTranslate } from 'utility/i18next';
 import type { Translate } from 'utility/i18next';
@@ -387,7 +388,7 @@ async function giveTo(temp: TempChannel, newOwnerId: string) {
  */
 async function renameForNewOwner(temp: TempChannel, oldOwnerId: string, newOwnerId: string) {
   const { guild } = temp.channel;
-  const [oldOwner, newOwner] = await Promise.all([guild.members.fetch(oldOwnerId).catch(() => null), guild.members.fetch(newOwnerId).catch(() => null)]);
+  const [oldOwner, newOwner] = await Promise.all([findMember(guild, oldOwnerId), findMember(guild, newOwnerId)]);
   // Someone who's left the server has no display name to compare with, so the name stays
   if (!oldOwner || !newOwner || channelLabel(temp.record.namePrefix, temp.channel.name) !== oldOwner.displayName) return;
 

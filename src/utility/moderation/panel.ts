@@ -24,6 +24,7 @@ import {
 import { CASE_TYPES, getUserCases } from 'database/moderation';
 
 import type { ModCaseType } from 'generated/prisma/client';
+import { fetchMember } from 'utility/discord';
 import { DiscordLimits } from 'utility/discordLimits';
 import { DAY, HOUR } from 'utility/duration';
 import { buttonIcon } from 'utility/emojis';
@@ -34,7 +35,6 @@ import { renderCasesFor } from 'utility/moderation/cases';
 import {
   CASE_ICONS,
   fetchBanned,
-  fetchMember,
   formatUntil,
   MAX_REASON_LENGTH,
   MAX_TIMEOUT_DAYS,

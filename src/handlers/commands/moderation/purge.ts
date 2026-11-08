@@ -10,6 +10,7 @@ import {
 
 import { Command } from 'classes/base/command';
 
+import { fetchChannel } from 'utility/discord';
 import { DAY } from 'utility/duration';
 import { getTranslate } from 'utility/i18next';
 import { userSubject } from 'utility/logs/format';
@@ -46,7 +47,7 @@ export default new Command({
     // Answered first, as fetching and deleting can take a moment
     await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
     // Asked of Discord when it isn't known, like a thread nobody wrote in since the bot started. Only fails when the bot can't see it
-    const fetchedChannel = interaction.channel ?? (await interaction.client.channels.fetch(interaction.channelId).catch(() => null));
+    const fetchedChannel = interaction.channel ?? (await fetchChannel(interaction.client, interaction.channelId));
     const channel = fetchedChannel?.isTextBased() && !fetchedChannel.isDMBased() ? fetchedChannel : null;
     const missing = channel && interaction.guild.members.me ? channel.permissionsFor(interaction.guild.members.me).missing(NEEDED) : NEEDED;
     if (!channel || missing.length > 0) {

@@ -19,6 +19,7 @@ import {
 
 import { getTempVoiceCreators } from 'database/tempVoice';
 
+import { findMember } from 'utility/discord';
 import { formatNumber, SECOND } from 'utility/duration';
 import { getTranslate, guildTranslate, type Translate } from 'utility/i18next';
 import { logger } from 'utility/logger';
@@ -190,7 +191,7 @@ async function handleMemberAction(interaction: ButtonInteraction<'cached'>, temp
 
   if (action === 'keepout') {
     if (memberId === temp.record.ownerId) return answer(t('tempVoice.member.ownerCantBeBlocked'), 'error');
-    const member = await interaction.guild.members.fetch(memberId).catch(() => null);
+    const member = await findMember(interaction.guild, memberId);
     if (member && isStaff(member)) return answer(t('tempVoice.member.staffCantBeBlocked'), 'error');
     // The channel's moderators are always let in, so keeping one out wouldn't do anything
     if (temp.record.moderators.includes(memberId)) return answer(t('tempVoice.member.moderatorCantBeBlocked', { user: mention }), 'error');
@@ -323,7 +324,7 @@ export async function handleTempVoiceModal(interaction: ModalSubmitInteraction):
   await interaction.deferUpdate();
   if (kind !== 'limit') {
     // Left empty, it goes back to the owner's display name, not whoever's changing it, if that's staff
-    const owner = await interaction.guild.members.fetch(temp.record.ownerId).catch(() => null);
+    const owner = await findMember(interaction.guild, temp.record.ownerId);
     const prefix = temp.record.namePrefix;
     const label = channelLabel(prefix, interaction.fields.getTextInputValue(NAME_INPUT_ID)) || owner?.displayName || channelLabel(prefix, temp.channel.name);
     change.name = channelName(prefix, label);

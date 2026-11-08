@@ -2,6 +2,7 @@ import type { Guild, GuildMember, GuildTextBasedChannel } from 'discord.js';
 
 import { getUserIdsWithXp, getXPForLevel } from 'database/leveling';
 
+import { findMember } from 'utility/discord';
 import { getEarnedRewardRoles } from 'utility/leveling/rules';
 import { logger } from 'utility/logger';
 import { canGiveRole } from 'utility/roles';
@@ -45,7 +46,7 @@ export async function grantRewardToQualifiedMembers(guild: Guild, roleId: string
 
   // One at a time, so a big server doesn't hit the rate limits all at once
   for (const userId of userIds) {
-    const member = await guild.members.fetch(userId).catch(() => null);
+    const member = await findMember(guild, userId);
     if (!member || member.roles.cache.has(roleId)) continue;
     try {
       await member.roles.add(roleId);

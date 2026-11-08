@@ -3,7 +3,7 @@ import { type Client, ContainerBuilder, type GuildTextBasedChannel, type Message
 import { getFeatureSwitches, setFeatureSwitch } from 'database/features';
 import { deleteSticky, getGuildStickies, getSticky, getStickyChannelIds, setStickyMessageId } from 'database/sticky';
 
-import { isDiscordError } from 'utility/discord';
+import { fetchChannel, isDiscordError } from 'utility/discord';
 import { SECOND } from 'utility/duration';
 import { guildTranslate } from 'utility/i18next';
 import { logger } from 'utility/logger';
@@ -56,10 +56,7 @@ export const buildStickyMessage = (text: string, label: string): ResponsePayload
 
 /** The channel of a sticky message, or null if it can't be posted in or is gone, in which case its sticky message is removed. */
 async function stickyChannel(client: Client, channelId: string): Promise<GuildTextBasedChannel | null> {
-  // Threads aren't always cached, like after a restart
-  const channel =
-    client.channels.cache.get(channelId) ??
-    (await client.channels.fetch(channelId).catch((error: unknown) => (isDiscordError(error, RESTJSONErrorCodes.UnknownChannel) ? null : undefined)));
+  const channel = await fetchChannel(client, channelId);
   if (channel === null) {
     await removeSticky(channelId);
     return null;

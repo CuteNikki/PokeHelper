@@ -1,4 +1,4 @@
-import { DiscordAPIError, RESTJSONErrorCodes } from 'discord.js';
+import { type Channel, type Client, DiscordAPIError, type Guild, type GuildMember, RESTJSONErrorCodes } from 'discord.js';
 
 /** Whether an error is Discord answering with one of these codes, like UnknownMessage for a message that was deleted. */
 export const isDiscordError = (error: unknown, ...codes: RESTJSONErrorCodes[]) =>
@@ -9,3 +9,32 @@ export const isMessageGone = (error: unknown) => isDiscordError(error, RESTJSONE
 
 /** Whether Discord answered no, unlike when it didn't answer in time or had a problem itself, after which a request may have worked anyway. */
 export const isRefused = (error: unknown) => error instanceof DiscordAPIError && error.status < 500;
+
+/**
+ * Someone as a member of a server, asked of Discord even when cached, for when it has to be right, like before moderating them.
+ * @returns The member, null if they're not on it, or undefined if Discord couldn't be asked.
+ */
+export async function fetchMember(guild: Guild, userId: string): Promise<GuildMember | null | undefined> {
+  try {
+    return await guild.members.fetch({ user: userId, force: true });
+  } catch (error) {
+    return isDiscordError(error, RESTJSONErrorCodes.UnknownMember, RESTJSONErrorCodes.UnknownUser) ? null : undefined;
+  }
+}
+
+/** Someone as a member of a server, from the cache or else Discord, or null if they're not on it or Discord couldn't be asked. */
+export const findMember = (guild: Guild, userId: string): Promise<GuildMember | null> => guild.members.fetch(userId).catch(() => null);
+
+/**
+ * A channel, from the cache or else Discord, as threads aren't always cached, like after a restart.
+ * @returns The channel, null if it's gone, or undefined if Discord couldn't be asked, or wouldn't let the bot see it.
+ */
+export async function fetchChannel(client: Client, channelId: string): Promise<Channel | null | undefined> {
+  const cached = client.channels.cache.get(channelId);
+  if (cached) return cached;
+  try {
+    return await client.channels.fetch(channelId);
+  } catch (error) {
+    return isDiscordError(error, RESTJSONErrorCodes.UnknownChannel) ? null : undefined;
+  }
+}

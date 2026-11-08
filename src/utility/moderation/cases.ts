@@ -38,6 +38,7 @@ import {
 import { getReminderTimezone } from 'database/reminders';
 
 import type { ModCase } from 'generated/prisma/client';
+import { fetchMember } from 'utility/discord';
 import { DiscordLimits } from 'utility/discordLimits';
 import { SECOND } from 'utility/duration';
 import { buttonIcon, textIcon } from 'utility/emojis';
@@ -51,7 +52,6 @@ import {
   CASE_ICONS,
   caseNumber,
   fetchBanned,
-  fetchMember,
   formatUntil,
   happenedAnyway,
   MAX_BAN_DAYS,

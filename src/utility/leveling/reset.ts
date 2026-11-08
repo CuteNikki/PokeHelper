@@ -3,6 +3,7 @@ import { ContainerBuilder, MessageFlags, TextDisplayBuilder, userMention, type C
 import { getActiveLevelingConfigs, getLevelFromXP, getTopUsersByXP, processResetTransaction, type ResetPeriod } from 'database/leveling';
 
 import type { GuildLeveling } from 'generated/prisma/client';
+import { findMember } from 'utility/discord';
 import { formatNumber } from 'utility/duration';
 import { guildTranslate } from 'utility/i18next';
 import { isResetDue } from 'utility/leveling/rules';
@@ -55,7 +56,7 @@ export async function runResetJob(client: Client, period: ResetPeriod) {
       const other = resetState(config, period === 'weekly' ? 'monthly' : 'weekly');
       const keptByOther = other.lastWinner === state.lastWinner && (other.winnerRole ?? other.reward) === previousRole;
       if (previousRole && state.lastWinner && !keptByOther) {
-        const prevWinner = await guild.members.fetch(state.lastWinner).catch(() => null);
+        const prevWinner = await findMember(guild, state.lastWinner);
         if (prevWinner?.roles.cache.has(previousRole)) {
           await prevWinner.roles.remove(previousRole).catch((err: unknown) => logger.error(err, `Failed to remove ${period} role from ${state.lastWinner}:`));
         }
@@ -65,7 +66,7 @@ export async function runResetJob(client: Client, period: ResetPeriod) {
       const topUser = topUsers[0]?.xp ? topUsers[0] : undefined;
 
       // Always recorded, also without a winner, so the reset isn't due again until the next week or month
-      const newWinner = topUser && canGiveRewardRole ? await guild.members.fetch(topUser.userId).catch(() => null) : null;
+      const newWinner = topUser && canGiveRewardRole ? await findMember(guild, topUser.userId) : null;
       const gaveRole = newWinner
         ? await newWinner.roles.add(roleId!).then(
             () => true,
