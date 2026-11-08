@@ -136,9 +136,6 @@ export function moderationProblem(
   return null;
 }
 
-/** Whether someone is banned from a server, asked of Discord. */
-export const isBanned = async (guild: Guild, userId: string) => (await guild.bans.fetch({ user: userId, force: true }).catch(() => null)) !== null;
-
 const isApiError = (error: unknown, ...codes: RESTJSONErrorCodes[]) => error instanceof DiscordAPIError && codes.includes(error.code as RESTJSONErrorCodes);
 
 /** Whether someone is banned from a server, asked of Discord, or undefined if it couldn't be asked. */
@@ -249,8 +246,12 @@ async function prepareModeration(
       return type === 'timeout' ? t('moderation.problems.timeoutTooLong', { max: MAX_TIMEOUT_DAYS }) : t('moderation.problems.banTooLong');
     expiresAt = parsed;
   }
-  if (type === 'ban' && (await isBanned(guild, user.id))) return t('moderation.problems.alreadyBanned', { user: userSubject(user) });
-  if (type === 'unban' && !(await isBanned(guild, user.id))) return t('moderation.problems.notBanned', { user: userSubject(user) });
+  if (type === 'ban' || type === 'unban') {
+    const banned = await fetchBanned(guild, user.id);
+    if (banned === undefined) return t('moderation.problems.banUnknown');
+    if (type === 'ban' && banned) return t('moderation.problems.alreadyBanned', { user: userSubject(user) });
+    if (type === 'unban' && !banned) return t('moderation.problems.notBanned', { user: userSubject(user) });
+  }
 
   const actions: Record<ModCaseType, (reason: string) => Promise<unknown>> = {
     warn: () => Promise.resolve(),

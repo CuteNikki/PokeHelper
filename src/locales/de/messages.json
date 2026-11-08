@@ -1705,7 +1705,8 @@
         },
         "dm": "Per DM Bescheid geben",
         "dmDescription": "Die Person bekommt eine DM, was passiert ist und warum"
-      }
+      },
+      "unknown": "Ich konnte Discord gerade nicht fragen, wie es um die Person steht, darum sind die Buttons aus. Öffne das Panel gleich nochmal."
     },
     "cases": {
       "title": "### {{icon.gavel}} Fälle von {{user}}",

@@ -1761,7 +1761,8 @@
         },
         "dm": "Tell them by DM",
         "dmDescription": "They get a DM with what happened and why"
-      }
+      },
+      "unknown": "I couldn't ask Discord how they're doing right now, so the buttons are off. Open the panel again in a moment."
     },
     "cases": {
       "title": "### {{icon.gavel}} Cases of {{user}}",

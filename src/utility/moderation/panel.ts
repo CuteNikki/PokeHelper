@@ -33,9 +33,9 @@ import { userRef } from 'utility/logs/format';
 import { renderCasesFor } from 'utility/moderation/cases';
 import {
   CASE_ICONS,
+  fetchBanned,
   fetchMember,
   formatUntil,
-  isBanned,
   MAX_REASON_LENGTH,
   MAX_TIMEOUT_DAYS,
   moderate,
@@ -75,14 +75,17 @@ export async function renderModerationPanel(guild: Guild, userId: string, modera
   const [user, member, { counts, total }] = await Promise.all([
     guild.client.users.fetch(userId).catch(() => null),
     // Asked of Discord, as right after a kick or ban the cache may still have them
-    fetchMember(guild, userId).then((fetched) => fetched ?? null),
+    fetchMember(guild, userId),
     getUserCases(guild.id, userId, 'newest', 0, 0),
   ]);
-  const banned = !member && (await isBanned(guild, userId));
+  const banned = member === null ? await fetchBanned(guild, userId) : false;
+  // When Discord couldn't be asked, the buttons could be the wrong ones, like Ban for someone banned, so they're all off
+  const unknown = member === undefined || banned === undefined;
   const timedOut = member?.isCommunicationDisabled() ? member.communicationDisabledUntil : null;
 
   const status: string[] = [];
-  if (timedOut) status.push(t('moderation.panel.timedOut', { until: formatUntil(timedOut) }));
+  if (unknown) status.push(t('moderation.panel.unknown'));
+  else if (timedOut) status.push(t('moderation.panel.timedOut', { until: formatUntil(timedOut) }));
   else if (banned) status.push(t('moderation.panel.banned'));
   else if (!member) status.push(t('moderation.panel.notMember'));
   status.push(
@@ -92,7 +95,7 @@ export async function renderModerationPanel(guild: Guild, userId: string, modera
     ].join(' · '),
   );
   // Warn has no rules of its own, so what's wrong with it is wrong with everything
-  const problem = user ? moderationProblem(guild, moderator, user, member, 'warn', t) : null;
+  const problem = user && !unknown ? moderationProblem(guild, moderator, user, member ?? null, 'warn', t) : null;
   if (problem) status.push(problem);
 
   const action = (type: ModCaseType, style: ButtonStyle, needsMember: boolean) =>
@@ -101,7 +104,7 @@ export async function renderModerationPanel(guild: Guild, userId: string, modera
       .setLabel(t(`moderation.panel.actions.${type}`))
       .setEmoji(buttonIcon(CASE_ICONS[type]))
       .setStyle(style)
-      .setDisabled(!user || problem !== null || (needsMember && !member) || !moderator.permissions.has(MODERATOR_PERMISSIONS[type]));
+      .setDisabled(!user || unknown || problem !== null || (needsMember && !member) || !moderator.permissions.has(MODERATOR_PERMISSIONS[type]));
   const cases = new ButtonBuilder()
     .setCustomId(panelId('cases', userId))
     .setLabel(t('moderation.panel.actions.cases'))
