@@ -161,12 +161,11 @@ export function buildPanel({ channel, record }: TempChannel, t: Translate): Resp
     .addActionRowComponents(new ActionRowBuilder<UserSelectMenuBuilder>().addComponents(allowed))
     .addTextDisplayComponents(heading(t('tempVoice.panel.blocked'), withHidden(t('tempVoice.panel.blockedDescription'), record.blocked.length)))
     .addActionRowComponents(new ActionRowBuilder<UserSelectMenuBuilder>().addComponents(blocked))
+    .addTextDisplayComponents(heading(t('tempVoice.panel.moderators'), t('tempVoice.panel.moderatorsDescription')))
+    .addActionRowComponents(new ActionRowBuilder<UserSelectMenuBuilder>().addComponents(moderators))
     .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large))
     .addTextDisplayComponents(heading(t('tempVoice.panel.someone'), t('tempVoice.panel.someoneDescription')))
     .addActionRowComponents(new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(someone))
-    .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large))
-    .addTextDisplayComponents(heading(t('tempVoice.panel.moderators'), t('tempVoice.panel.moderatorsDescription')))
-    .addActionRowComponents(new ActionRowBuilder<UserSelectMenuBuilder>().addComponents(moderators))
     // More space above the button at the bottom, like on the settings panels
     .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large))
     .addActionRowComponents(
