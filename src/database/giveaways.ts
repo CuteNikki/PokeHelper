@@ -319,3 +319,7 @@ export const forgetDeletedGiveawayRole = (guildId: string, roleId: string) =>
     const bonus = new Set(roles.filter((role) => role.kind === 'bonus').map((role) => role.giveawayId));
     return active.map((giveaway) => ({ id: giveaway.id, hadBonus: bonus.has(giveaway.id) }));
   });
+
+/** Forget the posts of a server's giveaways that were in a deleted channel, which went with it. They go on, and still end and draw. */
+export const forgetDeletedGiveawayChannel = (guildId: string, channelId: string) =>
+  prisma.giveaway.updateMany({ where: { guildId, channelId, messageId: { not: null } }, data: { messageId: null } });
