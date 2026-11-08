@@ -2,7 +2,7 @@
 
 _A Pokémon themed Discord bot_
 
-**Poke Helper** is a Discord bot made for a Pokémon community server. It runs the server's counting game, levels, birthdays, role menus, temporary voice channels, starboard, sticky messages, moderation and server logs, and has a Pokédex, a guessing game and a place for everyone's friend codes.
+**Poke Helper** is a Discord bot made for a Pokémon community server. It runs the server's counting game, levels, birthdays, role menus, temporary voice channels, starboard, sticky messages, giveaways, moderation and server logs, and has a Pokédex, a guessing game and a place for everyone's friend codes.
 
 ## ✨ Features
 
@@ -96,6 +96,19 @@ _A Pokémon themed Discord bot_
 - Written and changed in a popup, emptied to remove it, and a list of where the server has them to change them from
 - All turned off at once from that list, which takes them out of the channels but keeps them for later
 
+### 🎁 Giveaways
+
+- `/giveaway start` sets up a draft with a preview of its post, which only you see until you press Start
+- A prize, a description, how many win, how long it runs, the channel, a role to ping, and a host, which can be anyone or anything, like a team or a sponsor
+- Rules for who can enter: roles they need, one or all of them, roles that keep them out, a level, how long they've been on the server, and how old their account is
+- Bonus entries for roles, like +2 for boosters, which add up and follow members' roles while it runs
+- Join tells members every rule they don't meet, and when they can enter for rules that only need time, and lets them leave again
+- A Participants button on the post lists everyone who entered, sorted by when they joined or by entries, with Find me
+- Winners are drawn at random by their entries when it ends, also when the bot was offline meanwhile, and only from members who are still there and still meet the rules
+- Winners are pinged under the post, can get a DM and a winner role, and can have to claim their prize in time, or it goes to someone new by itself
+- `/giveaway list` shows the running and ended giveaways, to end one now, edit it while it runs, cancel, reroll chosen winners, take someone out, or delete it, also from the menu on its post
+- All turned off at once from that list, which pauses them until they're on again
+
 ### 🔨 Moderation
 
 - `/warn`, `/timeout`, `/untimeout`, `/kick`, `/ban` and `/unban`, with a reason and a DM telling the member why, which can be skipped
@@ -111,7 +124,7 @@ _A Pokémon themed Discord bot_
 
 ### 📜 Server Logs
 
-- Messages, members, moderation, roles, channels, the server, emojis, threads, invites and voice
+- Messages, members, moderation, roles, channels, the server, emojis, threads, invites, voice and giveaways
 - A log channel for each group, or one default channel for all of them, and every event turned on or off on its own
 - Who did it, from the audit log, with the reason they gave, and the case of bans, kicks and timeouts
 - Edits with what changed crossed out and underlined, and long messages and bulk deletes as a file to read right in Discord
@@ -187,6 +200,7 @@ Days change at midnight UTC, and the bot puts the new look on within 15 minutes.
 | `/starboard-config` | Set up the starboard and change its settings                      |
 | `/logs-config`      | Set up the log channels and which events are logged               |
 | `/sticky`           | Keep a message at the bottom of a channel, change or remove it    |
+| `/giveaway`         | Set up giveaways, and end, edit, reroll or cancel them            |
 | `/warn`             | Warn a member, which goes in their case history                   |
 | `/timeout`          | Time out a member for as long as you say, up to 28 days           |
 | `/untimeout`        | Take a member's timeout away before it runs out, with why         |
@@ -197,7 +211,7 @@ Days change at midnight UTC, and the bot puts the new look on within 15 minutes.
 | `/purge`            | Delete a channel's latest messages, or only someone's             |
 | `/dev`              | Reload, restart, log previews and the bot's look, dev server only |
 
-The config commands need the **Manage Server** permission, `/counting-config` and `/voice-config` need **Manage Channels**, and `/sticky` needs **Manage Messages**. The moderation commands need what they do on Discord: **Moderate Members** for `/warn`, `/timeout`, `/untimeout` and `/cases`, **Kick Members** for `/kick`, **Ban Members** for `/ban` and `/unban`, and **Manage Messages** for `/purge`.
+The config commands and `/giveaway` need the **Manage Server** permission, `/counting-config` and `/voice-config` need **Manage Channels**, and `/sticky` needs **Manage Messages**. The moderation commands need what they do on Discord: **Moderate Members** for `/warn`, `/timeout`, `/untimeout` and `/cases`, **Kick Members** for `/kick`, **Ban Members** for `/ban` and `/unban`, and **Manage Messages** for `/purge`.
 
 ## 🛠️ Tech Stack
 
