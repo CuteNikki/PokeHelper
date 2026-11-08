@@ -42,14 +42,16 @@ export default new Command({
     if (!interaction.memberPermissions.has('ManageMessages')) {
       return sendError(interaction, t('moderation.panel.noPermission', { permission: t('permission.ManageMessages') }));
     }
-    const { channel } = interaction;
+
+    // Answered first, as fetching and deleting can take a moment
+    await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
+    // Asked of Discord when it isn't known, like a thread nobody wrote in since the bot started. Only fails when the bot can't see it
+    const fetchedChannel = interaction.channel ?? (await interaction.client.channels.fetch(interaction.channelId).catch(() => null));
+    const channel = fetchedChannel?.isTextBased() && !fetchedChannel.isDMBased() ? fetchedChannel : null;
     const missing = channel && interaction.guild.members.me ? channel.permissionsFor(interaction.guild.members.me).missing(NEEDED) : NEEDED;
     if (!channel || missing.length > 0) {
       return sendError(interaction, t('moderation.purge.missing', { permissions: missing.map((permission) => t(`permission.${permission}`)).join(', ') }));
     }
-
-    // Answered first, as fetching and deleting can take a moment
-    await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
     const amount = interaction.options.getInteger('amount', true);
     const user = interaction.options.getUser('user');
     const fetched = await channel.messages.fetch({ limit: user ? MAX_MESSAGES : amount });
