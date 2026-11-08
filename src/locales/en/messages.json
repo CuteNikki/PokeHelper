@@ -1067,7 +1067,7 @@
       "tookOver": "{{new}} took over this channel from {{old}}.",
       "gaveAway": "{{user}} gave this channel to {{new}}, it was {{old}}'s.",
       "kicked": "{{user}} kicked {{target}}.",
-      "deleted": "{{icon.trash-2}} {{user}} deleted this channel. It's going away in a moment.",
+      "deleted": "### {{icon.trash-2}} Channel deleted\n{{user}} deleted this channel. It's going away in a moment.",
       "moderators_one": "made {{users}} a moderator",
       "moderators_other": "made {{users}} moderators",
       "unmoderators_one": "made {{users}} not a moderator anymore",

@@ -622,7 +622,7 @@
       "tookOver": "{{new}} hat den Kanal von {{old}} übernommen.",
       "gaveAway": "{{user}} hat den Kanal an {{new}} gegeben, er gehörte {{old}}.",
       "kicked": "{{user}} hat {{target}} rausgeworfen.",
-      "deleted": "{{icon.trash-2}} {{user}} hat den Kanal gelöscht. Er verschwindet gleich.",
+      "deleted": "### {{icon.trash-2}} Kanal gelöscht\n{{user}} hat den Kanal gelöscht. Er verschwindet gleich.",
       "moderators_one": "{{users}} zum Moderator gemacht",
       "moderators_other": "{{users}} zu Moderatoren gemacht",
       "unmoderators_one": "{{users}} ist kein Moderator mehr",
