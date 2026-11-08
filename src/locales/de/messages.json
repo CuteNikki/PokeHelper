@@ -2178,7 +2178,9 @@
         "fewest": "Wenigste Lose"
       },
       "replaced_one": "{{count}} ersetzt",
-      "replaced_other": "{{count}} ersetzt"
+      "replaced_other": "{{count}} ersetzt",
+      "titleNumbered": "### {{icon.users}} Teilnehmer · Giveaway #{{number}}",
+      "winnersByPrize": "{{icon.trophy}} **Gewinner**"
     },
     "end": {
       "announce_one": "{{icon.trophy}} Glückwunsch {{winners}}! Du hast **{{prize}}** gewonnen!",

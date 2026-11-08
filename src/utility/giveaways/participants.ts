@@ -28,12 +28,11 @@ import {
 
 import { formatNumber } from 'utility/duration';
 import { buttonIcon } from 'utility/emojis';
-import { winnerNames } from 'utility/giveaways/prizes';
+import { groupByPrize, winnerNames } from 'utility/giveaways/prizes';
 import type { IconName } from 'utility/icons';
 import { getTranslate, type Translate } from 'utility/i18next';
 import { buildPageModal, buildPageRow, clampPage, findMeButton, pageOfPosition, type PageButton, readPageInput } from 'utility/pagination';
 import { createResponse, quietMessageOf, type ResponsePayload, sendError } from 'utility/response';
-import { shorten } from 'utility/text';
 import { ThemeColors } from 'utility/theme';
 
 /**
@@ -100,6 +99,16 @@ async function winnersLine(giveaway: Giveaway, t: Translate): Promise<string | n
   const current = winners.filter((winner) => !winner.replacedAt);
   const replaced = winners.length - current.length;
   if (current.length === 0 && replaced === 0) return t('giveaway.participants.noWinners');
+  const groups = groupByPrize(giveaway, current);
+  // With prizes by place, each prize with who won it, like on the post
+  if (groups.length > 1 || giveaway.prizes.length > 0) {
+    const lines = [
+      t('giveaway.participants.winnersByPrize'),
+      ...groups.map((group) => t('giveaway.post.winnersLine', { prize: group.prize, winners: winnerNames(group.winners, t).join(', ') })),
+    ];
+    if (replaced > 0) lines.push(subtext(t('giveaway.participants.replaced', { count: replaced })));
+    return lines.join('\n');
+  }
   const names = winnerNames(current, t);
   if (replaced > 0) names.push(t('giveaway.participants.replaced', { count: replaced }));
   return t('giveaway.participants.winners', { winners: names.join(', '), count: current.length });
@@ -114,7 +123,8 @@ export async function renderParticipants(giveaway: Giveaway, requested: ListStat
   const state: ListState = { ...requested, page };
 
   const counts = [t('giveaway.participants.people', { count: total }), t('giveaway.participants.entries', { count: entries })].join(' · ');
-  const header = [t('giveaway.participants.title'), subtext(`${shorten(giveaway.prize, 100)} · ${counts}`)];
+  const title = giveaway.number ? t('giveaway.participants.titleNumbered', { number: formatNumber(giveaway.number, t) }) : t('giveaway.participants.title');
+  const header = [title, subtext(counts)];
   const winners = await winnersLine(giveaway, t);
   if (winners) header.push('', winners);
   const container = new ContainerBuilder()

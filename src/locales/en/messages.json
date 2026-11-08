@@ -2234,7 +2234,9 @@
         "fewest": "Fewest entries"
       },
       "replaced_one": "{{count}} replaced",
-      "replaced_other": "{{count}} replaced"
+      "replaced_other": "{{count}} replaced",
+      "titleNumbered": "### {{icon.users}} Participants · Giveaway #{{number}}",
+      "winnersByPrize": "{{icon.trophy}} **Winners**"
     },
     "end": {
       "announce_one": "{{icon.trophy}} Congrats {{winners}}! You won **{{prize}}**!",
