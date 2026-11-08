@@ -6,6 +6,9 @@ export const MINUTE = 60 * SECOND;
 export const HOUR = 60 * MINUTE;
 export const DAY = 24 * HOUR;
 
+/** The most characters a duration can be typed in, like `2 weeks 3 days`, in commands and popups. */
+export const DURATION_INPUT_LENGTH = 50;
+
 /**
  * Format a duration with its two largest units, like `3d 4h`, `2h 15m` or `45m`.
  * @param ms The duration in milliseconds.

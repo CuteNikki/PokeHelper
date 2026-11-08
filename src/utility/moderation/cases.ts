@@ -39,7 +39,7 @@ import { getReminderTimezone } from 'database/reminders';
 import type { ModCase } from 'generated/prisma/client';
 import { fetchMember } from 'utility/discord';
 import { DiscordLimits } from 'utility/discordLimits';
-import { SECOND } from 'utility/duration';
+import { DURATION_INPUT_LENGTH, SECOND } from 'utility/duration';
 import { buttonIcon, textIcon } from 'utility/emojis';
 import { getTranslate, type Translate } from 'utility/i18next';
 import { userRef, userSubject, when } from 'utility/logs/format';
@@ -499,7 +499,7 @@ function buildEndModal(modCase: ModCase, state: CasesState, t: Translate): Modal
   const end = new TextInputBuilder()
     .setCustomId(END_INPUT_ID)
     .setStyle(TextInputStyle.Short)
-    .setMaxLength(50)
+    .setMaxLength(DURATION_INPUT_LENGTH)
     .setRequired(true)
     .setPlaceholder(t(modCase.type === 'ban' ? 'moderation.cases.endModal.placeholderBan' : 'moderation.cases.endModal.placeholderTimeout'));
   const reason = new TextInputBuilder().setCustomId(END_REASON_INPUT_ID).setStyle(TextInputStyle.Paragraph).setMaxLength(MAX_REASON_LENGTH).setRequired(false);

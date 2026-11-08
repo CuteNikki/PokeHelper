@@ -25,7 +25,7 @@ import { CASE_TYPES, getUserCases } from 'database/moderation';
 import type { ModCaseType } from 'generated/prisma/client';
 import { fetchMember } from 'utility/discord';
 import { DiscordLimits } from 'utility/discordLimits';
-import { DAY, HOUR } from 'utility/duration';
+import { DAY, DURATION_INPUT_LENGTH, HOUR } from 'utility/duration';
 import { buttonIcon } from 'utility/emojis';
 import type { IconName } from 'utility/icons';
 import { getTranslate, type Translate } from 'utility/i18next';
@@ -143,7 +143,12 @@ export function buildActionModal(type: ModCaseType, userId: string, name: string
     new LabelBuilder()
       .setLabel(t('moderation.panel.modal.duration'))
       .setTextInputComponent(
-        new TextInputBuilder().setCustomId(DURATION_INPUT_ID).setStyle(TextInputStyle.Short).setMaxLength(50).setRequired(required).setPlaceholder(placeholder),
+        new TextInputBuilder()
+          .setCustomId(DURATION_INPUT_ID)
+          .setStyle(TextInputStyle.Short)
+          .setMaxLength(DURATION_INPUT_LENGTH)
+          .setRequired(required)
+          .setPlaceholder(placeholder),
       );
 
   if (type === 'timeout') labels.push(duration(true, t('moderation.panel.modal.durationTimeout', { max: MAX_TIMEOUT_DAYS })), reason);

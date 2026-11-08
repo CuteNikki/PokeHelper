@@ -32,7 +32,7 @@ import { getGuildLevelingConfiguration } from 'database/leveling';
 
 import { formatPermissions } from 'utility/discord';
 import { buttonIcon } from 'utility/emojis';
-import { formatNumber, MINUTE } from 'utility/duration';
+import { DURATION_INPUT_LENGTH, formatNumber, MINUTE } from 'utility/duration';
 import { refreshEntriesSoon } from 'utility/giveaways/end';
 import { GIVEAWAY_CHANNEL_PERMISSIONS, manageId } from 'utility/giveaways/ids';
 import { formatMinutes, minutesText, parseMinutes, parseWhole } from 'utility/giveaways/input';
@@ -77,7 +77,7 @@ function ageSetting(key: 'memberAge' | 'accountAge', field: 'minMemberMinutes' |
     type: 'text' as const,
     key,
     category: 'rules',
-    maxLength: 50,
+    maxLength: DURATION_INPUT_LENGTH,
     label: (t: Translate) => t(`giveaway.settings.${key}.label`),
     description: (t: Translate) => t(`giveaway.settings.${key}.description`),
     placeholder: (t: Translate) => t('giveaway.settings.durationPlaceholder'),
@@ -215,7 +215,7 @@ export function getGiveawaySettings(giveawayId: string): SettingsPanel {
         type: 'text',
         key: 'duration',
         category: 'when',
-        maxLength: 50,
+        maxLength: DURATION_INPUT_LENGTH,
         required: true,
         label: (t) => t('giveaway.settings.duration.label'),
         description: (t) => t('giveaway.settings.duration.description'),
@@ -237,7 +237,7 @@ export function getGiveawaySettings(giveawayId: string): SettingsPanel {
         type: 'text',
         key: 'endsIn',
         category: 'when',
-        maxLength: 50,
+        maxLength: DURATION_INPUT_LENGTH,
         required: true,
         label: (t) => t('giveaway.settings.endsIn.label'),
         description: (t) => t('giveaway.settings.endsIn.description'),
@@ -360,7 +360,7 @@ export function getGiveawaySettings(giveawayId: string): SettingsPanel {
         type: 'text',
         key: 'claim',
         category: 'winners',
-        maxLength: 50,
+        maxLength: DURATION_INPUT_LENGTH,
         label: (t) => t('giveaway.settings.claim.label'),
         description: (t) => t('giveaway.settings.claim.description'),
         placeholder: (t) => t('giveaway.settings.durationPlaceholder'),

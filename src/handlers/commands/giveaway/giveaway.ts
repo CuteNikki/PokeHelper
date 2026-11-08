@@ -23,7 +23,7 @@ import {
 
 import { getGiveawaySettings } from 'settings/giveaway';
 
-import { formatNumber } from 'utility/duration';
+import { DURATION_INPUT_LENGTH, formatNumber } from 'utility/duration';
 import { formatMinutes, parseMinutes } from 'utility/giveaways/input';
 import { renderGiveawayList } from 'utility/giveaways/manage';
 import { getTranslate } from 'utility/i18next';
@@ -45,7 +45,9 @@ export default new Command({
         .setName('start')
         .setDescription('Set up a giveaway. You can add who can enter and bonus entries before it starts')
         .addStringOption((option) => option.setName('prize').setDescription('What the winners get').setRequired(true).setMaxLength(MAX_PRIZE_LENGTH))
-        .addStringOption((option) => option.setName('duration').setDescription('How long it runs, like 1h, 3d or 2 weeks').setRequired(true).setMaxLength(50))
+        .addStringOption((option) =>
+          option.setName('duration').setDescription('How long it runs, like 1h, 3d or 2 weeks').setRequired(true).setMaxLength(DURATION_INPUT_LENGTH),
+        )
         .addIntegerOption((option) => option.setName('winners').setDescription('How many win. Defaults to 1').setMinValue(MIN_WINNERS).setMaxValue(MAX_WINNERS))
         .addChannelOption((option) =>
           option

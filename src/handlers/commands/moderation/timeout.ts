@@ -2,6 +2,7 @@ import { ApplicationIntegrationType, InteractionContextType, PermissionFlagsBits
 
 import { Command } from 'classes/base/command';
 
+import { DURATION_INPUT_LENGTH } from 'utility/duration';
 import { MAX_REASON_LENGTH, MAX_TIMEOUT_DAYS, runModeration } from 'utility/moderation/run';
 
 /** A timeout, during which the member can't chat, talk or react, and which Discord ends by itself. */
@@ -14,7 +15,11 @@ export default new Command({
     .setDescription("Time out a member, so they can't chat or talk for a while")
     .addUserOption((option) => option.setName('member').setDescription('Who to time out').setRequired(true))
     .addStringOption((option) =>
-      option.setName('duration').setDescription(`How long, like 10m, 2h or 3d. At most ${MAX_TIMEOUT_DAYS} days`).setRequired(true).setMaxLength(50),
+      option
+        .setName('duration')
+        .setDescription(`How long, like 10m, 2h or 3d. At most ${MAX_TIMEOUT_DAYS} days`)
+        .setRequired(true)
+        .setMaxLength(DURATION_INPUT_LENGTH),
     )
     .addStringOption((option) => option.setName('reason').setDescription('Why they get timed out').setMaxLength(MAX_REASON_LENGTH))
     .addBooleanOption((option) => option.setName('dm').setDescription('Whether to tell them by DM. Defaults to yes')),
