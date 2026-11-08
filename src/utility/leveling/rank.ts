@@ -1,4 +1,13 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, Guild, MessageFlags, userMention, type InteractionEditReplyOptions, type User } from 'discord.js';
+import {
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+  Guild,
+  MessageFlags,
+  userMention,
+  type InteractionEditReplyOptions,
+  type User,
+} from 'discord.js';
 
 import { getLevelFromXP, getUserLevelingData, getUserRank, getXPForLevel, type LevelPeriod } from 'database/leveling';
 

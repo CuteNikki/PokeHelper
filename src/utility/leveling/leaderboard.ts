@@ -268,11 +268,7 @@ function buildControls(view: LeaderboardView, totalPages: number, t: Translate) 
 }
 
 /** The leaderboard in a container, like the bot's other messages: the title, the page as an image or as text, and the controls. */
-function inContainer(
-  heading: TextDisplayBuilder,
-  body: TextDisplayBuilder | MediaGalleryBuilder,
-  rows: readonly ActionRowBuilder<MessageActionRowComponentBuilder>[],
-) {
+function inContainer(heading: TextDisplayBuilder, body: TextDisplayBuilder | MediaGalleryBuilder, rows: readonly ActionRowBuilder<MessageActionRowComponentBuilder>[]) {
   const container = new ContainerBuilder().setAccentColor(ThemeColors.info).addTextDisplayComponents(heading);
   if (body instanceof MediaGalleryBuilder) container.addMediaGalleryComponents(body);
   else container.addTextDisplayComponents(body);
