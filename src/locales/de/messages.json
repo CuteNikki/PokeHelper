@@ -2274,8 +2274,6 @@
         "description": "Ob Giveaways laufen. Solange es aus ist, kann niemand mitmachen oder eins starten, und Giveaways, deren Zeit um ist, werden gezogen, sobald es wieder an ist"
       },
       "rerollAll": "Alle ersetzen",
-      "rerollNotListed_one": "In die Liste passen 25, also fehlt {{count, number}} weiterer Gewinner. Alle ersetzen ersetzt auch ihn.",
-      "rerollNotListed_other": "In die Liste passen 25, also fehlen {{count, number}} weitere Gewinner. Alle ersetzen ersetzt auch sie.",
       "replacedCount_one": "{{count}} Gewinner wurde ersetzt.",
       "replacedCount_other": "{{count}} Gewinner wurden ersetzt.",
       "moreWinners": "- und {{count}} weitere"

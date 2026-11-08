@@ -395,11 +395,11 @@ export async function handleManageSelect(interaction: AnySelectMenuInteraction<'
 
 async function renderRerollPicker(guild: Guild, giveaway: Giveaway, t: Translate): Promise<ResponsePayload> {
   const winners = (await getAllWinners(giveaway.id)).filter((winner) => !winner.replacedAt);
-  // A select fits 25, and a giveaway can have more winners, who Replace all still covers
+  // All fit in one select, as a giveaway can't have more winners than a select has options
   const listed = winners.slice(0, DiscordLimits.selectOptions);
-  const question = [t('giveaway.manage.rerollQuestion', { prize: giveaway.prize })];
-  if (listed.length < winners.length) question.push(subtext(t('giveaway.manage.rerollNotListed', { count: winners.length - listed.length })));
-  const container = new ContainerBuilder().setAccentColor(ThemeColors.info).addTextDisplayComponents(new TextDisplayBuilder().setContent(question.join('\n')));
+  const container = new ContainerBuilder()
+    .setAccentColor(ThemeColors.info)
+    .addTextDisplayComponents(new TextDisplayBuilder().setContent(t('giveaway.manage.rerollQuestion', { prize: giveaway.prize })));
   if (listed.length > 0) {
     container.addActionRowComponents(
       new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
