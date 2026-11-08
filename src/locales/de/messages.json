@@ -2164,12 +2164,13 @@
     },
     "claim": {
       "announce": "Drück bis {{date}} ({{relative}}) auf **Abholen**, um deinen Preis zu bekommen, sonst geht er an jemand anderen.",
-      "dm": "Drück bis {{date}} ({{relative}}) unter dem Giveaway auf **Abholen**, sonst geht der Preis an jemand anderen.",
+      "dm": "Drück bis {{date}} ({{relative}}) unten oder unter dem Giveaway auf **Abholen**, sonst geht der Preis an jemand anderen.",
       "button": "Abholen",
       "done": "Abgeholt! Viel Spaß mit deinem Preis. Er ist von {{host}}.",
       "already": "Du hast deinen Preis schon abgeholt.",
       "notWinner": "Nur die Gewinner können diesen Preis abholen.",
-      "late": "Die Zeit zum Abholen ist abgelaufen, also geht der Preis an jemand anderen."
+      "late": "Die Zeit zum Abholen ist abgelaufen, also geht der Preis an jemand anderen.",
+      "notNeeded": "Diesen Preis musst du nicht abholen, er gehört dir."
     },
     "manage": {
       "listTitle": "### {{icon.gift}} Giveaways",

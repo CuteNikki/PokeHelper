@@ -2220,12 +2220,13 @@
     },
     "claim": {
       "announce": "Press **Claim** by {{date}} ({{relative}}) to get your prize, or it goes to someone else.",
-      "dm": "Press **Claim** under the giveaway by {{date}} ({{relative}}), or it goes to someone else.",
+      "dm": "Press **Claim** below or under the giveaway by {{date}} ({{relative}}), or it goes to someone else.",
       "button": "Claim",
       "done": "Claimed! Enjoy your prize. It's from {{host}}.",
       "already": "You already claimed your prize.",
       "notWinner": "Only the winners can claim this prize.",
-      "late": "The time to claim ran out, so the prize goes to someone else."
+      "late": "The time to claim ran out, so the prize goes to someone else.",
+      "notNeeded": "You don't have to claim this prize, it's yours."
     },
     "manage": {
       "listTitle": "### {{icon.gift}} Giveaways",

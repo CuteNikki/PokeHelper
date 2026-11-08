@@ -17,6 +17,7 @@ import {
 
 import { getFeatureSwitches } from 'database/features';
 import {
+  dropClaims,
   finishGiveaway,
   getAllEntries,
   getAllWinners,
@@ -39,7 +40,6 @@ import { bonusRolesOf, checkRules, countEntries, rulesOf } from 'utility/giveawa
 import { syncPost } from 'utility/giveaways/sync';
 import { getTranslate, type Translate } from 'utility/i18next';
 import { logger } from 'utility/logger';
-import { createResponse } from 'utility/response';
 import { canGiveRole } from 'utility/roles';
 import { ThemeColors } from 'utility/theme';
 
@@ -112,13 +112,24 @@ export const claimDeadline = (giveaway: Giveaway, now = new Date()) =>
 const claimLine = (claimBy: Date, key: 'giveaway.claim.announce' | 'giveaway.claim.dm', t: Translate) =>
   t(key, { date: time(claimBy, TimestampStyles.LongDateShortTime), relative: time(claimBy, TimestampStyles.RelativeTime) });
 
+/** The button winners claim their prize with. */
+const claimRow = (giveaway: Giveaway, t: Translate) =>
+  new ActionRowBuilder<ButtonBuilder>().addComponents(
+    new ButtonBuilder()
+      .setCustomId(`${GIVEAWAY_CUSTOM_ID.claim}${giveaway.id}`)
+      .setLabel(t('giveaway.claim.button'))
+      .setEmoji(buttonIcon('gift'))
+      .setStyle(ButtonStyle.Success),
+  );
+
 /**
  * Say who won under the giveaway's post, pinging them, or in its channel if the post is gone.
  * When winners have to claim their prize, it says until when, with the button to claim it.
+ * @returns Whether it was posted.
  */
-async function announceWinners(guild: Guild, giveaway: Giveaway, winnerIds: string[], claimBy: Date | null, key: WinnersKey) {
+async function announceWinners(guild: Guild, giveaway: Giveaway, winnerIds: string[], claimBy: Date | null, key: WinnersKey): Promise<boolean> {
   const channel = guild.channels.cache.get(giveaway.channelId);
-  if (!channel?.isTextBased()) return;
+  if (!channel?.isTextBased()) return false;
   const t = getTranslate(giveaway.locale);
   const lines =
     winnerIds.length > 0
@@ -129,17 +140,7 @@ async function announceWinners(guild: Guild, giveaway: Giveaway, winnerIds: stri
   const container = new ContainerBuilder()
     .setAccentColor(winnerIds.length > 0 ? ThemeColors.success : ThemeColors.info)
     .addTextDisplayComponents(new TextDisplayBuilder().setContent(lines.join('\n')));
-  if (claimBy && winnerIds.length > 0) {
-    container.addActionRowComponents(
-      new ActionRowBuilder<ButtonBuilder>().addComponents(
-        new ButtonBuilder()
-          .setCustomId(`${GIVEAWAY_CUSTOM_ID.claim}${giveaway.id}`)
-          .setLabel(t('giveaway.claim.button'))
-          .setEmoji(buttonIcon('gift'))
-          .setStyle(ButtonStyle.Success),
-      ),
-    );
-  }
+  if (claimBy && winnerIds.length > 0) container.addActionRowComponents(claimRow(giveaway, t));
   try {
     await channel.send({
       components: [container],
@@ -148,12 +149,17 @@ async function announceWinners(guild: Guild, giveaway: Giveaway, winnerIds: stri
       allowedMentions: { users: winnerIds },
       reply: giveaway.messageId ? { messageReference: giveaway.messageId, failIfNotExists: false } : undefined,
     });
+    return true;
   } catch (error) {
     logger.warn(error, `Failed to announce the winners of giveaway ${giveaway.id} in guild ${guild.id}`);
+    return false;
   }
 }
 
-/** Tell winners in a DM that they won, with a link to the giveaway. Winners with closed DMs still see it under the post. */
+/**
+ * Tell winners in a DM that they won, with a link to the giveaway. Winners with closed DMs still see it under the post.
+ * When they have to claim their prize, the DM has the button too, so they can claim it without finding the announcement.
+ */
 async function dmWinners(guild: Guild, giveaway: Giveaway, winnerIds: string[], claimBy: Date | null) {
   if (!giveaway.dmWinners) return;
   const t = getTranslate(giveaway.locale);
@@ -163,8 +169,10 @@ async function dmWinners(guild: Guild, giveaway: Giveaway, winnerIds: string[], 
     ...(claimBy ? [claimLine(claimBy, 'giveaway.claim.dm', t)] : []),
     ...(link ? [hyperlink(t('giveaway.end.dmLink'), link)] : []),
   ].join('\n');
+  const container = new ContainerBuilder().setAccentColor(ThemeColors.success).addTextDisplayComponents(new TextDisplayBuilder().setContent(text));
+  if (claimBy) container.addActionRowComponents(claimRow(giveaway, t));
   for (const userId of winnerIds) {
-    await guild.client.users.send(userId, { ...createResponse(text, 'success'), allowedMentions: { parse: [] } }).catch(() => null);
+    await guild.client.users.send(userId, { components: [container], flags: [MessageFlags.IsComponentsV2], allowedMentions: { parse: [] } }).catch(() => null);
   }
 }
 
@@ -187,12 +195,19 @@ type WinnersKey = 'giveaway.end.announce' | 'giveaway.end.reroll';
 
 /**
  * Let new winners know: under the post and in a DM. They get the winner role right away, or when they claim their prize if they have to,
- * so winners who never claim don't keep it.
+ * so winners who never claim don't keep it. When the announcement couldn't be posted, like when the channel is gone, winners with closed
+ * DMs would have nowhere to claim it, so then nobody has to.
  */
 async function welcomeWinners(guild: Guild, giveaway: Giveaway, winnerIds: string[], claimBy: Date | null, key: WinnersKey) {
-  await announceWinners(guild, giveaway, winnerIds, claimBy, key);
-  if (!claimBy) await giveWinnerRole(guild, giveaway, winnerIds);
-  await dmWinners(guild, giveaway, winnerIds, claimBy);
+  if (winnerIds.length === 0) {
+    await announceWinners(guild, giveaway, winnerIds, null, key);
+    return;
+  }
+  const posted = await announceWinners(guild, giveaway, winnerIds, claimBy, key);
+  const mustClaim = posted ? claimBy : null;
+  if (claimBy && !mustClaim) await dropClaims(giveaway.id, winnerIds);
+  if (!mustClaim) await giveWinnerRole(guild, giveaway, winnerIds);
+  await dmWinners(guild, giveaway, winnerIds, mustClaim);
 }
 
 /**

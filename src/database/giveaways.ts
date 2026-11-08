@@ -324,3 +324,10 @@ export const forgetDeletedGiveawayRole = (guildId: string, roleId: string) =>
 /** Forget the posts of a server's giveaways that were in a deleted channel, which went with it. They go on, and still end and draw. */
 export const forgetDeletedGiveawayChannel = (guildId: string, channelId: string) =>
   prisma.giveaway.updateMany({ where: { guildId, channelId, messageId: { not: null } }, data: { messageId: null } });
+
+/** A giveaway by its ID alone, for places without a server, like a button in a DM. Null if it doesn't exist. */
+export const getGiveawayById = (id: string) => prisma.giveaway.findUnique({ where: { id }, include: withRoles });
+
+/** Let winners keep their prize without claiming it, like when they couldn't be told where to claim it. */
+export const dropClaims = (giveawayId: string, userIds: string[]) =>
+  prisma.giveawayWinner.updateMany({ where: { giveawayId, userId: { in: userIds }, replacedAt: null, claimedAt: null }, data: { claimBy: null } });
