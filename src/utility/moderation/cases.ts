@@ -472,7 +472,11 @@ export async function handleCasesModal(interaction: ModalSubmitInteraction): Pro
     // A page past the end shows the last one
     return interaction.editReply(await renderCaseList(interaction.guild, { userId: parsed.userId, sort: parsed.sort, page: page - 1 }, t));
   }
-  if (parsed.action === 'end') return changeEnd(interaction, parsed.caseId, parsed.state, t);
+  if (parsed.action === 'end') {
+    await interaction.deferUpdate();
+    // Like the other actions on them, so it can't run alongside, say, /untimeout, and it sees the case as that left it
+    return oneAtATime(interaction.guildId, parsed.state.userId, () => changeEnd(interaction, parsed.caseId, parsed.state, t));
+  }
   if (parsed.action !== 'reason') return sendError(interaction, t('system.outdated'));
 
   await interaction.deferUpdate();
@@ -579,7 +583,6 @@ function endProblem(error: EndError, type: 'timeout' | 'ban', t: Translate): str
  * be timed out by whoever changes it. A ban's end is only the bot's, which lifts it then, so changing it needs the right to ban.
  */
 async function changeEnd(interaction: ModalSubmitInteraction<'cached'>, id: string, state: CasesState, t: Translate): Promise<unknown> {
-  await interaction.deferUpdate();
   const modCase = await caseOrGone(interaction, id, state, t);
   if (!modCase) return;
   if (!canChangeEnd(modCase) || (modCase.type !== 'timeout' && modCase.type !== 'ban'))
@@ -591,21 +594,22 @@ async function changeEnd(interaction: ModalSubmitInteraction<'cached'>, id: stri
   // Dates are in the timezone the moderator picked for their reminders, or UTC. Discord shows the result in everyone's own time
   const timezone = (await getReminderTimezone(interaction.user.id)) ?? 'UTC';
   const end = parseNewEnd(interaction.fields.getTextInputValue(END_INPUT_ID), type, modCase.expiresAt, timezone);
-  if (end === END_NOW) return oneAtATime(interaction.guildId, modCase.userId, () => endNow(interaction, modCase, state, t));
+  if (end === END_NOW) return endNow(interaction, modCase, state, t);
   if (typeof end === 'string') return sendError(interaction, endProblem(end, type, t));
 
   const reason = auditReason(interaction.user, t('moderation.cases.endModal.audit', { number: caseNumber(modCase, t) }));
   if (type === 'ban') {
     if (!interaction.member.permissions.has('BanMembers')) return sendError(interaction, t('moderation.cases.endModal.noBanPermission'));
   } else {
-    const member = await interaction.guild.members.fetch(modCase.userId).catch(() => null);
+    const member = await fetchMember(interaction.guild, modCase.userId);
+    if (member === undefined) return sendError(interaction, t('moderation.problems.memberUnknown'));
     if (!member) return sendError(interaction, t('moderation.problems.notMember'));
     const problem = moderationProblem(interaction.guild, interaction.member, member.user, member, 'timeout', t);
     if (problem) return sendError(interaction, problem);
     try {
       await member.disableCommunicationUntil(end, reason);
-    } catch {
-      return sendError(interaction, t('moderation.failed'));
+    } catch (error) {
+      if (!(await happenedAnyway(error, interaction.guild, modCase.userId, 'timeout', end))) return sendError(interaction, t('moderation.failed'));
     }
   }
 
