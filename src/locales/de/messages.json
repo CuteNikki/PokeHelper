@@ -1963,7 +1963,8 @@
       "postFailed": "Ich konnte es nicht posten. Schau, dass ich in dem Kanal Nachrichten senden kann, und versuch es nochmal. Der Entwurf ist noch da.",
       "started": "Es ist online in {{channel}}! [Zum Giveaway]({{link}})",
       "discarded": "Hab den Entwurf weggeworfen.",
-      "tooMany": "Dieser Server hat schon {{max}} Entwürfe. Starte oder wirf erst einen weg, oder warte einen Tag, dann werden nicht gestartete Entwürfe gelöscht."
+      "tooMany": "Dieser Server hat schon {{max}} Entwürfe. Starte oder wirf erst einen weg, oder warte einen Tag, dann werden nicht gestartete Entwürfe gelöscht.",
+      "off": "Giveaways sind auf diesem Server gerade ausgeschaltet. Schalte sie erst in `/giveaway liste` an, dann starte es."
     },
     "settings": {
       "categories": {
@@ -2078,7 +2079,8 @@
       "from": "(geht {{time}})",
       "bot": "Kein Bot sein, weil Bots nichts gewinnen können",
       "blocked_one": "{{roles}} nicht haben",
-      "blocked_other": "{{roles}} nicht haben, weil Leute mit diesen Rollen nicht mitmachen können"
+      "blocked_other": "{{roles}} nicht haben, weil Leute mit diesen Rollen nicht mitmachen können",
+      "off": "Giveaways sind auf diesem Server gerade ausgeschaltet, also kann niemand mitmachen."
     },
     "participants": {
       "title": "### {{icon.users}} Teilnehmer",
@@ -2185,7 +2187,11 @@
       "removePlaceholder": "Jemanden aus dem Giveaway nehmen",
       "removed": "Hab {{user}} aus dem Giveaway genommen. Sie können wieder mitmachen, außer eine Regel hält sie ab.",
       "notEntered": "Diese Person macht bei dem Giveaway nicht mit.",
-      "notAGiveaway": "Das ist kein Giveaway. Benutz das bei einem Giveaway-Post."
+      "notAGiveaway": "Das ist kein Giveaway. Benutz das bei einem Giveaway-Post.",
+      "enabled": {
+        "label": "Mitmachen und Ziehen",
+        "description": "Ob Giveaways laufen. Solange es aus ist, kann niemand mitmachen oder eins starten, und Giveaways, deren Zeit um ist, werden gezogen, sobald es wieder an ist"
+      }
     },
     "edit": {
       "header": "Es läuft, also siehst du Änderungen sofort auf seinem Post. Der Kanal lässt sich nicht mehr ändern, und der Ping wurde schon gesendet."

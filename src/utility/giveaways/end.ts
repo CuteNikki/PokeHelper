@@ -15,6 +15,7 @@ import {
   userMention,
 } from 'discord.js';
 
+import { getFeatureSwitches } from 'database/features';
 import {
   finishGiveaway,
   getAllEntries,
@@ -224,15 +225,29 @@ export async function rerollWinners(guild: Guild, giveaway: Giveaway, winnerIds:
   return newWinners;
 }
 
+/**
+ * Whether giveaways are on in a server, each looked up once per run. While they're off, giveaways wait with their draw, and winners who
+ * missed their claim with being replaced, until they're on again.
+ */
+function switchCheck() {
+  const known = new Map<string, Promise<boolean>>();
+  return (guildId: string) => {
+    let on = known.get(guildId);
+    if (!on) known.set(guildId, (on = getFeatureSwitches(guildId).then((switches) => switches.giveawaysEnabled)));
+    return on;
+  };
+}
+
 /** Winners who didn't claim in time and couldn't be replaced, so the logs say so once and not on every run. */
 const warnedClaims = new Set<string>();
 
 /** Give the prizes of winners who didn't claim them in time to someone else. Giveaways in servers the bot isn't in wait for it. */
 export async function runClaimJob(client: Client) {
+  const isOn = switchCheck();
   const missed = Map.groupBy(await getMissedClaims(), (winner) => winner.giveawayId);
   for (const [giveawayId, winners] of missed) {
     const guild = client.guilds.cache.get(winners[0]!.giveaway.guildId);
-    if (!guild) continue;
+    if (!guild || !(await isOn(guild.id))) continue;
     try {
       const giveaway = await getGiveaway(guild.id, giveawayId);
       if (giveaway)
@@ -259,9 +274,10 @@ const warned = new Set<string>();
  * Giveaways in servers the bot isn't in right now wait for it to come back.
  */
 export async function runGiveawayJob(client: Client) {
+  const isOn = switchCheck();
   for (const giveaway of await getDueGiveaways()) {
     const guild = client.guilds.cache.get(giveaway.guildId);
-    if (!guild) continue;
+    if (!guild || !(await isOn(guild.id))) continue;
     try {
       await endGiveaway(guild, giveaway);
       warned.delete(giveaway.id);

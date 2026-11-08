@@ -2,6 +2,7 @@ import { ActionRowBuilder, ButtonBuilder, ButtonStyle, MessageFlags } from 'disc
 
 import { Button } from 'classes/base/button';
 
+import { getFeatureSwitches } from 'database/features';
 import { enterGiveaway, getEntry, getGiveaway } from 'database/giveaways';
 
 import { buttonIcon } from 'utility/emojis';
@@ -48,6 +49,7 @@ export default new Button({
     const giveaway = await getGiveaway(interaction.guildId, interaction.customId.slice(GIVEAWAY_CUSTOM_ID.join.length));
     if (!giveaway) return reply(createResponse(t('giveaway.join.gone'), 'error'));
     if (!isRunning(giveaway) || !giveaway.endsAt) return reply(createResponse(t('giveaway.join.ended'), 'error'));
+    if (!(await getFeatureSwitches(interaction.guildId)).giveawaysEnabled) return reply(createResponse(t('giveaway.join.off'), 'error'));
 
     const entry = await getEntry(giveaway.id, interaction.user.id);
     if (entry) return reply(inResponse(giveaway.id, entry.entries, 'giveaway.join.already', t));

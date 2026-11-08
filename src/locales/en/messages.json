@@ -2019,7 +2019,8 @@
       "postFailed": "I couldn't post it. Make sure I can send messages in the channel, then try again. The draft is still here.",
       "started": "It's up in {{channel}}! [Jump to it]({{link}})",
       "discarded": "Threw the draft away.",
-      "tooMany": "This server already has {{max}} drafts. Start or throw away one first, or wait a day, as drafts that aren't started are deleted then."
+      "tooMany": "This server already has {{max}} drafts. Start or throw away one first, or wait a day, as drafts that aren't started are deleted then.",
+      "off": "Giveaways are turned off on this server right now. Turn them on in `/giveaway list` first, then start it."
     },
     "settings": {
       "categories": {
@@ -2134,7 +2135,8 @@
       "from": "(you can enter {{time}})",
       "bot": "Not be a bot, as bots can't win anything",
       "blocked_one": "Not have {{roles}}",
-      "blocked_other": "Not have {{roles}}, as people with these roles can't enter"
+      "blocked_other": "Not have {{roles}}, as people with these roles can't enter",
+      "off": "Giveaways are turned off on this server right now, so nobody can join."
     },
     "participants": {
       "title": "### {{icon.users}} Participants",
@@ -2241,7 +2243,11 @@
       "removePlaceholder": "Remove someone's entry",
       "removed": "Took {{user}} out of the giveaway. They can join again, unless a rule keeps them out.",
       "notEntered": "They're not in this giveaway.",
-      "notAGiveaway": "That's not a giveaway. Use this on a giveaway's post."
+      "notAGiveaway": "That's not a giveaway. Use this on a giveaway's post.",
+      "enabled": {
+        "label": "Joining and drawing",
+        "description": "Whether giveaways run. While off, nobody can join or start one, and giveaways whose time is up are drawn once it's on again"
+      }
     },
     "edit": {
       "header": "It's running, so changes show on its post right away. Its channel can't change anymore, and its ping was already sent."

@@ -23,6 +23,7 @@ import {
   UserSelectMenuBuilder,
 } from 'discord.js';
 
+import { getFeatureSwitches, setFeatureSwitch } from 'database/features';
 import {
   cancelGiveaway,
   countGiveaways,
@@ -50,7 +51,7 @@ import { markPostChanged, syncPost } from 'utility/giveaways/sync';
 import { getTranslate, type Translate } from 'utility/i18next';
 import { logger } from 'utility/logger';
 import { type ResponsePayload, sendError, withNotice } from 'utility/response';
-import { settingsContext } from 'utility/settings';
+import { buildSwitchSection, settingsContext } from 'utility/settings';
 import { shorten } from 'utility/text';
 import { ThemeColors } from 'utility/theme';
 
@@ -62,10 +63,16 @@ const numberOf = (giveaway: Giveaway, t: Translate) => (giveaway.number ? t('giv
 
 /** A server's running or ended giveaways, with buttons to switch between them, and a select to open one. */
 export async function renderGiveawayList(guild: Guild, tab: GiveawayTab, t: Translate): Promise<ResponsePayload> {
-  const [giveaways, counts] = await Promise.all([listGiveaways(guild.id, tab), countGiveaways(guild.id)]);
+  const [giveaways, counts, { giveawaysEnabled }] = await Promise.all([listGiveaways(guild.id, tab), countGiveaways(guild.id), getFeatureSwitches(guild.id)]);
   const container = new ContainerBuilder()
     .setAccentColor(ThemeColors.info)
     .addTextDisplayComponents(new TextDisplayBuilder().setContent(t('giveaway.manage.listTitle')))
+    // Large, so the title, the switch and the list stand apart, like in the settings panels
+    .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large))
+    .addSectionComponents(
+      buildSwitchSection(t('giveaway.manage.enabled.label'), t('giveaway.manage.enabled.description'), giveawaysEnabled, `${MANAGE_PREFIX}toggle:${tab}`, t),
+    )
+    .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large))
     .addActionRowComponents(
       new ActionRowBuilder<ButtonBuilder>().addComponents(
         TABS.map((option) =>
@@ -76,9 +83,7 @@ export async function renderGiveawayList(guild: Guild, tab: GiveawayTab, t: Tran
             .setDisabled(option === tab),
         ),
       ),
-    )
-    // Large, so the title, the list and the select stand apart, like in the settings panels
-    .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large));
+    );
 
   if (giveaways.length === 0) {
     container.addTextDisplayComponents(new TextDisplayBuilder().setContent(t(`giveaway.manage.none.${tab}`)));
@@ -245,8 +250,15 @@ export async function handleManageButton(interaction: ButtonInteraction<'cached'
 
   // Answered before anything is looked up, as Discord gives up after 3 seconds. Ending can take a while with many participants
   await interaction.deferUpdate();
-  if (action === 'list')
-    return isTab(argument) ? interaction.editReply(await renderGiveawayList(interaction.guild, argument, t)) : sendError(interaction, t('system.outdated'));
+  if (action === 'list' || action === 'toggle') {
+    if (!isTab(argument)) return sendError(interaction, t('system.outdated'));
+    if (action === 'toggle') {
+      // Running giveaways wait with their draw while it's off, and are drawn once it's on again
+      const { giveawaysEnabled } = await getFeatureSwitches(interaction.guildId);
+      await setFeatureSwitch(interaction.guildId, 'giveawaysEnabled', !giveawaysEnabled);
+    }
+    return interaction.editReply(await renderGiveawayList(interaction.guild, argument, t));
+  }
   if (!MANAGE_ACTIONS.includes(action as ManageAction) || !argument) return sendError(interaction, t('system.outdated'));
 
   const giveaway = await getGiveaway(interaction.guildId, argument);

@@ -1,5 +1,6 @@
 import { type Guild, type GuildTextBasedChannel, messageLink, roleMention, TextDisplayBuilder } from 'discord.js';
 
+import { getFeatureSwitches } from 'database/features';
 import { getGiveaway, type Giveaway, MAX_ACTIVE_GIVEAWAYS, setGiveawayMessage, startGiveaway, unstartGiveaway } from 'database/giveaways';
 
 import { formatNumber } from 'utility/duration';
@@ -42,8 +43,9 @@ function postChannel(guild: Guild, channelId: string): GuildTextBasedChannel | n
  * @returns What to tell whoever started it: that it's up with a link to it, or why it couldn't be started.
  */
 export async function publishDraft(guild: Guild, giveawayId: string, t: Translate): Promise<{ error: string } | { link: string; channelId: string }> {
-  const draft = await getGiveaway(guild.id, giveawayId);
+  const [draft, { giveawaysEnabled }] = await Promise.all([getGiveaway(guild.id, giveawayId), getFeatureSwitches(guild.id)]);
   if (draft?.status !== 'draft') return { error: t('giveaway.draft.gone') };
+  if (!giveawaysEnabled) return { error: t('giveaway.draft.off') };
 
   // Checked before it starts, so a giveaway is never running without a post
   const channel = postChannel(guild, draft.channelId);
