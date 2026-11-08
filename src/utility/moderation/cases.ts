@@ -290,11 +290,17 @@ export function renderCase(guild: Guild, modCase: ModCase, related: ModCase[], s
 const renderCaseView = async (guild: Guild, modCase: ModCase, state: CasesState, t: Translate) =>
   renderCase(guild, modCase, await getRelatedCases(modCase), state, t);
 
+/** Whether a case is a temporary ban that's still on, which the bot lifts once it runs out, as long as its case is there. */
+const isRunningTempBan = (modCase: ModCase) => modCase.type === 'ban' && !modCase.endedAt && modCase.expiresAt !== null;
+
 /** The question whether to delete a case, as it can't be undone. */
 function renderDeleteQuestion(modCase: ModCase, state: CasesState, t: Translate): ResponsePayload {
+  const question = t('moderation.cases.delete.question', { number: caseNumber(modCase, t) });
   const container = new ContainerBuilder()
     .setAccentColor(ThemeColors.warning)
-    .addTextDisplayComponents(new TextDisplayBuilder().setContent(t('moderation.cases.delete.question', { number: caseNumber(modCase, t) })))
+    .addTextDisplayComponents(
+      new TextDisplayBuilder().setContent(isRunningTempBan(modCase) ? `${question}\n${subtext(t('moderation.cases.delete.tempBanNote'))}` : question),
+    )
     .addActionRowComponents(
       new ActionRowBuilder<ButtonBuilder>().addComponents(
         new ButtonBuilder()
@@ -373,6 +379,10 @@ export async function handleCasesButton(interaction: ButtonInteraction<'cached'>
     case 'deleteYes': {
       const modCase = await caseOrGone(interaction, parsed.caseId, state, t);
       if (!modCase) return;
+      // Deleting it makes it a ban for good, which only those who can ban may do, like changing its end
+      if (isRunningTempBan(modCase) && !interaction.member.permissions.has('BanMembers')) {
+        return sendError(interaction, t('moderation.cases.delete.noBanPermission'));
+      }
       await deleteCase(interaction.guildId, modCase.id);
       const notice = t('moderation.cases.delete.done', { number: caseNumber(modCase, t) });
       return interaction.editReply(await listWithNotice(interaction.guild, state, notice, 'success', t));

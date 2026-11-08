@@ -1816,7 +1816,9 @@
         "question": "Delete case {{number}}? This can't be undone.",
         "confirm": "Delete",
         "cancel": "Keep it",
-        "done": "Deleted case {{number}}."
+        "done": "Deleted case {{number}}.",
+        "noBanPermission": "Deleting a temporary ban that's still on needs the Ban Members permission, as it then won't be lifted anymore.",
+        "tempBanNote": "This ban is still on. Once its case is deleted, it won't be lifted anymore, so it's a ban for good. To lift it now, change its end to 0."
       },
       "reasonModal": {
         "title": "Reason of case {{number}}",

@@ -1760,7 +1760,9 @@
         "question": "Fall {{number}} löschen? Das lässt sich nicht rückgängig machen.",
         "confirm": "Löschen",
         "cancel": "Behalten",
-        "done": "Fall {{number}} ist gelöscht."
+        "done": "Fall {{number}} ist gelöscht.",
+        "noBanPermission": "Um einen laufenden Bann auf Zeit zu löschen, brauchst du die Berechtigung Mitglieder bannen, weil er danach nicht mehr aufgehoben wird.",
+        "tempBanNote": "Dieser Bann läuft noch. Wenn du den Fall löschst, wird er nicht mehr aufgehoben und gilt für immer. Um ihn jetzt aufzuheben, setz sein Ende auf 0."
       },
       "reasonModal": {
         "title": "Grund von Fall {{number}}",
