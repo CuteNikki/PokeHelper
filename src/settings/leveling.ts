@@ -91,6 +91,16 @@ export const levelingSettings = createSettingsPanel<LevelingConfig>({
     },
     {
       type: 'boolean',
+      key: 'voiceXp',
+      category: 'general',
+      defaultValue: true,
+      label: (t) => t('leveling.settings.voiceXp.label'),
+      description: (t) => t('leveling.settings.voiceXp.description'),
+      get: (config) => config.voiceXp,
+      set: (guildId, voiceXp) => update(guildId, { voiceXp }),
+    },
+    {
+      type: 'boolean',
       key: 'levelUpMessages',
       category: 'general',
       defaultValue: true,

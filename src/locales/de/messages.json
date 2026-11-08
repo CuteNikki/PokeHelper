@@ -1095,6 +1095,10 @@
         "label": "Leveling",
         "description": "Mitglieder sammeln XP fürs Schreiben und steigen mit der Zeit im Level auf."
       },
+      "voiceXp": {
+        "label": "Voice-XP",
+        "description": "Mitglieder sammeln auch im Voice XP, pro Minute so viel wie für eine Nachricht, solange ihr Ton an ist und noch jemand dabei ist, bei dem er auch an ist."
+      },
       "levelUpMessages": {
         "label": "Level-Up-Nachrichten",
         "description": "Ankündigen, wenn Mitglieder ein Level aufsteigen."

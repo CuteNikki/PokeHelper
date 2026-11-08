@@ -336,6 +336,10 @@
         "label": "Leveling",
         "description": "Members earn XP for chatting and level up over time."
       },
+      "voiceXp": {
+        "label": "Voice XP",
+        "description": "Members earn XP in voice too, as much a minute as for a message, while they aren't deafened and someone else is there who isn't either."
+      },
       "levelUpMessages": {
         "label": "Level Up Messages",
         "description": "Announce when members level up."
