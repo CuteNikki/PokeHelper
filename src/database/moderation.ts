@@ -54,10 +54,14 @@ export const createCase = (data: NewCase) =>
     return tx.modCase.create({ data: { ...data, expiresAt: data.expiresAt ?? null, number: caseCount, createdAt: now } });
   });
 
-/** Take a case back, like when Discord didn't let the bot do what it's about, and run the ones it ended again. */
+/**
+ * Take a case back, like when Discord didn't let the bot do what it's about, and run the ones it ended again. Its number is used again
+ * if it's still the newest, so the server's case numbers don't skip one.
+ */
 export const undoCase = (modCase: ModCase) =>
   prisma.$transaction([
     prisma.modCase.deleteMany({ where: { id: modCase.id } }),
+    prisma.guild.updateMany({ where: { guildId: modCase.guildId, caseCount: modCase.number }, data: { caseCount: { decrement: 1 } } }),
     prisma.modCase.updateMany({ where: { guildId: modCase.guildId, userId: modCase.userId, endedAt: modCase.createdAt }, data: { endedAt: null } }),
   ]);
 
