@@ -135,7 +135,7 @@ export async function renderGiveawayList(guild: Guild, tab: GiveawayTab, t: Tran
 
 /**
  * How much of the panel's text its winners can take, so it stays below Discord's limit for a whole message with the rest of it,
- * like a long prize. Up to 50 winners who have to claim fit, the rest is counted.
+ * like a long prize. All winners who have to claim fit, the rest is a safety net.
  */
 const WINNERS_TEXT_LENGTH = DiscordLimits.messageTextLength - 1000;
 
