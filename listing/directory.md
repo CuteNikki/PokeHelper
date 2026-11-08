@@ -6,7 +6,7 @@ Poke Helper brings the games and tools a community server needs, in a look that 
 
 • **Counting:** count up together, with lives, math like `6*7`, records and a leaderboard
 
-• **Leveling:** XP for chatting, rank cards, weekly and monthly leaderboards and level-up roles
+• **Leveling:** XP for chatting and voice, rank cards, weekly and monthly leaderboards and level-up roles
 
 • **Pokédex:** look up any Pokémon with its types, stats and evolutions, shiny too
 

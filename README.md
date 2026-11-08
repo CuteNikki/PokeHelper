@@ -17,8 +17,8 @@ _A Pokémon themed Discord bot_
 
 ### 📈 Leveling
 
-- XP for chatting, with rank cards and a leaderboard as images, or as text for screen readers, which both switch between with a button, and all-time, weekly or monthly
-- Level ups announced in their own channel, where the member chats, or not at all
+- XP for chatting and for time in voice (not alone or deafened), with rank cards and a leaderboard as images, or as text for screen readers, which both switch between with a button, and all-time, weekly or monthly
+- Level ups announced in their own channel, where the member chats or talks, or not at all
 - Weekly and monthly leaderboards, switched between with a button, with a role for each winner and announcements in their own channel that can be turned off
 - Level-up rewards, given out retroactively to members who already reached the level
 - XP multipliers for roles and channels
