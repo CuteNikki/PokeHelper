@@ -766,9 +766,14 @@
     },
     "counts": {
       "title": "**{{icon.chart-column}} Counts**",
-      "channels": "> **Channels:** {{count}}/{{max}} · {{text}} text, {{voice}} voice, {{forums}} forums, {{categories}} categories",
+      "channels": "> **Channels:** {{count}}/{{max}}",
+      "textChannels": "> **Text channels:** {{count}}",
+      "voiceChannels": "> **Voice channels:** {{count}}",
+      "forums": "> **Forums:** {{count}}",
+      "categories": "> **Categories:** {{count}}",
       "roles": "> **Roles:** {{count}}/{{max}}",
-      "emojis": "> **Emojis:** {{still}}/{{max}} · {{animated}}/{{max}} animated",
+      "emojis": "> **Emojis:** {{count}}/{{max}}",
+      "animatedEmojis": "> **Animated emojis:** {{count}}/{{max}}",
       "stickers": "> **Stickers:** {{count}}/{{max}}"
     },
     "features": {

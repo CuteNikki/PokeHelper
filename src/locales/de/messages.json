@@ -1580,9 +1580,14 @@
     },
     "counts": {
       "title": "**{{icon.chart-column}} Zahlen**",
-      "channels": "> **Kanäle:** {{count}}/{{max}} · {{text}} Text, {{voice}} Sprache, {{forums}} Foren, {{categories}} Kategorien",
+      "channels": "> **Kanäle:** {{count}}/{{max}}",
+      "textChannels": "> **Textkanäle:** {{count}}",
+      "voiceChannels": "> **Sprachkanäle:** {{count}}",
+      "forums": "> **Foren:** {{count}}",
+      "categories": "> **Kategorien:** {{count}}",
       "roles": "> **Rollen:** {{count}}/{{max}}",
-      "emojis": "> **Emojis:** {{still}}/{{max}} · {{animated}}/{{max}} animiert",
+      "emojis": "> **Emojis:** {{count}}/{{max}}",
+      "animatedEmojis": "> **Animierte Emojis:** {{count}}/{{max}}",
       "stickers": "> **Sticker:** {{count}}/{{max}}"
     },
     "features": {

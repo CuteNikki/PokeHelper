@@ -131,20 +131,14 @@ export async function buildServerInfo(guild: Guild, t: Translate): Promise<Respo
   const animated = emojis.filter((emoji) => emoji.animated).size;
   const counts = [
     t('serverinfo.counts.title'),
-    t('serverinfo.counts.channels', {
-      count: number(channels.size),
-      max: number(MAX_CHANNELS),
-      text: ofType(ChannelType.GuildText, ChannelType.GuildAnnouncement),
-      voice: ofType(ChannelType.GuildVoice, ChannelType.GuildStageVoice),
-      categories: ofType(ChannelType.GuildCategory),
-      forums: ofType(ChannelType.GuildForum, ChannelType.GuildMedia),
-    }),
+    t('serverinfo.counts.channels', { count: number(channels.size), max: number(MAX_CHANNELS) }),
+    t('serverinfo.counts.textChannels', { count: ofType(ChannelType.GuildText, ChannelType.GuildAnnouncement) }),
+    t('serverinfo.counts.voiceChannels', { count: ofType(ChannelType.GuildVoice, ChannelType.GuildStageVoice) }),
+    t('serverinfo.counts.forums', { count: ofType(ChannelType.GuildForum, ChannelType.GuildMedia) }),
+    t('serverinfo.counts.categories', { count: ofType(ChannelType.GuildCategory) }),
     t('serverinfo.counts.roles', { count: number(guild.roles.cache.size), max: number(MAX_ROLES) }),
-    t('serverinfo.counts.emojis', {
-      still: number(emojis.size - animated),
-      animated: number(animated),
-      max: number(MAX_EMOJIS[guild.premiumTier]),
-    }),
+    t('serverinfo.counts.emojis', { count: number(emojis.size - animated), max: number(MAX_EMOJIS[guild.premiumTier]) }),
+    t('serverinfo.counts.animatedEmojis', { count: number(animated), max: number(MAX_EMOJIS[guild.premiumTier]) }),
     t('serverinfo.counts.stickers', { count: number(guild.stickers.cache.size), max: number(MAX_STICKERS[guild.premiumTier]) }),
   ];
 
