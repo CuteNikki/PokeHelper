@@ -1596,6 +1596,19 @@
       "giveaways_one": "{{count, number}} läuft",
       "giveaways_other": "{{count, number}} laufen"
     },
+    "roles": {
+      "button": "Rollen",
+      "title": "### {{icon.tag}} Rollen",
+      "count": "{{count}}/{{max}} Rollen",
+      "none": "Der Server hat außer @everyone keine Rollen."
+    },
+    "emojis": {
+      "button": "Emojis",
+      "title": "### {{icon.smile}} Emojis",
+      "count": "{{still}}/{{max}} unbewegt · {{animated}}/{{max}} animiert",
+      "none": "Der Server hat noch keine Emojis."
+    },
+    "back": "Zurück",
     "images": {
       "icon": "Icon",
       "banner": "Banner",

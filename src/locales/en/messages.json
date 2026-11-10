@@ -782,6 +782,19 @@
       "giveaways_one": "{{count, number}} running",
       "giveaways_other": "{{count, number}} running"
     },
+    "roles": {
+      "button": "Roles",
+      "title": "### {{icon.tag}} Roles",
+      "count": "{{count}}/{{max}} roles",
+      "none": "This server has no roles besides @everyone."
+    },
+    "emojis": {
+      "button": "Emojis",
+      "title": "### {{icon.smile}} Emojis",
+      "count": "{{still}}/{{max}} still · {{animated}}/{{max}} animated",
+      "none": "This server has no emojis yet."
+    },
+    "back": "Back",
     "images": {
       "icon": "Icon",
       "banner": "Banner",

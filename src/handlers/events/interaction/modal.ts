@@ -19,6 +19,7 @@ import { handlePokedexSearchModal, POKEDEX_SEARCH_MODAL_PREFIX } from 'utility/p
 import { GUESS_MODAL_PREFIX, handleGuessModal } from 'utility/pokedex/guess';
 import { sendError } from 'utility/response';
 import { SETTINGS_CUSTOM_ID_PREFIX } from 'utility/settings';
+import { handleServerInfoModal, SERVER_INFO_PAGE_MODAL_PREFIX } from 'utility/serverInfo';
 import { STICKY_MODAL_PREFIX } from 'utility/sticky';
 import { handleStickyModal } from 'utility/stickyModal';
 import { handleTempVoiceModal } from 'utility/tempVoice/controls';
@@ -40,6 +41,7 @@ export default new Event({
       else if (interaction.customId.startsWith(TEMP_VOICE_EDIT_MODAL_PREFIX)) await handleTempVoiceModal(interaction);
       else if (interaction.customId.startsWith(STICKY_MODAL_PREFIX)) await handleStickyModal(interaction);
       else if (interaction.customId.startsWith(CASES_PREFIX)) await handleCasesModal(interaction);
+      else if (interaction.customId.startsWith(SERVER_INFO_PAGE_MODAL_PREFIX)) await handleServerInfoModal(interaction);
       else if (interaction.customId.startsWith(PARTICIPANTS_PREFIX)) {
         if (interaction.inCachedGuild()) await handleParticipantsModal(interaction);
       } else if (interaction.customId.startsWith(MOD_PANEL_PREFIX)) {
