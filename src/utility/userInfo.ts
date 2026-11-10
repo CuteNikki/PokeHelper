@@ -89,7 +89,7 @@ export async function buildUserInfo(
     t('userinfo.title', { name }),
     t('userinfo.username', { username: code(user.username) }),
     ...(user.bot ? [t('userinfo.bot')] : []),
-    ...(member?.nickname ? [t('userinfo.nickname', { nickname: escapeMarkdown(member.nickname) })] : []),
+    ...(member?.nickname ? [t('userinfo.nickname', { nickname: code(member.nickname) })] : []),
     t('userinfo.id', { id: code(user.id) }),
     t('userinfo.created', { time: when(user.createdTimestamp) }),
   ];
