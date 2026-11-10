@@ -14,7 +14,7 @@ import { renderModerationPanel } from 'utility/moderation/panel';
 import { permissionProblem } from 'utility/moderation/run';
 import { sendError } from 'utility/response';
 
-/** Everything moderation does to someone, from the menu of their name. One menu for all of it, as Discord only allows an app 5 menus on names. */
+/** Everything moderation does to someone, from the menu of their name, in one menu so the list on names stays short. */
 export default new Command<ApplicationCommandType.User>({
   data: new ContextMenuCommandBuilder()
     .setType(ApplicationCommandType.User)
