@@ -1777,7 +1777,9 @@
         "kick": "Kick",
         "ban": "Ban",
         "unban": "Unban",
-        "cases": "Cases"
+        "cases": "Cases",
+        "info": "User info",
+        "back": "Back"
       },
       "noPermission": "You need the {{permission}} permission for that.",
       "modal": {

@@ -13,6 +13,8 @@ describe('moderation panel', () => {
   test('its buttons and popups carry what to do and to whom', () => {
     expect(parsePanelId(`modpanel:timeout:${userId}`)).toEqual({ action: 'timeout', userId });
     expect(parsePanelId(`modpanel:cases:${userId}`)).toEqual({ action: 'cases', userId });
+    expect(parsePanelId(`modpanel:info:${userId}`)).toEqual({ action: 'info', userId });
+    expect(parsePanelId(`modpanel:panel:${userId}`)).toEqual({ action: 'panel', userId });
     expect(parsePanelId(`modpanel:explode:${userId}`)).toBeNull();
     expect(parsePanelId('modpanel:warn:someone')).toBeNull();
   });

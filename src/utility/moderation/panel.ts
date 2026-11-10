@@ -44,6 +44,7 @@ import {
 } from 'utility/moderation/run';
 import { quietMessageOf, type ResponsePayload, sendError, withNotice } from 'utility/response';
 import { ThemeColors } from 'utility/theme';
+import { buildUserInfo } from 'utility/userInfo';
 
 /**
  * The moderation panel, from the Moderation menu on someone's name: how they're doing, and a button for each thing to do to them.
@@ -61,7 +62,11 @@ const DELETE_MESSAGES = { none: 0, hour: HOUR / 1000, day: DAY / 1000, week: (7 
 
 const isCaseType = (value: string): value is ModCaseType => (CASE_TYPES as readonly string[]).includes(value);
 
-const panelId = (action: ModCaseType | 'cases', userId: string) => `${MOD_PANEL_PREFIX}${action}:${userId}`;
+/** What a panel button does: one of the actions, show the cases or the user info in the panel's place, or go back to the panel from there. */
+type PanelAction = ModCaseType | 'cases' | 'info' | 'panel';
+const VIEWS: readonly string[] = ['cases', 'info', 'panel'] satisfies PanelAction[];
+
+const panelId = (action: PanelAction, userId: string) => `${MOD_PANEL_PREFIX}${action}:${userId}`;
 
 /**
  * The panel for someone: how they're doing, how many cases they have, and the buttons. A button is off when the moderator isn't allowed
@@ -101,6 +106,11 @@ export async function renderModerationPanel(guild: Guild, userId: string, modera
     .setLabel(t('moderation.panel.actions.cases'))
     .setEmoji(buttonIcon('scroll-text' satisfies IconName))
     .setStyle(ButtonStyle.Secondary);
+  const info = new ButtonBuilder()
+    .setCustomId(panelId('info', userId))
+    .setLabel(t('moderation.panel.actions.info'))
+    .setEmoji(buttonIcon('circle-user' satisfies IconName))
+    .setStyle(ButtonStyle.Secondary);
 
   const container = new ContainerBuilder()
     .setAccentColor(ThemeColors.info)
@@ -116,7 +126,9 @@ export async function renderModerationPanel(guild: Guild, userId: string, modera
         banned ? action('unban', ButtonStyle.Secondary, false) : action('ban', ButtonStyle.Danger, false),
         cases,
       ),
-    );
+    )
+    // A row of its own, as the first one has as many buttons as Discord allows
+    .addActionRowComponents(new ActionRowBuilder<ButtonBuilder>().addComponents(info));
   return quietMessageOf(container);
 }
 
@@ -178,21 +190,29 @@ export function buildActionModal(type: ModCaseType, userId: string, name: string
 }
 
 /** Read a panel button or popup's custom ID, or null if it's from an older version of the panel. */
-export function parsePanelId(customId: string): { action: ModCaseType | 'cases'; userId: string } | null {
+export function parsePanelId(customId: string): { action: PanelAction; userId: string } | null {
   const [action = '', userId = ''] = customId.slice(MOD_PANEL_PREFIX.length).split(':');
-  if (!/^\d+$/.test(userId) || (action !== 'cases' && !isCaseType(action))) return null;
-  return { action, userId };
+  if (!/^\d+$/.test(userId) || (!VIEWS.includes(action) && !isCaseType(action))) return null;
+  return { action: action as PanelAction, userId };
 }
 
-/** The panel's buttons: the case history in its place, or the popup for what to do. */
+/** The panel's buttons: the case history or user info in its place, back to the panel from there, or the popup for what to do. */
 export async function handleModerationPanelButton(interaction: ButtonInteraction<'cached'>): Promise<unknown> {
   const t = getTranslate(interaction.locale);
   const parsed = parsePanelId(interaction.customId);
   if (!parsed) return sendError(interaction, t('system.outdated'));
 
-  if (parsed.action === 'cases') {
+  if (parsed.action === 'cases' || parsed.action === 'info' || parsed.action === 'panel') {
+    // Answered first, as asking Discord and the database can take a moment
     await interaction.deferUpdate();
-    return interaction.editReply(await renderCasesFor(interaction.guild, parsed.userId, t));
+    if (parsed.action === 'cases') return interaction.editReply(await renderCasesFor(interaction.guild, parsed.userId, t));
+    if (parsed.action === 'panel') return interaction.editReply(await renderModerationPanel(interaction.guild, parsed.userId, interaction.member, t));
+    const back = new ButtonBuilder()
+      .setCustomId(panelId('panel', parsed.userId))
+      .setLabel(t('moderation.panel.actions.back'))
+      .setEmoji(buttonIcon('chevron-left' satisfies IconName))
+      .setStyle(ButtonStyle.Secondary);
+    return interaction.editReply(await buildUserInfo(interaction.guild, parsed.userId, interaction.member, t, back));
   }
   // Checked when pressed, as who sees a panel can change meanwhile
   const problem = permissionProblem(interaction.member, MODERATOR_PERMISSIONS[parsed.action], t);
@@ -206,7 +226,7 @@ export async function handleModerationPanelButton(interaction: ButtonInteraction
 export async function handleModerationPanelModal(interaction: ModalSubmitInteraction<'cached'>): Promise<unknown> {
   const t = getTranslate(interaction.locale);
   const parsed = parsePanelId(interaction.customId);
-  if (!parsed || parsed.action === 'cases') return sendError(interaction, t('system.outdated'));
+  if (!parsed || !isCaseType(parsed.action)) return sendError(interaction, t('system.outdated'));
   const type = parsed.action;
   const problem = permissionProblem(interaction.member, MODERATOR_PERMISSIONS[type], t);
   if (problem) return sendError(interaction, problem);

@@ -117,7 +117,7 @@ _A Pokémon themed Discord bot_
 - Bans also for people who aren't on the server, by their ID, and their messages deleted from up to 7 days back
 - Every action is a numbered case, also when it's done through Discord itself, like from the menu on someone's name
 - `/cases` shows someone's history: how many of each type, every case with its reason, who did it and until when, sorted newest or oldest first or by type
-- The Moderation menu on a name has all of it in one place: whether they're timed out or banned, their cases, and buttons to warn, time out, kick or ban them, which ask the details in a popup
+- The Moderation menu on a name has all of it in one place: whether they're timed out or banned, their cases, their user info, and buttons to warn, time out, kick or ban them, which ask the details in a popup
 - Each case can be opened, its reason changed, or deleted after confirming, and shows its related cases, like the timeout a removed timeout ended, with a button to open them
 - A running timeout or ban can end at another time: `3d` from now, `+1d` or `-2h` to move it, a date like `24.12. 18:00`, `never` to make a ban one for good, or `0` to end it right away, with a reason, as a case of its own
 - Nobody can act on the server's owner, themselves, or someone whose highest role isn't below theirs
@@ -138,7 +138,7 @@ _A Pokémon themed Discord bot_
 - Every feature can be turned off in its settings, without losing them
 - An animated mascot as avatar and banner, and a custom status to match, which change with the seasons and holidays, like a witch hat and "Happy Halloween! 🎃" in October
 - `/help` lists the commands by category, and only the ones of features that are turned on
-- `/userinfo` shows someone's account, when they joined, their roles and badges, and for moderators how many cases they have
+- `/userinfo` shows someone's account, when they joined, their roles and badges, and for moderators how many cases they have, also from the Moderation menu on their name
 - English and German, following each member's Discord language
 - `/privacy` to download or delete your own data, and server managers their server's
 - Data of a server is deleted 30 days after the bot leaves it

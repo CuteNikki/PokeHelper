@@ -1708,7 +1708,9 @@
         "kick": "Kicken",
         "ban": "Bannen",
         "unban": "Entbannen",
-        "cases": "Fälle"
+        "cases": "Fälle",
+        "info": "Nutzerinfo",
+        "back": "Zurück"
       },
       "noPermission": "Dafür brauchst du die Berechtigung {{permission}}.",
       "modal": {
