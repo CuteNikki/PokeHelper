@@ -27,6 +27,16 @@ describe('case history custom IDs', () => {
     expect(parseCasesId(`cases:goto:${userId}:type`)).toEqual({ action: 'goto', userId, sort: 'type' });
   });
 
+  test('keep that they came from the moderation panel', () => {
+    const fromPanel = { ...state, panel: true as const };
+    expect(parseCasesId(listId(fromPanel))).toEqual({ action: 'list', state: fromPanel, goto: false });
+    expect(parseCasesId(listId(fromPanel, 'goto'))).toEqual({ action: 'list', state: fromPanel, goto: true });
+    expect(parseCasesId(`cases:view:abc123:${userId}:newest:2:p`)).toEqual({ action: 'view', caseId: 'abc123', state: fromPanel });
+    expect(parseCasesId(`cases:sort:${userId}:p`)).toEqual({ action: 'sort', userId, panel: true });
+    expect(parseCasesId(`cases:goto:${userId}:type:p`)).toEqual({ action: 'goto', userId, sort: 'type', panel: true });
+    expect(parseCasesId(listId(state))).not.toHaveProperty('state.panel');
+  });
+
   test("aren't anything else", () => {
     expect(parseCasesId('cases:list:nope:newest:0')).toBeNull();
     expect(parseCasesId(`cases:list:${userId}:sideways:0`)).toBeNull();

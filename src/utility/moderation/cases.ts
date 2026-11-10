@@ -45,6 +45,7 @@ import { getTranslate, type Translate } from 'utility/i18next';
 import { userRef, userSubject, when } from 'utility/logs/format';
 import { buildTextModal } from 'utility/modal';
 import { canChangeEnd, END_NOW, type EndError, parseNewEnd } from 'utility/moderation/end';
+import { MOD_PANEL_PREFIX } from 'utility/moderation/panel';
 import {
   auditReason,
   buildCaseDm,
@@ -72,6 +73,8 @@ import { ThemeColors } from 'utility/theme';
  * - `list:<user>:<sort>:<page>`, with `first`, `last` or `goto` after it for those page buttons, as they can lead to the same page
  * - `view`, `reason`, `end`, `delete` and `deleteYes`, each `:<case>:<user>:<sort>:<page>`, to go back to the same page
  * - the selects `sort:<user>` and `pick:<user>:<sort>:<page>`, and the page popup `goto:<user>:<sort>`
+ *
+ * Each ends in `:p` when it was opened from the moderation panel, so the list keeps its way back there.
  */
 export const CASES_PREFIX = 'cases:';
 /** How many cases a page shows. Each takes a few lines, so fewer than on other lists. */
@@ -87,20 +90,25 @@ export interface CasesState {
   userId: string;
   sort: CaseSort;
   page: number;
+  /** Opened from the moderation panel, which the list has a button back to. */
+  panel?: true;
 }
 
 /** What a custom ID of a case history asks for. */
 export type CasesAction =
   | { action: 'list'; state: CasesState; goto: boolean }
   | { action: 'view' | 'reason' | 'end' | 'delete' | 'deleteYes'; caseId: string; state: CasesState }
-  | { action: 'sort'; userId: string }
+  | { action: 'sort'; userId: string; panel?: true }
   | { action: 'pick'; state: CasesState }
-  | { action: 'goto'; userId: string; sort: CaseSort };
+  | { action: 'goto'; userId: string; sort: CaseSort; panel?: true };
 
+const PANEL_MARK = 'p';
+const mark = (panel?: true) => (panel ? `:${PANEL_MARK}` : '');
 const stateId = (state: CasesState) => `${state.userId}:${state.sort}:${state.page}`;
-export const listId = (state: CasesState, suffix?: 'first' | 'last' | 'goto') => `${CASES_PREFIX}list:${stateId(state)}${suffix ? `:${suffix}` : ''}`;
+export const listId = (state: CasesState, suffix?: 'first' | 'last' | 'goto') =>
+  `${CASES_PREFIX}list:${stateId(state)}${suffix ? `:${suffix}` : ''}${mark(state.panel)}`;
 const caseId = (action: 'view' | 'reason' | 'end' | 'delete' | 'deleteYes', id: string, state: CasesState) =>
-  `${CASES_PREFIX}${action}:${id}:${stateId(state)}`;
+  `${CASES_PREFIX}${action}:${id}:${stateId(state)}${mark(state.panel)}`;
 
 const isId = (value: string | undefined): value is string => /^\d{15,25}$/.test(value ?? '');
 const isSort = (value: string | undefined): value is CaseSort => CASE_SORTS.includes(value as CaseSort);
@@ -110,8 +118,11 @@ const isPage = (value: string | undefined) => /^\d{1,6}$/.test(value ?? '');
 export function parseCasesId(customId: string): CasesAction | null {
   if (!customId.startsWith(CASES_PREFIX)) return null;
   const [action, ...parts] = customId.slice(CASES_PREFIX.length).split(':');
+  const fromPanel = parts.at(-1) === PANEL_MARK;
+  if (fromPanel) parts.pop();
+  const panel = fromPanel ? { panel: true as const } : {};
   const state = (userId?: string, sort?: string, page?: string): CasesState | null =>
-    isId(userId) && isSort(sort) && isPage(page) ? { userId, sort, page: Number(page) } : null;
+    isId(userId) && isSort(sort) && isPage(page) ? { userId, sort, page: Number(page), ...panel } : null;
 
   switch (action) {
     case 'list': {
@@ -131,14 +142,14 @@ export function parseCasesId(customId: string): CasesAction | null {
       return { action, caseId: id, state: parsed };
     }
     case 'sort':
-      return parts.length === 1 && isId(parts[0]) ? { action, userId: parts[0] } : null;
+      return parts.length === 1 && isId(parts[0]) ? { action, userId: parts[0], ...panel } : null;
     case 'pick': {
       const parsed = state(parts[0], parts[1], parts[2]);
       return parsed && parts.length === 3 ? { action, state: parsed } : null;
     }
     case 'goto': {
       const [userId, sort] = parts;
-      return parts.length === 2 && isId(userId) && isSort(sort) ? { action, userId, sort } : null;
+      return parts.length === 2 && isId(userId) && isSort(sort) ? { action, userId, sort, ...panel } : null;
     }
     default:
       return null;
@@ -181,8 +192,21 @@ export async function renderCaseList(guild: Guild, requested: CasesState, t: Tra
     .setAccentColor(ThemeColors.info)
     .addTextDisplayComponents(new TextDisplayBuilder().setContent(total > 0 ? `${title}\n${subtext(count)}` : title))
     .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large));
+  // Under everything else, like the user info's way back to the panel
+  const backRow = () =>
+    state.panel &&
+    container.addActionRowComponents(
+      new ActionRowBuilder<ButtonBuilder>().addComponents(
+        new ButtonBuilder()
+          .setCustomId(`${MOD_PANEL_PREFIX}panel:${state.userId}`)
+          .setLabel(t('moderation.panel.actions.back'))
+          .setEmoji(buttonIcon('chevron-left'))
+          .setStyle(ButtonStyle.Secondary),
+      ),
+    );
   if (total === 0) {
     container.addTextDisplayComponents(new TextDisplayBuilder().setContent(t('moderation.cases.none')));
+    backRow();
     return quietMessageOf(container);
   }
 
@@ -197,7 +221,7 @@ export async function renderCaseList(guild: Guild, requested: CasesState, t: Tra
     return [heading, ...details.filter((detail): detail is string => detail !== null).map((detail) => subtext(detail))].join('\n');
   });
 
-  const sortSelect = new StringSelectMenuBuilder().setCustomId(`${CASES_PREFIX}sort:${state.userId}`).addOptions(
+  const sortSelect = new StringSelectMenuBuilder().setCustomId(`${CASES_PREFIX}sort:${state.userId}${mark(state.panel)}`).addOptions(
     CASE_SORTS.map((sort) =>
       new StringSelectMenuOptionBuilder()
         .setValue(sort)
@@ -207,7 +231,7 @@ export async function renderCaseList(guild: Guild, requested: CasesState, t: Tra
     ),
   );
   const pickSelect = new StringSelectMenuBuilder()
-    .setCustomId(`${CASES_PREFIX}pick:${stateId(state)}`)
+    .setCustomId(`${CASES_PREFIX}pick:${stateId(state)}${mark(state.panel)}`)
     .setPlaceholder(t('moderation.cases.pick'))
     .addOptions(
       cases.map((modCase) =>
@@ -231,6 +255,7 @@ export async function renderCaseList(guild: Guild, requested: CasesState, t: Tra
       listId({ ...state, page: target }, button === 'first' || button === 'last' || button === 'goto' ? button : undefined);
     container.addActionRowComponents(buildPageRow(page, pages, customId, t));
   }
+  backRow();
   return quietMessageOf(container);
 }
 
@@ -364,7 +389,7 @@ export async function handleCasesButton(interaction: ButtonInteraction<'cached'>
 
   // Popups have to be the first answer, so these can't wait for anything else
   if (parsed.action === 'list' && parsed.goto) {
-    return interaction.showModal(buildPageModal(`${CASES_PREFIX}goto:${state.userId}:${state.sort}`, state.page + 1, t));
+    return interaction.showModal(buildPageModal(`${CASES_PREFIX}goto:${state.userId}:${state.sort}${mark(state.panel)}`, state.page + 1, t));
   }
   if (parsed.action === 'reason') {
     const modCase = await caseForPopup(interaction, parsed.caseId);
@@ -437,7 +462,7 @@ export async function handleCasesSelect(interaction: AnySelectMenuInteraction<'c
   if (parsed.action === 'sort') {
     // Back to the first page, as the cases on the page asked for would be others now
     const sort = isSort(value) ? value : 'newest';
-    return interaction.editReply(await renderCaseList(interaction.guild, { userId: parsed.userId, sort, page: 0 }, t));
+    return interaction.editReply(await renderCaseList(interaction.guild, { userId: parsed.userId, sort, page: 0, ...(parsed.panel && { panel: true }) }, t));
   }
   const modCase = await getCase(interaction.guildId, value);
   if (!modCase) return interaction.editReply(await listWithNotice(interaction.guild, parsed.state, t('moderation.cases.gone'), 'info', t));
@@ -459,7 +484,9 @@ export async function handleCasesModal(interaction: ModalSubmitInteraction): Pro
     if (page === null) return sendError(interaction, t('pagination.modal.invalid'));
     await interaction.deferUpdate();
     // A page past the end shows the last one
-    return interaction.editReply(await renderCaseList(interaction.guild, { userId: parsed.userId, sort: parsed.sort, page: page - 1 }, t));
+    return interaction.editReply(
+      await renderCaseList(interaction.guild, { userId: parsed.userId, sort: parsed.sort, page: page - 1, ...(parsed.panel && { panel: true }) }, t),
+    );
   }
   if (parsed.action === 'end') {
     await interaction.deferUpdate();
@@ -606,4 +633,6 @@ async function changeEnd(interaction: ModalSubmitInteraction<'cached'>, id: stri
 }
 
 /** Someone's case history from its first page, newest first, for `/cases` and the Cases menu on their name. */
-export const renderCasesFor = (guild: Guild, userId: string, t: Translate) => renderCaseList(guild, { userId, sort: 'newest', page: 0 }, t);
+/** Someone's cases from the start, with a way back to the moderation panel when opened from it. */
+export const renderCasesFor = (guild: Guild, userId: string, t: Translate, fromPanel = false) =>
+  renderCaseList(guild, { userId, sort: 'newest', page: 0, ...(fromPanel && { panel: true }) }, t);

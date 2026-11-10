@@ -207,7 +207,7 @@ export async function handleModerationPanelButton(interaction: ButtonInteraction
   if (parsed.action === 'cases' || parsed.action === 'info' || parsed.action === 'panel') {
     // Answered first, as asking Discord and the database can take a moment
     await interaction.deferUpdate();
-    if (parsed.action === 'cases') return interaction.editReply(await renderCasesFor(interaction.guild, parsed.userId, t));
+    if (parsed.action === 'cases') return interaction.editReply(await renderCasesFor(interaction.guild, parsed.userId, t, true));
     if (parsed.action === 'panel') return interaction.editReply(await renderModerationPanel(interaction.guild, parsed.userId, interaction.member, t));
     const back = new ButtonBuilder()
       .setCustomId(panelId('panel', parsed.userId))
