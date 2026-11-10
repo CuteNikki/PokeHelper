@@ -87,7 +87,8 @@ export async function buildUserInfo(
   const name = escapeMarkdown(user.displayName);
   const basics = [
     t('userinfo.title', { name }),
-    t('userinfo.username', { username: code(user.username), bot: user.bot ? ` · ${t('userinfo.bot')}` : '' }),
+    t('userinfo.username', { username: code(user.username) }),
+    ...(user.bot ? [t('userinfo.bot')] : []),
     ...(member?.nickname ? [t('userinfo.nickname', { nickname: escapeMarkdown(member.nickname) })] : []),
     t('userinfo.id', { id: code(user.id) }),
     t('userinfo.created', { time: when(user.createdTimestamp) }),

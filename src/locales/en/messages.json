@@ -707,9 +707,9 @@
   },
   "userinfo": {
     "title": "### {{icon.circle-user}} {{name}}",
-    "username": "> **Username:** {{username}}{{bot}}",
+    "username": "> **Username:** {{username}}",
     "nickname": "> **Nickname:** {{nickname}}",
-    "bot": "Bot",
+    "bot": "> **Account type:** Bot",
     "id": "> **ID:** {{id}}",
     "created": "> **Account created:** {{time}}",
     "joined": "> **Joined:** {{time}}",

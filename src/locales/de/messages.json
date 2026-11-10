@@ -1534,7 +1534,8 @@
     }
   },
   "userinfo": {
-    "username": "> **Nutzername:** {{username}}{{bot}}",
+    "username": "> **Nutzername:** {{username}}",
+    "bot": "> **Account-Typ:** Bot",
     "nickname": "> **Spitzname:** {{nickname}}",
     "created": "> **Account erstellt:** {{time}}",
     "joined": "> **Beigetreten:** {{time}}",
