@@ -83,10 +83,12 @@ export async function buildUserInfo(
   ]);
   if (!user) return createResponse(t('userinfo.notFound'), 'error');
 
-  const name = escapeMarkdown(member?.displayName ?? user.displayName);
+  // Their own name, as the nickname is only this server's, and has a line of its own
+  const name = escapeMarkdown(user.displayName);
   const basics = [
     t('userinfo.title', { name }),
     t('userinfo.username', { username: code(user.username), bot: user.bot ? ` · ${t('userinfo.bot')}` : '' }),
+    ...(member?.nickname ? [t('userinfo.nickname', { nickname: escapeMarkdown(member.nickname) })] : []),
     t('userinfo.id', { id: code(user.id) }),
     t('userinfo.created', { time: when(user.createdTimestamp) }),
   ];

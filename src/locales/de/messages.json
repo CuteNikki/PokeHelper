@@ -1535,6 +1535,7 @@
   },
   "userinfo": {
     "username": "> **Nutzername:** {{username}}{{bot}}",
+    "nickname": "> **Spitzname:** {{nickname}}",
     "created": "> **Account erstellt:** {{time}}",
     "joined": "> **Beigetreten:** {{time}}",
     "boosting": "> **Boostet seit:** {{time}}",

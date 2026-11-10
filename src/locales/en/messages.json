@@ -708,6 +708,7 @@
   "userinfo": {
     "title": "### {{icon.circle-user}} {{name}}",
     "username": "> **Username:** {{username}}{{bot}}",
+    "nickname": "> **Nickname:** {{nickname}}",
     "bot": "Bot",
     "id": "> **ID:** {{id}}",
     "created": "> **Account created:** {{time}}",
