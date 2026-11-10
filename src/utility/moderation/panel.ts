@@ -105,7 +105,9 @@ export async function renderModerationPanel(guild: Guild, userId: string, modera
     .setCustomId(panelId('cases', userId))
     .setLabel(t('moderation.panel.actions.cases'))
     .setEmoji(buttonIcon('scroll-text' satisfies IconName))
-    .setStyle(ButtonStyle.Secondary);
+    .setStyle(ButtonStyle.Secondary)
+    // Nothing to see without any, which the status line above already says
+    .setDisabled(total === 0);
   const info = new ButtonBuilder()
     .setCustomId(panelId('info', userId))
     .setLabel(t('moderation.panel.actions.info'))
