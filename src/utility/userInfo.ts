@@ -124,10 +124,12 @@ export async function buildUserInfo(
       getUserCases(guild.id, userId, 'newest', 0, 0),
       member === null ? fetchBanned(guild, userId) : Promise.resolve(false),
     ]);
-    const lines = [t('userinfo.moderation.title'), `> ${caseCountLine(counts, total, t)}`];
+    const lines: string[] = [];
+    if (total > 0) lines.push(`> ${caseCountLine(counts, total, t)}`);
     if (member?.isCommunicationDisabled()) lines.push(`> ${t('moderation.panel.timedOut', { until: formatUntil(member.communicationDisabledUntil) })}`);
     if (banned) lines.push(`> ${t('moderation.panel.banned')}`);
-    section(lines);
+    // Left out for someone with a clean record, who'd only have "0 cases" there
+    if (lines.length > 0) section([t('userinfo.moderation.title'), ...lines]);
   }
 
   const buttons = [new ButtonBuilder().setStyle(ButtonStyle.Link).setURL(avatar).setLabel(t('userinfo.avatar')).setEmoji(buttonIcon('image'))];
