@@ -92,7 +92,9 @@ export async function renderModerationPanel(guild: Guild, userId: string, modera
   status.push(caseCountLine(counts, total, t));
   // Warn has no rules of its own, so what's wrong with it is wrong with everything
   const problem = user && !unknown ? moderationProblem(guild, moderator, user, member ?? null, 'warn', t) : null;
-  if (problem) status.push(problem);
+  // Not said for themselves or the bot, which the buttons being off already says plainly enough
+  const obvious = userId === moderator.id || userId === guild.client.user.id;
+  if (problem && !obvious) status.push(problem);
 
   const action = (type: ModCaseType, style: ButtonStyle, needsMember: boolean) =>
     new ButtonBuilder()
