@@ -94,7 +94,6 @@ export async function buildUserInfo(
   if (member?.premiumSinceTimestamp) basics.push(t('userinfo.boosting', { time: when(member.premiumSinceTimestamp) }));
   if (server && member === null) basics.push(t('userinfo.notMember'));
 
-  const avatar = (member ?? user).displayAvatarURL({ size: 4096 });
   const container = new ContainerBuilder()
     .setAccentColor(ThemeColors.info)
     .addSectionComponents(
@@ -132,10 +131,22 @@ export async function buildUserInfo(
     if (lines.length > 0) section([t('userinfo.moderation.title'), ...lines]);
   }
 
-  const buttons = [new ButtonBuilder().setStyle(ButtonStyle.Link).setURL(avatar).setLabel(t('userinfo.avatar')).setEmoji(buttonIcon('image'))];
-  // Their server banner if they have one, like the avatar. Not displayBannerURL, as the member's user is the cached one, without a banner
-  const banner = member?.bannerURL({ size: 4096 }) ?? user.bannerURL({ size: 4096 });
-  if (banner) buttons.push(new ButtonBuilder().setStyle(ButtonStyle.Link).setURL(banner).setLabel(t('userinfo.banner')).setEmoji(buttonIcon('image')));
+  // Their own pictures, and the ones they set for this server next to them, each only if they have it. At most 4, so a back button still fits
+  const pictures = [
+    ['avatar', user.displayAvatarURL({ size: 4096 })],
+    ['serverAvatar', member?.avatarURL({ size: 4096 }) ?? null],
+    ['banner', user.bannerURL({ size: 4096 }) ?? null],
+    ['serverBanner', member?.bannerURL({ size: 4096 }) ?? null],
+  ] as const;
+  const buttons = pictures
+    .filter((picture): picture is readonly [(typeof picture)[0], string] => picture[1] !== null)
+    .map(([key, url]) =>
+      new ButtonBuilder()
+        .setStyle(ButtonStyle.Link)
+        .setURL(url)
+        .setLabel(t(`userinfo.${key}`))
+        .setEmoji(buttonIcon('image')),
+    );
   container.addActionRowComponents(new ActionRowBuilder<ButtonBuilder>().addComponents(...(back ? [back] : []), ...buttons));
 
   return quietMessageOf(container);

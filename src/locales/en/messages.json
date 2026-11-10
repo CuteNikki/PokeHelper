@@ -741,7 +741,9 @@
       "title": "**{{icon.shield}} Moderation**"
     },
     "avatar": "Avatar",
-    "banner": "Banner"
+    "serverAvatar": "Server avatar",
+    "banner": "Banner",
+    "serverBanner": "Server banner"
   },
   "serverinfo": {
     "title": "### {{icon.server}} {{name}}",

@@ -1556,7 +1556,9 @@
       "VerifiedDeveloper": "Früher verifizierter Bot-Entwickler",
       "PremiumEarlySupporter": "Früher Unterstützer",
       "VerifiedBot": "Verifizierter Bot"
-    }
+    },
+    "serverAvatar": "Server-Avatar",
+    "serverBanner": "Server-Banner"
   },
   "serverinfo": {
     "owner": "> **Besitzer:** {{owner}}",
