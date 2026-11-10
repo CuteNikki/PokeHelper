@@ -705,6 +705,44 @@
       "discordJs": "> **Discord.JS:** v{{version}}"
     }
   },
+  "userinfo": {
+    "title": "### {{icon.circle-user}} {{name}}",
+    "username": "> **Username:** {{username}}{{bot}}",
+    "bot": "Bot",
+    "id": "> **ID:** {{id}}",
+    "created": "> **Account created:** {{time}}",
+    "joined": "> **Joined:** {{time}}",
+    "boosting": "> **Boosting since:** {{time}}",
+    "notMember": "> Not on this server",
+    "notFound": "I couldn't find that user on Discord.",
+    "roles": {
+      "title": "**{{icon.tag}} Roles · {{count, number}}**",
+      "none": "> No roles",
+      "more": "and {{count, number}} more",
+      "color": "> **Color:** {{color}}"
+    },
+    "badges": {
+      "title": "**{{icon.sparkles}} Badges**",
+      "Staff": "Discord Staff",
+      "Partner": "Partnered Server Owner",
+      "CertifiedModerator": "Moderator Programs Alumni",
+      "Hypesquad": "HypeSquad Events",
+      "HypeSquadOnlineHouse1": "HypeSquad Bravery",
+      "HypeSquadOnlineHouse2": "HypeSquad Brilliance",
+      "HypeSquadOnlineHouse3": "HypeSquad Balance",
+      "BugHunterLevel1": "Bug Hunter",
+      "BugHunterLevel2": "Gold Bug Hunter",
+      "ActiveDeveloper": "Active Developer",
+      "VerifiedDeveloper": "Early Verified Bot Developer",
+      "PremiumEarlySupporter": "Early Supporter",
+      "VerifiedBot": "Verified Bot"
+    },
+    "moderation": {
+      "title": "**{{icon.shield}} Moderation**"
+    },
+    "avatar": "Avatar",
+    "banner": "Banner"
+  },
   "help": {
     "title": "## {{icon.book-open}} Commands",
     "intro": "Pick a category below to see its commands.",

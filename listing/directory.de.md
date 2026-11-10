@@ -34,6 +34,8 @@ Poke Helper bringt die Spiele und Tools mit, die ein Community-Server braucht, i
 
 • **Erinnerungen:** in ein paar Minuten oder an einem Datum zu einer Uhrzeit, einmal oder immer wieder, per DM oder im Kanal
 
+• **Nutzerinfo:** der Account von jemandem, wann die Person beigetreten ist, ihre Rollen und Abzeichen, und für Mods ihre Fälle
+
 **✨ Einfach zu benutzen**
 
 • Einstellungen mit Buttons statt einer langen Liste an Befehlen

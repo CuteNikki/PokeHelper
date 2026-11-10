@@ -1,0 +1,127 @@
+import {
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+  ContainerBuilder,
+  escapeMarkdown,
+  type Guild,
+  type GuildMember,
+  roleMention,
+  SectionBuilder,
+  SeparatorBuilder,
+  SeparatorSpacingSize,
+  TextDisplayBuilder,
+  ThumbnailBuilder,
+  type UserFlagsString,
+} from 'discord.js';
+
+import { getUserCases } from 'database/moderation';
+
+import { fetchMember } from 'utility/discord';
+import { buttonIcon } from 'utility/emojis';
+import type { Translate } from 'utility/i18next';
+import { when } from 'utility/logs/format';
+import { code } from 'utility/text';
+import { caseCountLine } from 'utility/moderation/cases';
+import { fetchBanned, formatUntil } from 'utility/moderation/run';
+import { createResponse, quietMessageOf, type ResponsePayload } from 'utility/response';
+import { ThemeColors } from 'utility/theme';
+
+/** The flags Discord shows as badges on profiles, in the order it shows them. The others are for its own use, like Spammer. */
+const BADGES = [
+  'Staff',
+  'Partner',
+  'CertifiedModerator',
+  'Hypesquad',
+  'HypeSquadOnlineHouse1',
+  'HypeSquadOnlineHouse2',
+  'HypeSquadOnlineHouse3',
+  'BugHunterLevel1',
+  'BugHunterLevel2',
+  'ActiveDeveloper',
+  'VerifiedDeveloper',
+  'PremiumEarlySupporter',
+  'VerifiedBot',
+] as const satisfies UserFlagsString[];
+
+/** How much of the message the roles can take, as someone can have up to 250 of them, which would be too long for it. */
+const ROLES_TEXT_LENGTH = 1500;
+
+/** Roles as mentions, highest first, as many as fit, with how many more there are. */
+function roleList(member: GuildMember, t: Translate): { count: number; text: string } {
+  const roles = member.roles.cache.filter((role) => role.id !== member.guild.id).sort((a, b) => b.position - a.position);
+  const shown: string[] = [];
+  let length = 0;
+  for (const role of roles.values()) {
+    const mention = roleMention(role.id);
+    if (length + mention.length + 1 > ROLES_TEXT_LENGTH) break;
+    shown.push(mention);
+    length += mention.length + 1;
+  }
+  const more = roles.size - shown.length;
+  if (more > 0) shown.push(t('userinfo.roles.more', { count: more }));
+  return { count: roles.size, text: shown.join(' ') };
+}
+
+/**
+ * Someone's profile as this server knows it: who they are, since when, their roles and badges, and for moderators their cases.
+ * The back button goes under it, next to the picture links, like the moderation panel's way back.
+ */
+export async function buildUserInfo(guild: Guild, userId: string, viewer: GuildMember, t: Translate, back?: ButtonBuilder): Promise<ResponsePayload> {
+  // Fetched, as the cache has neither their banner nor their badges
+  const [user, member] = await Promise.all([guild.client.users.fetch(userId, { force: true }).catch(() => null), fetchMember(guild, userId)]);
+  if (!user) return createResponse(t('userinfo.notFound'), 'error');
+
+  const name = escapeMarkdown(member?.displayName ?? user.displayName);
+  const basics = [
+    t('userinfo.title', { name }),
+    t('userinfo.username', { username: code(user.username), bot: user.bot ? ` · ${t('userinfo.bot')}` : '' }),
+    t('userinfo.id', { id: code(user.id) }),
+    t('userinfo.created', { time: when(user.createdTimestamp) }),
+  ];
+  if (member?.joinedTimestamp) basics.push(t('userinfo.joined', { time: when(member.joinedTimestamp) }));
+  if (member?.premiumSinceTimestamp) basics.push(t('userinfo.boosting', { time: when(member.premiumSinceTimestamp) }));
+  if (member === null) basics.push(t('userinfo.notMember'));
+
+  const avatar = (member ?? user).displayAvatarURL({ size: 4096 });
+  const container = new ContainerBuilder()
+    .setAccentColor(ThemeColors.info)
+    .addSectionComponents(
+      new SectionBuilder()
+        .addTextDisplayComponents(new TextDisplayBuilder().setContent(basics.join('\n')))
+        .setThumbnailAccessory(new ThumbnailBuilder().setURL((member ?? user).displayAvatarURL({ extension: 'png', size: 256 }))),
+    );
+  const section = (lines: string[]) =>
+    container
+      .addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Small))
+      .addTextDisplayComponents(new TextDisplayBuilder().setContent(lines.join('\n')));
+
+  if (member) {
+    const roles = roleList(member, t);
+    const lines = [t('userinfo.roles.title', { count: roles.count }), roles.count > 0 ? `> ${roles.text}` : t('userinfo.roles.none')];
+    // Black is what Discord says when no role gives a color
+    if (member.displayColor) lines.push(t('userinfo.roles.color', { color: code(member.displayHexColor) }));
+    section(lines);
+  }
+
+  const badges = BADGES.filter((badge) => user.flags?.has(badge));
+  if (badges.length > 0) section([t('userinfo.badges.title'), `> ${badges.map((badge) => t(`userinfo.badges.${badge}`)).join(' · ')}`]);
+
+  if (viewer.permissions.has('ModerateMembers')) {
+    const [{ counts, total }, banned] = await Promise.all([
+      getUserCases(guild.id, userId, 'newest', 0, 0),
+      member === null ? fetchBanned(guild, userId) : Promise.resolve(false),
+    ]);
+    const lines = [t('userinfo.moderation.title'), `> ${caseCountLine(counts, total, t)}`];
+    if (member?.isCommunicationDisabled()) lines.push(`> ${t('moderation.panel.timedOut', { until: formatUntil(member.communicationDisabledUntil) })}`);
+    if (banned) lines.push(`> ${t('moderation.panel.banned')}`);
+    section(lines);
+  }
+
+  const buttons = [new ButtonBuilder().setStyle(ButtonStyle.Link).setURL(avatar).setLabel(t('userinfo.avatar')).setEmoji(buttonIcon('image'))];
+  const banner = user.bannerURL({ size: 4096 });
+  if (banner) buttons.push(new ButtonBuilder().setStyle(ButtonStyle.Link).setURL(banner).setLabel(t('userinfo.banner')).setEmoji(buttonIcon('image')));
+  container.addActionRowComponents(new ActionRowBuilder<ButtonBuilder>().addComponents(...(back ? [back] : []), ...buttons));
+
+  return quietMessageOf(container);
+}

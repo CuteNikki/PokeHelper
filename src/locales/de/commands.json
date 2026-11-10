@@ -51,6 +51,16 @@
     "name": "botinfo",
     "description": "Status, Host-Infos und Statistiken des Bots"
   },
+  "userinfo": {
+    "name": "nutzerinfo",
+    "description": "Sieh dir den Account von jemandem an, wann die Person beigetreten ist, ihre Rollen und Abzeichen",
+    "options": {
+      "user": {
+        "name": "person",
+        "description": "Wen du sehen willst. Standardmäßig du selbst"
+      }
+    }
+  },
   "counting-config": {
     "name": "zählen-einstellungen",
     "description": "Richte das Zählspiel ein und pass es an",

@@ -1533,6 +1533,31 @@
       "discordJs": "> **Discord.JS:** v{{version}}"
     }
   },
+  "userinfo": {
+    "username": "> **Nutzername:** {{username}}{{bot}}",
+    "created": "> **Account erstellt:** {{time}}",
+    "joined": "> **Beigetreten:** {{time}}",
+    "boosting": "> **Boostet seit:** {{time}}",
+    "notMember": "> Nicht auf diesem Server",
+    "notFound": "Ich konnte die Person auf Discord nicht finden.",
+    "roles": {
+      "title": "**{{icon.tag}} Rollen · {{count, number}}**",
+      "none": "> Keine Rollen",
+      "more": "und {{count, number}} weitere",
+      "color": "> **Farbe:** {{color}}"
+    },
+    "badges": {
+      "title": "**{{icon.sparkles}} Abzeichen**",
+      "Staff": "Discord-Team",
+      "Partner": "Besitzer eines Partnerservers",
+      "CertifiedModerator": "Ehemalige der Moderatorenprogramme",
+      "BugHunterLevel2": "Goldener Bug Hunter",
+      "ActiveDeveloper": "Aktiver Entwickler",
+      "VerifiedDeveloper": "Früher verifizierter Bot-Entwickler",
+      "PremiumEarlySupporter": "Früher Unterstützer",
+      "VerifiedBot": "Verifizierter Bot"
+    }
+  },
   "reminders": {
     "set": {
       "title": "### {{icon.alarm-clock}} Erinnerung gesetzt",
