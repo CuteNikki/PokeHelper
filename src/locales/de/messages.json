@@ -1568,8 +1568,8 @@
     "members": "> **Mitglieder:** {{members}}",
     "membersBots_one": "> **Mitglieder:** {{members}}, davon {{count, number}} Bot",
     "membersBots_other": "> **Mitglieder:** {{members}}, davon {{count, number}} Bots",
-    "boosts_one": "> **Boosts:** Level {{level}} · {{count, number}} Boost",
-    "boosts_other": "> **Boosts:** Level {{level}} · {{count, number}} Boosts",
+    "boostLevel": "> **Boost-Level:** {{level}}",
+    "boosts": "> **Boosts:** {{count}}",
     "verification": "> **Verifizierung:** {{level}}",
     "verificationLevels": {
       "none": "Keine",

@@ -120,7 +120,8 @@ export async function buildServerInfo(guild: Guild, t: Translate): Promise<Respo
     allCached
       ? t('serverinfo.membersBots', { members: number(guild.memberCount), count: bots })
       : t('serverinfo.members', { members: number(guild.memberCount) }),
-    t('serverinfo.boosts', { level: number(guild.premiumTier), count: guild.premiumSubscriptionCount ?? 0 }),
+    t('serverinfo.boostLevel', { level: number(guild.premiumTier) }),
+    t('serverinfo.boosts', { count: number(guild.premiumSubscriptionCount ?? 0) }),
     t('serverinfo.verification', { level: t(`serverinfo.verificationLevels.${VERIFICATION_LEVELS[guild.verificationLevel]}`) }),
   ];
 

@@ -754,8 +754,8 @@
     "members": "> **Members:** {{members}}",
     "membersBots_one": "> **Members:** {{members}}, {{count, number}} of them a bot",
     "membersBots_other": "> **Members:** {{members}}, {{count, number}} of them bots",
-    "boosts_one": "> **Boosts:** Level {{level}} · {{count, number}} boost",
-    "boosts_other": "> **Boosts:** Level {{level}} · {{count, number}} boosts",
+    "boostLevel": "> **Boost level:** {{level}}",
+    "boosts": "> **Boosts:** {{count}}",
     "verification": "> **Verification:** {{level}}",
     "verificationLevels": {
       "none": "None",
