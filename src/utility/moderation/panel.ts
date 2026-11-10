@@ -30,7 +30,7 @@ import { buttonIcon } from 'utility/emojis';
 import type { IconName } from 'utility/icons';
 import { getTranslate, type Translate } from 'utility/i18next';
 import { userRef } from 'utility/logs/format';
-import { renderCasesFor } from 'utility/moderation/cases';
+import { caseCountLine, renderCasesFor } from 'utility/moderation/cases';
 import {
   CASE_ICONS,
   fetchBanned,
@@ -84,12 +84,7 @@ export async function renderModerationPanel(guild: Guild, userId: string, modera
   else if (timedOut) status.push(t('moderation.panel.timedOut', { until: formatUntil(timedOut) }));
   else if (banned) status.push(t('moderation.panel.banned'));
   else if (!member) status.push(t('moderation.panel.notMember'));
-  status.push(
-    [
-      t('moderation.cases.count', { count: total }),
-      ...CASE_TYPES.filter((type) => counts[type] > 0).map((type) => t(`moderation.cases.counts.${type}`, { count: counts[type] })),
-    ].join(' · '),
-  );
+  status.push(caseCountLine(counts, total, t));
   // Warn has no rules of its own, so what's wrong with it is wrong with everything
   const problem = user && !unknown ? moderationProblem(guild, moderator, user, member ?? null, 'warn', t) : null;
   if (problem) status.push(problem);

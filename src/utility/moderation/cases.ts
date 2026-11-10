@@ -36,7 +36,7 @@ import {
 } from 'database/moderation';
 import { getReminderTimezone } from 'database/reminders';
 
-import type { ModCase } from 'generated/prisma/client';
+import type { ModCase, ModCaseType } from 'generated/prisma/client';
 import { fetchMember } from 'utility/discord';
 import { DiscordLimits } from 'utility/discordLimits';
 import { DURATION_INPUT_LENGTH, SECOND } from 'utility/duration';
@@ -159,6 +159,13 @@ function caseStatus(modCase: ModCase, t: Translate, now = new Date()): string | 
 const moderatorOf = (guild: Guild, modCase: ModCase, t: Translate) =>
   modCase.moderatorId ? userRef(guild, modCase.moderatorId) : t('moderation.cases.unknown');
 
+/** How many cases someone has, and how many of each type they have any of, like `3 cases · 2 warns · 1 ban`. */
+export const caseCountLine = (counts: Record<ModCaseType, number>, total: number, t: Translate) =>
+  [
+    t('moderation.cases.count', { count: total }),
+    ...CASE_TYPES.filter((type) => counts[type] > 0).map((type) => t(`moderation.cases.counts.${type}`, { count: counts[type] })),
+  ].join(' · ');
+
 /** A page of someone's cases, with how many of each type they have above them. */
 export async function renderCaseList(guild: Guild, requested: CasesState, t: Translate): Promise<ResponsePayload> {
   const first = await getUserCases(guild.id, requested.userId, requested.sort, requested.page * CASES_PAGE_SIZE, CASES_PAGE_SIZE);
@@ -168,10 +175,7 @@ export async function renderCaseList(guild: Guild, requested: CasesState, t: Tra
     page === requested.page ? first : await getUserCases(guild.id, requested.userId, requested.sort, page * CASES_PAGE_SIZE, CASES_PAGE_SIZE);
   const state: CasesState = { ...requested, page };
 
-  const count = [
-    t('moderation.cases.count', { count: total }),
-    ...CASE_TYPES.filter((type) => counts[type] > 0).map((type) => t(`moderation.cases.counts.${type}`, { count: counts[type] })),
-  ].join(' · ');
+  const count = caseCountLine(counts, total, t);
   const title = t('moderation.cases.title', { user: userRef(guild, requested.userId) });
   const container = new ContainerBuilder()
     .setAccentColor(ThemeColors.info)
