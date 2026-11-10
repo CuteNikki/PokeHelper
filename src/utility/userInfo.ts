@@ -67,7 +67,7 @@ function roleList(member: GuildMember, t: Translate): { count: number; text: str
 /**
  * Someone's profile: who they are and their badges, and in a server, since when they're on it, their roles, and for moderators their cases.
  * Without a server, like in DMs, only what Discord knows of their account.
- * The back button goes under it, next to the picture links, like the moderation panel's way back.
+ * The back button goes on a row of its own at the bottom, under the picture links.
  */
 export async function buildUserInfo(
   client: Client,
@@ -134,7 +134,7 @@ export async function buildUserInfo(
     if (lines.length > 0) section([t('userinfo.moderation.title'), ...lines]);
   }
 
-  // Their own pictures, and the ones they set for this server next to them, each only if they have it. At most 4, so a back button still fits
+  // Their own pictures, and the ones they set for this server next to them, each only if they have it
   const pictures = [
     ['avatar', user.displayAvatarURL({ size: 4096 })],
     ['serverAvatar', member?.avatarURL({ size: 4096 }) ?? null],
@@ -150,7 +150,8 @@ export async function buildUserInfo(
         .setLabel(t(`userinfo.${key}`))
         .setEmoji(buttonIcon('image')),
     );
-  container.addActionRowComponents(new ActionRowBuilder<ButtonBuilder>().addComponents(...(back ? [back] : []), ...buttons));
+  container.addActionRowComponents(new ActionRowBuilder<ButtonBuilder>().addComponents(...buttons));
+  if (back) container.addActionRowComponents(new ActionRowBuilder<ButtonBuilder>().addComponents(back));
 
   return quietMessageOf(container);
 }
