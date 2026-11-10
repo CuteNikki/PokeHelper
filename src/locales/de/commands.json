@@ -230,6 +230,9 @@
   "Rank": {
     "name": "Rang"
   },
+  "User info": {
+    "name": "Nutzerinfo"
+  },
   "help": {
     "name": "hilfe",
     "description": "Alle Befehle, die du hier benutzen kannst"

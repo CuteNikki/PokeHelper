@@ -138,7 +138,7 @@ _A Pokémon themed Discord bot_
 - Every feature can be turned off in its settings, without losing them
 - An animated mascot as avatar and banner, and a custom status to match, which change with the seasons and holidays, like a witch hat and "Happy Halloween! 🎃" in October
 - `/help` lists the commands by category, and only the ones of features that are turned on
-- `/userinfo` shows someone's account, when they joined, their roles and badges, and for moderators how many cases they have, also from the Moderation menu on their name
+- `/userinfo` shows someone's account, when they joined, their roles and badges, and for moderators how many cases they have, also from the User info and Moderation menus on their name, and the User info menu also works in DMs
 - `/serverinfo` shows the server's owner, members, boosts, how many channels, roles, emojis and stickers it has of how many it can, and which features of the bot it uses
 - English and German, following each member's Discord language
 - `/privacy` to download or delete your own data, and server managers their server's
@@ -195,7 +195,7 @@ Days change at midnight UTC, and the bot puts the new look on within 15 minutes.
 | `/help`             | All commands, by category                                         |
 | `/privacy`          | Download or delete your data, or the server's                     |
 | `/botinfo`          | Bot status, host stats and versions                               |
-| `/userinfo`         | Someone's account, join date, roles and badges                    |
+| `/userinfo`         | Someone's info, also in the menu of their name                    |
 | `/serverinfo`       | The server's members, boosts, counts and which features it uses   |
 | `/counting-config`  | Set up the counting game and change its settings                  |
 | `/leveling-config`  | Change leveling settings, rewards and multipliers                 |
