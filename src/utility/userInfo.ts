@@ -4,6 +4,7 @@ import {
   ButtonStyle,
   ContainerBuilder,
   escapeMarkdown,
+  type Client,
   type Guild,
   type GuildMember,
   roleMention,
@@ -64,12 +65,22 @@ function roleList(member: GuildMember, t: Translate): { count: number; text: str
 }
 
 /**
- * Someone's profile as this server knows it: who they are, since when, their roles and badges, and for moderators their cases.
+ * Someone's profile: who they are and their badges, and in a server, since when they're on it, their roles, and for moderators their cases.
+ * Without a server, like in DMs, only what Discord knows of their account.
  * The back button goes under it, next to the picture links, like the moderation panel's way back.
  */
-export async function buildUserInfo(guild: Guild, userId: string, viewer: GuildMember, t: Translate, back?: ButtonBuilder): Promise<ResponsePayload> {
+export async function buildUserInfo(
+  client: Client,
+  userId: string,
+  server: { guild: Guild; viewer: GuildMember } | null,
+  t: Translate,
+  back?: ButtonBuilder,
+): Promise<ResponsePayload> {
   // Fetched, as the cache has neither their banner nor their badges
-  const [user, member] = await Promise.all([guild.client.users.fetch(userId, { force: true }).catch(() => null), fetchMember(guild, userId)]);
+  const [user, member] = await Promise.all([
+    client.users.fetch(userId, { force: true }).catch(() => null),
+    server ? fetchMember(server.guild, userId) : Promise.resolve(undefined),
+  ]);
   if (!user) return createResponse(t('userinfo.notFound'), 'error');
 
   const name = escapeMarkdown(member?.displayName ?? user.displayName);
@@ -81,7 +92,7 @@ export async function buildUserInfo(guild: Guild, userId: string, viewer: GuildM
   ];
   if (member?.joinedTimestamp) basics.push(t('userinfo.joined', { time: when(member.joinedTimestamp) }));
   if (member?.premiumSinceTimestamp) basics.push(t('userinfo.boosting', { time: when(member.premiumSinceTimestamp) }));
-  if (member === null) basics.push(t('userinfo.notMember'));
+  if (server && member === null) basics.push(t('userinfo.notMember'));
 
   const avatar = (member ?? user).displayAvatarURL({ size: 4096 });
   const container = new ContainerBuilder()
@@ -107,7 +118,8 @@ export async function buildUserInfo(guild: Guild, userId: string, viewer: GuildM
   const badges = BADGES.filter((badge) => user.flags?.has(badge));
   if (badges.length > 0) section([t('userinfo.badges.title'), `> ${badges.map((badge) => t(`userinfo.badges.${badge}`)).join(' · ')}`]);
 
-  if (viewer.permissions.has('ModerateMembers')) {
+  if (server?.viewer.permissions.has('ModerateMembers')) {
+    const { guild } = server;
     const [{ counts, total }, banned] = await Promise.all([
       getUserCases(guild.id, userId, 'newest', 0, 0),
       member === null ? fetchBanned(guild, userId) : Promise.resolve(false),

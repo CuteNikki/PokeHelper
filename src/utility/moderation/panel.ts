@@ -212,7 +212,7 @@ export async function handleModerationPanelButton(interaction: ButtonInteraction
       .setLabel(t('moderation.panel.actions.back'))
       .setEmoji(buttonIcon('chevron-left' satisfies IconName))
       .setStyle(ButtonStyle.Secondary);
-    return interaction.editReply(await buildUserInfo(interaction.guild, parsed.userId, interaction.member, t, back));
+    return interaction.editReply(await buildUserInfo(interaction.client, parsed.userId, { guild: interaction.guild, viewer: interaction.member }, t, back));
   }
   // Checked when pressed, as who sees a panel can change meanwhile
   const problem = permissionProblem(interaction.member, MODERATOR_PERMISSIONS[parsed.action], t);

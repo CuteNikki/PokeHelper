@@ -20,6 +20,6 @@ export default new Command({
     // Answered first, as asking Discord for them can take a moment
     await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
     const user = interaction.options.getUser('user') ?? interaction.user;
-    return interaction.editReply(await buildUserInfo(interaction.guild, user.id, interaction.member, t));
+    return interaction.editReply(await buildUserInfo(interaction.client, user.id, { guild: interaction.guild, viewer: interaction.member }, t));
   },
 });
