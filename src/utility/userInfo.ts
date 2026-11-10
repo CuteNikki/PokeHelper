@@ -131,7 +131,8 @@ export async function buildUserInfo(
   }
 
   const buttons = [new ButtonBuilder().setStyle(ButtonStyle.Link).setURL(avatar).setLabel(t('userinfo.avatar')).setEmoji(buttonIcon('image'))];
-  const banner = user.bannerURL({ size: 4096 });
+  // Their server banner if they have one, like the avatar. Not displayBannerURL, as the member's user is the cached one, without a banner
+  const banner = member?.bannerURL({ size: 4096 }) ?? user.bannerURL({ size: 4096 });
   if (banner) buttons.push(new ButtonBuilder().setStyle(ButtonStyle.Link).setURL(banner).setLabel(t('userinfo.banner')).setEmoji(buttonIcon('image')));
   container.addActionRowComponents(new ActionRowBuilder<ButtonBuilder>().addComponents(...(back ? [back] : []), ...buttons));
 
