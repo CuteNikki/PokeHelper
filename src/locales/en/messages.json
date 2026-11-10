@@ -743,6 +743,48 @@
     "avatar": "Avatar",
     "banner": "Banner"
   },
+  "serverinfo": {
+    "title": "### {{icon.server}} {{name}}",
+    "id": "> **ID:** {{id}}",
+    "owner": "> **Owner:** {{owner}}",
+    "created": "> **Created:** {{time}}",
+    "members": "> **Members:** {{members}}",
+    "membersBots_one": "> **Members:** {{members}}, {{count, number}} of them a bot",
+    "membersBots_other": "> **Members:** {{members}}, {{count, number}} of them bots",
+    "boosts_one": "> **Boosts:** Level {{level}} · {{count, number}} boost",
+    "boosts_other": "> **Boosts:** Level {{level}} · {{count, number}} boosts",
+    "verification": "> **Verification:** {{level}}",
+    "verificationLevels": {
+      "none": "None",
+      "low": "Low, a verified email",
+      "medium": "Medium, on Discord for 5 minutes",
+      "high": "High, on the server for 10 minutes",
+      "veryHigh": "Highest, a verified phone number"
+    },
+    "counts": {
+      "title": "**{{icon.chart-column}} Counts**",
+      "channels": "> **Channels:** {{count}}/{{max}} · {{text}} text, {{voice}} voice, {{forums}} forums, {{categories}} categories",
+      "roles": "> **Roles:** {{count}}/{{max}}",
+      "emojis": "> **Emojis:** {{still}}/{{max}} · {{animated}}/{{max}} animated",
+      "stickers": "> **Stickers:** {{count}}/{{max}}"
+    },
+    "features": {
+      "title": "**{{icon.settings}} {{bot}} here**",
+      "roleMenus_one": "{{count, number}} menu",
+      "roleMenus_other": "{{count, number}} menus",
+      "joinChannels_one": "{{count, number}} join channel",
+      "joinChannels_other": "{{count, number}} join channels",
+      "stickies_one": "{{count, number}} message",
+      "stickies_other": "{{count, number}} messages",
+      "giveaways_one": "{{count, number}} running",
+      "giveaways_other": "{{count, number}} running"
+    },
+    "images": {
+      "icon": "Icon",
+      "banner": "Banner",
+      "splash": "Invite background"
+    }
+  },
   "help": {
     "title": "## {{icon.book-open}} Commands",
     "intro": "Pick a category below to see its commands.",

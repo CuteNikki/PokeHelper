@@ -34,7 +34,7 @@ Poke Helper brings the games and tools a community server needs, in a look that 
 
 • **Reminders:** in a few minutes or at a date and time, once or repeating, by DM or in the channel
 
-• **User info:** someone's account, when they joined, their roles and badges, and for moderators their cases
+• **User and server info:** someone's account, when they joined, their roles and badges, and for moderators their cases, and the server's members, boosts, channels, roles, emojis and features
 
 **✨ Easy to use**
 

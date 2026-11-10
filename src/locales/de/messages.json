@@ -1558,6 +1558,46 @@
       "VerifiedBot": "Verifizierter Bot"
     }
   },
+  "serverinfo": {
+    "owner": "> **Besitzer:** {{owner}}",
+    "created": "> **Erstellt:** {{time}}",
+    "members": "> **Mitglieder:** {{members}}",
+    "membersBots_one": "> **Mitglieder:** {{members}}, davon {{count, number}} Bot",
+    "membersBots_other": "> **Mitglieder:** {{members}}, davon {{count, number}} Bots",
+    "boosts_one": "> **Boosts:** Level {{level}} · {{count, number}} Boost",
+    "boosts_other": "> **Boosts:** Level {{level}} · {{count, number}} Boosts",
+    "verification": "> **Verifizierung:** {{level}}",
+    "verificationLevels": {
+      "none": "Keine",
+      "low": "Niedrig, eine bestätigte E-Mail",
+      "medium": "Mittel, seit 5 Minuten auf Discord",
+      "high": "Hoch, seit 10 Minuten auf dem Server",
+      "veryHigh": "Höchste, eine bestätigte Telefonnummer"
+    },
+    "counts": {
+      "title": "**{{icon.chart-column}} Zahlen**",
+      "channels": "> **Kanäle:** {{count}}/{{max}} · {{text}} Text, {{voice}} Sprache, {{forums}} Foren, {{categories}} Kategorien",
+      "roles": "> **Rollen:** {{count}}/{{max}}",
+      "emojis": "> **Emojis:** {{still}}/{{max}} · {{animated}}/{{max}} animiert",
+      "stickers": "> **Sticker:** {{count}}/{{max}}"
+    },
+    "features": {
+      "title": "**{{icon.settings}} {{bot}} hier**",
+      "roleMenus_one": "{{count, number}} Menü",
+      "roleMenus_other": "{{count, number}} Menüs",
+      "joinChannels_one": "{{count, number}} Beitrittskanal",
+      "joinChannels_other": "{{count, number}} Beitrittskanäle",
+      "stickies_one": "{{count, number}} Nachricht",
+      "stickies_other": "{{count, number}} Nachrichten",
+      "giveaways_one": "{{count, number}} läuft",
+      "giveaways_other": "{{count, number}} laufen"
+    },
+    "images": {
+      "icon": "Icon",
+      "banner": "Banner",
+      "splash": "Einladungshintergrund"
+    }
+  },
   "reminders": {
     "set": {
       "title": "### {{icon.alarm-clock}} Erinnerung gesetzt",

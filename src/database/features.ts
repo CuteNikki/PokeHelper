@@ -22,3 +22,39 @@ export async function getFeatureSwitches(guildId: string): Promise<FeatureSwitch
 /** Turn a feature on or off for a server, adding the server to the database first if it isn't in it yet. */
 export const setFeatureSwitch = async (guildId: string, key: keyof FeatureSwitches, enabled: boolean) =>
   prisma.guild.upsert({ where: { guildId }, update: { [key]: enabled }, create: { guildId, [key]: enabled } });
+
+/** What of the bot a server has set up and turned on, with how many of the things it can have several of, like role menus. Null if it has nothing yet. */
+export const getFeatureOverview = (guildId: string) =>
+  prisma.guild.findUnique({
+    where: { guildId },
+    select: {
+      roleMenusEnabled: true,
+      tempVoiceEnabled: true,
+      stickiesEnabled: true,
+      giveawaysEnabled: true,
+      leveling: { select: { enabled: true } },
+      counting: { select: { enabled: true } },
+      birthday: { select: { enabled: true, channelId: true } },
+      starboard: { select: { enabled: true, channelId: true } },
+      logs: {
+        select: {
+          enabled: true,
+          defaultChannelId: true,
+          messagesChannelId: true,
+          membersChannelId: true,
+          moderationChannelId: true,
+          serverChannelId: true,
+          voiceChannelId: true,
+          giveawaysChannelId: true,
+        },
+      },
+      _count: {
+        select: {
+          reactionRoleMenus: { where: { enabled: true } },
+          tempVoiceCreators: { where: { enabled: true } },
+          stickyMessages: true,
+          giveaways: { where: { status: 'active' } },
+        },
+      },
+    },
+  });

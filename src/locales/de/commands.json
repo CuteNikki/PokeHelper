@@ -51,6 +51,10 @@
     "name": "botinfo",
     "description": "Status, Host-Infos und Statistiken des Bots"
   },
+  "serverinfo": {
+    "name": "serverinfo",
+    "description": "Besitzer, Mitglieder, Boosts, Kanäle, Rollen und Emojis des Servers, und welche Funktionen er nutzt"
+  },
   "userinfo": {
     "name": "nutzerinfo",
     "description": "Sieh dir den Account von jemandem an, wann die Person beigetreten ist, ihre Rollen und Abzeichen",
