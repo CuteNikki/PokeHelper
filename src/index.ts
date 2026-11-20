@@ -14,6 +14,7 @@ import { loadSelectMenus } from 'loading/selects';
 import { initI18Next } from 'utility/i18next';
 import { exitAfterLogging, logger, table } from 'utility/logger';
 import { measure } from 'utility/measure';
+import { serveStatus } from 'utility/status';
 import { isRenameLimit } from 'utility/tempVoice/channel';
 
 const client = new ExtendedClient({
@@ -64,3 +65,5 @@ await Promise.all([
 ]);
 
 await client.login(process.env.DISCORD_TOKEN);
+
+serveStatus(client);

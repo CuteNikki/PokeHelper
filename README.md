@@ -276,6 +276,7 @@ Copy `.env.example` to `.env` and fill it in:
 | `DEV_GUILD_ID`   | Server where `/dev` is registered, only visible there                                                                    |
 | `DATABASE_URL`   | Like `postgresql://myuser:mypass@localhost:5432/mydb` for a local server                                                 |
 | `PROFILE_THEMES` | `on` to change the avatar, banner and custom status with the seasons and holidays by itself. Only on one copy of the bot |
+| `STATUS_PORT`    | Where `GET /status` answers with its servers and members, for a dashboard such as dash. `8080` if left out               |
 
 ### 5. Create the tables
 
